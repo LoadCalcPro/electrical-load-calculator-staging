@@ -33,6 +33,17 @@
     <div class="actions"><button id="signOut">Sign Out</button></div>
   </section>
 </main>
+<script>
+(function routeAuthCallback(){
+  const query=new URLSearchParams(location.search);
+  const hash=new URLSearchParams(location.hash.slice(1));
+  const type=query.get("type")||hash.get("type");
+  const hasSecureCallback=query.has("token_hash")||query.has("code")||hash.has("access_token")||hash.has("error_code");
+  if(hasSecureCallback&&(type==="invite"||type==="recovery"||query.has("token_hash")||query.has("code"))){
+    location.replace("staging-create-password.html"+location.search+location.hash);
+  }
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
