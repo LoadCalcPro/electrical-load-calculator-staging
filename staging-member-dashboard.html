@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Staging Member Dashboard | LoadCalcPro</title>
+  <title>Staging Member Dashboard | LoadCalcPro X</title>
+  <meta name="description" content="LoadCalcPro X is a professional electrical calculation suite providing accurate electrical calculation tools for contractors, designers, inspectors, and engineers.">
   <style>
     :root{--navy:#10233f;--green:#1f8a5b;--gold:#d2a84b;--page:#eef3f7;--card:#fff;--text:#182433;--muted:#667487;--border:#d9e1e8;--danger:#b42318}
-    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:var(--text);background:var(--page)}header{background:var(--navy);color:#fff;border-bottom:4px solid var(--gold)}.inner{width:min(1000px,calc(100% - 32px));margin:auto}.head{min-height:86px;display:flex;align-items:center;justify-content:space-between}.badge{background:#fff3cd;color:#6d5200;padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px}main{padding:44px 0}.panel,.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;box-shadow:0 12px 30px rgba(16,35,63,.09)}.panel{max-width:540px;margin:auto}h1,h2{color:var(--navy)}label{display:block;font-weight:700;margin:16px 0 8px}input{width:100%;padding:13px;border:1px solid #bcc8d3;border-radius:8px;font:inherit}button,.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:8px;padding:13px 18px;font-weight:700;text-decoration:none;cursor:pointer}.primary{width:100%;margin-top:20px;background:var(--green);color:#fff}.link{display:block;text-align:center;margin-top:16px;color:#176b47;font-weight:700}.message{margin-top:16px;padding:12px;border-radius:8px;display:none}.message.error{display:block;background:#fff1f0;color:var(--danger)}.portal{display:none}.portal.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card.locked{opacity:.7}.button.open{background:var(--navy);color:#fff}.button.locked{background:#dfe4e9;color:#263442}.actions{margin-top:24px;text-align:center}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:var(--text);background:var(--page)}header{background:var(--navy);color:#fff;border-bottom:4px solid var(--gold)}.inner{width:min(1000px,calc(100% - 32px));margin:auto}.head{min-height:86px;display:flex;align-items:center;justify-content:space-between}.badge{background:#fff3cd;color:#6d5200;padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px}main{padding:44px 0}.panel,.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;box-shadow:0 12px 30px rgba(16,35,63,.09)}.panel{max-width:540px;margin:auto}h1,h2{color:var(--navy)}label{display:block;font-weight:700;margin:16px 0 8px}input{width:100%;padding:13px;border:1px solid #bcc8d3;border-radius:8px;font:inherit}button,.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:8px;padding:13px 18px;font-weight:700;text-decoration:none;cursor:pointer}.primary{width:100%;margin-top:20px;background:var(--green);color:#fff}.link{display:block;text-align:center;margin-top:16px;color:#176b47;font-weight:700}.message{margin-top:16px;padding:12px;border-radius:8px;display:none}.message.error{display:block;background:#fff1f0;color:var(--danger)}.portal{display:none}.portal.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card.locked{opacity:.7}.button.open{background:var(--navy);color:#fff}.button.locked{background:#dfe4e9;color:#263442}.actions{margin-top:24px;text-align:center}.site-footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}@media(max-width:700px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-<header><div class="inner head"><div><strong style="font-size:24px">LoadCalcPro</strong><div style="font-size:13px;opacity:.8">Professional Electrical Calculation Tools</div></div><span class="badge">STAGING — TEST ONLY</span></div></header>
+<header><div class="inner head"><div><strong style="font-size:24px">LoadCalcPro X</strong><div style="font-size:13px;opacity:.8">Professional Electrical Calculation Suite</div></div><span class="badge">STAGING — TEST ONLY</span></div></header>
 <main class="inner">
   <section id="loginPanel" class="panel">
     <h1>Staging Member Login</h1>
@@ -25,7 +26,7 @@
     </form>
   </section>
   <section id="portal" class="portal">
-    <h1>Staging Member Dashboard</h1><p>Signed in as <strong id="memberEmail"></strong></p>
+    <h1>Staging Member Dashboard</h1><p>Welcome to LoadCalcPro X. Signed in as <strong id="memberEmail"></strong></p>
     <div class="grid">
       <article class="card locked" data-product="generator"><h2>Optional Method Generator Calculator</h2><p data-status>Checking staging access…</p><a class="button locked" data-link href="#">Checking…</a></article>
       <article class="card locked" data-product="aic"><h2>AIC Available Fault Current Calculator</h2><p data-status>Checking staging access…</p><a class="button locked" data-link href="#">Checking…</a></article>
@@ -33,6 +34,7 @@
     <div class="actions"><button id="signOut">Sign Out</button></div>
   </section>
 </main>
+<footer class="site-footer">© LoadCalcPro X. All rights reserved.<br>Version 1.0.0</footer>
 <script>
 (function routeAuthCallback(){
   const query=new URLSearchParams(location.search);
