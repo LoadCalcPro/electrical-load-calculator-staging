@@ -36,62 +36,22 @@ jobs:
       body { background:#eef2f6; }
       .page { width:100%; margin:0; padding:12px; }
       main { padding:0; }
-      .form-titlebar {
-        grid-template-columns:1fr;
-        gap:10px;
-        padding:4px 2px 0;
-      }
-      .title-actions {
-        width:100%;
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:8px;
-      }
-      .title-actions .form-brand {
-        grid-column:1 / -1;
-        grid-row:1;
-        text-align:left;
-        font-size:14px;
-      }
-      .title-actions button {
-        width:100%;
-        min-height:46px;
-        margin:0!important;
-        font-size:15px;
-      }
+      .form-titlebar { grid-template-columns:1fr; gap:10px; padding:4px 2px 0; }
+      .title-actions { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      .title-actions .form-brand { grid-column:1 / -1; grid-row:1; text-align:left; font-size:14px; }
+      .title-actions button { width:100%; min-height:46px; margin:0!important; font-size:15px; }
       .card { padding:15px; border-radius:12px; }
-      .calc-heading-row {
-        display:grid;
-        grid-template-columns:1fr;
-        gap:9px;
-        margin-bottom:14px;
-      }
-      .calc-heading-input {
-        width:100%;
-        max-width:none;
-        min-height:46px;
-        font-size:16px;
-      }
-      .form-grid {
-        grid-template-columns:1fr;
-        gap:6px;
-      }
+      .calc-heading-row { display:grid; grid-template-columns:1fr; gap:9px; margin-bottom:14px; }
+      .calc-heading-input { width:100%; max-width:none; min-height:46px; font-size:16px; }
+      .form-grid { grid-template-columns:1fr; gap:6px; }
       .form-grid label { margin-top:8px; font-size:15px; }
-      input, select {
-        min-height:48px;
-        font-size:16px;
-        padding:11px 12px;
-      }
+      input, select { min-height:48px; font-size:16px; padding:11px 12px; }
       .result { grid-template-columns:1fr 1fr; gap:9px; }
       .metric { padding:13px; }
       .metric .value { font-size:23px; }
       .formula { font-size:14px; overflow-wrap:anywhere; }
       .button-row, .panel-controls { display:grid; grid-template-columns:1fr; }
-      .button-row button, .panel-controls button {
-        width:100%;
-        min-height:46px;
-        font-size:15px;
-      }
+      .button-row button, .panel-controls button { width:100%; min-height:46px; font-size:15px; }
     }
 
     @media (max-width: 390px) {
@@ -106,67 +66,20 @@ jobs:
       html, body { width:100%; background:#fff!important; }
       body { zoom:1; }
       .page { width:100%; max-width:none; margin:0; padding:0; }
-      .print-report-header {
-        display:grid!important;
-        grid-template-columns:1fr auto;
-        align-items:end;
-        gap:18px;
-        padding:0 0 8px;
-        margin:0 0 10px;
-        border-bottom:2px solid #1e3a8a;
-      }
+      .print-report-header { display:grid!important; grid-template-columns:1fr auto; align-items:end; gap:18px; padding:0 0 8px; margin:0 0 10px; border-bottom:2px solid #1e3a8a; }
       .print-report-brand { color:#1e3a8a; font-size:19px; font-weight:800; }
       .print-report-title { margin-top:2px; color:#111827; font-size:13px; font-weight:700; }
       .print-report-date { color:#475569; font-size:9px; white-space:nowrap; }
       .form-titlebar { display:none!important; }
       .grid { display:block; }
-      .card {
-        border:1px solid #aebdca;
-        border-radius:5px;
-        padding:9px 11px;
-        margin:0 0 8px;
-        box-shadow:none;
-        break-inside:avoid;
-        page-break-inside:avoid;
-      }
+      .card { border:1px solid #aebdca; border-radius:5px; padding:9px 11px; margin:0 0 8px; box-shadow:none; break-inside:avoid; page-break-inside:avoid; }
       .panel-number { font-size:9px; margin-bottom:3px; color:#475569; }
-      .calc-heading-row {
-        display:grid;
-        grid-template-columns:auto minmax(190px, 1fr);
-        align-items:center;
-        gap:10px;
-        margin:0 0 6px;
-      }
+      .calc-heading-row { display:grid; grid-template-columns:auto minmax(190px, 1fr); align-items:center; gap:10px; margin:0 0 6px; }
       h2 { font-size:13px; }
-      .calc-heading-input,
-      input,
-      select {
-        display:block!important;
-        width:100%!important;
-        min-height:22px;
-        padding:3px 6px!important;
-        margin:0!important;
-        border:1px solid #6f8294!important;
-        border-radius:2px!important;
-        background:#fff!important;
-        color:#111827!important;
-        font-size:9.5px!important;
-        line-height:1.25!important;
-        opacity:1!important;
-        -webkit-print-color-adjust:exact;
-        print-color-adjust:exact;
-      }
-      select {
-        appearance:auto!important;
-        -webkit-appearance:menulist!important;
-      }
+      .calc-heading-input, input, select { display:block!important; width:100%!important; min-height:22px; padding:3px 6px!important; margin:0!important; border:1px solid #6f8294!important; border-radius:2px!important; background:#fff!important; color:#111827!important; font-size:9.5px!important; line-height:1.25!important; opacity:1!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      select { appearance:auto!important; -webkit-appearance:menulist!important; }
       input::placeholder { color:transparent!important; }
-      .form-grid {
-        display:grid!important;
-        grid-template-columns:1.35fr 1fr 1.35fr 1fr;
-        gap:4px 8px;
-        align-items:center;
-      }
+      .form-grid { display:grid!important; grid-template-columns:1.35fr 1fr 1.35fr 1fr; gap:4px 8px; align-items:center; }
       .form-grid label { font-size:9px; line-height:1.15; }
       .result { grid-template-columns:1fr 1fr; gap:7px; margin-top:7px; }
       .metric { padding:5px 7px; border-radius:3px; }
@@ -175,8 +88,7 @@ jobs:
       .formula { padding:5px 7px; margin-top:6px; font-size:9px; line-height:1.25; border-radius:3px; }
       .formula-title { font-size:10px; margin-bottom:2px; }
       .formula-line { grid-template-columns:34px 14px auto; }
-      .no-print, button, .button-row, .panel-controls, .note,
-      #accessGate, .restore-modal, .logout-button { display:none!important; }
+      .no-print, button, .button-row, .panel-controls, .note, #accessGate, .restore-modal, .logout-button { display:none!important; }
     }
 '''
 
@@ -226,3 +138,5 @@ jobs:
           git add aic_calculator.html
           git commit -m "Improve staging AIC mobile and print layout"
           git push
+
+# Triggered after workflow was added to the default branch.
