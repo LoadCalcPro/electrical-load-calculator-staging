@@ -1,0 +1,91 @@
+name: One-time use dashboard session in calculators
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-use-dashboard-session.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-calculators:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update staging calculator access handoff
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          SUPABASE_SCRIPT = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n'
+          SUPABASE_URL = 'https://jvnkncpljuaeycwjyeai.supabase.co'
+          SUPABASE_KEY = 'sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF'
+          API_BASE = 'https://loadcalcpro-hcml-api-staging.onrender.com'
+
+          def add_supabase_script(text):
+              if '@supabase/supabase-js@2' not in text:
+                  text = text.replace('</head>', SUPABASE_SCRIPT + '</head>', 1)
+              return text
+
+          # ---------------- AIC ----------------
+          path = Path('aic_calculator.html')
+          text = add_supabase_script(path.read_text(encoding='utf-8'))
+
+          marker = "const REMEMBERED_EMAIL_KEY = 'loadCalcProRememberedMemberEmail';"
+          insert = marker + f'''\nconst DASHBOARD_URL = 'staging-member-dashboard.html';\nconst SUPABASE_URL = '{SUPABASE_URL}';\nconst SUPABASE_PUBLISHABLE_KEY = '{SUPABASE_KEY}';\nconst API_BASE_URL = '{API_BASE}';\nconst supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {{auth:{{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}}});\n\nasync function verifyDashboardSessionAccess(token) {{\n  const response = await fetch(API_BASE_URL + '/api/v2/access', {{\n    method: 'POST',\n    headers: {{'Content-Type':'application/json', Authorization:'Bearer ' + token}},\n    body: JSON.stringify({{calculator:'aic'}})\n  }});\n  let data = {{}};\n  try {{ data = await response.json(); }} catch {{}}\n  return {{ok:response.ok && data.active === true, data}};\n}}'''
+          if 'verifyDashboardSessionAccess' not in text:
+              if marker not in text:
+                  raise SystemExit('AIC constants marker not found')
+              text = text.replace(marker, insert, 1)
+
+          old_logout = "document.getElementById('logoutBtn').addEventListener('click', () => {\n  sessionStorage.removeItem(ACCESS_SESSION_KEY);"
+          new_logout = "document.getElementById('logoutBtn').addEventListener('click', async () => {\n  sessionStorage.removeItem(ACCESS_SESSION_KEY);\n  try { await supabaseClient.auth.signOut(); } catch {}"
+          if old_logout in text:
+              text = text.replace(old_logout, new_logout, 1)
+
+          old_init = "if (sessionStorage.getItem(ACCESS_SESSION_KEY) === 'true') {\n  showCalculator();\n}"
+          new_init = '''(async function initializeAccess() {\n  try {\n    const {data} = await supabaseClient.auth.getSession();\n    const session = data && data.session;\n    if (session && session.access_token) {\n      const result = await verifyDashboardSessionAccess(session.access_token);\n      if (result.ok) {\n        sessionStorage.setItem(ACCESS_SESSION_KEY, 'true');\n        showCalculator();\n        return;\n      }\n      sessionStorage.removeItem(ACCESS_SESSION_KEY);\n      showAccessGate((result.data && result.data.message) || 'This membership does not include the AIC calculator.');\n      return;\n    }\n  } catch (error) {\n    sessionStorage.removeItem(ACCESS_SESSION_KEY);\n  }\n\n  // No dashboard login is available. Keep the calculator's existing access screen.\n  showAccessGate();\n})();'''
+          if old_init in text:
+              text = text.replace(old_init, new_init, 1)
+          elif 'initializeAccess()' not in text:
+              raise SystemExit('AIC initialization block not found')
+
+          path.write_text(text, encoding='utf-8')
+
+          # ---------------- GENERATOR ----------------
+          path = Path('generator.html')
+          text = add_supabase_script(path.read_text(encoding='utf-8'))
+
+          marker = 'const LOADCALCPRO_REMEMBERED_EMAIL_KEY = "loadcalcpro_remembered_member_email";'
+          insert = marker + f'''\nconst LOADCALCPRO_SUPABASE_URL = "{SUPABASE_URL}";\nconst LOADCALCPRO_SUPABASE_KEY = "{SUPABASE_KEY}";\nconst LOADCALCPRO_V2_ACCESS_ENDPOINT = "{API_BASE}/api/v2/access";\nconst loadCalcProSupabase = window.supabase.createClient(LOADCALCPRO_SUPABASE_URL, LOADCALCPRO_SUPABASE_KEY, {{auth:{{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}}});\n\nasync function verifyDashboardGeneratorAccess(token){{\n  const response = await fetch(LOADCALCPRO_V2_ACCESS_ENDPOINT, {{\n    method:"POST",\n    headers:{{"Content-Type":"application/json", Authorization:"Bearer " + token}},\n    body:JSON.stringify({{calculator:"generator"}})\n  }});\n  let data={{}};\n  try{{ data=await response.json(); }}catch(e){{}}\n  return {{ok:response.ok && data.active===true, data:data}};\n}}'''
+          if 'verifyDashboardGeneratorAccess' not in text:
+              if marker not in text:
+                  raise SystemExit('Generator constants marker not found')
+              text = text.replace(marker, insert, 1)
+
+          start = text.find('(async function initializeMemberAccess(){')
+          end_marker = '})();\n</script>'
+          end = text.find(end_marker, start)
+          if start == -1 or end == -1:
+              if 'verifyDashboardGeneratorAccess' not in text or 'No dashboard session exists' not in text:
+                  raise SystemExit('Generator initialization block not found')
+          else:
+              end += len('})();')
+              replacement = '''(async function initializeMemberAccess(){\n  // First use the secure Supabase session created by the member dashboard.\n  try{\n    const {data} = await loadCalcProSupabase.auth.getSession();\n    const session = data && data.session;\n    if(session && session.access_token){\n      const result = await verifyDashboardGeneratorAccess(session.access_token);\n      if(result.ok){\n        unlockCalculator(session.user && session.user.email ? session.user.email : "");\n        return;\n      }\n      try{ sessionStorage.removeItem(LOADCALCPRO_ACCESS_KEY); }catch(e){}\n      setAccessMessage((result.data && result.data.message) || "This membership does not include the Generator calculator.", "error");\n      return;\n    }\n  }catch(e){\n    try{ sessionStorage.removeItem(LOADCALCPRO_ACCESS_KEY); }catch(ignore){}\n  }\n\n  // No dashboard session exists. Keep the calculator's existing membership-email fallback.\n  const rememberedEmail = getRememberedEmail();\n  if(!rememberedEmail) return;\n\n  const button = document.getElementById("accessButton");\n  try{\n    if(button){ button.disabled = true; button.textContent = "Checking..."; }\n    setAccessMessage("Checking saved membership email...", "");\n    const result = await verifyMembershipEmail(rememberedEmail);\n    if(result && result.active){\n      unlockCalculator(rememberedEmail);\n    }else{\n      setAccessMessage((result && result.message) || "Saved email is not connected to an active membership.", "error");\n    }\n  }catch(e){\n    setAccessMessage("The saved email could not be checked. Please try again.", "error");\n  }finally{\n    if(button){ button.disabled = false; button.textContent = "Continue"; }\n  }\n})();'''
+              text = text[:start] + replacement + text[end:]
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit staging-only calculator changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html generator.html
+          git commit -m "Use staging dashboard login in calculators"
+          git push
