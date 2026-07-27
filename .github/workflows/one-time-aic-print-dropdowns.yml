@@ -1,0 +1,56 @@
+name: One-time AIC print dropdown styling update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-aic-print-dropdowns.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic-print-dropdowns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep dropdown boxes visible when printing
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+          marker = '  .brand-x{color:#0f766e;font-weight:900;margin-left:3px;}\n'
+          css = '''  @media print {
+    select {
+      display:block !important;
+      visibility:visible !important;
+      border:1px solid #64748b !important;
+      border-radius:3px !important;
+      background:#ffffff !important;
+      color:#111827 !important;
+      -webkit-appearance:menulist !important;
+      appearance:auto !important;
+      print-color-adjust:exact;
+      -webkit-print-color-adjust:exact;
+    }
+  }
+'''
+          if css not in text:
+              if marker not in text:
+                  raise SystemExit('Brand marker not found')
+              text = text.replace(marker, css + marker, 1)
+              path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit calculator update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "Keep AIC dropdown boxes visible in print [skip ci]"
+            git push
+          fi
