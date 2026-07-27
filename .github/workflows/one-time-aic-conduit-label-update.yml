@@ -1,0 +1,50 @@
+name: One-time AIC conduit label update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-aic-conduit-label-update.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update conduit labels and lookup table keys
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+
+          pvc_count = text.count('PVC')
+          steel_count = text.count('Steel')
+
+          if pvc_count == 0 or steel_count == 0:
+              raise SystemExit(f'Expected both PVC and Steel in {path}; found PVC={pvc_count}, Steel={steel_count}')
+
+          text = text.replace('PVC', 'Non-metallic')
+          text = text.replace('Steel', 'Metallic')
+          path.write_text(text, encoding='utf-8')
+
+          print(f'Replaced PVC occurrences: {pvc_count}')
+          print(f'Replaced Steel occurrences: {steel_count}')
+          PY
+
+      - name: Commit staging change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Rename AIC conduit types to metallic classifications [skip ci]"
+            git push
+          fi
