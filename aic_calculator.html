@@ -301,7 +301,7 @@
           </div>
           <div class="form-grid">
             <label for="conduit">Conduit type</label>
-            <select id="conduit"><option value="">Select conduit type</option><option>PVC</option><option>Steel</option></select>
+            <select id="conduit"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
             <label for="wireType">Wire type</label>
             <select id="wireType"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
             <label for="wireSize">Wire size</label>
@@ -336,24 +336,24 @@
   </div>
 <script>
 const constants = {
-  "8": { copperSteel:1557, copperPvc:1559, aluminumSteel:951, aluminumPvc:952 },
-  "6": { copperSteel:2425, copperPvc:2430, aluminumSteel:1481, aluminumPvc:1482 },
-  "4": { copperSteel:3806, copperPvc:3826, aluminumSteel:2346, aluminumPvc:2350 },
-  "3": { copperSteel:4774, copperPvc:4811, aluminumSteel:2952, aluminumPvc:2961 },
-  "2": { copperSteel:5907, copperPvc:6044, aluminumSteel:3713, aluminumPvc:3730 },
-  "1": { copperSteel:7293, copperPvc:7493, aluminumSteel:4645, aluminumPvc:4678 },
-  "1/0": { copperSteel:8925, copperPvc:9317, aluminumSteel:5777, aluminumPvc:5838 },
-  "2/0": { copperSteel:10755, copperPvc:11424, aluminumSteel:7187, aluminumPvc:7301 },
-  "3/0": { copperSteel:12844, copperPvc:13923, aluminumSteel:8826, aluminumPvc:9110 },
-  "4/0": { copperSteel:15082, copperPvc:16673, aluminumSteel:10741, aluminumPvc:11174 },
-  "250MCM": { copperSteel:16483, copperPvc:18594, aluminumSteel:12122, aluminumPvc:12862 },
-  "300MCM": { copperSteel:18177, copperPvc:20868, aluminumSteel:13910, aluminumPvc:14923 },
-  "350MCM": { copperSteel:19704, copperPvc:22737, aluminumSteel:15484, aluminumPvc:16813 },
-  "400MCM": { copperSteel:20566, copperPvc:24294, aluminumSteel:16671, aluminumPvc:18506 },
-  "500MCM": { copperSteel:22185, copperPvc:26706, aluminumSteel:18756, aluminumPvc:21391 },
-  "600MCM": { copperSteel:22965, copperPvc:28033, aluminumSteel:20093, aluminumPvc:23451 },
-  "750MCM": { copperSteel:24137, copperPvc:29735, aluminumSteel:21766, aluminumPvc:25976 },
-  "1000MCM": { copperSteel:25278, copperPvc:31491, aluminumSteel:23478, aluminumPvc:28779 }
+  "8": { copperMetallic:1557, copperPvc:1559, aluminumMetallic:951, aluminumPvc:952 },
+  "6": { copperMetallic:2425, copperPvc:2430, aluminumMetallic:1481, aluminumPvc:1482 },
+  "4": { copperMetallic:3806, copperPvc:3826, aluminumMetallic:2346, aluminumPvc:2350 },
+  "3": { copperMetallic:4774, copperPvc:4811, aluminumMetallic:2952, aluminumPvc:2961 },
+  "2": { copperMetallic:5907, copperPvc:6044, aluminumMetallic:3713, aluminumPvc:3730 },
+  "1": { copperMetallic:7293, copperPvc:7493, aluminumMetallic:4645, aluminumPvc:4678 },
+  "1/0": { copperMetallic:8925, copperPvc:9317, aluminumMetallic:5777, aluminumPvc:5838 },
+  "2/0": { copperMetallic:10755, copperPvc:11424, aluminumMetallic:7187, aluminumPvc:7301 },
+  "3/0": { copperMetallic:12844, copperPvc:13923, aluminumMetallic:8826, aluminumPvc:9110 },
+  "4/0": { copperMetallic:15082, copperPvc:16673, aluminumMetallic:10741, aluminumPvc:11174 },
+  "250MCM": { copperMetallic:16483, copperPvc:18594, aluminumMetallic:12122, aluminumPvc:12862 },
+  "300MCM": { copperMetallic:18177, copperPvc:20868, aluminumMetallic:13910, aluminumPvc:14923 },
+  "350MCM": { copperMetallic:19704, copperPvc:22737, aluminumMetallic:15484, aluminumPvc:16813 },
+  "400MCM": { copperMetallic:20566, copperPvc:24294, aluminumMetallic:16671, aluminumPvc:18506 },
+  "500MCM": { copperMetallic:22185, copperPvc:26706, aluminumMetallic:18756, aluminumPvc:21391 },
+  "600MCM": { copperMetallic:22965, copperPvc:28033, aluminumMetallic:20093, aluminumPvc:23451 },
+  "750MCM": { copperMetallic:24137, copperPvc:29735, aluminumMetallic:21766, aluminumPvc:25976 },
+  "1000MCM": { copperMetallic:25278, copperPvc:31491, aluminumMetallic:23478, aluminumPvc:28779 }
 };
 
 const MAX_PANELS = 7; // first calculation plus up to 6 downstream panels
@@ -392,7 +392,7 @@ function fmt(n, digits=0) {
 
 function constantKey(n) {
   const metal = el('wireType', n).value === 'Copper' ? 'copper' : 'aluminum';
-  const raceway = el('conduit', n).value === 'PVC' ? 'Pvc' : 'Steel';
+  const raceway = el('conduit', n).value === 'Non-metallic' ? 'Pvc' : 'Metallic';
   return metal + raceway;
 }
 
@@ -494,7 +494,7 @@ function createPanel(n) {
     <div class="form-grid">
 
       <label for="conduit${n}">Conduit type</label>
-      <select id="conduit${n}"><option value="">Select conduit type</option><option>PVC</option><option>Steel</option></select>
+      <select id="conduit${n}"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
 
       <label for="wireType${n}">Wire type</label>
       <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
