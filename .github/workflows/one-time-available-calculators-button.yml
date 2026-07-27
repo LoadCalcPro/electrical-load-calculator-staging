@@ -1,0 +1,52 @@
+name: One-time Available Calculators button
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-available-calculators-button.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-navigation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Available Calculators navigation to staging calculators
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          dashboard = 'staging-member-dashboard.html'
+
+          # AIC calculator: add button beside Print and Log Out.
+          aic_path = Path('aic_calculator.html')
+          aic = aic_path.read_text(encoding='utf-8')
+          old = '<div class="title-actions"><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand">'
+          new = '<div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href=\'' + dashboard + '\'">Available Calculators</button><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand">'
+          if old in aic:
+              aic = aic.replace(old, new, 1)
+              aic_path.write_text(aic, encoding='utf-8')
+          elif 'Available Calculators' not in aic:
+              raise SystemExit('AIC title-actions target not found')
+
+          # Generator calculator: repurpose the existing Home button and route it to staging dashboard.
+          gen_path = Path('generator.html')
+          gen = gen_path.read_text(encoding='utf-8')
+          gen = gen.replace('<button class="secondary" onclick="goHome()">🏠 Home</button>', '<button class="secondary" onclick="goHome()">Available Calculators</button>', 1)
+          gen = gen.replace('window.location.href = "https://loadcalcpro.github.io/electrical-load-calculator/";', 'window.location.href = "staging-member-dashboard.html";', 1)
+          gen_path.write_text(gen, encoding='utf-8')
+          PY
+      - name: Commit staging navigation update
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html generator.html
+          git commit -m "Add Available Calculators buttons to staging calculators"
+          git push
