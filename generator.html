@@ -168,7 +168,7 @@ body.access-locked .access-screen{display:flex;}
     <input id="projectCityState" class="wide" type="text" oninput="saveState()">
   </div>
   <div class="toolbar"><div class="toolbar-left">
-    <button class="secondary" onclick="goHome()">🏠 Home</button>
+    <button class="secondary" onclick="goHome()">Available Calculators</button>
     <button class="print" onclick="window.print()">Print / Save PDF</button>
     <button onclick="startNewCalculationFromButton()">New Calculation</button></div>
     <span class="note">Click the box in the Managed column to show a ✓. Checked items are removed from the generator load.</span>
@@ -654,7 +654,7 @@ function calculate(){
 
 }
 function goHome(){
-  window.location.href = "https://loadcalcpro.github.io/electrical-load-calculator/";
+  window.location.href = "staging-member-dashboard.html";
 }
 
 function clearInputs(skipSave=false){
