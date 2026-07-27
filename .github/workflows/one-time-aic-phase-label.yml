@@ -1,0 +1,51 @@
+name: One-time AIC phase label update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-aic-phase-label.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic-phase-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update phase labels while preserving formula values
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+
+          text = text.replace(
+              '2 Single phase or √3 Three phase',
+              'Phase'
+          )
+          text = text.replace(
+              'Select 2 single phase or √3 three phase',
+              'Select phase'
+          )
+          text = text.replace(
+              '<option>2</option><option>1.732</option>',
+              '<option value="2">Single phase</option><option value="1.732">Three phase</option>'
+          )
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit staging change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "Simplify AIC phase selection labels [skip ci]"
+            git push
+          fi
