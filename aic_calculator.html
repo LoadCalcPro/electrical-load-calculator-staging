@@ -243,14 +243,15 @@
     }
     @media print { .restore-modal { display:none!important; } }
 
-  </style>
+  .brand-x{color:#0f766e;font-weight:900;margin-left:3px;}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="access-locked">
 
   <div id="accessGate" aria-label="LoadCalcPro member login">
     <form class="access-box" id="accessForm">
-      <div class="access-brand">⚡ LoadCalcPro</div>
+      <div class="access-brand">⚡ LoadCalcPro<span class="brand-x">X</span></div>
       <div class="access-subtitle">AIC Calculator — Member Access</div>
       <label for="accessEmail">Membership email</label>
       <input id="accessEmail" type="email" autocomplete="email"
@@ -287,7 +288,7 @@
         <div class="form-title">Available Fault Current (AIC)</div>
         <div class="form-version">NEC 2023 | Version 1.0</div>
       </div>
-      <div class="title-actions"><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro</div></div>
+      <div class="title-actions"><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
     </div>
     <main>
       <div class="grid">
