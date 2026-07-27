@@ -126,6 +126,7 @@ body.access-locked .access-screen{display:flex;}
 @media print{.access-screen{display:none!important}}
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="access-locked">
 
@@ -198,6 +199,21 @@ const LOADCALCPRO_API_BASE = "https://loadcalcpro-hcml-api-staging.onrender.com"
 const LOADCALCPRO_ACCESS_ENDPOINT = LOADCALCPRO_API_BASE + "/api/access";
 const LOADCALCPRO_ACCESS_KEY = "loadcalcpro_member_access_generator_nec2023";
 const LOADCALCPRO_REMEMBERED_EMAIL_KEY = "loadcalcpro_remembered_member_email";
+const LOADCALCPRO_SUPABASE_URL = "https://jvnkncpljuaeycwjyeai.supabase.co";
+const LOADCALCPRO_SUPABASE_KEY = "sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF";
+const LOADCALCPRO_V2_ACCESS_ENDPOINT = "https://loadcalcpro-hcml-api-staging.onrender.com/api/v2/access";
+const loadCalcProSupabase = window.supabase.createClient(LOADCALCPRO_SUPABASE_URL, LOADCALCPRO_SUPABASE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+async function verifyDashboardGeneratorAccess(token){
+  const response = await fetch(LOADCALCPRO_V2_ACCESS_ENDPOINT, {
+    method:"POST",
+    headers:{"Content-Type":"application/json", Authorization:"Bearer " + token},
+    body:JSON.stringify({calculator:"generator"})
+  });
+  let data={};
+  try{ data=await response.json(); }catch(e){}
+  return {ok:response.ok && data.active===true, data:data};
+}
 
 function setAccessMessage(text, type){
   const msg = document.getElementById("accessMessage");
@@ -849,46 +865,42 @@ updateRememberedEmailControls();
 // This means a canceled membership will not stay unlocked merely because
 // the email was saved on the device.
 (async function initializeMemberAccess(){
+  // First use the secure Supabase session created by the member dashboard.
   try{
-    const savedAccess = sessionStorage.getItem(LOADCALCPRO_ACCESS_KEY);
-    if(savedAccess){
-      document.body.classList.remove("access-locked");
-      showRestorePromptIfNeeded();
+    const {data} = await loadCalcProSupabase.auth.getSession();
+    const session = data && data.session;
+    if(session && session.access_token){
+      const result = await verifyDashboardGeneratorAccess(session.access_token);
+      if(result.ok){
+        unlockCalculator(session.user && session.user.email ? session.user.email : "");
+        return;
+      }
+      try{ sessionStorage.removeItem(LOADCALCPRO_ACCESS_KEY); }catch(e){}
+      setAccessMessage((result.data && result.data.message) || "This membership does not include the Generator calculator.", "error");
       return;
     }
-  }catch(e){}
+  }catch(e){
+    try{ sessionStorage.removeItem(LOADCALCPRO_ACCESS_KEY); }catch(ignore){}
+  }
 
+  // No dashboard session exists. Keep the calculator's existing membership-email fallback.
   const rememberedEmail = getRememberedEmail();
   if(!rememberedEmail) return;
 
   const button = document.getElementById("accessButton");
   try{
-    if(button){
-      button.disabled = true;
-      button.textContent = "Checking...";
-    }
+    if(button){ button.disabled = true; button.textContent = "Checking..."; }
     setAccessMessage("Checking saved membership email...", "");
     const result = await verifyMembershipEmail(rememberedEmail);
-
     if(result && result.active){
       unlockCalculator(rememberedEmail);
-    } else {
-      setAccessMessage(
-        (result && result.message) ||
-        "Saved email is not connected to an active membership.",
-        "error"
-      );
+    }else{
+      setAccessMessage((result && result.message) || "Saved email is not connected to an active membership.", "error");
     }
   }catch(e){
-    setAccessMessage(
-      "The saved email could not be checked. Please try again.",
-      "error"
-    );
+    setAccessMessage("The saved email could not be checked. Please try again.", "error");
   }finally{
-    if(button){
-      button.disabled = false;
-      button.textContent = "Continue";
-    }
+    if(button){ button.disabled = false; button.textContent = "Continue"; }
   }
 })();
 </script>

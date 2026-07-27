@@ -244,6 +244,7 @@
     @media print { .restore-modal { display:none!important; } }
 
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="access-locked">
 
@@ -747,6 +748,22 @@ initialize();
 const ACCESS_API_URL = 'https://loadcalcpro-hcml-api-staging.onrender.com/api/access';
 const ACCESS_SESSION_KEY = 'loadCalcProAicAccessApproved';
 const REMEMBERED_EMAIL_KEY = 'loadCalcProRememberedMemberEmail';
+const DASHBOARD_URL = 'staging-member-dashboard.html';
+const SUPABASE_URL = 'https://jvnkncpljuaeycwjyeai.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF';
+const API_BASE_URL = 'https://loadcalcpro-hcml-api-staging.onrender.com';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+async function verifyDashboardSessionAccess(token) {
+  const response = await fetch(API_BASE_URL + '/api/v2/access', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', Authorization:'Bearer ' + token},
+    body: JSON.stringify({calculator:'aic'})
+  });
+  let data = {};
+  try { data = await response.json(); } catch {}
+  return {ok:response.ok && data.active === true, data};
+}
 
 function showCalculator() {
   document.getElementById('accessGate').hidden = true;
@@ -827,8 +844,9 @@ document.getElementById('accessForm').addEventListener('submit', async (event) =
   }
 });
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
+document.getElementById('logoutBtn').addEventListener('click', async () => {
   sessionStorage.removeItem(ACCESS_SESSION_KEY);
+  try { await supabaseClient.auth.signOut(); } catch {}
 
   const rememberedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY) || '';
   document.getElementById('accessEmail').value = rememberedEmail;
@@ -843,9 +861,28 @@ if (rememberedEmail) {
   document.getElementById('rememberEmail').checked = true;
 }
 
-if (sessionStorage.getItem(ACCESS_SESSION_KEY) === 'true') {
-  showCalculator();
-}
+(async function initializeAccess() {
+  try {
+    const {data} = await supabaseClient.auth.getSession();
+    const session = data && data.session;
+    if (session && session.access_token) {
+      const result = await verifyDashboardSessionAccess(session.access_token);
+      if (result.ok) {
+        sessionStorage.setItem(ACCESS_SESSION_KEY, 'true');
+        showCalculator();
+        return;
+      }
+      sessionStorage.removeItem(ACCESS_SESSION_KEY);
+      showAccessGate((result.data && result.data.message) || 'This membership does not include the AIC calculator.');
+      return;
+    }
+  } catch (error) {
+    sessionStorage.removeItem(ACCESS_SESSION_KEY);
+  }
+
+  // No dashboard login is available. Keep the calculator's existing access screen.
+  showAccessGate();
+})();
 
 </script>
 </body>
