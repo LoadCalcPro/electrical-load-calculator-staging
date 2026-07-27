@@ -1,0 +1,63 @@
+name: One-time LoadCalcPro X calculator branding update
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/add-loadcalcpro-x-branding.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-branding:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add LoadCalcPro X branding to both calculators
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          files = [Path('generator.html'), Path('aic_calculator.html')]
+
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+
+              if '.brand-x{' not in text and '.brand-x {' not in text:
+                  text = text.replace(
+                      '</style>',
+                      '.brand-x{color:#0f766e;font-weight:900;margin-left:3px;}\n</style>',
+                      1
+                  )
+
+              text = text.replace(
+                  '<div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro</div>',
+                  '<div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div>'
+              )
+
+              text = text.replace(
+                  '<div class="access-brand">⚡ LoadCalcPro</div>',
+                  '<div class="access-brand">⚡ LoadCalcPro<span class="brand-x">X</span></div>'
+              )
+
+              text = text.replace(
+                  '<div class="access-topline">LoadCalcPro Protected Access</div>',
+                  '<div class="access-topline">LoadCalcPro<span class="brand-x">X</span> Protected Access</div>'
+              )
+
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit calculator branding update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add generator.html aic_calculator.html
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+          else
+            git commit -m "Add LoadCalcPro X branding to staging calculators"
+            git push
+          fi
