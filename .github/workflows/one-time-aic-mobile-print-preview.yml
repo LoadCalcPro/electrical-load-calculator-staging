@@ -1,0 +1,162 @@
+name: One-time AIC mobile and print preview update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-aic-mobile-print-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Improve AIC mobile and print layouts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+
+          marker = '/* AIC mobile and print preview update */'
+          if marker not in text:
+              css = r'''
+
+/* AIC mobile and print preview update */
+@media (max-width: 700px) {
+  .page {
+    width:100%;
+    margin:0;
+    padding:12px;
+  }
+  .form-titlebar {
+    grid-template-columns:1fr;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .title-actions {
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .title-actions .form-brand {
+    grid-column:1 / -1;
+    text-align:right;
+    margin-top:2px;
+  }
+  .title-actions button {
+    width:100%;
+    min-height:44px;
+  }
+  .card {
+    padding:14px;
+    border-radius:12px;
+  }
+  .calc-heading-row {
+    display:block;
+    margin-bottom:14px;
+  }
+  .calc-heading-row h2 {
+    margin-bottom:9px;
+  }
+  .calc-heading-input {
+    width:100%;
+    max-width:none;
+    min-height:44px;
+  }
+  .form-grid {
+    grid-template-columns:1fr;
+    gap:6px;
+  }
+  .form-grid label {
+    margin-top:8px;
+  }
+  input, select {
+    min-height:44px;
+    font-size:16px;
+  }
+  .result {
+    grid-template-columns:1fr;
+  }
+  .metric .value {
+    font-size:25px;
+  }
+  .formula {
+    overflow-wrap:anywhere;
+    font-size:14px;
+  }
+  .panel-controls {
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .panel-controls button,
+  .button-row button {
+    width:100%;
+    min-height:44px;
+  }
+}
+
+@media print {
+  input,
+  select,
+  .calc-heading-input {
+    display:block!important;
+    width:100%!important;
+    min-height:22px!important;
+    height:22px!important;
+    padding:2px 6px!important;
+    border:1px solid #7b8794!important;
+    border-radius:3px!important;
+    background:#fff!important;
+    color:#111827!important;
+    font-size:9.5px!important;
+    line-height:16px!important;
+    box-shadow:none!important;
+    -webkit-appearance:auto!important;
+    appearance:auto!important;
+  }
+  select {
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+  }
+  .form-grid {
+    grid-template-columns:1.35fr 1fr!important;
+    gap:4px 8px!important;
+    align-items:center!important;
+  }
+  .form-grid label {
+    font-size:9px!important;
+    color:#27364a!important;
+  }
+  .card {
+    border:1px solid #9aa6b2!important;
+    padding:9px 10px!important;
+  }
+  .calc-heading-row {
+    margin-bottom:6px!important;
+  }
+}
+'''
+              text = text.replace('</style>', css + '\n</style>', 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit staging update
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html
+          git commit -m "Improve AIC mobile and print layouts [skip ci]"
+          git push
