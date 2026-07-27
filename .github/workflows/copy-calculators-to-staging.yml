@@ -1,0 +1,87 @@
+name: Copy calculators into staging
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/copy-calculators-to-staging.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  copy-calculators:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staging repository
+        uses: actions/checkout@v4
+
+      - name: Copy production calculators and isolate staging services
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl --fail --location --silent --show-error \
+            https://raw.githubusercontent.com/LoadCalcPro/electrical-load-calculator/main/generator.html \
+            --output generator.html
+
+          curl --fail --location --silent --show-error \
+            https://raw.githubusercontent.com/LoadCalcPro/electrical-load-calculator/main/aic_calculator.html \
+            --output aic_calculator.html
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = [Path('generator.html'), Path('aic_calculator.html')]
+          production_api = 'https://loadcalcpro-hcml-api.onrender.com'
+          staging_api = 'https://loadcalcpro-hcml-api-staging.onrender.com'
+
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              text = text.replace(production_api, staging_api)
+
+              if '<meta name="robots"' not in text:
+                  text = text.replace(
+                      '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+                      '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex,nofollow">',
+                      1,
+                  )
+                  text = text.replace(
+                      '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+                      '<meta name="viewport" content="width=device-width, initial-scale=1" />\n  <meta name="robots" content="noindex,nofollow">',
+                      1,
+                  )
+
+              text = text.replace(
+                  '<title>Generator Optional Method Calculator</title>',
+                  '<title>Generator Optional Method Calculator | Staging</title>',
+                  1,
+              )
+              text = text.replace(
+                  '<title>LoadCalcPro | AIC Calculator</title>',
+                  '<title>LoadCalcPro | AIC Calculator | Staging</title>',
+                  1,
+              )
+              text = text.replace(
+                  '<link rel="canonical" href="https://loadcalcpro.github.io/electrical-load-calculator/aic-calculator.html">',
+                  '',
+                  1,
+              )
+
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit copied calculator files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add generator.html aic_calculator.html
+          if git diff --cached --quiet; then
+            echo "Calculator files are already current."
+          else
+            git commit -m "Copy working calculators into staging [skip ci]"
+            git push
+          fi
