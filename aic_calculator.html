@@ -244,6 +244,66 @@
     @media print { .restore-modal { display:none!important; } }
 
   .brand-x{color:#0f766e;font-weight:900;margin-left:3px;}
+
+    /* AIC_REPORT_DESIGN_V2 */
+    .print-report-header{display:none}
+    .formula-report{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;font-family:Consolas,Monaco,monospace}
+    .formula-report-panel{background:#f8fafc;border:1px solid #d7e0e8;border-radius:10px;padding:14px 16px}
+    .formula-report-title{font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:800;color:#17365d;margin-bottom:10px}
+    .formula-report-line{display:grid;grid-template-columns:42px 16px 1fr;align-items:baseline;line-height:1.65;font-size:15px}
+    .formula-report-line.aic-final{margin-top:4px;padding-top:6px;border-top:1px solid #cbd5e1;font-weight:800;color:#0f3557}
+    @media (max-width:700px){
+      .page{width:100%;margin:0;padding:12px}
+      main{padding:0}
+      .form-titlebar{grid-template-columns:1fr;gap:10px}
+      .title-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .title-actions .form-brand{grid-column:1/-1;grid-row:1;text-align:left;font-size:14px}
+      .title-actions button{width:100%;min-height:46px;margin:0!important;font-size:15px}
+      .card{padding:15px;border-radius:12px}
+      .calc-heading-row{display:grid;grid-template-columns:1fr;gap:9px}
+      .calc-heading-input{width:100%;max-width:none;min-height:46px;font-size:16px}
+      .form-grid{grid-template-columns:1fr;gap:6px}
+      .form-grid label{margin-top:8px;font-size:15px}
+      input,select{min-height:48px;font-size:16px;padding:11px 12px}
+      .result{grid-template-columns:1fr 1fr;gap:9px}
+      .metric{padding:13px}
+      .metric .value{font-size:23px}
+      .formula-report{grid-template-columns:1fr}
+      .button-row,.panel-controls{display:grid;grid-template-columns:1fr}
+      .button-row button,.panel-controls button{width:100%;min-height:46px;font-size:15px}
+    }
+    @media print{
+      @page{size:letter portrait;margin:.35in}
+      html,body{width:100%;background:#fff!important}
+      body{zoom:1}
+      .page{width:100%;max-width:none;margin:0;padding:0}
+      .print-report-header{display:grid!important;grid-template-columns:1fr auto;align-items:end;gap:18px;padding:0 0 7px;margin:0 0 9px;border-bottom:2px solid #1e3a8a}
+      .print-report-brand{font-size:18px;font-weight:800;color:#1e3a8a}
+      .print-report-title{font-size:12px;font-weight:700;color:#111827;margin-top:2px}
+      .form-titlebar{display:none!important}
+      .grid{display:block}
+      .card{border:1px solid #9aa9b7;border-radius:4px;padding:8px 10px;margin:0 0 8px;box-shadow:none;break-inside:avoid;page-break-inside:avoid}
+      .panel-number{font-size:8.5px;margin-bottom:3px}
+      .calc-heading-row{display:grid;grid-template-columns:auto minmax(180px,1fr);gap:9px;margin:0 0 6px}
+      h2{font-size:12.5px}
+      .calc-heading-input,input,select{display:block!important;width:100%!important;min-height:21px;padding:3px 6px!important;margin:0!important;border:1px solid #6f8294!important;border-radius:2px!important;background:#fff!important;color:#111827!important;font-size:9px!important;line-height:1.2!important;opacity:1!important}
+      select{appearance:auto!important;-webkit-appearance:menulist!important}
+      input::placeholder{color:transparent!important}
+      .form-grid{display:grid!important;grid-template-columns:1.35fr 1fr 1.35fr 1fr;gap:4px 8px;align-items:center}
+      .form-grid label{font-size:8.6px;line-height:1.1}
+      .result{grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+      .metric{padding:4px 6px;border-radius:3px}
+      .metric .label{font-size:7px}
+      .metric .value{font-size:13px;margin-top:1px}
+      .formula{display:none!important}
+      .formula-report{grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+      .formula-report-panel{padding:6px 8px;border-radius:3px}
+      .formula-report-title{font-size:9.5px;margin-bottom:3px}
+      .formula-report-line{grid-template-columns:28px 10px 1fr;font-size:8.8px;line-height:1.35}
+      .formula-report-line.aic-final{margin-top:2px;padding-top:3px}
+      .no-print,button,.button-row,.panel-controls,.note,#accessGate,.restore-modal,.logout-button{display:none!important}
+    }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -283,6 +343,13 @@
   </div>
 
   <div class="page">
+    <div class="print-report-header" aria-hidden="true">
+      <div>
+        <div class="print-report-brand">⚡ LoadCalcPro<span class="brand-x">X</span></div>
+        <div class="print-report-title">Available Fault Current Calculation Report</div>
+      </div>
+    </div>
+
     <div class="form-titlebar">
       <div>
         <div class="form-title">Available Fault Current (AIC)</div>
@@ -403,11 +470,23 @@ function clearAicResult(n, message='') {
     details.textContent = message;
     return;
   }
+  const phaseNode = el('phase', n);
+  const phaseFactor = phaseNode && phaseNode.value === '2' ? '2' : '1.732';
   details.innerHTML =
-    '<div class="formula-title">Calculation Results</div>' +
-    '<div class="formula-line"><span>F</span><span>=</span><span class="formula-value">—</span></div>' +
-    '<div class="formula-line"><span>M</span><span>=</span><span class="formula-value">—</span></div>' +
-    '<div class="formula-line"><span>AIC</span><span>=</span><span class="formula-value">—</span></div>';
+    '<div class="formula-report">' +
+      '<div class="formula-report-panel">' +
+        '<div class="formula-report-title">Formulas</div>' +
+        '<div class="formula-report-line"><span>F</span><span>=</span><span>' + phaseFactor + ' × L × I ÷ (N × C × V)</span></div>' +
+        '<div class="formula-report-line"><span>M</span><span>=</span><span>1 ÷ (1 + F)</span></div>' +
+        '<div class="formula-report-line"><span>AIC</span><span>=</span><span>I × M</span></div>' +
+      '</div>' +
+      '<div class="formula-report-panel">' +
+        '<div class="formula-report-title">Calculated Values</div>' +
+        '<div class="formula-report-line"><span>F</span><span>=</span><span>—</span></div>' +
+        '<div class="formula-report-line"><span>M</span><span>=</span><span>—</span></div>' +
+        '<div class="formula-report-line aic-final"><span>AIC</span><span>=</span><span>—</span></div>' +
+      '</div>' +
+    '</div>';
 }
 
 function calculate(n) {
@@ -446,11 +525,22 @@ function calculate(n) {
   const AIC = I * M;
 
   el('aicResult', n).textContent = fmt(AIC, 0);
+  const phaseFactor = phase === 2 ? '2' : '1.732';
   el('calcDetails', n).innerHTML =
-    '<div class="formula-title">Calculation Results</div>' +
-    `<div class="formula-line"><span>F</span><span>=</span><span class="formula-value">${F.toFixed(4)}</span></div>` +
-    `<div class="formula-line"><span>M</span><span>=</span><span class="formula-value">${M.toFixed(4)}</span></div>` +
-    `<div class="formula-line"><span>AIC</span><span>=</span><span class="formula-value">${fmt(AIC,0)}</span></div>`;
+    '<div class="formula-report">' +
+      '<div class="formula-report-panel">' +
+        '<div class="formula-report-title">Formulas</div>' +
+        '<div class="formula-report-line"><span>F</span><span>=</span><span>' + phaseFactor + ' × L × I ÷ (N × C × V)</span></div>' +
+        '<div class="formula-report-line"><span>M</span><span>=</span><span>1 ÷ (1 + F)</span></div>' +
+        '<div class="formula-report-line"><span>AIC</span><span>=</span><span>I × M</span></div>' +
+      '</div>' +
+      '<div class="formula-report-panel">' +
+        '<div class="formula-report-title">Calculated Values</div>' +
+        '<div class="formula-report-line"><span>F</span><span>=</span><span>' + F.toFixed(4) + '</span></div>' +
+        '<div class="formula-report-line"><span>M</span><span>=</span><span>' + M.toFixed(4) + '</span></div>' +
+        '<div class="formula-report-line aic-final"><span>AIC</span><span>=</span><span>' + fmt(AIC,0) + ' AMPS</span></div>' +
+      '</div>' +
+    '</div>';
 
   carryForward(n, AIC);
 }
