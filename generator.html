@@ -1,2 +1,896 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Generator Access Test | LoadCalcPro X Staging</title><meta name="description" content="LoadCalcPro X is a professional electrical calculation suite providing accurate electrical calculation tools for contractors, designers, inspectors, and engineers."><style>body{margin:0;font-family:Arial,sans-serif;background:#eef3f7;color:#182433}header{background:#10233f;color:#fff;border-bottom:4px solid #d2a84b;padding:26px}.brand-subtitle{font-size:13px;opacity:.8;margin-top:4px}.wrap{width:min(680px,calc(100% - 32px));margin:48px auto}.panel{background:#fff;border:1px solid #d9e1e8;border-radius:16px;padding:30px;box-shadow:0 14px 34px rgba(16,35,63,.12)}h1{color:#10233f}.badge{display:inline-block;background:#fff3cd;color:#6d5200;padding:7px 11px;border-radius:999px;font-weight:700;margin-left:10px}.status{margin:22px 0;padding:14px;border-radius:8px;background:#eef3f7}.success{background:#ecfdf3;color:#16794f}.error{background:#fff1f0;color:#b42318}a{color:#176b47;font-weight:700}.site-footer{text-align:center;color:#667487;font-size:13px;padding:0 16px 28px}</style></head><body><header><strong style="font-size:24px">LoadCalcPro X</strong> <span class="badge">STAGING — TEST ONLY</span><div class="brand-subtitle">Professional Electrical Calculation Suite</div></header><main class="wrap"><section class="panel"><h1>Generator Calculator Access Test</h1><p>This page verifies that the signed-in staging member has generator access. The live calculator has not been copied into this isolated test repository.</p><div id="status" class="status">Checking secure access…</div><a href="staging-member-dashboard.html">Return to Staging Dashboard</a></section></main><footer class="site-footer">© LoadCalcPro X. All rights reserved.<br>Version 1.0.0</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>"use strict";const client=window.supabase.createClient("https://jvnkncpljuaeycwjyeai.supabase.co","sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF",{auth:{persistSession:true,autoRefreshToken:true}});const statusBox=document.getElementById("status");(async()=>{try{const{data,error}=await client.auth.getSession();if(error)throw error;if(!data.session)throw new Error("You are not signed in to staging.");const r=await fetch("https://loadcalcpro-hcml-api-staging.onrender.com/api/v2/access",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({calculator:"generator"})});const result=await r.json().catch(()=>({}));if(!r.ok||result.active!==true)throw new Error(result.message||"Generator access was not approved.");statusBox.textContent="Success: staging authentication and generator membership access were both verified.";statusBox.className="status success"}catch(err){statusBox.textContent=err.message||"Unable to verify access.";statusBox.className="status error"}})();</script></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Generator Optional Method Calculator | Staging</title>
+<style>
+:root{--bg:#f3f4f6;--panel:#ffffff;--ink:#111827;--muted:#6b7280;--blue:#1e3a8a;--blue2:#0f172a;--line:#d1d5db;--head:#e8eefc;--accent:#0f766e;--green:#15803d;--danger:#b42318;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}header{background:linear-gradient(135deg,#1e3a8a,#0f172a);color:#fff;padding:26px 30px}header h1{margin:0;font-size:28px;letter-spacing:.2px}header p{margin:7px 0 0;color:#dbeafe;font-size:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:3}.tab{border:1px solid var(--line);background:#f8fafc;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700;color:#111827}.tab.active{background:#1e3a8a;color:#fff;border-color:#1e3a8a}main{padding:22px}.toolbar{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}.toolbar-left{display:flex;gap:10px;flex-wrap:wrap}.note{color:var(--muted);font-size:13px}.btn,button{border:1px solid #1e3a8a;background:#1e3a8a;color:#fff;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}.btn.secondary,button.secondary{background:#fff;color:#1e3a8a}.btn.print,button.print{background:#0f766e;border-color:#0f766e}.results{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px;margin-bottom:14px}.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px rgba(15,23,42,.08);padding:14px 16px}.kpi .label{font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700}.kpi .value{font-size:25px;font-weight:900;margin-top:4px;color:#0f172a}.card,.sheet-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px rgba(15,23,42,.08);overflow:auto;max-height:calc(100vh - 175px)}table{border-collapse:collapse;min-width:900px;width:100%;table-layout:fixed}col.label{width:36%} col.qty{width:13%} col.va{width:13%} col.service{width:16%} col.managed{width:10%} col.gen{width:12%}th,td{border:1px solid #d9dee8;height:28px;padding:4px 7px;vertical-align:middle;font-size:13px;white-space:normal}thead th{position:sticky;top:0;background:#f8fafc;color:#6b7280;font-size:11px;z-index:2;text-transform:none;letter-spacing:0}td.label{font-weight:600}.section td{background:#1e3a8a!important;color:#fff!important;font-weight:700;text-align:center}.subtotal td{background:#e8eefc!important;color:#111827!important;font-weight:700}.total td{background:#dff0e7!important;color:#0f172a!important;font-weight:800}.out{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}.center{text-align:center}.small{font-size:12px;color:#6b7280;font-weight:400;display:block;width:100%;text-align:center}#q41out{display:block;width:100%;text-align:center;font-weight:400}.auto-row-value{display:block;width:100%;text-align:right}input[type=number],input[type=text],select{width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:5px 6px;font-size:13px;background:#fff;text-align:right}select{text-align:center}input[readonly]{background:#eef2f7;color:#596579}.descInput{width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:5px 6px;font-size:13px;background:#fff;text-align:left!important;font-weight:600;color:#111827}
+.fixedValue{background:#f8fafc!important;color:#64748b!important;font-weight:700;cursor:default;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;pointer-events:none;}
+@media print{.descInput{border:0;padding:0;background:transparent;font-weight:600}}.check{font-family:'Segoe UI Symbol',Arial,sans-serif;width:28px;height:24px;border:1px solid #cbd5e1;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#15803d;font-size:18px;font-weight:900;cursor:pointer;user-select:none}.check.checked{background:#ecfdf5;border-color:#15803d}.footer{font-size:12px;color:var(--muted);padding:12px 2px}
+.form-titlebar{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;margin-bottom:8px;padding:2px 2px 0 2px;color:#111827}.form-titlebar .form-title{font-size:15px;font-weight:800;color:#0f172a;letter-spacing:.1px}
+.form-titlebar .form-version{font-size:11px;font-weight:700;color:#6b7280;margin-top:2px;letter-spacing:.12px}.form-titlebar .form-timestamp{font-size:11px;color:#6b7280;white-space:nowrap}.form-titlebar .form-brand{font-size:12px;font-weight:800;color:#1e3a8a;opacity:.78;white-space:nowrap;letter-spacing:.15px}.form-titlebar .bolt{color:#0f766e;margin-right:3px}@media print{.form-titlebar{display:grid!important;grid-template-columns:1fr auto;align-items:center;gap:12px;margin:0 0 5px 0;padding:0;color:#111827}.form-titlebar .form-title{font-size:11px;font-weight:800;color:#0f172a}.form-titlebar .form-version{font-size:8.5px;font-weight:700;color:#555;margin-top:1px}.form-titlebar .form-timestamp{font-size:9px;color:#555}.form-titlebar .form-brand{font-size:10px;font-weight:800;color:#1e3a8a;opacity:.85}.form-titlebar .bolt{color:#0f766e;margin-right:2px}}
+.project-info{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px rgba(15,23,42,.08);padding:10px 12px;margin-bottom:12px;display:grid;grid-template-columns:115px 1fr 90px 180px;gap:7px 8px;align-items:center}.project-info label{font-size:12px;font-weight:700;color:#111827;white-space:nowrap}.project-info input{height:26px;text-align:left!important}.project-info .wide{grid-column:span 3}@media(max-width:760px){.project-info{grid-template-columns:1fr}.project-info .wide{grid-column:auto}}@media print{.project-info{box-shadow:none;border:0;border-radius:0;margin:0 0 6px 0;padding:0;grid-template-columns:82px 1fr 70px 130px;gap:3px 6px}.project-info label{font-size:10px}.project-info input{border:0;border-bottom:1px solid #999;border-radius:0;padding:1px 2px;height:18px;font-size:10px;background:transparent}}
+
+.save-status{font-size:12px;color:#0f766e;font-weight:700;white-space:nowrap}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}.modal-backdrop.show{display:flex}.modal-box{background:#fff;color:#111827;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.32);max-width:430px;width:100%;padding:22px;border:1px solid #d1d5db}.modal-box h2{margin:0 0 8px 0;color:#1e3a8a;font-size:22px}.modal-box p{margin:8px 0 16px 0;color:#374151;line-height:1.45}.modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.modal-actions button{border-radius:10px;padding:10px 13px}.modal-actions .danger{background:#b42318;border-color:#b42318;color:#fff}@media print{.save-status,.modal-backdrop{display:none!important}}
+
+@media(max-width:760px){main{padding:14px}.results{grid-template-columns:1fr}.card,.sheet-wrap{max-height:none}table{min-width:780px}}@media print{body{background:white}header,.tabs,.toolbar,.footer,.note{display:none!important}main{margin:0;max-width:none;padding:0}.card,.sheet-wrap,.kpi{box-shadow:none;border:0}.results{grid-template-columns:repeat(3,1fr)}table{font-size:11px;min-width:0;width:100%}th,td{padding:3px 4px}tr.print-hide{display:none!important}.after-min-amp-spacer td{height:10px!important;border:0!important;background:#fff!important;padding:0!important}}
+.after-min-amp-spacer td{height:12px;border:0;background:transparent;padding:0}
+
+@page{size:letter;margin:0}
+@media print{html,body{margin:0!important;padding:0!important}main{padding:0.25in!important}}
+/* LoadCalcPro protected access screen - TEST VERSION */
+body.access-locked main,
+body.access-locked header,
+body.access-locked .tabs,
+body.access-locked .toolbar{
+  display:none!important;
+}
+body.access-locked .modal-backdrop.show{
+  display:none!important;
+}
+.access-screen{
+  min-height:100vh;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:linear-gradient(135deg,#1e3a8a,#0f172a);
+}
+body.access-locked .access-screen{display:flex;}
+.access-card{
+  width:100%;
+  max-width:460px;
+  background:#ffffff;
+  color:#111827;
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.32);
+  padding:26px;
+  border:1px solid #d1d5db;
+}
+.access-topline{
+  font-size:12px;
+  font-weight:900;
+  color:#0f766e;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:8px;
+}
+.access-card h1{
+  margin:0 0 6px 0;
+  color:#1e3a8a;
+  font-size:26px;
+}
+.access-card .subtitle{
+  margin:0 0 18px 0;
+  color:#4b5563;
+  line-height:1.45;
+}
+.access-card label{
+  display:block;
+  font-weight:800;
+  font-size:13px;
+  margin:12px 0 6px;
+}
+.access-card input[type=email]{
+  width:100%;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:11px 12px;
+  font-size:15px;
+  text-align:left!important;
+}
+.access-card button{
+  width:100%;
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:10px;
+}
+.access-msg{
+  min-height:20px;
+  margin-top:12px;
+  font-size:13px;
+  font-weight:700;
+}
+.access-msg.error{color:#b42318;}
+.access-msg.ok{color:#15803d;}
+.access-note{
+  margin-top:16px;
+  font-size:12px;
+  color:#6b7280;
+  line-height:1.4;
+}
+.remember-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+  font-size:13px;
+  color:#374151;
+}
+.remember-row input{
+  width:auto;
+}
+.forget-email{
+  width:auto!important;
+  margin-top:10px!important;
+  padding:7px 10px!important;
+  background:#ffffff!important;
+  color:#1e3a8a!important;
+  border:1px solid #93c5fd!important;
+  font-size:12px!important;
+}
+@media print{.access-screen{display:none!important}}
+
+</style>
+</head>
+<body class="access-locked">
+
+<div id="accessScreen" class="access-screen">
+  <div class="access-card">
+    <div class="access-topline">LoadCalcPro Protected Access</div>
+    <h1>Professional Membership</h1>
+    <p class="subtitle">Please enter the email address used for your LoadCalcPro subscription to continue.</p>
+    <label for="memberEmail">Membership Email</label>
+    <input id="memberEmail" type="email" autocomplete="email" placeholder="you@example.com">
+    <label class="remember-row" for="rememberMemberEmail">
+      <input id="rememberMemberEmail" type="checkbox" checked>
+      Remember this email on this device
+    </label>
+    <button id="accessButton" type="button" onclick="requestCalculatorAccess()">Continue</button>
+    <button id="forgetEmailButton" class="forget-email" type="button" onclick="forgetRememberedEmail()" style="display:none;">Forget saved email</button>
+    <div id="accessMessage" class="access-msg"></div>
+    <p class="access-note"><strong>Membership access:</strong> This calculator checks your subscription through the LoadCalcPro secure access server.</p>
+  </div>
+</div>
+
+<main>
+  <div class="form-titlebar">
+    <div>
+      <div class="form-title">Generator Optional Method Calculator</div>
+      <div class="form-version">NEC 2023 | Version 1.2</div>
+    </div>
+    <div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro</div>
+  </div>
+  <div class="project-info">
+    <label for="projectName">Project Name</label>
+    <input id="projectName" type="text" oninput="saveState()">
+    <label for="projectNumber">Project #</label>
+    <input id="projectNumber" type="text" oninput="saveState()">
+    <label for="projectAddress">Address</label>
+    <input id="projectAddress" class="wide" type="text" oninput="saveState()">
+    <label for="projectCityState">City/State</label>
+    <input id="projectCityState" class="wide" type="text" oninput="saveState()">
+  </div>
+  <div class="toolbar"><div class="toolbar-left">
+    <button class="secondary" onclick="goHome()">🏠 Home</button>
+    <button class="print" onclick="window.print()">Print / Save PDF</button>
+    <button onclick="startNewCalculationFromButton()">New Calculation</button></div>
+    <span class="note">Click the box in the Managed column to show a ✓. Checked items are removed from the generator load.</span>
+  </div>
+  <div class="sheet-wrap">
+    <table id="calcTable">
+      <colgroup><col class="label"><col class="qty"><col class="va"><col class="service"><col class="managed"><col class="gen"></colgroup>
+      <thead><tr><th>Load Description</th><th>Qty</th><th>VA</th><th>Service Load VA</th><th>Managed</th><th>Gen Load VA</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+<div id="restoreModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="restoreTitle">
+  <div class="modal-box">
+    <h2 id="restoreTitle">LoadCalcPro</h2>
+    <p><strong>A previous calculation was found.</strong></p>
+    <p>Would you like to continue your previous calculation or start a new one?</p>
+    <div class="modal-actions">
+      <button class="secondary" onclick="startNewFromSavedPrompt()">Start New Calculation</button>
+      <button onclick="continuePreviousCalculation()">Continue Previous Calculation</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* LoadCalcPro protected access - LIVE RENDER API VERSION */
+const LOADCALCPRO_API_BASE = "https://loadcalcpro-hcml-api-staging.onrender.com";
+const LOADCALCPRO_ACCESS_ENDPOINT = LOADCALCPRO_API_BASE + "/api/access";
+const LOADCALCPRO_ACCESS_KEY = "loadcalcpro_member_access_generator_nec2023";
+const LOADCALCPRO_REMEMBERED_EMAIL_KEY = "loadcalcpro_remembered_member_email";
+
+function setAccessMessage(text, type){
+  const msg = document.getElementById("accessMessage");
+  if(!msg) return;
+  msg.textContent = text || "";
+  msg.className = "access-msg" + (type ? " " + type : "");
+}
+
+function validEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+async function verifyMembershipEmail(email){
+  const response = await fetch(LOADCALCPRO_ACCESS_ENDPOINT, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email: email,
+      calculator: "generator-nec2023",
+      product: "LoadCalcPro Professional Membership"
+    })
+  });
+
+  let data = {};
+  try{
+    data = await response.json();
+  }catch(e){
+    data = {};
+  }
+
+  if(!response.ok){
+    return {
+      active:false,
+      message:data.message || data.error || "Membership check failed. Please try again."
+    };
+  }
+
+  const isActive =
+    data.active === true ||
+    data.access === true ||
+    data.allowed === true ||
+    data.ok === true ||
+    String(data.status || "").toLowerCase() === "active";
+
+  return {
+    active:isActive,
+    message:data.message || (isActive ? "Access approved." : "Subscription required. Please renew your membership to continue.")
+  };
+}
+
+function getRememberedEmail(){
+  try{
+    return String(localStorage.getItem(LOADCALCPRO_REMEMBERED_EMAIL_KEY) || "")
+      .trim()
+      .toLowerCase();
+  }catch(e){
+    return "";
+  }
+}
+
+function updateRememberedEmailControls(){
+  const emailEl = document.getElementById("memberEmail");
+  const rememberEl = document.getElementById("rememberMemberEmail");
+  const forgetButton = document.getElementById("forgetEmailButton");
+  const rememberedEmail = getRememberedEmail();
+
+  if(emailEl && rememberedEmail && !emailEl.value){
+    emailEl.value = rememberedEmail;
+  }
+
+  if(rememberEl){
+    rememberEl.checked = !!rememberedEmail || rememberEl.checked;
+  }
+
+  if(forgetButton){
+    forgetButton.style.display = rememberedEmail ? "inline-block" : "none";
+  }
+}
+
+function rememberMembershipEmail(email){
+  const rememberEl = document.getElementById("rememberMemberEmail");
+  try{
+    if(rememberEl && rememberEl.checked){
+      localStorage.setItem(LOADCALCPRO_REMEMBERED_EMAIL_KEY, email);
+    } else {
+      localStorage.removeItem(LOADCALCPRO_REMEMBERED_EMAIL_KEY);
+    }
+  }catch(e){}
+  updateRememberedEmailControls();
+}
+
+function forgetRememberedEmail(){
+  try{
+    localStorage.removeItem(LOADCALCPRO_REMEMBERED_EMAIL_KEY);
+    sessionStorage.removeItem(LOADCALCPRO_ACCESS_KEY);
+  }catch(e){}
+
+  const emailEl = document.getElementById("memberEmail");
+  const rememberEl = document.getElementById("rememberMemberEmail");
+  const forgetButton = document.getElementById("forgetEmailButton");
+
+  if(emailEl) emailEl.value = "";
+  if(rememberEl) rememberEl.checked = false;
+  if(forgetButton) forgetButton.style.display = "none";
+
+  setAccessMessage("Saved email removed from this device.", "ok");
+  if(emailEl) emailEl.focus();
+}
+
+function unlockCalculator(email){
+  try{
+    sessionStorage.setItem(LOADCALCPRO_ACCESS_KEY, JSON.stringify({email:email, unlockedAt:new Date().toISOString()}));
+  }catch(e){}
+  document.body.classList.remove("access-locked");
+  setAccessMessage("Access approved. Opening calculator...", "ok");
+  showRestorePromptIfNeeded();
+}
+
+async function requestCalculatorAccess(){
+  const emailEl = document.getElementById("memberEmail");
+  const button = document.getElementById("accessButton");
+  const email = emailEl ? emailEl.value.trim().toLowerCase() : "";
+
+  if(!validEmail(email)){
+    setAccessMessage("Please enter a valid email address.", "error");
+    if(emailEl) emailEl.focus();
+    return;
+  }
+
+  try{
+    if(button){button.disabled=true; button.textContent="Checking...";}
+    setAccessMessage("Checking membership access...", "");
+    const result = await verifyMembershipEmail(email);
+    if(result && result.active){
+      rememberMembershipEmail(email);
+      unlockCalculator(email);
+    } else {
+      setAccessMessage((result && result.message) || "Subscription required. Please renew your membership to continue.", "error");
+    }
+  }catch(e){
+    setAccessMessage("Access check failed. Please try again.", "error");
+  }finally{
+    if(button){button.disabled=false; button.textContent="Continue";}
+  }
+}
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Enter" && document.body.classList.contains("access-locked")){
+    requestCalculatorAccess();
+  }
+});
+const STORAGE_KEY = "loadcalcpro_generator_optional_nec2023_v1";
+let suppressAutoSave = false;
+let restorePromptOpen = false;
+const DATA = {"labels": {"4": "GENERAL LOADS", "5": "Square Footage @ 3 VA/ft²", "6": "Small appliance", "7": "Laundry", "8": "GENERAL LOADS SUBTOTAL", "9": "APPLIANCES LOADS NAMEPLATE", "10": "Dishwasher", "11": "Disposal", "12": "Refrigerator", "13": "Microwave", "14": "Hood fan", "15": "Freezer", "16": "Range (Name plate)", "17": "Wall Oven (Name plate)", "18": "Cooktop", "19": "Bath fan", "20": "Wine cooler", "21": "Coffee machine", "22": "Golf cart charger", "23": "", "24": "Irrigation pump", "25": "Garage Door Opener", "26": "", "27": "Pool equipment", "28": "Sauna", "29": "Water Heater", "30": "Dryer", "31": "APPLIANCES LOADS SUBTOTAL", "32": "GENERAL AND APPLIANCE LOADS", "33": "FIRST 10K of GENERAL AND APPLIANCE", "34": "REMAINDER @ 40%", "35": "TOTAL DERATED LOAD", "36": "HVAC AND CONTINUOUS", "37": "A/C at 100%", "38": "Heat at 65%", "39": "A/C at 100%", "40": "Heat at 65%", "41": "Heat at 40%", "42": null, "43": "EV Charger", "44": "HVAC AND CONTINUOUS", "45": "TOTAL CALCULATED LOAD WATTS", "46": "SELECT SERVICE VOLTAGE", "47": "MINIMUM SERVICE AMPACITY"}, "qty": {"5": 3, "6": 2, "7": 1, "8": "", "9": "QTY", "10": 1, "11": 1, "12": 1, "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "", "32": "", "33": "", "34": 0.4, "35": "", "36": "QTY", "37": "", "38": "", "39": "", "40": "", "41": "", "42": "", "43": "", "44": "", "45": "", "46": 240, "47": ""}, "va": {"5": 2000, "6": 1500, "7": 1500, "8": "", "9": "VA", "10": 1500, "11": 1500, "12": 1500, "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "", "32": "", "33": "", "34": "=_xlfn.LET(_xlpm.result, _xlfn.AGGREGATE(9, 6, E32) - _xlfn.AGGREGATE(9, 6, E33), IF(_xlpm.result=0, \"\", _xlpm.result))", "35": "", "36": "VA", "37": "", "38": "", "39": "", "40": "", "41": "", "42": "", "43": "", "44": "", "45": "", "46": "", "47": ""}, "managed": {"10": false, "11": false, "12": false, "13": false, "14": false, "15": false, "16": false, "17": false, "18": false, "19": false, "20": false, "21": false, "22": false, "23": false, "24": false, "25": false, "26": false, "27": false, "28": false, "29": false, "30": false, "37": false, "38": false, "39": false, "40": false, "41": false, "42": false, "43": false}, "inputRows": [5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 37, 38, 39, 40, 42, 43, 46], "managedRows": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 37, 38, 39, 40, 41, 42, 43], "summaryRows": [8, 31, 32, 33, 34, 35, 41, 44, 45, 47], "sectionRows": [4, 9, 36, 46]};
+const EDITABLE_LABEL_ROWS = [19,20,21,22,23,24,25,26,27,28,42];
+const REMOVED_ROWS = [];
+
+function num(v){ const n = parseFloat(v); return Number.isFinite(n) && n > 0 ? n : 0; }
+function sanitizeNonNegative(el){
+  if(!el) return;
+  const text = String(el.value).trim();
+  if(text === "") return;
+  const n = parseFloat(text);
+  // Quantity and VA fields should never show zero or a negative number.
+  // Blank means this row is not being used.
+  if(!Number.isFinite(n) || n <= 0){
+    el.value = "";
+  }
+}
+function hasPositiveEntry(id){
+  const el = document.getElementById(id);
+  if(!el) return false;
+  const text = String(el.value).trim();
+  if(text === "") return false;
+  const n = parseFloat(text);
+  return Number.isFinite(n) && n > 0;
+}
+function hasCompleteLoadInput(r){
+  // Voltage is a selector, not a load row.
+  if(r===46) return true;
+  return hasPositiveEntry("q"+r) && hasPositiveEntry("v"+r);
+}
+function money(n){ return n ? Math.round(n).toLocaleString() : ""; }
+function watts(n){ return n ? Math.round(n).toLocaleString()+" W" : ""; }
+function amps(n){ return n ? (Math.round(n*10)/10).toLocaleString()+" A" : ""; }
+function isManagedRow(r){ return DATA.managedRows.includes(r); }
+function isInputRow(r){ return DATA.inputRows.includes(r); }
+function isSummaryRow(r){ return DATA.summaryRows.includes(r); }
+function isSectionRow(r){ return DATA.sectionRows.includes(r); }
+function isEditableLabelRow(r){ return EDITABLE_LABEL_ROWS.includes(r); }
+function q(r){ const el=document.getElementById("q"+r); return el ? num(el.value) : 0; }
+function v(r){ const el=document.getElementById("v"+r); return el ? num(el.value) : 0; }
+function checked(r){ const el=document.getElementById("m"+r); return el ? el.classList.contains("checked") : false; }
+function setOut(r, val, genVal=null){
+  const e=document.getElementById("e"+r); if(e) e.textContent=money(val);
+  const f=document.getElementById("f"+r); if(f) f.textContent=genVal===null ? "" : money(genVal);
+}
+function rowVA(r){
+  // Blank Quantity or blank VA means this row is not calculated.
+  if(!hasCompleteLoadInput(r)) return 0;
+  // NEC 2023 220.57 EVSE rule:
+  // EV Charger uses 7,200 W/VA or nameplate rating, whichever is larger,
+  // but only after both Quantity and VA/nameplate are entered.
+  if(r===43){
+    return q(43) * Math.max(7200, v(43));
+  }
+  return q(r)*v(r);
+}
+
+function build(){
+  const tb=document.getElementById("tbody"); tb.innerHTML="";
+  for(let r=4;r<=47;r++){
+    if(REMOVED_ROWS.includes(r)) continue;
+    const tr=document.createElement("tr");
+    tr.id = "row" + r;
+    if(isSectionRow(r)) tr.className="section";
+    if(isSummaryRow(r)) tr.className += (r===45 || r===47 ? " total" : " subtotal");
+    const label=DATA.labels[String(r)] || "";
+    let qtyCell="", vaCell="", serviceCell=`<span class="out" id="e${r}"></span>`, managedCell="", genCell=`<span class="out" id="f${r}"></span>`;
+    if(isSectionRow(r)){
+      if(r===46){
+        qtyCell = `<select id="q${r}" onchange="calculate()"><option value="208" ${String(DATA.qty[String(r)] ?? 240)==="208" ? "selected" : ""}>208</option><option value="240" ${String(DATA.qty[String(r)] ?? 240)!=="208" ? "selected" : ""}>240</option></select>`;
+        serviceCell = "SERVICE LOAD"; genCell = "GEN LOAD";
+      } else {
+        serviceCell = r===4 ? "VA" : "VA";
+        managedCell = r===4 ? "MANAGED" : "";
+        genCell = r===4 ? "" : "";
+      }
+    } else {
+      if(isInputRow(r)){
+        if(r===5){
+          qtyCell = `<input id="q${r}" type="number" min="0" step="any" value="" oninput="sanitizeNonNegative(this);calculate()">`;
+          vaCell = `<input id="v${r}" type="number" value="3" readonly class="fixedValue">`;
+        } else if(r===6){
+          qtyCell = `<input id="q${r}" type="number" min="0" step="1" value="2" oninput="sanitizeNonNegative(this);calculate()">`;
+          vaCell = `<input id="v${r}" type="number" value="1500" readonly class="fixedValue">`;
+        } else if(r===7){
+          qtyCell = `<input id="q${r}" type="number" min="0" step="1" value="1" oninput="sanitizeNonNegative(this);calculate()">`;
+          vaCell = `<input id="v${r}" type="number" value="1500" readonly class="fixedValue">`;
+        } else {
+          qtyCell = `<input id="q${r}" type="number" min="0" step="any" value="" oninput="sanitizeNonNegative(this);calculate()">`;
+          vaCell = `<input id="v${r}" type="number" min="0" step="any" value="" oninput="sanitizeNonNegative(this);calculate()">`;
+        }
+      }
+      if(r===41){
+        qtyCell = `<span class="center" id="q41out"></span>`;
+        vaCell = `<span class="small center">Auto</span>`;
+      }
+      if(isManagedRow(r)){
+        const chk = DATA.managed[String(r)] ? " checked" : "";
+        managedCell = `<span id="m${r}" class="check${chk}" onclick="toggleManaged(${r})">${chk ? "✓" : ""}</span>`;
+      }
+    }
+    const labelCell = isEditableLabelRow(r) ? `<input id="label${r}" class="descInput" type="text" value="${label}" oninput="saveState()">` : label;
+    tr.innerHTML = `<td class="label">${labelCell}</td><td>${qtyCell}</td><td>${vaCell}</td><td class="out">${serviceCell}</td><td class="center">${managedCell}</td><td class="out">${genCell}</td>`;
+    tb.appendChild(tr);
+  }
+  const spacer=document.createElement("tr");
+  spacer.className="after-min-amp-spacer";
+  spacer.innerHTML='<td colspan="6"></td>';
+  tb.appendChild(spacer);
+  calculate();
+}
+
+function hasEnteredInput(r){
+  if(r===46) return true;
+  return hasCompleteLoadInput(r);
+}
+
+function updatePrintRows(){
+  // Print only rows tied to actual entered information.
+  // Blank input rows are hidden even if the calculator would otherwise show 0.
+  // HVAC rows are handled separately so the print page shows the complete
+  // controlling method row: A/C at 100%, Heat at 65%, or Heat at 40%.
+  let hasGeneral=false, hasAppliance=false, hasHvac=false;
+
+  for(let r=4;r<=47;r++){
+    const row = document.getElementById("row"+r);
+    if(row) row.classList.add("print-hide");
+  }
+
+  for(const r of [5,6,7]){
+    const row=document.getElementById("row"+r), service=document.getElementById("e"+r);
+    const show = hasEnteredInput(r) && service && service.textContent.trim() !== "";
+    if(row) row.classList.toggle("print-hide", !show);
+    if(show) hasGeneral=true;
+  }
+
+  for(let r=10;r<=30;r++){
+    const row=document.getElementById("row"+r), service=document.getElementById("e"+r);
+    const show = hasEnteredInput(r) && service && service.textContent.trim() !== "";
+    if(row) row.classList.toggle("print-hide", !show);
+    if(show) hasAppliance=true;
+  }
+
+  // Determine exactly which HVAC method is controlling.
+  const ac1 = rowVA(37), heat1 = rowVA(38);
+  const ac2 = rowVA(39), heat2 = rowVA(40);
+  const totalAc = ac1 + ac2;
+  const totalHeat = heat1 + heat2;
+  const heatQty = (hasCompleteLoadInput(38) ? q(38) : 0) + (hasCompleteLoadInput(40) ? q(40) : 0);
+  const heat40Controls = heatQty >= 4 && (totalHeat * 0.40) >= totalAc;
+  const heat65Controls = heatQty > 0 && heatQty < 4 && (totalHeat * 0.65) >= totalAc;
+  const acControls = totalAc > 0 && !heat40Controls && !heat65Controls;
+
+  // Show the complete rows that actually contribute to the HVAC total.
+  for(const r of [37,38,39,40,41,42,43]){
+    const row = document.getElementById("row"+r);
+    const service = document.getElementById("e"+r);
+    let show = false;
+
+    if(r===37 || r===39){
+      show = acControls && hasEnteredInput(r) && service && service.textContent.trim() !== "";
+    } else if(r===38 || r===40){
+      show = heat65Controls && hasEnteredInput(r) && service && service.textContent.trim() !== "";
+    } else if(r===41){
+      // Force the entire Heat at 40% row to print when that method controls.
+      show = heat40Controls && service && service.textContent.trim() !== "";
+    } else {
+      show = hasEnteredInput(r) && service && service.textContent.trim() !== "";
+    }
+
+    if(row) row.classList.toggle("print-hide", !show);
+    if(show) hasHvac = true;
+  }
+
+  // Show summary/total rows only when they have a calculated Service Load VA and their section has data.
+  const summaryRules = {8:hasGeneral, 31:false, 32:(hasGeneral||hasAppliance), 33:(hasGeneral||hasAppliance), 34:(hasGeneral||hasAppliance), 35:(hasGeneral||hasAppliance), 44:hasHvac, 45:(hasGeneral||hasAppliance||hasHvac), 47:(hasGeneral||hasAppliance||hasHvac)};
+  for(const key in summaryRules){
+    const r=Number(key), row=document.getElementById("row"+r), service=document.getElementById("e"+r);
+    const show = summaryRules[key] && service && service.textContent.trim() !== "";
+    if(row) row.classList.toggle("print-hide", !show);
+  }
+
+  // Keep section headers only when that section has visible rows.
+  const sectionRules = {4:hasGeneral, 9:hasAppliance, 36:hasHvac, 46:false};
+  for(const key in sectionRules){
+    const row=document.getElementById("row"+key);
+    if(row) row.classList.toggle("print-hide", !sectionRules[key]);
+  }
+}
+
+function toggleManaged(r){
+  const el=document.getElementById("m"+r);
+  el.classList.toggle("checked");
+  el.textContent = el.classList.contains("checked") ? "✓" : "";
+  calculate();
+}
+
+function improveEVRow(){
+  const q43 = document.getElementById("q43");
+  const v43 = document.getElementById("v43");
+  if(q43){
+    q43.title = "EV charger quantity. Leave blank if no EV charger.";
+    q43.placeholder = "Qty";
+  }
+  if(v43){
+    v43.title = "Enter EV charger nameplate watts/VA. Row calculates only when Qty and VA are both entered; calculator uses 7,200 W or nameplate, whichever is larger.";
+    v43.placeholder = "Nameplate W/VA";
+  }
+}
+
+function calculate(){
+  document.querySelectorAll('input[id^="q"], input[id^="v"]').forEach(sanitizeNonNegative);
+  improveEVRow();
+  // Row calculations based on the worksheet formulas.
+  const general = rowVA(5)+rowVA(6)+rowVA(7);
+  setOut(5,rowVA(5),rowVA(5)); setOut(6,rowVA(6),rowVA(6)); setOut(7,rowVA(7),rowVA(7)); setOut(8,general,general);
+
+  let applTotal=0, applGen=0, managedCount=0, managedVA=0;
+  for(let r=10;r<=30;r++){
+    const val=rowVA(r);
+    applTotal += val;
+    if(checked(r) && val>0){managedCount++; managedVA += val;} else {applGen += val;}
+    setOut(r,val, checked(r) ? 0 : val);
+  }
+  setOut(9,null,managedVA);
+  setOut(31,applTotal,applGen);
+
+  const combined = general + applTotal;
+  const combinedGen = general + applGen;
+  setOut(32,combined,combinedGen);
+  const first10 = combined ? Math.min(combined,10000) : 0;
+  const first10Gen = combinedGen ? Math.min(combinedGen,10000) : 0;
+  setOut(33,first10,first10Gen);
+  const rem = Math.max(combined-first10,0);
+  const remGen = Math.max(combinedGen-first10Gen,0);
+  setOut(34,rem*0.4, remGen*0.4);
+  const derated = first10 + rem*0.4;
+  const deratedGen = first10Gen + remGen*0.4;
+  setOut(35,derated,deratedGen);
+
+  // HVAC logic: use the larger of A/C at 100% or heat.
+  // When the total quantity entered on the Heat at 65% rows is 4 or more,
+  // heating is calculated at 40% instead of 65%.
+  const ac1=rowVA(37), heat1=rowVA(38);
+  const ac2=rowVA(39), heat2=rowVA(40);
+  const totalAc = ac1 + ac2;
+  const totalHeat = heat1 + heat2;
+  const heatQty = (hasCompleteLoadInput(38) ? q(38) : 0) + (hasCompleteLoadInput(40) ? q(40) : 0);
+  const heat40 = heatQty >= 4 ? totalHeat*0.4 : 0;
+  const heat65 = heatQty > 0 && heatQty < 4 ? totalHeat*0.65 : 0;
+  document.getElementById("q41out").textContent = heatQty >= 4 ? heatQty : "";
+  let hvacVals = {};
+  if(heatQty >= 4){
+    if(heat40 >= totalAc){
+      hvacVals[37]=0; hvacVals[38]=0; hvacVals[39]=0; hvacVals[40]=0; hvacVals[41]=heat40;
+    } else {
+      hvacVals[37]=ac1; hvacVals[38]=0; hvacVals[39]=ac2; hvacVals[40]=0; hvacVals[41]=0;
+    }
+  } else {
+    if(heat65 >= totalAc){
+      hvacVals[37]=0; hvacVals[38]=heat1*0.65; hvacVals[39]=0; hvacVals[40]=heat2*0.65; hvacVals[41]=0;
+    } else {
+      hvacVals[37]=ac1; hvacVals[38]=0; hvacVals[39]=ac2; hvacVals[40]=0; hvacVals[41]=0;
+    }
+  }
+  hvacVals[42]=rowVA(42);
+  hvacVals[43]=rowVA(43);
+
+  let hvacTotal=0, hvacGen=0;
+  for(const rr of [37,38,39,40,41,42,43]){
+    hvacTotal += hvacVals[rr] || 0;
+    const genVal = checked(rr) ? 0 : (hvacVals[rr] || 0);
+    hvacGen += genVal;
+    setOut(rr,hvacVals[rr] || 0, genVal);
+  }
+  setOut(44,hvacTotal,hvacGen);
+  const total = derated + hvacTotal;
+  const totalGen = deratedGen + hvacGen;
+  setOut(45,total,totalGen);
+  const voltage = q(46)||240;
+  setOut(47,total/voltage,totalGen/voltage);
+  updatePrintRows();
+  saveState();
+
+}
+function goHome(){
+  window.location.href = "https://loadcalcpro.github.io/electrical-load-calculator/";
+}
+
+function clearInputs(skipSave=false){
+  const previousSuppress = suppressAutoSave;
+  if(skipSave) suppressAutoSave = true;
+  // Clear project information fields.
+  for(const id of ["projectName","projectNumber","projectAddress","projectCityState"]){
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  }
+
+  for(const r of DATA.inputRows){
+    if(r===46) continue;
+    const qe=document.getElementById("q"+r), ve=document.getElementById("v"+r);
+    if(r===5){
+      if(qe) qe.value="";
+      if(ve) ve.value="3";
+      continue;
+    }
+    if(r===6){
+      if(qe) qe.value="2";
+      if(ve) ve.value="1500";
+      continue;
+    }
+    if(r===7){
+      if(qe) qe.value="1";
+      if(ve) ve.value="1500";
+      continue;
+    }
+    if(qe) qe.value="";
+    if(ve) ve.value="";
+  }
+  for(const r of DATA.managedRows){
+    const el=document.getElementById("m"+r);
+    if(el){el.classList.remove("checked"); el.textContent="";}
+  }
+  calculate();
+  suppressAutoSave = previousSuppress;
+  if(!skipSave) saveState();
+}
+
+function collectState(){
+  const state = {inputs:{}, labels:{}, managed:{}, savedAt:new Date().toISOString()};
+  document.querySelectorAll("input, select").forEach(el => {
+    if(el.id) state.inputs[el.id] = el.value;
+  });
+  for(const r of EDITABLE_LABEL_ROWS){
+    const el = document.getElementById("label"+r);
+    if(el) state.labels[r] = el.value;
+  }
+  for(const r of DATA.managedRows){
+    const el = document.getElementById("m"+r);
+    if(el) state.managed[r] = !!(el && el.classList.contains("checked"));
+  }
+  return state;
+}
+
+function hasMeaningfulState(state){
+  if(!state) return false;
+
+  // Project information counts as saved work.
+  for(const id of ["projectName","projectNumber","projectAddress","projectCityState"]){
+    if(state.inputs && String(state.inputs[id] || "").trim() !== "") return true;
+  }
+
+  // Quantity and VA entries count as saved work. Ignore default helper fields.
+  if(state.inputs){
+    for(const id in state.inputs){
+      if(id === "q5" || id === "q46") continue;
+      if(id.startsWith("q") || id.startsWith("v")){
+        if(String(state.inputs[id] || "").trim() !== "") return true;
+      }
+    }
+  }
+
+  // Custom load descriptions count only if they differ from the default labels.
+  if(state.labels){
+    for(const r in state.labels){
+      const defaultLabel = DATA.labels[String(r)] || "";
+      if(String(state.labels[r] || "") !== defaultLabel) return true;
+    }
+  }
+
+  // Any checked managed load counts as saved work.
+  if(state.managed){
+    for(const r in state.managed){
+      if(state.managed[r]) return true;
+    }
+  }
+
+  return false;
+}
+
+function saveState(){
+  if(suppressAutoSave || restorePromptOpen) return;
+  try{
+    const state = collectState();
+
+    // Safety behavior:
+    // A blank calculator is NOT saved. This makes every first-time user open
+    // to a fresh calculator and prevents a blank saved session from causing
+    // the previous-calculation prompt.
+    if(!hasMeaningfulState(state)){
+      localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    // If local storage is unavailable, the calculator still works normally.
+  }
+}
+
+function updateSaveStatus(){
+  // Status display intentionally omitted for Version 1.0.
+}
+
+function restoreState(state){
+  if(!state) return;
+  suppressAutoSave = true;
+  if(state.inputs){
+    for(const id in state.inputs){
+      const el=document.getElementById(id);
+      if(el) el.value = state.inputs[id];
+    }
+  }
+  if(state.labels){
+    for(const r in state.labels){
+      const el=document.getElementById("label"+r);
+      if(el) el.value = state.labels[r];
+    }
+  }
+  if(state.managed){
+    for(const r in state.managed){
+      const el=document.getElementById("m"+r);
+      if(el){
+        el.classList.toggle("checked", !!state.managed[r]);
+        el.textContent = state.managed[r] ? "✓" : "";
+      }
+    }
+  }
+  calculate();
+  suppressAutoSave = false;
+  saveState();
+}
+
+function getSavedState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function showRestorePromptIfNeeded(){
+  const saved = getSavedState();
+
+  // First-time users, or users with no meaningful saved work, always open
+  // to a fresh blank calculator. Only that person's own browser can create
+  // a saved calculation after they enter data.
+  if(!saved || !hasMeaningfulState(saved)){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    return;
+  }
+
+  restorePromptOpen = true;
+  const modal=document.getElementById("restoreModal");
+  if(modal) modal.classList.add("show");
+}
+
+function hideRestorePrompt(){
+  restorePromptOpen = false;
+  const modal=document.getElementById("restoreModal");
+  if(modal) modal.classList.remove("show");
+}
+
+function continuePreviousCalculation(){
+  const saved = getSavedState();
+  hideRestorePrompt();
+  restoreState(saved);
+}
+
+function startNewFromSavedPrompt(){
+  if(confirm("Start a new calculation? Your previously saved calculation will be replaced.")){
+    hideRestorePrompt();
+    localStorage.removeItem(STORAGE_KEY);
+    clearInputs(true);
+  }
+}
+
+function startNewCalculationFromButton(){
+  if(confirm("Start a new calculation? This will clear the current entries on this calculator.")){
+    localStorage.removeItem(STORAGE_KEY);
+    clearInputs(true);
+  }
+}
+
+window.addEventListener("beforeprint", updatePrintRows);
+// Build the calculator without overwriting a saved calculation on page load.
+// Keep the previous-calculation prompt hidden until membership access is approved.
+suppressAutoSave = true;
+build();
+suppressAutoSave = false;
+
+// Fill a remembered membership email, when available.
+updateRememberedEmailControls();
+
+// If this browser tab was already approved, open immediately.
+// Otherwise, a remembered email is verified again with the access server.
+// This means a canceled membership will not stay unlocked merely because
+// the email was saved on the device.
+(async function initializeMemberAccess(){
+  try{
+    const savedAccess = sessionStorage.getItem(LOADCALCPRO_ACCESS_KEY);
+    if(savedAccess){
+      document.body.classList.remove("access-locked");
+      showRestorePromptIfNeeded();
+      return;
+    }
+  }catch(e){}
+
+  const rememberedEmail = getRememberedEmail();
+  if(!rememberedEmail) return;
+
+  const button = document.getElementById("accessButton");
+  try{
+    if(button){
+      button.disabled = true;
+      button.textContent = "Checking...";
+    }
+    setAccessMessage("Checking saved membership email...", "");
+    const result = await verifyMembershipEmail(rememberedEmail);
+
+    if(result && result.active){
+      unlockCalculator(rememberedEmail);
+    } else {
+      setAccessMessage(
+        (result && result.message) ||
+        "Saved email is not connected to an active membership.",
+        "error"
+      );
+    }
+  }catch(e){
+    setAccessMessage(
+      "The saved email could not be checked. Please try again.",
+      "error"
+    );
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = "Continue";
+    }
+  }
+})();
+</script>
+</body>
+</html>

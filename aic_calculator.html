@@ -1,2 +1,725 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>AIC Access Test | LoadCalcPro X Staging</title><meta name="description" content="LoadCalcPro X is a professional electrical calculation suite providing accurate electrical calculation tools for contractors, designers, inspectors, and engineers."><style>body{margin:0;font-family:Arial,sans-serif;background:#eef3f7;color:#182433}header{background:#10233f;color:#fff;border-bottom:4px solid #d2a84b;padding:26px}.brand-subtitle{font-size:13px;opacity:.8;margin-top:4px}.wrap{width:min(680px,calc(100% - 32px));margin:48px auto}.panel{background:#fff;border:1px solid #d9e1e8;border-radius:16px;padding:30px;box-shadow:0 14px 34px rgba(16,35,63,.12)}h1{color:#10233f}.badge{display:inline-block;background:#fff3cd;color:#6d5200;padding:7px 11px;border-radius:999px;font-weight:700;margin-left:10px}.status{margin:22px 0;padding:14px;border-radius:8px;background:#eef3f7}.success{background:#ecfdf3;color:#16794f}.error{background:#fff1f0;color:#b42318}a{color:#176b47;font-weight:700}.site-footer{text-align:center;color:#667487;font-size:13px;padding:0 16px 28px}</style></head><body><header><strong style="font-size:24px">LoadCalcPro X</strong> <span class="badge">STAGING — TEST ONLY</span><div class="brand-subtitle">Professional Electrical Calculation Suite</div></header><main class="wrap"><section class="panel"><h1>AIC Calculator Access Test</h1><p>This page verifies that the signed-in staging member has AIC access. The live calculator has not been copied into this isolated test repository.</p><div id="status" class="status">Checking secure access…</div><a href="staging-member-dashboard.html">Return to Staging Dashboard</a></section></main><footer class="site-footer">© LoadCalcPro X. All rights reserved.<br>Version 1.0.0</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>"use strict";const client=window.supabase.createClient("https://jvnkncpljuaeycwjyeai.supabase.co","sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF",{auth:{persistSession:true,autoRefreshToken:true}});const statusBox=document.getElementById("status");(async()=>{try{const{data,error}=await client.auth.getSession();if(error)throw error;if(!data.session)throw new Error("You are not signed in to staging.");const r=await fetch("https://loadcalcpro-hcml-api-staging.onrender.com/api/v2/access",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.access_token},body:JSON.stringify({calculator:"aic"})});const result=await r.json().catch(()=>({}));if(!r.ok||result.active!==true)throw new Error(result.message||"AIC access was not approved.");statusBox.textContent="Success: staging authentication and AIC membership access were both verified.";statusBox.className="status success"}catch(err){statusBox.textContent=err.message||"Unable to verify access.";statusBox.className="status error"}})();</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow">
+  <title>LoadCalcPro | AIC Calculator | Staging</title>
+  <style>
+    :root { --blue:#1e3a8a; --blue2:#0f172a; --accent:#0f766e; --light:#e8eefc; --grid:#c9d3dc; --text:#111827; --muted:#6b7280; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:Arial, Helvetica, sans-serif; color:var(--text); background:#f3f4f6; }
+    .page { max-width:1100px; margin:24px auto; padding:22px; background:transparent; }
+    .form-titlebar { display:grid; grid-template-columns:1fr auto; align-items:center; gap:14px; margin-bottom:12px; padding:2px 2px 0; color:#111827; }
+    .form-title { font-size:15px; font-weight:800; color:#0f172a; letter-spacing:.1px; }
+    .form-version { font-size:11px; font-weight:700; color:#6b7280; margin-top:2px; letter-spacing:.12px; }
+    .title-actions { display:flex; align-items:center; gap:12px; }
+    .form-brand { font-size:12px; font-weight:800; color:#1e3a8a; opacity:.78; white-space:nowrap; letter-spacing:.15px; }
+    .bolt { color:#0f766e; margin-right:3px; }
+    main { padding:0; }
+    h2 { margin:0; font-size:20px; color:var(--blue); }
+    .calc-heading-row { display:flex; align-items:center; gap:14px; margin:0 0 14px; }
+    .calc-heading-row h2 { flex:0 0 auto; }
+    .calc-heading-input { width:280px; max-width:42%; padding:9px 10px; border:1px solid #2f75b5; border-radius:8px; font-size:15px; background:white; }
+    .calc-heading-input:focus { outline:2px solid #9cc9ee; border-color:#2f75b5; }
+    .grid { display:grid; grid-template-columns: 1fr; gap:22px; align-items:start; }
+    .card { border:1px solid #d1d5db; border-radius:14px; background:#fff; padding:18px; box-shadow:0 4px 18px rgba(15,23,42,.08); }
+    .form-grid { display:grid; grid-template-columns: 1.6fr 1fr; gap:12px 16px; align-items:center; }
+    label { font-weight:600; color:#334155; }
+    input, select { width:100%; padding:9px 10px; border:1px solid #b8c6d8; border-radius:8px; font-size:15px; background:white; }
+    input::placeholder { color:#9ca3af; opacity:1; }
+    select.placeholder { color:#9ca3af; }
+    select option { color:#111827; }
+    input:focus, select:focus { outline:2px solid #9cc9ee; border-color:#2f75b5; }
+    .result { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+    .metric { background:var(--light); border:1px solid #cfe3f2; border-radius:12px; padding:16px; }
+    .metric .label { color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.08em; }
+    .metric .value { font-size:28px; font-weight:700; margin-top:5px; color:#0f3557; }
+    .formula { font-family: Consolas, Monaco, monospace; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px; font-size:16px; line-height:1.7; margin-top:14px; color:#334155; }
+    .formula-title { font-family:Arial, Helvetica, sans-serif; font-size:18px; margin-bottom:10px; color:#17365d; }
+    .formula-line { display:grid; grid-template-columns:42px 18px auto; align-items:baseline; }
+    .formula-value { font-weight:400; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+    th, td { border:1px solid var(--grid); padding:7px 8px; text-align:center; }
+    th { background:#d9eaf7; color:#17365d; font-weight:700; }
+    td:first-child, th:first-child { text-align:left; font-weight:700; }
+    .section-title { background:#1f4e78; color:white; text-align:left; font-size:15px; }
+    .note { color:var(--muted); font-size:13px; margin-top:10px; }
+    .button-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+    .panel-controls { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 0; }
+    .panel-number { font-size:12px; font-weight:700; color:#64748b; margin-bottom:8px; }
+    button { border:1px solid #1e3a8a; border-radius:10px; padding:9px 13px; font-weight:700; cursor:pointer; background:#1e3a8a; color:white; }
+    button.secondary { background:#fff; color:#1e3a8a; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    @media (max-width: 850px) { .grid { grid-template-columns:1fr; } main { padding:18px; } .result { grid-template-columns:1fr; } }
+    @media print {
+      @page { size:auto; margin:.22in; }
+      html, body { background:white; }
+      body { zoom:.82; }
+      .no-print { display:none!important; }
+      .card.optional-empty { display:none!important; }
+      .page { margin:0; padding:0; max-width:none; }
+      .grid { gap:8px; }
+      .card {
+        break-inside:avoid;
+        page-break-inside:avoid;
+        box-shadow:none;
+        border-radius:7px;
+        margin-bottom:7px;
+        padding:8px 10px;
+      }
+      button { display:none!important; }
+      .form-titlebar { display:grid!important; grid-template-columns:1fr auto; margin:0 0 4px; }
+      .form-title { font-size:10px; }
+      .form-version { font-size:7.5px; margin-top:0; }
+      .form-brand { font-size:9px; }
+      h2 { font-size:13px; }
+      .calc-heading-row { gap:8px; margin-bottom:5px; }
+      .calc-heading-input { max-width:38%; }
+      .calc-heading-input, input, select { padding:3px 5px; font-size:9.5px; border-radius:3px; }
+      .form-grid { gap:3px 8px; }
+      label { font-size:9.5px; line-height:1.1; }
+      .result { gap:5px; margin-top:5px; }
+      .metric { padding:5px 7px; border-radius:4px; }
+      .metric .label { font-size:7.5px; }
+      .metric .value { font-size:14px; margin-top:1px; }
+      .formula { padding:5px 7px; margin-top:5px; font-size:9.5px; line-height:1.25; border-radius:4px; }
+      .formula-title { font-size:10.5px; margin-bottom:2px; }
+      .formula-line { grid-template-columns:34px 14px auto; }
+      .panel-number { font-size:8px; margin-bottom:2px; }
+      .button-row, .panel-controls, .note { display:none!important; }
+    }
+
+    /* LoadCalcPro access protection */
+    body.access-locked { overflow:hidden; }
+    #accessGate {
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 58%,#0f766e 100%);
+    }
+    #accessGate[hidden] { display:none!important; }
+    .access-box {
+      width:min(430px,100%);
+      background:#fff;
+      border-radius:16px;
+      padding:28px;
+      box-shadow:0 24px 70px rgba(0,0,0,.32);
+      text-align:center;
+    }
+    .access-brand {
+      color:#1e3a8a;
+      font-size:24px;
+      font-weight:800;
+      margin-bottom:5px;
+    }
+    .access-subtitle {
+      color:#475569;
+      font-size:14px;
+      margin-bottom:22px;
+    }
+    .access-box label {
+      display:block;
+      text-align:left;
+      margin-bottom:7px;
+      color:#334155;
+    }
+    .access-box input {
+      margin-bottom:12px;
+    }
+    
+    .remember-row {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:0 0 14px;
+      text-align:left;
+      color:#475569;
+      font-size:13px;
+    }
+    .remember-row input {
+      width:auto;
+      margin:0;
+    }
+    .remember-row label {
+      display:inline;
+      margin:0;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+.access-box button {
+      width:100%;
+      padding:11px 14px;
+    }
+    #accessMessage {
+      min-height:20px;
+      margin-top:12px;
+      font-size:13px;
+      color:#b91c1c;
+    }
+    #accessMessage.success { color:#047857; }
+    .logout-button {
+      background:#fff!important;
+      color:#1e3a8a!important;
+      margin-left:8px;
+    }
+    @media print {
+      #accessGate, .logout-button { display:none!important; }
+    }
+
+  </style>
+</head>
+<body class="access-locked">
+
+  <div id="accessGate" aria-label="LoadCalcPro member login">
+    <form class="access-box" id="accessForm">
+      <div class="access-brand">⚡ LoadCalcPro</div>
+      <div class="access-subtitle">AIC Calculator — Member Access</div>
+      <label for="accessEmail">Membership email</label>
+      <input id="accessEmail" type="email" autocomplete="email"
+        placeholder="Enter the email used for your membership" required>
+            <div class="remember-row">
+        <input id="rememberEmail" type="checkbox">
+        <label for="rememberEmail">Remember my email</label>
+      </div>
+<button type="submit" id="accessButton">Open Calculator</button>
+      <div id="accessMessage" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+
+  <div class="page">
+    <div class="form-titlebar">
+      <div>
+        <div class="form-title">Available Fault Current (AIC)</div>
+        <div class="form-version">NEC 2023 | Version 1.0</div>
+      </div>
+      <div class="title-actions"><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro</div></div>
+    </div>
+    <main>
+      <div class="grid">
+        <div id="calculationsContainer">
+        <section class="card" data-calc="1" data-panel-index="1">
+          <div class="panel-number">Main Service / First Calculation</div>
+          <div class="calc-heading-row">
+            <h2>A.I.C. Calculations</h2>
+            <input id="calculationName1" class="calc-heading-input" type="text" placeholder="Enter panel number or description" aria-label="First AIC calculation name">
+          </div>
+          <div class="form-grid">
+            <label for="conduit">Conduit type</label>
+            <select id="conduit"><option value="">Select conduit type</option><option>PVC</option><option>Steel</option></select>
+            <label for="wireType">Wire type</label>
+            <select id="wireType"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
+            <label for="wireSize">Wire size</label>
+            <select id="wireSize"></select>
+            <label for="utilityFault">I = Utility Fault Current</label>
+            <input id="utilityFault" type="text" inputmode="decimal" placeholder="Enter utility fault current (AIC)">
+            <label for="distance">L = Distance to transformer</label>
+            <input id="distance" type="text" inputmode="decimal" placeholder="Enter distance to transformer">
+            <label for="volts">E = Volts</label>
+            <select id="volts"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
+            <label for="conductors">N = Number of conductors per phase</label>
+            <select id="conductors"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+            <label for="phase">2 Single phase or √3 Three phase</label>
+            <select id="phase"><option value="">Select 2 single phase or √3 three phase</option><option>2</option><option>1.732</option></select>
+          </div>
+          <div class="result">
+            <div class="metric"><div class="label">C constant</div><div class="value" id="cConstant">—</div></div>
+            <div class="metric"><div class="label">AIC</div><div class="value" id="aicResult">—</div></div>
+          </div>
+          <div class="formula" id="calcDetails"></div>
+          <div class="button-row"><button type="button" class="secondary" id="resetBtn">Reset</button></div>
+        </section>
+        </div>
+        <div class="panel-controls no-print">
+          <button type="button" id="addPanelBtn">+ Add Panel</button>
+          <button type="button" id="removePanelBtn" class="secondary">Remove Last Panel</button>
+        </div>
+        <div class="note no-print" id="panelLimitNote">You may add up to 6 downstream panels.</div>
+      </div>
+
+    </main>
+  </div>
+<script>
+const constants = {
+  "8": { copperSteel:1557, copperPvc:1559, aluminumSteel:951, aluminumPvc:952 },
+  "6": { copperSteel:2425, copperPvc:2430, aluminumSteel:1481, aluminumPvc:1482 },
+  "4": { copperSteel:3806, copperPvc:3826, aluminumSteel:2346, aluminumPvc:2350 },
+  "3": { copperSteel:4774, copperPvc:4811, aluminumSteel:2952, aluminumPvc:2961 },
+  "2": { copperSteel:5907, copperPvc:6044, aluminumSteel:3713, aluminumPvc:3730 },
+  "1": { copperSteel:7293, copperPvc:7493, aluminumSteel:4645, aluminumPvc:4678 },
+  "1/0": { copperSteel:8925, copperPvc:9317, aluminumSteel:5777, aluminumPvc:5838 },
+  "2/0": { copperSteel:10755, copperPvc:11424, aluminumSteel:7187, aluminumPvc:7301 },
+  "3/0": { copperSteel:12844, copperPvc:13923, aluminumSteel:8826, aluminumPvc:9110 },
+  "4/0": { copperSteel:15082, copperPvc:16673, aluminumSteel:10741, aluminumPvc:11174 },
+  "250MCM": { copperSteel:16483, copperPvc:18594, aluminumSteel:12122, aluminumPvc:12862 },
+  "300MCM": { copperSteel:18177, copperPvc:20868, aluminumSteel:13910, aluminumPvc:14923 },
+  "350MCM": { copperSteel:19704, copperPvc:22737, aluminumSteel:15484, aluminumPvc:16813 },
+  "400MCM": { copperSteel:20566, copperPvc:24294, aluminumSteel:16671, aluminumPvc:18506 },
+  "500MCM": { copperSteel:22185, copperPvc:26706, aluminumSteel:18756, aluminumPvc:21391 },
+  "600MCM": { copperSteel:22965, copperPvc:28033, aluminumSteel:20093, aluminumPvc:23451 },
+  "750MCM": { copperSteel:24137, copperPvc:29735, aluminumSteel:21766, aluminumPvc:25976 },
+  "1000MCM": { copperSteel:25278, copperPvc:31491, aluminumSteel:23478, aluminumPvc:28779 }
+};
+
+const MAX_PANELS = 7; // first calculation plus up to 6 downstream panels
+const storageKey = 'loadCalcProAicCalculatorExpandablePanels';
+const defaults = {
+  calculationHeading:'', conduit:'', wireType:'', wireSize:'',
+  utilityFault:'', distance:'', volts:'', conductors:'', phase:''
+};
+
+function panelSuffix(n) { return n === 1 ? '' : String(n); }
+function el(base, n) { return document.getElementById(base + panelSuffix(n)); }
+
+function updateSelectPlaceholder(select) {
+  if (!select) return;
+  select.classList.toggle('placeholder', select.value === '');
+}
+
+function updateAllSelectPlaceholders() {
+  document.querySelectorAll('select').forEach(updateSelectPlaceholder);
+}
+
+function readNumber(base, n) {
+  const node = el(base, n);
+  if (!node) return null;
+  const value = String(node.value || '').trim().replace(/,/g, '').replace(/\s+/g, '');
+  if (value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : NaN;
+}
+
+function fmt(n, digits=0) {
+  return Number.isFinite(n)
+    ? n.toLocaleString(undefined, {maximumFractionDigits:digits, minimumFractionDigits:digits})
+    : '—';
+}
+
+function constantKey(n) {
+  const metal = el('wireType', n).value === 'Copper' ? 'copper' : 'aluminum';
+  const raceway = el('conduit', n).value === 'PVC' ? 'Pvc' : 'Steel';
+  return metal + raceway;
+}
+
+function clearAicResult(n, message='') {
+  el('aicResult', n).textContent = '—';
+  const details = el('calcDetails', n);
+  if (message) {
+    details.textContent = message;
+    return;
+  }
+  details.innerHTML =
+    '<div class="formula-title">Calculation Results</div>' +
+    '<div class="formula-line"><span>F</span><span>=</span><span class="formula-value">—</span></div>' +
+    '<div class="formula-line"><span>M</span><span>=</span><span class="formula-value">—</span></div>' +
+    '<div class="formula-line"><span>AIC</span><span>=</span><span class="formula-value">—</span></div>';
+}
+
+function calculate(n) {
+  const wire = constants[el('wireSize', n).value];
+  if (!wire) {
+    el('cConstant', n).textContent = '—';
+    clearAicResult(n);
+    carryForward(n);
+    return;
+  }
+
+  const C = wire[constantKey(n)];
+  el('cConstant', n).textContent = fmt(C);
+
+  const L = readNumber('distance', n);
+  const I = readNumber('utilityFault', n);
+  const E = readNumber('volts', n);
+  const N = readNumber('conductors', n);
+  const phase = readNumber('phase', n);
+
+  if ([L,I,E,N,phase].some(v => v === null)) {
+    clearAicResult(n);
+    carryForward(n);
+    return;
+  }
+
+  if ([L,I,E,N,phase,C].some(v => !Number.isFinite(v)) ||
+      I < 0 || L < 0 || E <= 0 || N <= 0 || phase <= 0 || C <= 0) {
+    clearAicResult(n, 'Please enter valid positive values.');
+    carryForward(n);
+    return;
+  }
+
+  const F = (phase * L * I) / (N * C * E);
+  const M = 1 / (1 + F);
+  const AIC = I * M;
+
+  el('aicResult', n).textContent = fmt(AIC, 0);
+  el('calcDetails', n).innerHTML =
+    '<div class="formula-title">Calculation Results</div>' +
+    `<div class="formula-line"><span>F</span><span>=</span><span class="formula-value">${F.toFixed(4)}</span></div>` +
+    `<div class="formula-line"><span>M</span><span>=</span><span class="formula-value">${M.toFixed(4)}</span></div>` +
+    `<div class="formula-line"><span>AIC</span><span>=</span><span class="formula-value">${fmt(AIC,0)}</span></div>`;
+
+  carryForward(n, AIC);
+}
+
+function carryForward(n, aicValue=null) {
+  // Only the first downstream panel receives the AIC from the main calculation.
+  if (n !== 1) return;
+
+  const nextFault = el('utilityFault', 2);
+  if (!nextFault) return;
+
+  let value = aicValue;
+  if (!Number.isFinite(value)) {
+    const text = el('aicResult', 1).textContent.replace(/,/g, '');
+    value = Number(text);
+  }
+
+  if (nextFault.dataset.userEdited !== 'true') {
+    nextFault.value = Number.isFinite(value) ? Math.round(value).toString() : '';
+  }
+  calculate(2);
+}
+
+function populateWireSizes(select) {
+  select.innerHTML = '<option value="">Select wire size</option>' +
+    Object.keys(constants).map(size => `<option value="${size}">${size}</option>`).join('');
+}
+
+function createPanel(n) {
+  const section = document.createElement('section');
+  section.className = 'card';
+  section.dataset.calc = String(n);
+  section.dataset.panelIndex = String(n);
+  section.innerHTML = `
+    <div class="panel-number">Downstream Panel ${n - 1}</div>
+    <div class="calc-heading-row">
+      <h2>A.I.C. Calculations</h2>
+      <input id="calculationHeading${n}" class="calc-heading-input" type="text"
+        placeholder="Enter panel number or description" aria-label="Panel calculation heading">
+    </div>
+    <div class="form-grid">
+
+      <label for="conduit${n}">Conduit type</label>
+      <select id="conduit${n}"><option value="">Select conduit type</option><option>PVC</option><option>Steel</option></select>
+
+      <label for="wireType${n}">Wire type</label>
+      <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
+
+      <label for="wireSize${n}">Wire size</label>
+      <select id="wireSize${n}"></select>
+
+      <label for="utilityFault${n}">I = Fault Current</label>
+      <input id="utilityFault${n}" type="text" inputmode="decimal"
+        placeholder="${n === 2 ? 'Fault current from first calculation' : 'Enter fault current'}">
+
+      <label for="distance${n}">L = Distance to panel</label>
+      <input id="distance${n}" type="text" inputmode="decimal" placeholder="Enter distance to panel">
+
+      <label for="volts${n}">E = Volts</label>
+      <select id="volts${n}"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
+
+      <label for="conductors${n}">N = Number of conductors per phase</label>
+      <select id="conductors${n}"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+
+      <label for="phase${n}">2 Single phase or √3 Three phase</label>
+      <select id="phase${n}"><option value="">Select 2 single phase or √3 three phase</option><option>2</option><option>1.732</option></select>
+    </div>
+    <div class="result">
+      <div class="metric"><div class="label">C constant</div><div class="value" id="cConstant${n}">—</div></div>
+      <div class="metric"><div class="label">AIC</div><div class="value" id="aicResult${n}">—</div></div>
+    </div>
+    <div class="formula" id="calcDetails${n}"></div>
+    <div class="button-row"><button type="button" class="secondary reset-panel" data-reset="${n}">Reset</button></div>
+  `;
+
+  populateWireSizes(section.querySelector(`#wireSize${n}`));
+  document.getElementById('calculationsContainer').appendChild(section);
+  attachPanelEvents(n);
+  calculate(n);
+}
+
+function attachPanelEvents(n) {
+  const heading = n === 1 ? document.getElementById('calculationName1') : el('calculationHeading', n);
+  [heading].filter(Boolean).forEach(node =>
+    node.addEventListener('input', saveCurrentValues)
+  );
+
+  const fault = el('utilityFault', n);
+  if (n > 1) {
+    fault.addEventListener('input', () => {
+      fault.dataset.userEdited = fault.value.trim() === '' ? 'false' : 'true';
+    });
+  }
+
+  ['conduit','wireType','wireSize','utilityFault','distance','volts','conductors','phase'].forEach(base => {
+    const node = el(base, n);
+    ['input','change'].forEach(eventName => node.addEventListener(eventName, () => {
+      updateSelectPlaceholder(node);
+      calculate(n);
+      saveCurrentValues();
+    }));
+  });
+
+  const resetButton = n === 1 ? document.getElementById('resetBtn') : document.querySelector(`[data-reset="${n}"]`);
+  resetButton.addEventListener('click', () => resetCalculator(n));
+}
+
+function resetCalculator(n) {
+  if (n === 1) {
+    document.getElementById('calculationName1').value = '';
+  } else {
+    el('calculationHeading', n).value = '';
+  }
+
+  ['conduit','wireType','wireSize','distance','volts','conductors','phase'].forEach(base => el(base,n).value = '');
+
+  if (n === 1) {
+    el('utilityFault',1).value = '';
+  } else if (n === 2) {
+    el('utilityFault',2).dataset.userEdited = 'false';
+    const firstText = el('aicResult', 1).textContent.replace(/,/g, '');
+    const firstAic = Number(firstText);
+    el('utilityFault',2).value = Number.isFinite(firstAic) ? Math.round(firstAic).toString() : '';
+  } else {
+    el('utilityFault',n).dataset.userEdited = 'true';
+    el('utilityFault',n).value = '';
+  }
+
+  el('cConstant', n).textContent = '—';
+  clearAicResult(n);
+  updateAllSelectPlaceholders();
+  carryForward(n);
+  saveCurrentValues();
+}
+
+function panelCount() {
+  return document.querySelectorAll('#calculationsContainer > .card').length;
+}
+
+function updatePanelControls() {
+  const count = panelCount();
+  document.getElementById('addPanelBtn').disabled = count >= MAX_PANELS;
+  document.getElementById('removePanelBtn').disabled = count <= 2;
+  const downstream = count - 1;
+  document.getElementById('panelLimitNote').textContent =
+    count >= MAX_PANELS
+      ? 'Maximum of 6 downstream panels reached.'
+      : `There ${downstream === 1 ? 'is' : 'are'} ${downstream} downstream panel${downstream === 1 ? '' : 's'}. You may add ${MAX_PANELS - count} more.`;
+}
+
+function addPanel(save=true) {
+  const next = panelCount() + 1;
+  if (next > MAX_PANELS) return;
+  createPanel(next);
+
+  if (next === 2) {
+    const previousText = el('aicResult', 1).textContent.replace(/,/g, '');
+    const previousAic = Number(previousText);
+    el('utilityFault', 2).value = Number.isFinite(previousAic) ? Math.round(previousAic).toString() : '';
+    el('utilityFault', 2).dataset.userEdited = 'false';
+  } else {
+    el('utilityFault', next).value = '';
+    el('utilityFault', next).dataset.userEdited = 'true';
+  }
+
+  updateAllSelectPlaceholders();
+  updatePanelControls();
+  if (save) saveCurrentValues();
+}
+
+function removeLastPanel() {
+  const count = panelCount();
+  if (count <= 2) return;
+  document.querySelector(`[data-panel-index="${count}"]`).remove();
+  updatePanelControls();
+  saveCurrentValues();
+}
+
+function hasCalculationData(n) {
+  if (n === 1) {
+    if (String(document.getElementById('calculationName1').value || '').trim() !== '') return true;
+  } else {
+    if (String(el('calculationHeading',n).value || '').trim() !== '') return true;
+  }
+
+  return ['conduit','wireType','wireSize','distance','volts','conductors','phase']
+    .some(base => String(el(base,n).value || '').trim() !== '');
+}
+
+function preparePrint() {
+  document.querySelectorAll('#calculationsContainer > .card').forEach((card, index) => {
+    const n = index + 1;
+    card.classList.toggle('optional-empty', n > 1 && !hasCalculationData(n));
+  });
+  window.print();
+  setTimeout(() => document.querySelectorAll('.optional-empty').forEach(card => card.classList.remove('optional-empty')), 500);
+}
+
+function saveCurrentValues() {
+  const data = { panelCount: panelCount(), values: {} };
+  document.querySelectorAll('#calculationsContainer input, #calculationsContainer select')
+    .forEach(node => data.values[node.id] = node.value);
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
+
+function loadSavedValues() {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    const keep = confirm('Saved AIC information was found. Do you want to keep and restore the old information?');
+    if (!keep) {
+      localStorage.removeItem(storageKey);
+      return;
+    }
+
+    const wantedCount = Math.min(Math.max(Number(saved.panelCount) || 2, 2), MAX_PANELS);
+    while (panelCount() < wantedCount) addPanel(false);
+
+    Object.entries(saved.values || {}).forEach(([id,value]) => {
+      const node = document.getElementById(id);
+      if (node) node.value = value;
+    });
+
+    for (let n = 2; n <= panelCount(); n++) {
+      if (n === 2) {
+        el('utilityFault',2).dataset.userEdited =
+          String((saved.values || {})['utilityFault2'] || '').trim() !== '' ? 'true' : 'false';
+      } else {
+        el('utilityFault',n).dataset.userEdited = 'true';
+      }
+    }
+  } catch {
+    localStorage.removeItem(storageKey);
+  }
+}
+
+function initialize() {
+  populateWireSizes(document.getElementById('wireSize'));
+  attachPanelEvents(1);
+  clearAicResult(1);
+
+  addPanel(false); // one downstream panel is always visible
+  loadSavedValues();
+  updateAllSelectPlaceholders();
+
+  for (let n = 1; n <= panelCount(); n++) calculate(n);
+
+  document.getElementById('addPanelBtn').addEventListener('click', () => addPanel(true));
+  document.getElementById('removePanelBtn').addEventListener('click', removeLastPanel);
+  updatePanelControls();
+}
+
+initialize();
+
+
+const ACCESS_API_URL = 'https://loadcalcpro-hcml-api-staging.onrender.com/api/access';
+const ACCESS_SESSION_KEY = 'loadCalcProAicAccessApproved';
+const REMEMBERED_EMAIL_KEY = 'loadCalcProRememberedMemberEmail';
+
+function showCalculator() {
+  document.getElementById('accessGate').hidden = true;
+  document.body.classList.remove('access-locked');
+}
+
+function showAccessGate(message='') {
+  document.getElementById('accessGate').hidden = false;
+  document.body.classList.add('access-locked');
+  const messageNode = document.getElementById('accessMessage');
+  messageNode.textContent = message;
+  messageNode.classList.remove('success');
+}
+
+async function verifyMemberAccess(email) {
+  const response = await fetch(ACCESS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email,
+      calculator: "aic"
+    })
+  });
+
+  let data = {};
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('The access server returned an unreadable response.');
+  }
+
+  if (!response.ok || data.active !== true) {
+    throw new Error(data.message || 'No active membership was found for this email.');
+  }
+
+  return data;
+}
+
+document.getElementById('accessForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const emailNode = document.getElementById('accessEmail');
+  const button = document.getElementById('accessButton');
+  const messageNode = document.getElementById('accessMessage');
+  const email = emailNode.value.trim().toLowerCase();
+
+  if (!email) {
+    messageNode.textContent = 'Please enter your membership email.';
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Checking Access...';
+  messageNode.textContent = '';
+
+  try {
+    await verifyMemberAccess(email);
+    sessionStorage.setItem(ACCESS_SESSION_KEY, 'true');
+
+    if (document.getElementById('rememberEmail').checked) {
+      localStorage.setItem(REMEMBERED_EMAIL_KEY, email);
+    } else {
+      localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+    }
+    messageNode.textContent = 'Access approved.';
+    messageNode.classList.add('success');
+    showCalculator();
+  } catch (error) {
+    sessionStorage.removeItem(ACCESS_SESSION_KEY);
+    messageNode.classList.remove('success');
+    messageNode.textContent =
+      error instanceof TypeError
+        ? 'Unable to reach the access server. Please try again.'
+        : error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Open Calculator';
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem(ACCESS_SESSION_KEY);
+
+  const rememberedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY) || '';
+  document.getElementById('accessEmail').value = rememberedEmail;
+  document.getElementById('rememberEmail').checked = rememberedEmail !== '';
+
+  showAccessGate();
+});
+
+const rememberedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY) || '';
+if (rememberedEmail) {
+  document.getElementById('accessEmail').value = rememberedEmail;
+  document.getElementById('rememberEmail').checked = true;
+}
+
+if (sessionStorage.getItem(ACCESS_SESSION_KEY) === 'true') {
+  showCalculator();
+}
+
+</script>
+</body>
+</html>
