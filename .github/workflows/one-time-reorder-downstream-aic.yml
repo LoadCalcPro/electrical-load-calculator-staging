@@ -22,66 +22,29 @@ jobs:
           path = Path('aic_calculator.html')
           text = path.read_text(encoding='utf-8')
 
-          old = '''    <div class="form-grid">
+          start = text.index('function createPanel(n) {')
+          end = text.index('function attachPanelEvents(n) {')
+          block = text[start:end]
 
-      <label for="conduit${n}">Conduit type</label>
-      <select id="conduit${n}"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
-
-      <label for="wireType${n}">Wire type</label>
-      <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
-
-      <label for="wireSize${n}">Wire size</label>
-      <select id="wireSize${n}"></select>
-
-      <label for="utilityFault${n}">I = Fault Current</label>
+          fault = '''      <label for="utilityFault${n}">I = Fault Current</label>
       <input id="utilityFault${n}" type="text" inputmode="decimal"
         placeholder="${n === 2 ? 'Fault current from first calculation' : 'Enter fault current'}">
 
-      <label for="distance${n}">L = Distance to panel</label>
-      <input id="distance${n}" type="text" inputmode="decimal" placeholder="Enter distance to panel">
+'''
+          if fault not in block:
+              raise SystemExit('Downstream fault-current block not found.')
 
-      <label for="volts${n}">E = Volts</label>
-      <select id="volts${n}"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
+          block = block.replace(fault, '', 1)
+          marker = '    <div class="form-grid">\n\n'
+          if marker not in block:
+              raise SystemExit('Downstream form-grid marker not found.')
 
-      <label for="conductors${n}">N = Number of conductors per phase</label>
-      <select id="conductors${n}"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+          block = block.replace(marker, marker + fault, 1)
+          block = block.replace('L = Distance to panel', 'L = Distance to Panel')
+          block = block.replace('E = Volts', 'E = Voltage')
+          block = block.replace('N = Number of conductors per phase', 'N = Number of Conductors per Phase')
 
-      <label for="phase${n}">Phase</label>
-      <select id="phase${n}"><option value="">Select phase</option><option value="2">Single phase</option><option value="1.732">Three phase</option></select>
-    </div>'''
-
-          new = '''    <div class="form-grid">
-
-      <label for="utilityFault${n}">I = Fault Current</label>
-      <input id="utilityFault${n}" type="text" inputmode="decimal"
-        placeholder="${n === 2 ? 'Fault current from first calculation' : 'Enter fault current'}">
-
-      <label for="conduit${n}">Conduit type</label>
-      <select id="conduit${n}"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
-
-      <label for="wireType${n}">Wire type</label>
-      <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
-
-      <label for="wireSize${n}">Wire size</label>
-      <select id="wireSize${n}"></select>
-
-      <label for="distance${n}">L = Distance to Panel</label>
-      <input id="distance${n}" type="text" inputmode="decimal" placeholder="Enter distance to panel">
-
-      <label for="volts${n}">E = Voltage</label>
-      <select id="volts${n}"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
-
-      <label for="conductors${n}">N = Number of Conductors per Phase</label>
-      <select id="conductors${n}"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
-
-      <label for="phase${n}">Phase</label>
-      <select id="phase${n}"><option value="">Select phase</option><option value="2">Single phase</option><option value="1.732">Three phase</option></select>
-    </div>'''
-
-          if old not in text:
-              raise SystemExit('Downstream panel template was not found exactly; no changes made.')
-
-          text = text.replace(old, new, 1)
+          text = text[:start] + block + text[end:]
           path.write_text(text, encoding='utf-8')
           PY
       - name: Commit calculator change and remove this workflow
