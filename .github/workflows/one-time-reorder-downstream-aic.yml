@@ -1,0 +1,94 @@
+name: One-time downstream AIC field reorder
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-reorder-downstream-aic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reorder downstream AIC fields
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+
+          old = '''    <div class="form-grid">
+
+      <label for="conduit${n}">Conduit type</label>
+      <select id="conduit${n}"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
+
+      <label for="wireType${n}">Wire type</label>
+      <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
+
+      <label for="wireSize${n}">Wire size</label>
+      <select id="wireSize${n}"></select>
+
+      <label for="utilityFault${n}">I = Fault Current</label>
+      <input id="utilityFault${n}" type="text" inputmode="decimal"
+        placeholder="${n === 2 ? 'Fault current from first calculation' : 'Enter fault current'}">
+
+      <label for="distance${n}">L = Distance to panel</label>
+      <input id="distance${n}" type="text" inputmode="decimal" placeholder="Enter distance to panel">
+
+      <label for="volts${n}">E = Volts</label>
+      <select id="volts${n}"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
+
+      <label for="conductors${n}">N = Number of conductors per phase</label>
+      <select id="conductors${n}"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+
+      <label for="phase${n}">Phase</label>
+      <select id="phase${n}"><option value="">Select phase</option><option value="2">Single phase</option><option value="1.732">Three phase</option></select>
+    </div>'''
+
+          new = '''    <div class="form-grid">
+
+      <label for="utilityFault${n}">I = Fault Current</label>
+      <input id="utilityFault${n}" type="text" inputmode="decimal"
+        placeholder="${n === 2 ? 'Fault current from first calculation' : 'Enter fault current'}">
+
+      <label for="conduit${n}">Conduit type</label>
+      <select id="conduit${n}"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
+
+      <label for="wireType${n}">Wire type</label>
+      <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
+
+      <label for="wireSize${n}">Wire size</label>
+      <select id="wireSize${n}"></select>
+
+      <label for="distance${n}">L = Distance to Panel</label>
+      <input id="distance${n}" type="text" inputmode="decimal" placeholder="Enter distance to panel">
+
+      <label for="volts${n}">E = Voltage</label>
+      <select id="volts${n}"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
+
+      <label for="conductors${n}">N = Number of Conductors per Phase</label>
+      <select id="conductors${n}"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+
+      <label for="phase${n}">Phase</label>
+      <select id="phase${n}"><option value="">Select phase</option><option value="2">Single phase</option><option value="1.732">Three phase</option></select>
+    </div>'''
+
+          if old not in text:
+              raise SystemExit('Downstream panel template was not found exactly; no changes made.')
+
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit calculator change and remove this workflow
+        run: |
+          rm .github/workflows/one-time-reorder-downstream-aic.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html .github/workflows/one-time-reorder-downstream-aic.yml
+          git commit -m "Move downstream fault current to top of AIC inputs"
+          git push
