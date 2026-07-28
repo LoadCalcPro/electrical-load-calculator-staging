@@ -491,6 +491,20 @@
   .print-page[data-layout="8"] .compact-formula-row { font-size:5.8px; line-height:1.18; grid-template-columns:minmax(0,1fr) minmax(62px,38%); column-gap:4px; }
 }
 
+
+
+/* AIC print control header fix */
+.form-titlebar { grid-template-columns:minmax(230px,1fr) auto; }
+.form-title { white-space:nowrap; }
+.title-actions { flex-wrap:wrap; justify-content:flex-end; }
+.print-layout-control { display:flex; align-items:center; gap:6px; color:#334155; font-size:12px; font-weight:700; white-space:nowrap; }
+.print-layout-control select { width:auto; min-width:112px; padding:7px 28px 7px 9px; border-radius:8px; font-size:13px; }
+@media (max-width:850px) {
+  .form-titlebar { grid-template-columns:1fr; }
+  .form-title { white-space:normal; }
+  .title-actions { justify-content:flex-start; }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -542,7 +556,7 @@
         <div class="form-title">Available Fault Current (AIC)</div>
         <div class="form-version">Version 1.0</div>
       </div>
-      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
+      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
     </div>
     <main>
       <div class="grid">
@@ -1157,6 +1171,7 @@ function initialize() {
   document.getElementById('removePanelBtn').addEventListener('click', removeLastPanel);
   document.getElementById('continuePreviousBtn').addEventListener('click', continuePreviousCalculation);
   document.getElementById('startNewBtn').addEventListener('click', startNewCalculation);
+  restorePrintLayout();
   updatePanelControls();  restorePrintLayout();  restorePrintLayout();
 }
 
