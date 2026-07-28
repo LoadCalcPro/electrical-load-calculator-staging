@@ -1,0 +1,33 @@
+name: Apply aligned AIC print report
+
+on:
+  push:
+    paths:
+      - '.github/scripts/apply_clean_aic_report.py'
+      - '.github/workflows/apply-aligned-aic-report.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Apply AIC report update
+        run: python .github/scripts/apply_clean_aic_report.py
+
+      - name: Commit updated calculator
+        run: |
+          if git diff --quiet -- aic_calculator.html; then
+            echo "No calculator changes were needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html
+          git commit -m "Apply aligned boxed AIC print report"
+          git push
