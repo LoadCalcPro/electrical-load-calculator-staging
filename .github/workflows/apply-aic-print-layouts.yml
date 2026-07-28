@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - '.github/scripts/apply_clean_aic_report.py'
+      - '.github/scripts/fix_aic_print_engine_duplicates.py'
       - '.github/workflows/apply-aic-print-layouts.yml'
 
 permissions:
@@ -18,7 +19,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Apply AIC print layout update
-        run: python .github/scripts/apply_clean_aic_report.py
+        run: |
+          python .github/scripts/apply_clean_aic_report.py
+          python .github/scripts/fix_aic_print_engine_duplicates.py
 
       - name: Commit updated calculator
         run: |
