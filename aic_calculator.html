@@ -131,7 +131,6 @@
     .access-box input {
       margin-bottom:12px;
     }
-    
     .remember-row {
       display:flex;
       align-items:center;
@@ -151,8 +150,7 @@
       font-weight:600;
       cursor:pointer;
     }
-
-.access-box button {
+    .access-box button {
       width:100%;
       padding:11px 14px;
     }
@@ -171,7 +169,6 @@
     @media print {
       #accessGate, .logout-button { display:none!important; }
     }
-
 
     .restore-modal {
       position:fixed;
@@ -304,8 +301,6 @@
       .no-print,button,.button-row,.panel-controls,.note,#accessGate,.restore-modal,.logout-button{display:none!important}
     }
 
-
-
 /* Clean AIC engineering print report */
 .clean-print-report { display:none; }
 @media print {
@@ -342,14 +337,6 @@
   .print-report-final-label { font-size:11px; font-weight:800; letter-spacing:.08em; color:#1e3a8a; }
   .print-report-final-value { font-size:24px; font-weight:900; margin-top:4px; color:#0f172a; }
 }
-
-
-
-
-
-
-
-
 
 /* AIC selectable print layouts */
 .result { display:none!important; }
@@ -491,8 +478,6 @@
   .print-page[data-layout="8"] .compact-formula-row { font-size:5.8px; line-height:1.18; grid-template-columns:minmax(0,1fr) minmax(62px,38%); column-gap:4px; }
 }
 
-
-
 /* AIC print control header fix */
 .form-titlebar { grid-template-columns:minmax(230px,1fr) auto; }
 .form-title { white-space:nowrap; }
@@ -517,15 +502,14 @@
       <label for="accessEmail">Membership email</label>
       <input id="accessEmail" type="email" autocomplete="email"
         placeholder="Enter the email used for your membership" required>
-            <div class="remember-row">
+      <div class="remember-row">
         <input id="rememberEmail" type="checkbox">
         <label for="rememberEmail">Remember my email</label>
       </div>
-<button type="submit" id="accessButton">Open Calculator</button>
+      <button type="submit" id="accessButton">Open Calculator</button>
       <div id="accessMessage" role="status" aria-live="polite"></div>
     </form>
   </div>
-
 
   <div class="restore-modal" id="restoreModal" role="dialog" aria-modal="true" aria-labelledby="restoreModalTitle" aria-describedby="restoreModalDescription">
     <div class="restore-dialog">
@@ -599,7 +583,6 @@
         </div>
         <div class="note no-print" id="panelLimitNote">You may add up to 6 downstream panels.</div>
       </div>
-
     </main>
   </div>
 <script>
@@ -624,7 +607,7 @@ const constants = {
   "1000MCM": { copperMetallic:25278, copperPvc:31491, aluminumMetallic:23478, aluminumPvc:28779 }
 };
 
-const MAX_PANELS = 7; // first calculation plus up to 6 downstream panels
+const MAX_PANELS = 7;
 const storageKey = 'loadCalcProAicCalculatorExpandablePanels';
 const defaults = {
   calculationHeading:'', conduit:'', wireType:'', wireSize:'',
@@ -691,7 +674,15 @@ function clearAicResult(n, message='') {
 }
 
 function calculate(n) {
-  const wire = constants[el('wireSize', n).value];
+  const conduitNode = el('conduit', n);
+  const wireTypeNode = el('wireType', n);
+  const wireSizeNode = el('wireSize', n);
+  const requiredSelectionsPresent =
+    conduitNode && conduitNode.value !== '' &&
+    wireTypeNode && wireTypeNode.value !== '' &&
+    wireSizeNode && wireSizeNode.value !== '';
+
+  const wire = requiredSelectionsPresent ? constants[wireSizeNode.value] : null;
   if (!wire) {
     el('cConstant', n).textContent = '—';
     clearAicResult(n);
@@ -747,7 +738,6 @@ function calculate(n) {
 }
 
 function carryForward(n, aicValue=null) {
-  // Only the first downstream panel receives the AIC from the main calculation.
   if (n !== 1) return;
 
   const nextFault = el('utilityFault', 2);
@@ -759,9 +749,8 @@ function carryForward(n, aicValue=null) {
     value = Number(text);
   }
 
-  if (nextFault.dataset.userEdited !== 'true') {
-    nextFault.value = Number.isFinite(value) ? Math.round(value).toString() : '';
-  }
+  nextFault.dataset.userEdited = 'false';
+  nextFault.value = Number.isFinite(value) ? Math.round(value).toString() : '';
   calculate(2);
 }
 
@@ -783,30 +772,21 @@ function createPanel(n) {
         placeholder="Enter panel number or description" aria-label="Panel calculation heading">
     </div>
     <div class="form-grid">
-
-
       <label for="utilityFault${n}">I = Fault Current</label>
       <input id="utilityFault${n}" type="text" inputmode="decimal"
         placeholder="${n === 2 ? 'Fault current from first calculation' : 'Enter fault current'}">
-
       <label for="conduit${n}">Conduit type</label>
       <select id="conduit${n}"><option value="">Select conduit type</option><option>Non-metallic</option><option>Metallic</option></select>
-
       <label for="wireType${n}">Wire type</label>
       <select id="wireType${n}"><option value="">Select wire type</option><option>Copper</option><option>Aluminum</option></select>
-
       <label for="wireSize${n}">Wire size</label>
       <select id="wireSize${n}"></select>
-
       <label for="distance${n}">L = Distance to Panel</label>
       <input id="distance${n}" type="text" inputmode="decimal" placeholder="Enter distance to panel">
-
       <label for="volts${n}">E = Voltage</label>
       <select id="volts${n}"><option value="">Select volts</option><option>208</option><option>240</option><option>480</option></select>
-
       <label for="conductors${n}">N = Number of Conductors per Phase</label>
       <select id="conductors${n}"><option value="">Select number of conductors per phase</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
-
       <label for="phase${n}">Phase</label>
       <select id="phase${n}"><option value="">Select phase</option><option value="2">Single phase</option><option value="1.732">Three phase</option></select>
     </div>
@@ -831,7 +811,7 @@ function attachPanelEvents(n) {
   );
 
   const fault = el('utilityFault', n);
-  if (n > 1) {
+  if (n > 2) {
     fault.addEventListener('input', () => {
       fault.dataset.userEdited = fault.value.trim() === '' ? 'false' : 'true';
     });
@@ -932,9 +912,6 @@ function hasCalculationData(n) {
     .some(base => String(el(base,n).value || '').trim() !== '');
 }
 
-
-
-/* Build clean AIC print reports */
 function printText(value, fallback='—') {
   const text = String(value ?? '').trim();
   return text || fallback;
@@ -1023,10 +1000,7 @@ function restorePrintLayout() {
   if (!select) return;
   const saved = Number(localStorage.getItem(PRINT_LAYOUT_KEY));
   if ([1,2,4,8].includes(saved)) select.value = String(saved);
-  select.addEventListener('change', () => {
-    localStorage.setItem(PRINT_LAYOUT_KEY, select.value);
-    removePrintPages();
-  });
+  select.addEventListener('change', () => localStorage.setItem(PRINT_LAYOUT_KEY, select.value));
 }
 
 function removePrintPages() {
@@ -1070,18 +1044,6 @@ function createPrintPages(layout) {
 }
 
 let printInProgress = false;
-let printCleanupTimer = null;
-
-function finishPrintCleanup() {
-  removePrintPages();
-  printInProgress = false;
-  if (printCleanupTimer) {
-    clearTimeout(printCleanupTimer);
-    printCleanupTimer = null;
-  }
-}
-
-window.addEventListener('afterprint', finishPrintCleanup);
 
 function preparePrint() {
   if (printInProgress) return;
@@ -1097,10 +1059,12 @@ function preparePrint() {
 
   printInProgress = true;
   window.print();
-  printCleanupTimer = setTimeout(finishPrintCleanup, 60000);
 }
 
-
+window.addEventListener('afterprint', () => {
+  printInProgress = false;
+  removePrintPages();
+});
 
 function saveCurrentValues() {
   const data = { panelCount: panelCount(), values: {} };
@@ -1124,14 +1088,14 @@ function applySavedValues(saved) {
   while (panelCount() < wantedCount) addPanel(false);
 
   Object.entries(saved.values || {}).forEach(([id,value]) => {
+    if (id === 'utilityFault2') return;
     const node = document.getElementById(id);
     if (node) node.value = value;
   });
 
   for (let n = 2; n <= panelCount(); n++) {
     if (n === 2) {
-      el('utilityFault',2).dataset.userEdited =
-        String((saved.values || {})['utilityFault2'] || '').trim() !== '' ? 'true' : 'false';
+      el('utilityFault',2).dataset.userEdited = 'false';
     } else {
       el('utilityFault',n).dataset.userEdited = 'true';
     }
@@ -1183,7 +1147,7 @@ function initialize() {
   attachPanelEvents(1);
   clearAicResult(1);
 
-  addPanel(false); // one downstream panel is always visible
+  addPanel(false);
   loadSavedValues();
   updateAllSelectPlaceholders();
 
@@ -1198,7 +1162,6 @@ function initialize() {
 }
 
 initialize();
-
 
 const ACCESS_API_URL = 'https://loadcalcpro-hcml-api-staging.onrender.com/api/access';
 const ACCESS_SESSION_KEY = 'loadCalcProAicAccessApproved';
@@ -1229,14 +1192,14 @@ function showAccessGate(message='') {
   document.getElementById('accessGate').hidden = false;
   document.body.classList.add('access-locked');
   const messageNode = document.getElementById('accessMessage');
-  messageNode.textContent = message;
   messageNode.classList.remove('success');
+  messageNode.textContent = message;
 }
 
 async function verifyMemberAccess(email) {
   const response = await fetch(ACCESS_API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
       email,
       calculator: "aic"
@@ -1335,7 +1298,6 @@ if (rememberedEmail) {
     sessionStorage.removeItem(ACCESS_SESSION_KEY);
   }
 
-  // No dashboard login is available. Keep the calculator's existing access screen.
   showAccessGate();
 })();
 
