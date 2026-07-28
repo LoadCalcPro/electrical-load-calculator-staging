@@ -1,4 +1,4 @@
-name: One-time mobile print and PDF fix
+name: Apply direct AIC mobile print fix
 
 on:
   push:
@@ -14,81 +14,88 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update AIC mobile print behavior
+
+      - name: Update AIC calculator file directly
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('aic_calculator.html')
           text = path.read_text(encoding='utf-8')
 
-          # Rename only the visible print button.
           text = text.replace(
-              'onclick="preparePrint()">Print</button>',
-              'onclick="preparePrint()">Print / Save PDF</button>',
+              '<button type="button" class="no-print" onclick="preparePrint()">Print</button>',
+              '<button type="button" class="no-print" onclick="preparePrint()">Print / Save PDF</button>',
               1,
           )
 
-          # Changing layout should only save the preference; it must never print.
-          text = re.sub(
-              r"select\.addEventListener\('change',\s*\(\)\s*=>\s*localStorage\.setItem\(PRINT_LAYOUT_KEY,\s*select\.value\)\s*\);",
-              "select.addEventListener('change', () => {\n    localStorage.setItem(PRINT_LAYOUT_KEY, select.value);\n    removePrintPages();\n  });",
-              text,
-              count=1,
+          text = text.replace(
+              "  select.addEventListener('change', () => localStorage.setItem(PRINT_LAYOUT_KEY, select.value));",
+              "  select.addEventListener('change', () => {\n    localStorage.setItem(PRINT_LAYOUT_KEY, select.value);\n    removePrintPages();\n  });",
+              1,
           )
 
-          # Replace the current preparePrint block by locating the next function.
-          start = text.find('function preparePrint() {')
-          next_function = text.find('function saveCurrentValues()', start)
-          if start == -1 or next_function == -1:
-              raise SystemExit('Could not locate the print function block.')
+          old_prepare = '''function preparePrint() {
+            buildCleanPrintReports();
+            const layout = selectedPrintLayout();
+            localStorage.setItem(PRINT_LAYOUT_KEY, String(layout));
+            const reportCount = createPrintPages(layout);
+            if (!reportCount) {
+              alert('Enter calculation information before printing.');
+              return;
+            }
+            window.print();
+            setTimeout(removePrintPages, 500);
+          }'''.replace('          ', '')
 
-          replacement = """let printInProgress = false;
-let printCleanupTimer = null;
+          new_prepare = '''let printInProgress = false;
+          let printCleanupTimer = null;
 
-function finishPrintCleanup() {
-  removePrintPages();
-  printInProgress = false;
-  if (printCleanupTimer) {
-    clearTimeout(printCleanupTimer);
-    printCleanupTimer = null;
-  }
-}
+          function finishPrintCleanup() {
+            removePrintPages();
+            printInProgress = false;
+            if (printCleanupTimer) {
+              clearTimeout(printCleanupTimer);
+              printCleanupTimer = null;
+            }
+          }
 
-window.addEventListener('afterprint', finishPrintCleanup);
+          window.addEventListener('afterprint', finishPrintCleanup);
 
-function preparePrint() {
-  if (printInProgress) return;
+          function preparePrint() {
+            if (printInProgress) return;
 
-  buildCleanPrintReports();
-  const layout = selectedPrintLayout();
-  localStorage.setItem(PRINT_LAYOUT_KEY, String(layout));
-  const reportCount = createPrintPages(layout);
-  if (!reportCount) {
-    alert('Enter calculation information before printing.');
-    return;
-  }
+            buildCleanPrintReports();
+            const layout = selectedPrintLayout();
+            localStorage.setItem(PRINT_LAYOUT_KEY, String(layout));
+            const reportCount = createPrintPages(layout);
+            if (!reportCount) {
+              alert('Enter calculation information before printing.');
+              return;
+            }
 
-  printInProgress = true;
-  window.print();
-  printCleanupTimer = setTimeout(finishPrintCleanup, 60000);
-}
+            printInProgress = true;
+            window.print();
+            printCleanupTimer = setTimeout(finishPrintCleanup, 60000);
+          }'''.replace('          ', '')
 
+          if old_prepare not in text:
+              raise SystemExit('Original preparePrint function not found.')
 
-"""
+          text = text.replace(old_prepare, new_prepare, 1)
+          text = text.replace(
+              '  updatePanelControls();  restorePrintLayout();  restorePrintLayout();',
+              '  updatePanelControls();',
+              1,
+          )
 
-          text = text[:start] + replacement + text[next_function:]
           path.write_text(text, encoding='utf-8')
           PY
+
       - name: Commit calculator update
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add aic_calculator.html
-          if git diff --cached --quiet; then
-            echo "No calculator changes needed."
-          else
-            git commit -m "Fix AIC mobile printing and add Save PDF label"
-            git push
-          fi
+          git commit -m "Fix AIC mobile printing and Save PDF behavior"
+          git push
