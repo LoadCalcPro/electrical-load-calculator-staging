@@ -349,6 +349,7 @@
 
 
 
+
 /* AIC selectable print layouts */
 .result { display:none!important; }
 .formula { background:transparent!important; border:0!important; padding:0!important; }
@@ -540,7 +541,7 @@
         <div class="form-title">Available Fault Current (AIC)</div>
         <div class="form-version">Version 1.0</div>
       </div>
-      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
+      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
     </div>
     <main>
       <div class="grid">
@@ -1049,62 +1050,6 @@ function createPrintPages(layout) {
   return printableCards.length;
 }
 
-const PRINT_LAYOUT_KEY = 'loadCalcProAicPrintLayout';
-
-function selectedPrintLayout() {
-  const select = document.getElementById('printLayout');
-  const value = Number(select?.value || 4);
-  return [1,2,4,8].includes(value) ? value : 4;
-}
-
-function restorePrintLayout() {
-  const select = document.getElementById('printLayout');
-  if (!select) return;
-  const saved = Number(localStorage.getItem(PRINT_LAYOUT_KEY));
-  if ([1,2,4,8].includes(saved)) select.value = String(saved);
-  select.addEventListener('change', () => localStorage.setItem(PRINT_LAYOUT_KEY, select.value));
-}
-
-function removePrintPages() {
-  document.getElementById('printPages')?.remove();
-}
-
-function createPrintPages(layout) {
-  removePrintPages();
-  const printableCards = Array.from(document.querySelectorAll('#calculationsContainer > .card'))
-    .filter((card, index) => hasCalculationData(index + 1));
-
-  if (!printableCards.length) return 0;
-
-  const printPages = document.createElement('div');
-  printPages.id = 'printPages';
-  printPages.className = 'print-pages';
-
-  for (let start = 0; start < printableCards.length; start += layout) {
-    const page = document.createElement('section');
-    page.className = 'print-page';
-    page.dataset.layout = String(layout);
-    page.innerHTML = `
-      <header class="print-page-header">
-        <div class="print-page-brand">⚡ LoadCalcPro<span class="brand-x">X</span></div>
-        <div class="print-page-title">Available Fault Current (AIC) Report</div>
-      </header>
-      <div class="print-page-grid"></div>`;
-
-    const grid = page.querySelector('.print-page-grid');
-    printableCards.slice(start, start + layout).forEach(card => {
-      const wrapper = document.createElement('article');
-      wrapper.className = 'print-report-card';
-      wrapper.appendChild(card.querySelector('.clean-print-report').cloneNode(true));
-      grid.appendChild(wrapper);
-    });
-    printPages.appendChild(page);
-  }
-
-  document.body.appendChild(printPages);
-  return printableCards.length;
-}
-
 function preparePrint() {
   buildCleanPrintReports();
   const layout = selectedPrintLayout();
@@ -1117,6 +1062,7 @@ function preparePrint() {
   window.print();
   setTimeout(removePrintPages, 500);
 }
+
 
 function saveCurrentValues() {
   const data = { panelCount: panelCount(), values: {} };
@@ -1156,7 +1102,6 @@ function applySavedValues(saved) {
   updateAllSelectPlaceholders();
   for (let n = 1; n <= panelCount(); n++) calculate(n);
   updatePanelControls();
-  restorePrintLayout();
 }
 
 function hideRestoreModal() {
@@ -1210,7 +1155,7 @@ function initialize() {
   document.getElementById('removePanelBtn').addEventListener('click', removeLastPanel);
   document.getElementById('continuePreviousBtn').addEventListener('click', continuePreviousCalculation);
   document.getElementById('startNewBtn').addEventListener('click', startNewCalculation);
-  updatePanelControls();
+  updatePanelControls();  restorePrintLayout();
 }
 
 initialize();
