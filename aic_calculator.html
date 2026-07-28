@@ -347,105 +347,145 @@
 
 
 
-/* Compact AIC screen and aligned boxed print report */
+
+/* AIC selectable print layouts */
 .result { display:none!important; }
 .formula { background:transparent!important; border:0!important; padding:0!important; }
 .formula-report-panel { background:transparent!important; border:0!important; border-radius:0!important; padding:8px 0!important; }
 .formula-report { border-top:1px solid #d7e0e8; border-bottom:1px solid #d7e0e8; padding:8px 0; }
 .formula-report-line.aic-final { font-weight:700; }
+.print-layout-control { display:flex; align-items:center; gap:6px; color:#334155; font-size:12px; font-weight:700; white-space:nowrap; }
+.print-layout-control select { width:auto; min-width:112px; padding:7px 28px 7px 9px; border-radius:8px; font-size:13px; }
+.print-pages { display:none; }
+
+@media (max-width:700px) {
+  .print-layout-control { grid-column:1/-1; width:100%; justify-content:space-between; }
+  .print-layout-control select { flex:1; max-width:190px; min-height:42px; }
+}
 
 @media print {
   @page { size:letter portrait; margin:.25in; }
   html, body { background:#fff!important; }
   body { zoom:1!important; }
-  .page { margin:0!important; padding:0!important; max-width:none!important; }
-  .form-titlebar { display:none!important; }
-  #calculationsContainer {
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr));
+  body > :not(.print-pages) { display:none!important; }
+  .print-pages { display:block!important; }
+  .print-page {
+    height:10.5in;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr);
+    gap:.10in;
+    overflow:hidden;
+    break-after:page;
+    page-break-after:always;
+    color:#111827;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  .print-page:last-child { break-after:auto; page-break-after:auto; }
+  .print-page-header {
+    padding:0 0 .07in;
+    border-bottom:2px solid #1e3a8a;
+  }
+  .print-page-brand { font-size:18px; line-height:1.05; font-weight:800; color:#1e3a8a; }
+  .print-page-brand .brand-x { color:#0f766e; }
+  .print-page-title { margin-top:2px; font-size:11px; line-height:1.15; font-weight:700; color:#111827; }
+  .print-page-grid {
+    min-height:0;
+    display:grid;
     gap:.10in;
     align-items:stretch;
   }
-  #calculationsContainer > .card {
-    min-width:0!important;
-    border:1px solid #64748b!important;
-    border-radius:3px!important;
-    box-shadow:none!important;
-    padding:.09in .11in!important;
-    margin:0!important;
-    overflow:hidden!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
+  .print-page[data-layout="1"] .print-page-grid { grid-template-columns:1fr; grid-template-rows:1fr; }
+  .print-page[data-layout="2"] .print-page-grid { grid-template-columns:1fr; grid-template-rows:repeat(2,minmax(0,1fr)); }
+  .print-page[data-layout="4"] .print-page-grid { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(0,1fr)); }
+  .print-page[data-layout="8"] .print-page-grid { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:.07in; }
+  .print-report-card {
+    min-width:0;
+    min-height:0;
+    border:1px solid #64748b;
+    border-radius:3px;
+    padding:.09in .11in;
+    overflow:hidden;
+    break-inside:avoid;
+    page-break-inside:avoid;
   }
-  #calculationsContainer > .card > :not(.clean-print-report) { display:none!important; }
   .clean-print-report {
     display:block!important;
-    width:100%!important;
-    min-width:0!important;
-    overflow:hidden!important;
-    color:#111827;
-    font-family:Arial,Helvetica,sans-serif;
+    width:100%;
+    min-width:0;
+    height:100%;
+    overflow:hidden;
   }
   .print-report-panel {
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    font-size:9px!important;
-    font-weight:800!important;
-    margin:0 0 4px!important;
-    padding:0 0 3px!important;
+    font-weight:800;
+    margin:0 0 4px;
+    padding:0 0 3px;
     border-bottom:1px solid #cbd5e1;
-    color:#0f172a!important;
+    color:#0f172a;
   }
-  .print-report-section { margin:0!important; min-width:0!important; }
-  .print-report-section + .print-report-section { margin-top:4px!important; padding-top:3px; border-top:1px solid #e2e8f0; }
+  .print-report-section { margin:0; min-width:0; }
+  .print-report-section + .print-report-section { margin-top:4px; padding-top:3px; border-top:1px solid #e2e8f0; }
   .print-report-section h3 {
-    font-size:7px!important;
-    margin:0 0 2px!important;
-    color:#1e3a8a!important;
+    margin:0 0 2px;
+    color:#1e3a8a;
     text-transform:uppercase;
     letter-spacing:.03em;
   }
   .print-report-row,
   .compact-formula-row {
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) minmax(72px,38%)!important;
-    column-gap:6px!important;
-    align-items:baseline!important;
-    width:100%!important;
-    min-width:0!important;
-    font-size:7.25px!important;
-    line-height:1.3!important;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(72px,38%);
+    column-gap:6px;
+    align-items:baseline;
+    width:100%;
+    min-width:0;
   }
   .print-report-label,
   .compact-formula-label {
-    min-width:0!important;
+    min-width:0;
     overflow-wrap:anywhere;
-    text-align:left!important;
-    font-weight:700!important;
+    text-align:left;
+    font-weight:700;
   }
   .print-report-value,
   .compact-formula-value {
-    min-width:0!important;
-    max-width:100%!important;
-    overflow:hidden!important;
+    min-width:0;
+    max-width:100%;
+    overflow:hidden;
     text-overflow:ellipsis;
-    white-space:nowrap!important;
-    text-align:right!important;
-    justify-self:stretch!important;
+    white-space:nowrap;
+    text-align:right;
+    justify-self:stretch;
     font-variant-numeric:tabular-nums;
   }
-  .compact-formula-row {
-    font-family:Consolas,Monaco,monospace;
-  }
-  .compact-formula-row.aic-final {
-    margin-top:1px;
-    font-weight:800;
-  }
-  .print-report-brand,
-  .print-report-title,
-  .print-report-final { display:none!important; }
-  .no-print,button,.button-row,.panel-controls,.note,#accessGate,.restore-modal,.logout-button{display:none!important;}
+  .compact-formula-row { font-family:Consolas,Monaco,monospace; }
+  .compact-formula-row.aic-final { margin-top:1px; font-weight:800; }
+
+  .print-page[data-layout="1"] .print-report-card { padding:.18in .22in; }
+  .print-page[data-layout="1"] .print-report-panel { font-size:14px; margin-bottom:10px; padding-bottom:7px; }
+  .print-page[data-layout="1"] .print-report-section + .print-report-section { margin-top:12px; padding-top:9px; }
+  .print-page[data-layout="1"] .print-report-section h3 { font-size:10px; margin-bottom:6px; }
+  .print-page[data-layout="1"] .print-report-row,
+  .print-page[data-layout="1"] .compact-formula-row { font-size:10.5px; line-height:1.7; grid-template-columns:minmax(0,1fr) 190px; }
+
+  .print-page[data-layout="2"] .print-report-panel { font-size:11px; }
+  .print-page[data-layout="2"] .print-report-section h3 { font-size:8.5px; }
+  .print-page[data-layout="2"] .print-report-row,
+  .print-page[data-layout="2"] .compact-formula-row { font-size:8.7px; line-height:1.42; grid-template-columns:minmax(0,1fr) 150px; }
+
+  .print-page[data-layout="4"] .print-report-panel { font-size:9px; }
+  .print-page[data-layout="4"] .print-report-section h3 { font-size:7px; }
+  .print-page[data-layout="4"] .print-report-row,
+  .print-page[data-layout="4"] .compact-formula-row { font-size:7.25px; line-height:1.3; }
+
+  .print-page[data-layout="8"] .print-report-card { padding:.055in .075in; }
+  .print-page[data-layout="8"] .print-report-panel { font-size:7.3px; margin-bottom:2px; padding-bottom:2px; }
+  .print-page[data-layout="8"] .print-report-section + .print-report-section { margin-top:2px; padding-top:2px; }
+  .print-page[data-layout="8"] .print-report-section h3 { font-size:5.8px; margin-bottom:1px; }
+  .print-page[data-layout="8"] .print-report-row,
+  .print-page[data-layout="8"] .compact-formula-row { font-size:5.8px; line-height:1.18; grid-template-columns:minmax(0,1fr) minmax(62px,38%); column-gap:4px; }
 }
 
 </style>
@@ -490,7 +530,7 @@
     <div class="print-report-header" aria-hidden="true">
       <div>
         <div class="print-report-brand">⚡ LoadCalcPro<span class="brand-x">X</span></div>
-        <div class="print-report-title">Available Fault Current Calculation Report</div>
+        <div class="print-report-title">Available Fault Current (AIC) Report</div>
       </div>
     </div>
 
@@ -499,7 +539,7 @@
         <div class="form-title">Available Fault Current (AIC)</div>
         <div class="form-version">Version 1.0</div>
       </div>
-      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
+      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
     </div>
     <main>
       <div class="grid">
@@ -952,14 +992,73 @@ function buildCleanPrintReports() {
   });
 }
 
+const PRINT_LAYOUT_KEY = 'loadCalcProAicPrintLayout';
+
+function selectedPrintLayout() {
+  const select = document.getElementById('printLayout');
+  const value = Number(select?.value || 4);
+  return [1,2,4,8].includes(value) ? value : 4;
+}
+
+function restorePrintLayout() {
+  const select = document.getElementById('printLayout');
+  if (!select) return;
+  const saved = Number(localStorage.getItem(PRINT_LAYOUT_KEY));
+  if ([1,2,4,8].includes(saved)) select.value = String(saved);
+  select.addEventListener('change', () => localStorage.setItem(PRINT_LAYOUT_KEY, select.value));
+}
+
+function removePrintPages() {
+  document.getElementById('printPages')?.remove();
+}
+
+function createPrintPages(layout) {
+  removePrintPages();
+  const printableCards = Array.from(document.querySelectorAll('#calculationsContainer > .card'))
+    .filter((card, index) => hasCalculationData(index + 1));
+
+  if (!printableCards.length) return 0;
+
+  const printPages = document.createElement('div');
+  printPages.id = 'printPages';
+  printPages.className = 'print-pages';
+
+  for (let start = 0; start < printableCards.length; start += layout) {
+    const page = document.createElement('section');
+    page.className = 'print-page';
+    page.dataset.layout = String(layout);
+    page.innerHTML = `
+      <header class="print-page-header">
+        <div class="print-page-brand">⚡ LoadCalcPro<span class="brand-x">X</span></div>
+        <div class="print-page-title">Available Fault Current (AIC) Report</div>
+      </header>
+      <div class="print-page-grid"></div>`;
+
+    const grid = page.querySelector('.print-page-grid');
+    printableCards.slice(start, start + layout).forEach(card => {
+      const wrapper = document.createElement('article');
+      wrapper.className = 'print-report-card';
+      wrapper.appendChild(card.querySelector('.clean-print-report').cloneNode(true));
+      grid.appendChild(wrapper);
+    });
+    printPages.appendChild(page);
+  }
+
+  document.body.appendChild(printPages);
+  return printableCards.length;
+}
+
 function preparePrint() {
   buildCleanPrintReports();
-  document.querySelectorAll('#calculationsContainer > .card').forEach((card, index) => {
-    const n = index + 1;
-    card.classList.toggle('optional-empty', n > 1 && !hasCalculationData(n));
-  });
+  const layout = selectedPrintLayout();
+  localStorage.setItem(PRINT_LAYOUT_KEY, String(layout));
+  const reportCount = createPrintPages(layout);
+  if (!reportCount) {
+    alert('Enter calculation information before printing.');
+    return;
+  }
   window.print();
-  setTimeout(() => document.querySelectorAll('.optional-empty').forEach(card => card.classList.remove('optional-empty')), 500);
+  setTimeout(removePrintPages, 500);
 }
 
 function saveCurrentValues() {
@@ -1000,6 +1099,7 @@ function applySavedValues(saved) {
   updateAllSelectPlaceholders();
   for (let n = 1; n <= panelCount(); n++) calculate(n);
   updatePanelControls();
+  restorePrintLayout();
 }
 
 function hideRestoreModal() {
