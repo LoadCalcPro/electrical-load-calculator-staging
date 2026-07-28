@@ -1,0 +1,157 @@
+name: One-time AIC sync and validation repair
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-fix-aic-sync-and-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix downstream sync and missing conduit validation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = []
+
+          replacements.append((
+          """function constantKey(n) {
+  const metal = el('wireType', n).value === 'Copper' ? 'copper' : 'aluminum';
+  const raceway = el('conduit', n).value === 'Non-metallic' ? 'Pvc' : 'Metallic';
+  return metal + raceway;
+}""",
+          """function constantKey(n) {
+  const wireType = el('wireType', n)?.value || '';
+  const conduit = el('conduit', n)?.value || '';
+  if (!['Copper','Aluminum'].includes(wireType) || !['Non-metallic','Metallic'].includes(conduit)) return null;
+  const metal = wireType === 'Copper' ? 'copper' : 'aluminum';
+  const raceway = conduit === 'Non-metallic' ? 'Pvc' : 'Metallic';
+  return metal + raceway;
+}"""))
+
+          replacements.append((
+          """function calculate(n) {
+  const wire = constants[el('wireSize', n).value];
+  if (!wire) {
+    el('cConstant', n).textContent = '—';
+    clearAicResult(n);
+    carryForward(n);
+    return;
+  }
+
+  const C = wire[constantKey(n)];
+  el('cConstant', n).textContent = fmt(C);""",
+          """function calculate(n) {
+  const wire = constants[el('wireSize', n).value];
+  const key = constantKey(n);
+  if (!wire || !key) {
+    el('cConstant', n).textContent = '—';
+    clearAicResult(n);
+    carryForward(n);
+    return;
+  }
+
+  const C = wire[key];
+  el('cConstant', n).textContent = fmt(C);"""))
+
+          replacements.append((
+          """function carryForward(n, aicValue=null) {
+  // Only the first downstream panel receives the AIC from the main calculation.
+  if (n !== 1) return;
+
+  const nextFault = el('utilityFault', 2);
+  if (!nextFault) return;
+
+  let value = aicValue;
+  if (!Number.isFinite(value)) {
+    const text = el('aicResult', 1).textContent.replace(/,/g, '');
+    value = Number(text);
+  }
+
+  if (nextFault.dataset.userEdited !== 'true') {
+    nextFault.value = Number.isFinite(value) ? Math.round(value).toString() : '';
+  }
+  calculate(2);
+}""",
+          """function carryForward(n, aicValue=null) {
+  // Downstream Panel 1 always follows the current AIC from the main calculation.
+  if (n !== 1) return;
+
+  const nextFault = el('utilityFault', 2);
+  if (!nextFault) return;
+
+  let value = aicValue;
+  if (!Number.isFinite(value)) {
+    const resultText = el('aicResult', 1).textContent.replace(/,/g, '');
+    value = Number(resultText);
+  }
+
+  nextFault.value = Number.isFinite(value) ? Math.round(value).toString() : '';
+  nextFault.dataset.userEdited = 'false';
+  calculate(2);
+}"""))
+
+          replacements.append((
+          """  Object.entries(saved.values || {}).forEach(([id,value]) => {
+    const node = document.getElementById(id);
+    if (node) node.value = value;
+  });
+
+  for (let n = 2; n <= panelCount(); n++) {
+    if (n === 2) {
+      el('utilityFault',2).dataset.userEdited =
+        String((saved.values || {})['utilityFault2'] || '').trim() !== '' ? 'true' : 'false';
+    } else {
+      el('utilityFault',n).dataset.userEdited = 'true';
+    }
+  }""",
+          """  Object.entries(saved.values || {}).forEach(([id,value]) => {
+    if (id === 'utilityFault2') return;
+    const node = document.getElementById(id);
+    if (node) node.value = value;
+  });
+
+  for (let n = 2; n <= panelCount(); n++) {
+    el('utilityFault',n).dataset.userEdited = n === 2 ? 'false' : 'true';
+  }"""))
+
+          replacements.append((
+          """  const fault = el('utilityFault', n);
+  if (n > 1) {
+    fault.addEventListener('input', () => {
+      fault.dataset.userEdited = fault.value.trim() === '' ? 'false' : 'true';
+    });
+  }""",
+          """  const fault = el('utilityFault', n);
+  if (n > 2) {
+    fault.addEventListener('input', () => {
+      fault.dataset.userEdited = fault.value.trim() === '' ? 'false' : 'true';
+    });
+  }"""))
+
+          for old, new in replacements:
+              if old not in text:
+                  raise SystemExit('Expected calculator code block was not found; no changes were committed.')
+              text = text.replace(old, new, 1)
+
+          text = text.replace('  updatePanelControls();  restorePrintLayout();  restorePrintLayout();', '  updatePanelControls();')
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit calculator update and remove workflow
+        run: |
+          rm .github/workflows/one-time-fix-aic-sync-and-validation.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html .github/workflows/one-time-fix-aic-sync-and-validation.yml
+          git commit -m "Fix AIC downstream sync and required input validation"
+          git push
