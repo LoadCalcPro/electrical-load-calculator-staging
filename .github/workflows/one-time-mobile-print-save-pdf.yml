@@ -1,0 +1,100 @@
+name: One-time mobile print and PDF fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-mobile-print-save-pdf.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make AIC mobile printing user initiated and stable
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('aic_calculator.html')
+          text = path.read_text(encoding='utf-8')
+
+          old_button = '<button type="button" class="no-print" onclick="preparePrint()">Print</button>'
+          new_button = '<button type="button" class="no-print" onclick="preparePrint()">Print / Save PDF</button>'
+          if old_button not in text:
+              raise SystemExit('Print button was not found exactly.')
+          text = text.replace(old_button, new_button, 1)
+
+          old_listener = "  select.addEventListener('change', () => localStorage.setItem(PRINT_LAYOUT_KEY, select.value));"
+          new_listener = """  select.addEventListener('change', () => {
+    localStorage.setItem(PRINT_LAYOUT_KEY, select.value);
+    removePrintPages();
+  });"""
+          if old_listener not in text:
+              raise SystemExit('Print-layout change listener was not found exactly.')
+          text = text.replace(old_listener, new_listener, 1)
+
+          old_prepare = """function preparePrint() {
+  buildCleanPrintReports();
+  const layout = selectedPrintLayout();
+  localStorage.setItem(PRINT_LAYOUT_KEY, String(layout));
+  const reportCount = createPrintPages(layout);
+  if (!reportCount) {
+    alert('Enter calculation information before printing.');
+    return;
+  }
+  window.print();
+  setTimeout(removePrintPages, 500);
+}"""
+
+          new_prepare = """let printInProgress = false;
+let printCleanupTimer = null;
+
+function finishPrintCleanup() {
+  removePrintPages();
+  printInProgress = false;
+  if (printCleanupTimer) {
+    clearTimeout(printCleanupTimer);
+    printCleanupTimer = null;
+  }
+}
+
+window.addEventListener('afterprint', finishPrintCleanup);
+
+function preparePrint() {
+  if (printInProgress) return;
+
+  buildCleanPrintReports();
+  const layout = selectedPrintLayout();
+  localStorage.setItem(PRINT_LAYOUT_KEY, String(layout));
+  const reportCount = createPrintPages(layout);
+  if (!reportCount) {
+    alert('Enter calculation information before printing.');
+    return;
+  }
+
+  printInProgress = true;
+  window.print();
+
+  // Mobile browsers may not fire afterprint reliably. Keep the report DOM
+  // available long enough for Print or Save as PDF, then clean it up safely.
+  printCleanupTimer = setTimeout(finishPrintCleanup, 60000);
+}"""
+
+          if old_prepare not in text:
+              raise SystemExit('preparePrint function was not found exactly.')
+          text = text.replace(old_prepare, new_prepare, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit calculator fix and remove workflow
+        run: |
+          rm .github/workflows/one-time-mobile-print-save-pdf.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html .github/workflows/one-time-mobile-print-save-pdf.yml
+          git commit -m "Fix AIC mobile printing and add Save PDF label"
+          git push
