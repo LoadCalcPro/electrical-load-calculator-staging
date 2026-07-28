@@ -1,83 +1,90 @@
 from pathlib import Path
+import re
 
 path = Path("aic_calculator.html")
 text = path.read_text(encoding="utf-8")
 
-css_marker = "/* Clean AIC engineering print report */"
-if css_marker not in text:
-    css = r'''
+css = r'''
 
-/* Clean AIC engineering print report */
-.clean-print-report { display:none; }
+/* Compact AIC screen and four-panel print report */
+.result { display:none!important; }
+.formula { background:transparent!important; border:0!important; padding:0!important; }
+.formula-report-panel { background:transparent!important; border:0!important; border-radius:0!important; padding:8px 0!important; }
+.formula-report { border-top:1px solid #d7e0e8; border-bottom:1px solid #d7e0e8; padding:8px 0; }
+.formula-report-line.aic-final { font-weight:700; }
+
 @media print {
-  @page { size:letter; margin:.5in; }
+  @page { size:letter; margin:.25in; }
   html, body { background:#fff!important; }
   body { zoom:1!important; }
   .page { margin:0!important; padding:0!important; max-width:none!important; }
   .form-titlebar { display:none!important; }
+  #calculationsContainer { display:block!important; }
   #calculationsContainer > .card {
     border:0!important;
     border-radius:0!important;
     box-shadow:none!important;
     padding:0!important;
-    margin:0 0 .35in 0!important;
-    break-inside:avoid;
-    page-break-inside:avoid;
+    margin:0 0 .12in 0!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
   }
   #calculationsContainer > .card > :not(.clean-print-report) { display:none!important; }
   .clean-print-report {
     display:block!important;
     color:#111827;
     font-family:Arial,Helvetica,sans-serif;
+    border-bottom:1px solid #94a3b8;
+    padding:0 0 .10in 0;
   }
-  .print-report-brand { font-size:20px; font-weight:800; color:#1e3a8a; margin:0 0 3px; }
-  .print-report-brand .brand-x { color:#15803d; }
-  .print-report-title { font-size:15px; font-weight:700; margin:0 0 18px; color:#111827; }
-  .print-report-panel { font-size:12px; font-weight:700; margin:0 0 16px; }
-  .print-report-section { margin:0 0 17px; }
-  .print-report-section h3 { font-size:12px; margin:0 0 8px; color:#1e3a8a; text-transform:uppercase; letter-spacing:.04em; }
-  .print-report-row { display:grid; grid-template-columns:190px 1fr; gap:14px; font-size:11px; line-height:1.65; }
-  .print-report-label { font-weight:700; }
-  .print-report-formula { font-family:Consolas,Monaco,monospace; font-size:11px; line-height:1.8; }
-  .print-report-final { border:2px solid #1e3a8a; padding:14px 18px; margin-top:18px; text-align:center; }
-  .print-report-final-label { font-size:11px; font-weight:800; letter-spacing:.08em; color:#1e3a8a; }
-  .print-report-final-value { font-size:24px; font-weight:900; margin-top:4px; color:#0f172a; }
+  .print-report-panel {
+    font-size:10px!important;
+    font-weight:800!important;
+    margin:0 0 5px!important;
+    color:#0f172a!important;
+  }
+  .compact-report-grid {
+    display:grid;
+    grid-template-columns:1.25fr 1fr;
+    gap:12px;
+    align-items:start;
+  }
+  .print-report-section { margin:0!important; }
+  .print-report-section h3 {
+    font-size:8px!important;
+    margin:0 0 3px!important;
+    color:#1e3a8a!important;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .print-report-row {
+    display:grid!important;
+    grid-template-columns:112px 1fr!important;
+    gap:6px!important;
+    font-size:7.5px!important;
+    line-height:1.35!important;
+  }
+  .print-report-label { font-weight:700!important; }
+  .compact-formula-row {
+    display:grid;
+    grid-template-columns:24px 10px 1fr auto;
+    gap:3px;
+    align-items:baseline;
+    font-family:Consolas,Monaco,monospace;
+    font-size:7.5px;
+    line-height:1.45;
+  }
+  .compact-formula-value { font-weight:700; white-space:nowrap; }
+  .print-report-brand,
+  .print-report-title,
+  .print-report-final { display:none!important; }
 }
 '''
+
+if "/* Compact AIC screen and four-panel print report */" not in text:
     text = text.replace("</style>", css + "\n</style>", 1)
 
-js_marker = "/* Build clean AIC print reports */"
-if js_marker not in text:
-    js = r'''
-
-/* Build clean AIC print reports */
-function printText(value, fallback='—') {
-  const text = String(value ?? '').trim();
-  return text || fallback;
-}
-function selectedText(base, n) {
-  const node = el(base, n);
-  if (!node) return '—';
-  const option = node.options && node.selectedIndex >= 0 ? node.options[node.selectedIndex] : null;
-  return option ? printText(option.textContent) : printText(node.value);
-}
-function phaseText(n) {
-  const value = printText(el('phase', n)?.value, '');
-  if (value === '2') return 'Single Phase';
-  if (value === '1.732') return 'Three Phase';
-  return '—';
-}
-function conduitText(n) {
-  const value = selectedText('conduit', n);
-  if (value === 'PVC') return 'Non-metallic';
-  if (value === 'Steel') return 'Metallic';
-  return value;
-}
-function reportNumber(base, n, suffix='') {
-  const value = readNumber(base, n);
-  return Number.isFinite(value) ? `${fmt(value, 0)}${suffix}` : '—';
-}
-function buildCleanPrintReports() {
+new_builder = r'''function buildCleanPrintReports() {
   document.querySelectorAll('#calculationsContainer > .card').forEach((card, index) => {
     const n = index + 1;
     let report = card.querySelector('.clean-print-report');
@@ -86,6 +93,7 @@ function buildCleanPrintReports() {
       report.className = 'clean-print-report';
       card.appendChild(report);
     }
+
     const wire = constants[el('wireSize', n)?.value];
     const C = wire ? wire[constantKey(n)] : null;
     const L = readNumber('distance', n);
@@ -98,43 +106,41 @@ function buildCleanPrintReports() {
     const M = valid ? 1 / (1 + F) : NaN;
     const AIC = valid ? I * M : NaN;
     const phaseLabel = phaseText(n);
-    const phaseFactor = phase === 2 ? '2' : phase === 1.732 ? '1.732' : 'Phase Factor';
+    const phaseFactor = phase === 2 ? '2' : phase === 1.732 ? '1.732' : '—';
     const headingNode = n === 1 ? document.getElementById('calculationName1') : el('calculationHeading', n);
     const panelName = printText(headingNode?.value, n === 1 ? 'Main Service' : `Downstream Panel ${n - 1}`);
+
     report.innerHTML = `
-      <div class="print-report-brand">LoadCalcPro<span class="brand-x">X</span></div>
-      <div class="print-report-title">Available Fault Current Calculation Report</div>
       <div class="print-report-panel">${panelName}</div>
-      <section class="print-report-section">
-        <h3>Input Summary</h3>
-        <div class="print-report-row"><span class="print-report-label">Utility Fault Current</span><span>${reportNumber('utilityFault', n, ' A')}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Distance</span><span>${reportNumber('distance', n, ' ft')}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Conduit Type</span><span>${conduitText(n)}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Wire Type</span><span>${selectedText('wireType', n)}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Wire Size</span><span>${selectedText('wireSize', n)}</span></div>
-        <div class="print-report-row"><span class="print-report-label">C Constant</span><span>${Number.isFinite(C) ? fmt(C,0) : '—'}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Conductors per Phase</span><span>${reportNumber('conductors', n)}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Voltage</span><span>${reportNumber('volts', n, ' V')}</span></div>
-        <div class="print-report-row"><span class="print-report-label">Phase</span><span>${phaseLabel}</span></div>
-      </section>
-      <section class="print-report-section">
-        <h3>Formulas</h3>
-        <div class="print-report-formula">F = ${phaseFactor} × L × I ÷ (N × C × V)</div>
-        <div class="print-report-formula">M = 1 ÷ (1 + F)</div>
-        <div class="print-report-formula">AIC = I × M</div>
-      </section>
-      <section class="print-report-section">
-        <h3>Calculated Values</h3>
-        <div class="print-report-row"><span class="print-report-label">F</span><span>${Number.isFinite(F) ? F.toFixed(4) : '—'}</span></div>
-        <div class="print-report-row"><span class="print-report-label">M</span><span>${Number.isFinite(M) ? M.toFixed(4) : '—'}</span></div>
-      </section>
-      <div class="print-report-final">
-        <div class="print-report-final-label">AVAILABLE FAULT CURRENT</div>
-        <div class="print-report-final-value">${Number.isFinite(AIC) ? `${fmt(AIC,0)} AMPS` : '—'}</div>
+      <div class="compact-report-grid">
+        <section class="print-report-section">
+          <h3>Input Summary</h3>
+          <div class="print-report-row"><span class="print-report-label">Utility Fault Current</span><span>${reportNumber('utilityFault', n, ' A')}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Distance</span><span>${reportNumber('distance', n, ' ft')}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Conduit Type</span><span>${conduitText(n)}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Wire Type</span><span>${selectedText('wireType', n)}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Wire Size</span><span>${selectedText('wireSize', n)}</span></div>
+          <div class="print-report-row"><span class="print-report-label">C Constant</span><span>${Number.isFinite(C) ? fmt(C,0) : '—'}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Conductors per Phase</span><span>${reportNumber('conductors', n)}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Voltage</span><span>${reportNumber('volts', n, ' V')}</span></div>
+          <div class="print-report-row"><span class="print-report-label">Phase</span><span>${phaseLabel}</span></div>
+        </section>
+        <section class="print-report-section">
+          <h3>Formulas and Values</h3>
+          <div class="compact-formula-row"><span>F</span><span>=</span><span>${phaseFactor} × L × I ÷ (N × C × V)</span><span class="compact-formula-value">${Number.isFinite(F) ? F.toFixed(4) : '—'}</span></div>
+          <div class="compact-formula-row"><span>M</span><span>=</span><span>1 ÷ (1 + F)</span><span class="compact-formula-value">${Number.isFinite(M) ? M.toFixed(4) : '—'}</span></div>
+          <div class="compact-formula-row"><span>AIC</span><span>=</span><span>I × M</span><span class="compact-formula-value">${Number.isFinite(AIC) ? `${fmt(AIC,0)} AMPS` : '—'}</span></div>
+        </section>
       </div>`;
   });
-}
-'''
-    text = text.replace("function preparePrint() {", js + "\nfunction preparePrint() {\n  buildCleanPrintReports();", 1)
+}'''
+
+text = re.sub(
+    r"function buildCleanPrintReports\(\) \{.*?\n\}",
+    new_builder,
+    text,
+    count=1,
+    flags=re.S,
+)
 
 path.write_text(text, encoding="utf-8")
