@@ -18,7 +18,7 @@ jobs:
       - name: Check out staging repository
         uses: actions/checkout@v4
 
-      - name: Apply AIC print layout update
+      - name: Apply and clean the AIC print layout update
         run: |
           python .github/scripts/apply_clean_aic_report.py
           python .github/scripts/fix_aic_print_engine_duplicates.py
@@ -32,5 +32,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add aic_calculator.html
-          git commit -m "Add selectable AIC print layouts and page branding"
+          git commit -m "Finalize selectable AIC print layouts and page branding"
           git push
