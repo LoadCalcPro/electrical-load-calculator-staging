@@ -1,0 +1,33 @@
+name: Apply AIC selectable print layouts
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/scripts/apply_clean_aic_report.py'
+      - '.github/workflows/apply-aic-print-layouts.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-aic-calculator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staging repository
+        uses: actions/checkout@v4
+
+      - name: Apply AIC print layout update
+        run: python .github/scripts/apply_clean_aic_report.py
+
+      - name: Commit updated calculator
+        run: |
+          if git diff --quiet -- aic_calculator.html; then
+            echo "No calculator changes were needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aic_calculator.html
+          git commit -m "Add selectable AIC print layouts and page branding"
+          git push
