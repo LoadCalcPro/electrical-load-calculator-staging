@@ -23,38 +23,26 @@ jobs:
           path = Path('aic_calculator.html')
           text = path.read_text(encoding='utf-8')
 
-          text, button_count = re.subn(
-              r'(<button\s+type="button"\s+class="no-print"\s+onclick="preparePrint\(\)">)(?:Print|Print / Save PDF)(</button>)',
-              r'\1Print / Save PDF\2',
+          # Rename only the visible print button.
+          text = text.replace(
+              'onclick="preparePrint()">Print</button>',
+              'onclick="preparePrint()">Print / Save PDF</button>',
+              1,
+          )
+
+          # Changing layout should only save the preference; it must never print.
+          text = re.sub(
+              r"select\.addEventListener\('change',\s*\(\)\s*=>\s*localStorage\.setItem\(PRINT_LAYOUT_KEY,\s*select\.value\)\s*\);",
+              "select.addEventListener('change', () => {\n    localStorage.setItem(PRINT_LAYOUT_KEY, select.value);\n    removePrintPages();\n  });",
               text,
               count=1,
           )
-          if button_count != 1:
-              raise SystemExit(f'Expected one print button, changed {button_count}.')
 
-          listener_pattern = re.compile(
-              r"select\.addEventListener\('change',\s*\(\)\s*=>\s*(?:localStorage\.setItem\(PRINT_LAYOUT_KEY,\s*select\.value\)|\{.*?\})\s*\);",
-              re.S,
-          )
-          listener_replacement = """select.addEventListener('change', () => {
-    localStorage.setItem(PRINT_LAYOUT_KEY, select.value);
-    removePrintPages();
-  });"""
-          text, listener_count = listener_pattern.subn(listener_replacement, text, count=1)
-          if listener_count != 1:
-              raise SystemExit(f'Expected one print-layout listener, changed {listener_count}.')
-
+          # Replace the current preparePrint block by locating the next function.
           start = text.find('function preparePrint() {')
-          if start == -1:
-              raise SystemExit('preparePrint function was not found.')
-          end_marker = '\n}\n\n\n\nfunction saveCurrentValues()'
-          end = text.find(end_marker, start)
-          if end == -1:
-              end_marker = '\n}\n\nfunction saveCurrentValues()'
-              end = text.find(end_marker, start)
-          if end == -1:
-              raise SystemExit('Could not locate the end of preparePrint.')
-          end += 2
+          next_function = text.find('function saveCurrentValues()', start)
+          if start == -1 or next_function == -1:
+              raise SystemExit('Could not locate the print function block.')
 
           replacement = """let printInProgress = false;
 let printCleanupTimer = null;
@@ -85,9 +73,12 @@ function preparePrint() {
   printInProgress = true;
   window.print();
   printCleanupTimer = setTimeout(finishPrintCleanup, 60000);
-}"""
+}
 
-          text = text[:start] + replacement + text[end:]
+
+"""
+
+          text = text[:start] + replacement + text[next_function:]
           path.write_text(text, encoding='utf-8')
           PY
       - name: Commit calculator update
