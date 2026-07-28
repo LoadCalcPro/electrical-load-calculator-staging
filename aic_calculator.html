@@ -350,6 +350,7 @@
 
 
 
+
 /* AIC selectable print layouts */
 .result { display:none!important; }
 .formula { background:transparent!important; border:0!important; padding:0!important; }
@@ -541,7 +542,7 @@
         <div class="form-title">Available Fault Current (AIC)</div>
         <div class="form-version">Version 1.0</div>
       </div>
-      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
+      <div class="title-actions"><button type="button" class="no-print secondary" onclick="window.location.href='staging-member-dashboard.html'">Available Calculators</button><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><label class="no-print print-layout-control" for="printLayout">Print Layout <select id="printLayout" aria-label="Reports per printed page"><option value="1">1 per page</option><option value="2">2 per page</option><option value="4" selected>4 per page</option><option value="8">8 per page</option></select></label><button type="button" class="no-print" onclick="preparePrint()">Print</button><button type="button" class="no-print logout-button" id="logoutBtn">Log Out</button><div class="form-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div></div>
     </div>
     <main>
       <div class="grid">
@@ -1064,6 +1065,7 @@ function preparePrint() {
 }
 
 
+
 function saveCurrentValues() {
   const data = { panelCount: panelCount(), values: {} };
   document.querySelectorAll('#calculationsContainer input, #calculationsContainer select')
@@ -1155,7 +1157,7 @@ function initialize() {
   document.getElementById('removePanelBtn').addEventListener('click', removeLastPanel);
   document.getElementById('continuePreviousBtn').addEventListener('click', continuePreviousCalculation);
   document.getElementById('startNewBtn').addEventListener('click', startNewCalculation);
-  updatePanelControls();  restorePrintLayout();
+  updatePanelControls();  restorePrintLayout();  restorePrintLayout();
 }
 
 initialize();
