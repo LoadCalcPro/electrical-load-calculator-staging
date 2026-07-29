@@ -187,8 +187,7 @@ iframe{display:block;width:100%;height:100%;border:0;background:#f3f4f6}
         const totalGen=deratedGen+hvacGen;
         setGeneratorOutput(45,totalGen);
         const voltage=positiveQty(d.getElementById("q46")?.value)||240;
-        const amps=d.getElementById("f47");
-        if(amps)amps.textContent=totalGen?(Math.round(totalGen/voltage*10)/10).toLocaleString("en-US")+" A":"";
+        setGeneratorOutput(47,totalGen/voltage);
 
         for(const r of supportedRows)updateControl(r);
         saveQuantities(managedQty);
