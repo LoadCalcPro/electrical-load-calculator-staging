@@ -1,1 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEC OPTIONAL CALCULATOR</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 15px; font-size: 18px; }
+        h2 { text-align: center; margin-bottom: 10px; font-size: 28px; }
+        .card { background: #f5f5f5; padding: 15px; margin-bottom: 18px; border-radius: 10px; }
+        .item-label { font-weight: bold; margin: 10px 0 6px; }
+        .row { display: flex; gap: 10px; margin-bottom: 8px; }
+        input.qty { width: 60px; flex: 0 0 60px; padding: 8px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; text-align: center; }
+        input.va { flex: 1; padding: 8px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; }
+        input.big { width: 100%; padding: 10px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 15px; font-size: 20px; background: #0078ff; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; }
+        pre { background: #ffffff; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 17px; border: 1px solid #ddd; }
+        @media print {
+            body { font-size: 16px; margin: 20px; }
+            button, input, .card:not(#printCard) { display: none !important; }
+            #printCard { display: block !important; border: none; background: #ffffff; }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>RESIDENTIAL OPTIONAL LOAD CALCULATOR</h2>
+
+    <div class="card">
+        <div class="item-label">Customer Name</div>
+        <input id="custName" class="big" type="text">
+        <div class="item-label">Address</div>
+        <input id="addr" class="big" type="text">
+        <div class="item-label">Project Number</div>
+        <input id="projNum" class="big" type="text">
+    </div>
+
+    <div class="card">
+        <div class="item-label">Service Voltage</div>
+        <input id="voltage" class="big" type="number" value="240">
+    </div>
+
+    <div class="card">
+        <div class="item-label">Square Footage @ 3 VA/ft²</div>
+        <input id="sqftQty" class="big" type="number">
+    </div>
+
+    <div class="card">
+        <div class="item-label">Small Appliance Circuits @ 1500 VA Each</div>
+        <input id="smallQty" class="qty" type="number">
+    </div>
+
+    <div class="card">
+        <div class="item-label">Laundry Circuits @ 1500 VA Each</div>
+        <input id="laundryQty" class="qty" type="number">
+    </div>
+
+    <div class="card">
+        <div class="item-label">Appliances @ Nameplate</div>
+        <div id="applianceInputs"></div>
+    </div>
+
+    <div class="card">
+        <div class="item-label">HVAC Loads</div>
+        <div class="item-label">A/C #1 (100%)</div>
+        <div class="row"><input id="ac1Qty" class="qty" type="number"><input id="ac1VA" class="va" type="number"></div>
+        <div class="item-label">Heat #1 (65%)</div>
+        <div class="row"><input id="heat1Qty" class="qty" type="number"><input id="heat1VA" class="va" type="number"></div>
+        <div class="item-label">A/C #2 (100%)</div>
+        <div class="row"><input id="ac2Qty" class="qty" type="number"><input id="ac2VA" class="va" type="number"></div>
+        <div class="item-label">Heat #2 (65%)</div>
+        <div class="row"><input id="heat2Qty" class="qty" type="number"><input id="heat2VA" class="va" type="number"></div>
+    </div>
+
+    <div class="card">
+        <div class="item-label">EV Charger (7,200 watts or the nameplate rating, whichever is larger)</div>
+        <div class="row">
+            <input id="evQty" class="qty" type="number" placeholder="Qty">
+            <input id="evVA" class="va" type="number" placeholder="Nameplate VA">
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="item-label">Motors</div>
+        <div class="item-label">Largest Motor (125%)</div>
+        <div class="row"><input id="motorLargestQty" class="qty" type="number"><input id="motorLargestVA" class="va" type="number"></div>
+        <div class="item-label">Other Motors</div>
+        <div class="row"><input id="motorOtherQty" class="qty" type="number"><input id="motorOtherVA" class="va" type="number"></div>
+    </div>
+
+    <button onclick="calc()">Calculate</button>
+
+    <div class="card">
+        <div class="item-label">Results</div>
+        <pre id="out"></pre>
+    </div>
+
+    <div class="card" id="printCard">
+        <pre id="report" style="white-space: pre-wrap;"></pre>
+    </div>
+
+    <script>
+        const applList = [
+            ["Dishwasher","dw"], ["Disposal","disp"], ["Refrigerator","ref"], ["Freezer","freezer"],
+            ["Microwave","mw"], ["Hood fan","hood"], ["Range","range"], ["Wall oven","oven"],
+            ["Cooktop","cooktop"], ["Central vacuum","cvac"], ["Indoor jacuzzi","jacuzzi"],
+            ["Wine cooler","wine"], ["Coffee machine","coffee"], ["Bath fan","bathfan"],
+            ["Garage door opener","gdoor"], ["Sump pump","sump"], ["Spa pump","spa"],
+            ["Water heater","wh"], ["Washer","washer"], ["Dryer","dryer"]
+        ];
+
+        let html = "";
+        applList.forEach(a => {
+            html += `<div class="item-label">${a[0]}</div>
+                     <div class="row">
+                        <input id="${a[1]}Qty" class="qty" type="number">
+                        <input id="${a[1]}VA" class="va" type="number" placeholder="VA">
+                     </div>`;
+        });
+        document.getElementById("applianceInputs").innerHTML = html;
+
+        function n(id){ 
+            let v = Number(document.getElementById(id)?.value); 
+            return isNaN(v)?0:v; 
+        }
+        function t(id){ return document.getElementById(id)?.value || ""; }
+
+        function calc(){
+            const voltage = n("voltage");
+            const report = [];
+            function add(label,val){ if(val>0) report.push(label+": "+Math.round(val)+" VA"); }
+
+            report.push("Customer Name: " + t("custName"), "Address: " + t("addr"), "Project: " + t("projNum"), "");
+
+            const genSqft = n("sqftQty") * 3;
+            const genSmall = n("smallQty") * 1500;
+            const genLaundry = n("laundryQty") * 1500;
+            const genTotal = genSqft + genSmall + genLaundry;
+            
+            let applTotal = 0;
+            applList.forEach(a => {
+                let load = n(a[1]+"Qty") * n(a[1]+"VA");
+                if(load > 0) { add(a[0], load); applTotal += load; }
+            });
+
+            const totalGenAppl = genTotal + applTotal;
+            const deratedGenAppl = Math.min(totalGenAppl, 10000) + (Math.max(totalGenAppl - 10000, 0) * 0.40);
+
+            report.push("DERATED GENERAL/APPLIANCE: " + Math.round(deratedGenAppl) + " VA", "");
+
+            // HVAC - Individual comparison
+            const hvac1 = Math.max(n("ac1Qty")*n("ac1VA"), n("heat1Qty")*n("heat1VA")*0.65);
+            const hvac2 = Math.max(n("ac2Qty")*n("ac2VA"), n("heat2Qty")*n("heat2VA")*0.65);
+            const hvacTotal = hvac1 + hvac2;
+            if(hvacTotal > 0) {
+                report.push("HVAC LOADS");
+                add("HVAC #1", hvac1);
+                add("HVAC #2", hvac2);
+                report.push("");
+            }
+
+            // EV Calculation: Larger of 7200 or nameplate at 100%
+            const evQty = n("evQty");
+            const evBase = Math.max(7200, n("evVA"));
+            const evTotal = evQty * evBase;
+            if(evTotal > 0) {
+                report.push("EV CHARGER");
+                add(`EV Charger (${evQty} unit(s) @ ${evBase}VA)`, evTotal);
+                report.push("");
+            }
+
+            const motorTotal = (n("motorLargestQty")*n("motorLargestVA")*1.25) + (n("motorOtherQty")*n("motorOtherVA"));
+            if(motorTotal > 0) {
+                report.push("MOTORS");
+                add("Motor Total", motorTotal);
+                report.push("");
+            }
+
+            const totalVA = deratedGenAppl + hvacTotal + evTotal + motorTotal;
+            const amps = voltage ? totalVA / voltage : 0;
+            
+            const results = "Total VA: " + Math.round(totalVA) + "\nMin Service Amps: " + Math.round(amps) + " A";
+            document.getElementById("out").textContent = results;
+            report.push("FINAL RESULTS", results);
+            document.getElementById("report").textContent = report.join("\n");
+        }
+    </script>
+</body>
+</html>
 
