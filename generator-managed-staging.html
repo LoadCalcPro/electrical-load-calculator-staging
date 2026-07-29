@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Generator Optional Method Calculator | Managed Quantity Staging</title>
+<style>
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#f3f4f6}
+iframe{display:block;width:100%;height:100%;border:0;background:#f3f4f6}
+</style>
+</head>
+<body>
+<iframe id="calculatorFrame" src="generator.html" title="Generator Optional Method Calculator"></iframe>
+<script>
+(function(){
+  "use strict";
+  const frame=document.getElementById("calculatorFrame");
+  const QTY_STORAGE_KEY="loadcalcpro_staging_managed_quantities_v1";
+
+  function readSavedQuantities(){
+    try{return JSON.parse(localStorage.getItem(QTY_STORAGE_KEY)||"{}")}catch(e){return{}}
+  }
+  function saveQuantities(map){
+    try{localStorage.setItem(QTY_STORAGE_KEY,JSON.stringify(map))}catch(e){}
+  }
+  function positiveQty(value){
+    const n=Math.floor(Number(value));
+    return Number.isFinite(n)&&n>0?n:0;
+  }
+  function numberFromText(text){
+    const n=Number(String(text||"").replace(/[^0-9.-]/g,""));
+    return Number.isFinite(n)?n:0;
+  }
+  function formatted(value){
+    return value?Math.round(value).toLocaleString("en-US"):"";
+  }
+
+  frame.addEventListener("load",function(){
+    const w=frame.contentWindow;
+    const d=frame.contentDocument;
+    if(!w||!d||!d.getElementById("tbody"))return;
+
+    const style=d.createElement("style");
+    style.textContent=`
+      .check-wrap{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+      .managed-qty{display:none;min-width:30px;height:24px;padding:0 5px;border:1px solid #15803d;border-radius:6px;background:#fff;color:#0f172a;font-size:13px;font-weight:800;cursor:pointer;align-items:center;justify-content:center;user-select:none}
+      .managed-qty.show{display:inline-flex}
+      .managed-qty:hover{background:#ecfdf5}
+      @media print{.managed-qty{border:0;background:transparent;padding:0;min-width:18px}}
+    `;
+    d.head.appendChild(style);
+
+    const supportedRows=[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,37,38,39,40,42,43];
+    const managedQty=readSavedQuantities();
+    let insideCalculation=false;
+    const originalCalculate=w.calculate;
+    const originalClearInputs=w.clearInputs;
+
+    function totalQty(r){
+      const input=d.getElementById("q"+r);
+      return input?positiveQty(input.value):0;
+    }
+    function quantityFor(r){
+      const total=totalQty(r);
+      let selected=positiveQty(managedQty[r]);
+      if(selected>total)selected=total;
+      managedQty[r]=selected;
+      return selected;
+    }
+    function updateControl(r){
+      const check=d.getElementById("m"+r);
+      const badge=d.getElementById("mq"+r);
+      if(!check||!badge)return;
+      const selected=quantityFor(r);
+      check.classList.toggle("checked",selected>0);
+      check.textContent=selected>0?"✓":"";
+      badge.classList.toggle("show",selected>0);
+      badge.textContent=selected;
+      check.title=selected>0?"Click to remove managed selection":"Click to manage all entered units";
+      badge.title="Click to reduce the managed quantity";
+    }
+    function setGeneratorOutput(r,value){
+      const el=d.getElementById("f"+r);
+      if(el)el.textContent=formatted(value);
+    }
+    function generatorRowValue(r,serviceValue){
+      const total=totalQty(r);
+      if(total<1)return serviceValue;
+      const selected=quantityFor(r);
+      return serviceValue*Math.max(total-selected,0)/total;
+    }
+
+    for(const r of supportedRows){
+      const old=d.getElementById("m"+r);
+      if(!old)continue;
+      const wrap=d.createElement("span");
+      wrap.className="check-wrap";
+      old.parentNode.insertBefore(wrap,old);
+      wrap.appendChild(old);
+      const badge=d.createElement("span");
+      badge.id="mq"+r;
+      badge.className="managed-qty";
+      badge.textContent="0";
+      wrap.appendChild(badge);
+      old.removeAttribute("onclick");
+      old.addEventListener("click",function(){
+        const total=totalQty(r);
+        managedQty[r]=quantityFor(r)>0?0:total;
+        saveQuantities(managedQty);
+        updateControl(r);
+        w.calculate();
+      });
+      badge.addEventListener("click",function(event){
+        event.stopPropagation();
+        const total=totalQty(r);
+        if(total<1)return;
+        let selected=quantityFor(r)-1;
+        if(selected<0)selected=total;
+        managedQty[r]=selected;
+        saveQuantities(managedQty);
+        updateControl(r);
+        w.calculate();
+      });
+      const qtyInput=d.getElementById("q"+r);
+      if(qtyInput)qtyInput.addEventListener("input",function(){
+        if(quantityFor(r)>totalQty(r))managedQty[r]=totalQty(r);
+        updateControl(r);
+      });
+      updateControl(r);
+    }
+
+    w.toggleManaged=function(r){
+      if(!supportedRows.includes(Number(r)))return;
+      const total=totalQty(r);
+      managedQty[r]=quantityFor(r)>0?0:total;
+      saveQuantities(managedQty);
+      updateControl(r);
+      w.calculate();
+    };
+
+    w.calculate=function(){
+      if(insideCalculation)return;
+      insideCalculation=true;
+      try{
+        for(const r of supportedRows){
+          const check=d.getElementById("m"+r);
+          if(check){check.classList.remove("checked");check.textContent=""}
+        }
+        originalCalculate.call(w);
+
+        let applianceTotal=0;
+        let applianceGen=0;
+        let managedVA=0;
+        for(let r=10;r<=30;r++){
+          const service=numberFromText(d.getElementById("e"+r)?.textContent);
+          applianceTotal+=service;
+          const gen=generatorRowValue(r,service);
+          applianceGen+=gen;
+          managedVA+=service-gen;
+          setGeneratorOutput(r,gen);
+        }
+        setGeneratorOutput(9,managedVA);
+        setGeneratorOutput(31,applianceGen);
+
+        const general=numberFromText(d.getElementById("e8")?.textContent);
+        const combinedGen=general+applianceGen;
+        setGeneratorOutput(32,combinedGen);
+        const first10Gen=combinedGen?Math.min(combinedGen,10000):0;
+        setGeneratorOutput(33,first10Gen);
+        const remainderGen=Math.max(combinedGen-first10Gen,0);
+        setGeneratorOutput(34,remainderGen*0.4);
+        const deratedGen=first10Gen+remainderGen*0.4;
+        setGeneratorOutput(35,deratedGen);
+
+        let hvacGen=0;
+        for(const r of [37,38,39,40,42,43]){
+          const service=numberFromText(d.getElementById("e"+r)?.textContent);
+          const gen=generatorRowValue(r,service);
+          hvacGen+=gen;
+          setGeneratorOutput(r,gen);
+        }
+        const heat40=numberFromText(d.getElementById("e41")?.textContent);
+        hvacGen+=heat40;
+        setGeneratorOutput(41,heat40);
+        setGeneratorOutput(44,hvacGen);
+        const totalGen=deratedGen+hvacGen;
+        setGeneratorOutput(45,totalGen);
+        const voltage=positiveQty(d.getElementById("q46")?.value)||240;
+        const amps=d.getElementById("f47");
+        if(amps)amps.textContent=totalGen?(Math.round(totalGen/voltage*10)/10).toLocaleString("en-US")+" A":"";
+
+        for(const r of supportedRows)updateControl(r);
+        saveQuantities(managedQty);
+      }finally{
+        insideCalculation=false;
+      }
+    };
+
+    w.clearInputs=function(skipSave){
+      localStorage.removeItem(QTY_STORAGE_KEY);
+      for(const key of Object.keys(managedQty))delete managedQty[key];
+      originalClearInputs.call(w,skipSave);
+      for(const r of supportedRows)updateControl(r);
+    };
+
+    const note=d.querySelector(".toolbar .note");
+    if(note)note.textContent="Click the Managed box to manage all entered units. Click the number beside the check mark only when fewer units should be managed.";
+
+    w.calculate();
+  });
+})();
+</script>
+</body>
+</html>
