@@ -1,190 +1,4431 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEC OPTIONAL CALCULATOR</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 15px; font-size: 18px; }
-        h2 { text-align: center; margin-bottom: 10px; font-size: 28px; }
-        .card { background: #f5f5f5; padding: 15px; margin-bottom: 18px; border-radius: 10px; }
-        .item-label { font-weight: bold; margin: 10px 0 6px; }
-        .row { display: flex; gap: 10px; margin-bottom: 8px; }
-        input.qty { width: 60px; flex: 0 0 60px; padding: 8px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; text-align: center; }
-        input.va { flex: 1; padding: 8px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; }
-        input.big { width: 100%; padding: 10px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; }
-        button { width: 100%; padding: 15px; font-size: 20px; background: #0078ff; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; }
-        pre { background: #ffffff; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 17px; border: 1px solid #ddd; }
-        @media print {
-            body { font-size: 16px; margin: 20px; }
-            button, input, .card:not(#printCard) { display: none !important; }
-            #printCard { display: block !important; border: none; background: #ffffff; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+<meta name="robots" content="noindex,nofollow">
+
+<title>Generator Optional Method Calculator | Mobile Staging</title>
+
+<style>
+:root{
+  --page:#f3f4f6;
+  --card:#ffffff;
+  --ink:#111827;
+  --muted:#6b7280;
+  --blue:#1e3a8a;
+  --navy:#0f172a;
+  --green:#15803d;
+  --teal:#0f766e;
+  --line:#d1d5db;
+  --soft-blue:#e8eefc;
+  --soft-green:#dff0e7;
+  --danger:#b42318;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  width:100%;
+  min-height:100%;
+  background:var(--page);
+}
+
+body{
+  width:100%;
+  min-height:100%;
+  margin:0;
+  background:var(--page);
+  color:var(--ink);
+  font-family:Arial,Helvetica,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  touch-action:manipulation;
+}
+
+.mobile-app{
+  width:100%;
+  max-width:680px;
+  min-height:100vh;
+  margin:0 auto;
+  padding-bottom:190px;
+}
+
+.app-header{
+  position:relative;
+  padding:
+    max(18px,env(safe-area-inset-top))
+    18px
+    18px;
+  background:linear-gradient(135deg,var(--blue),var(--navy));
+  color:#ffffff;
+}
+
+.brand-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.app-title{
+  margin:0;
+  font-size:22px;
+  line-height:1.2;
+  font-weight:900;
+}
+
+.app-version{
+  margin-top:5px;
+  color:#dbeafe;
+  font-size:12px;
+  font-weight:700;
+}
+
+.app-brand{
+  flex:0 0 auto;
+  padding-top:2px;
+  color:#ffffff;
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.app-brand .bolt{
+  color:#5eead4;
+  margin-right:3px;
+}
+
+.app-brand .brand-x{
+  color:#5eead4;
+  margin-left:2px;
+}
+
+.header-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:16px;
+}
+
+.header-actions button{
+  min-height:42px;
+  border:1px solid rgba(255,255,255,.4);
+  border-radius:10px;
+  padding:9px 10px;
+  background:rgba(255,255,255,.1);
+  color:#ffffff;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.header-actions button.primary{
+  background:var(--teal);
+  border-color:var(--teal);
+}
+
+.main-content{
+  padding:14px;
+}
+
+.card{
+  margin-bottom:14px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--card);
+  box-shadow:0 4px 16px rgba(15,23,42,.08);
+}
+
+.card-heading{
+  margin:0;
+  padding:13px 14px;
+  background:var(--blue);
+  color:#ffffff;
+  font-size:15px;
+  font-weight:900;
+  text-align:center;
+}
+
+.card-body{
+  padding:13px;
+}
+
+.field-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:11px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:5px;
+  color:#374151;
+  font-size:12px;
+  font-weight:800;
+}
+
+.field input,
+.field select{
+  width:100%;
+  min-height:44px;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  padding:9px 10px;
+  background:#ffffff;
+  color:#111827;
+  font-size:16px;
+}
+
+.field input[type="number"]{
+  text-align:right;
+}
+
+.field input[readonly]{
+  background:#eef2f7;
+  color:#64748b;
+  font-weight:800;
+}
+
+.load-row{
+  padding:12px 0;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.load-row:first-child{
+  padding-top:0;
+}
+
+.load-row:last-child{
+  padding-bottom:0;
+  border-bottom:0;
+}
+
+.load-name{
+  margin-bottom:9px;
+  color:#111827;
+  font-size:14px;
+  font-weight:900;
+}
+
+.load-inputs{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:9px;
+}
+
+.input-block label{
+  display:block;
+  margin-bottom:4px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.input-block input,
+.input-block select{
+  width:100%;
+  min-height:43px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  padding:8px;
+  background:#ffffff;
+  color:#111827;
+  font-size:16px;
+  text-align:right;
+}
+
+.input-block input[readonly]{
+  background:#eef2f7;
+  color:#64748b;
+  font-weight:800;
+}
+
+.row-output{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:9px;
+}
+
+.output-box{
+  min-height:45px;
+  border:1px solid #d8dee9;
+  border-radius:8px;
+  padding:6px 8px;
+  background:#f8fafc;
+}
+
+.output-label{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.output-value{
+  margin-top:3px;
+  color:#0f172a;
+  font-size:15px;
+  font-weight:900;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+
+.managed-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+  padding:9px 10px;
+  border:1px solid #d1fae5;
+  border-radius:9px;
+  background:#f0fdf4;
+}
+
+.managed-label{
+  color:#14532d;
+  font-size:12px;
+  font-weight:900;
+}
+
+.managed-controls{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+}
+
+.managed-check{
+  width:38px;
+  height:34px;
+  border:1px solid #86efac;
+  border-radius:8px;
+  background:#ffffff;
+  color:var(--green);
+  font-family:"Segoe UI Symbol",Arial,sans-serif;
+  font-size:21px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.managed-check.checked{
+  border-color:var(--green);
+  background:#dcfce7;
+}
+
+.managed-qty{
+  display:none;
+  min-width:42px;
+  height:34px;
+  border:1px solid var(--green);
+  border-radius:8px;
+  padding:0 8px;
+  background:#ffffff;
+  color:#14532d;
+  font-size:15px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.managed-qty.show{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.section-note{
+  margin:0;
+  padding:0 1px 11px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+}
+
+.summary-strip{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #dbe3ef;
+}
+
+.summary-box{
+  border-radius:9px;
+  padding:10px;
+  background:var(--soft-blue);
+}
+
+.summary-box .summary-label{
+  color:#475569;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.summary-box .summary-value{
+  margin-top:4px;
+  color:#0f172a;
+  font-size:17px;
+  font-weight:900;
+  text-align:right;
+}
+
+.bottom-results{
+  position:fixed;
+  right:0;
+  bottom:0;
+  left:0;
+  z-index:20;
+  padding:
+    10px
+    max(12px,env(safe-area-inset-right))
+    max(12px,env(safe-area-inset-bottom))
+    max(12px,env(safe-area-inset-left));
+  background:rgba(15,23,42,.96);
+  box-shadow:0 -6px 22px rgba(15,23,42,.25);
+}
+
+.bottom-results-inner{
+  width:100%;
+  max-width:680px;
+  margin:0 auto;
+}
+
+.result-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.result-card{
+  min-width:0;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;
+  padding:10px;
+  background:#ffffff;
+}
+
+.result-card.generator{
+  background:#dcfce7;
+}
+
+.result-label{
+  color:#64748b;
+  font-size:10px;
+  font-weight:900;
+  text-align:center;
+  text-transform:uppercase;
+}
+
+.result-value{
+  margin-top:4px;
+  color:#0f172a;
+  font-size:24px;
+  font-weight:900;
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+
+.save-status{
+  min-height:16px;
+  margin-top:7px;
+  color:#bbf7d0;
+  font-size:11px;
+  font-weight:700;
+  text-align:center;
+}
+
+.print-report{
+  display:none;
+}
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(15,23,42,.6);
+}
+
+.modal-backdrop.show{
+  display:flex;
+}
+
+.modal-box{
+  width:100%;
+  max-width:430px;
+  border:1px solid #d1d5db;
+  border-radius:16px;
+  padding:21px;
+  background:#ffffff;
+  box-shadow:0 24px 80px rgba(0,0,0,.32);
+}
+
+.modal-box h2{
+  margin:0 0 8px;
+  color:var(--blue);
+  font-size:21px;
+}
+
+.modal-box p{
+  margin:8px 0 15px;
+  color:#374151;
+  line-height:1.45;
+}
+
+.modal-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+}
+
+.modal-actions button{
+  min-height:43px;
+  border:1px solid var(--blue);
+  border-radius:9px;
+  padding:9px 11px;
+  background:var(--blue);
+  color:#ffffff;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.modal-actions button.secondary{
+  background:#ffffff;
+  color:var(--blue);
+}
+
+.access-screen{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:linear-gradient(135deg,var(--blue),var(--navy));
+}
+
+body.access-locked .access-screen{
+  display:flex;
+}
+
+body.access-locked .mobile-app,
+body.access-locked .bottom-results{
+  display:none;
+}
+
+.access-card{
+  width:100%;
+  max-width:440px;
+  border:1px solid #d1d5db;
+  border-radius:18px;
+  padding:24px;
+  background:#ffffff;
+  box-shadow:0 24px 80px rgba(0,0,0,.34);
+}
+
+.access-topline{
+  margin-bottom:7px;
+  color:var(--teal);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.access-card h1{
+  margin:0 0 7px;
+  color:var(--blue);
+  font-size:25px;
+}
+
+.access-card .subtitle{
+  margin:0 0 17px;
+  color:#4b5563;
+  line-height:1.45;
+}
+
+.access-card label{
+  display:block;
+  margin:11px 0 6px;
+  font-size:13px;
+  font-weight:800;
+}
+
+.access-card input[type="email"]{
+  width:100%;
+  min-height:46px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:10px 11px;
+  font-size:16px;
+}
+
+.remember-row{
+  display:flex!important;
+  align-items:center;
+  gap:8px;
+  font-weight:600!important;
+}
+
+.remember-row input{
+  width:auto;
+}
+
+.access-card button{
+  width:100%;
+  min-height:45px;
+  margin-top:12px;
+  border:1px solid var(--blue);
+  border-radius:10px;
+  padding:10px;
+  background:var(--blue);
+  color:#ffffff;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.access-card .forget-email{
+  background:#ffffff;
+  color:var(--blue);
+}
+
+.access-msg{
+  min-height:19px;
+  margin-top:11px;
+  font-size:13px;
+  font-weight:800;
+}
+
+.access-msg.error{
+  color:var(--danger);
+}
+
+.access-msg.ok{
+  color:var(--green);
+}
+
+.access-note{
+  margin-top:15px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+}
+
+@media(min-width:520px){
+  .field-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .field.wide{
+    grid-column:1 / -1;
+  }
+
+  .modal-actions{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media print{
+  @page{
+    size:letter;
+    margin:.35in;
+  }
+
+  html,
+  body{
+    background:#ffffff;
+  }
+
+  body > *{
+    display:none!important;
+  }
+
+  .print-report{
+    display:block!important;
+    color:#111827;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
 
-    <h2>RESIDENTIAL OPTIONAL LOAD CALCULATOR</h2>
+<body class="access-locked">
 
-    <div class="card">
-        <div class="item-label">Customer Name</div>
-        <input id="custName" class="big" type="text">
-        <div class="item-label">Address</div>
-        <input id="addr" class="big" type="text">
-        <div class="item-label">Project Number</div>
-        <input id="projNum" class="big" type="text">
+<div id="accessScreen" class="access-screen">
+  <div class="access-card">
+
+    <div class="access-topline">
+      LoadCalcPro<span class="brand-x">X</span> Protected Access
     </div>
 
-    <div class="card">
-        <div class="item-label">Service Voltage</div>
-        <input id="voltage" class="big" type="number" value="240">
-    </div>
+    <h1>Professional Membership</h1>
 
-    <div class="card">
-        <div class="item-label">Square Footage @ 3 VA/ft²</div>
-        <input id="sqftQty" class="big" type="number">
-    </div>
+    <p class="subtitle">
+      Please enter the email address used for your LoadCalcPro
+      subscription to continue.
+    </p>
 
-    <div class="card">
-        <div class="item-label">Small Appliance Circuits @ 1500 VA Each</div>
-        <input id="smallQty" class="qty" type="number">
-    </div>
+    <label for="memberEmail">
+      Membership Email
+    </label>
 
-    <div class="card">
-        <div class="item-label">Laundry Circuits @ 1500 VA Each</div>
-        <input id="laundryQty" class="qty" type="number">
-    </div>
+    <input
+      id="memberEmail"
+      type="email"
+      autocomplete="email"
+      placeholder="you@example.com"
+    >
 
-    <div class="card">
-        <div class="item-label">Appliances @ Nameplate</div>
-        <div id="applianceInputs"></div>
-    </div>
+    <label
+      class="remember-row"
+      for="rememberMemberEmail"
+    >
+      <input
+        id="rememberMemberEmail"
+        type="checkbox"
+        checked
+      >
+      Remember this email on this device
+    </label>
 
-    <div class="card">
-        <div class="item-label">HVAC Loads</div>
-        <div class="item-label">A/C #1 (100%)</div>
-        <div class="row"><input id="ac1Qty" class="qty" type="number"><input id="ac1VA" class="va" type="number"></div>
-        <div class="item-label">Heat #1 (65%)</div>
-        <div class="row"><input id="heat1Qty" class="qty" type="number"><input id="heat1VA" class="va" type="number"></div>
-        <div class="item-label">A/C #2 (100%)</div>
-        <div class="row"><input id="ac2Qty" class="qty" type="number"><input id="ac2VA" class="va" type="number"></div>
-        <div class="item-label">Heat #2 (65%)</div>
-        <div class="row"><input id="heat2Qty" class="qty" type="number"><input id="heat2VA" class="va" type="number"></div>
-    </div>
+    <button
+      id="accessButton"
+      type="button"
+      onclick="requestCalculatorAccess()"
+    >
+      Continue
+    </button>
 
-    <div class="card">
-        <div class="item-label">EV Charger (7,200 watts or the nameplate rating, whichever is larger)</div>
-        <div class="row">
-            <input id="evQty" class="qty" type="number" placeholder="Qty">
-            <input id="evVA" class="va" type="number" placeholder="Nameplate VA">
+    <button
+      id="forgetEmailButton"
+      class="forget-email"
+      type="button"
+      onclick="forgetRememberedEmail()"
+      style="display:none"
+    >
+      Forget saved email
+    </button>
+
+    <div
+      id="accessMessage"
+      class="access-msg"
+    ></div>
+
+    <p class="access-note">
+      <strong>Membership access:</strong>
+      This calculator checks your subscription through the
+      LoadCalcPro secure access server.
+    </p>
+
+  </div>
+</div>
+
+<div class="mobile-app">
+
+  <header class="app-header">
+
+    <div class="brand-row">
+
+      <div>
+        <h1 class="app-title">
+          Generator Optional Method Calculator
+        </h1>
+
+        <div class="app-version">
+          NEC 2023 | Mobile Staging Version 1.0
         </div>
+      </div>
+
+      <div class="app-brand">
+        <span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span>
+      </div>
+
     </div>
 
-    <div class="card">
-        <div class="item-label">Motors</div>
-        <div class="item-label">Largest Motor (125%)</div>
-        <div class="row"><input id="motorLargestQty" class="qty" type="number"><input id="motorLargestVA" class="va" type="number"></div>
-        <div class="item-label">Other Motors</div>
-        <div class="row"><input id="motorOtherQty" class="qty" type="number"><input id="motorOtherVA" class="va" type="number"></div>
+    <div class="header-actions">
+
+      <button
+        type="button"
+        onclick="goHome()"
+      >
+        Calculators
+      </button>
+
+      <button
+        type="button"
+        class="primary"
+        onclick="printCalculation()"
+      >
+        Print / PDF
+      </button>
+
+      <button
+        type="button"
+        onclick="saveState(true)"
+      >
+        Save
+      </button>
+
+      <button
+        type="button"
+        onclick="startNewCalculationFromButton()"
+      >
+        New Calculation
+      </button>
+
     </div>
 
-    <button onclick="calc()">Calculate</button>
+  </header>
 
-    <div class="card">
-        <div class="item-label">Results</div>
-        <pre id="out"></pre>
+  <main class="main-content">
+
+    <section class="card">
+
+      <h2 class="card-heading">
+        Project Information
+      </h2>
+
+      <div class="card-body">
+
+        <div class="field-grid">
+
+          <div class="field">
+            <label for="projectName">
+              Project Name
+            </label>
+
+            <input
+              id="projectName"
+              type="text"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field">
+            <label for="projectNumber">
+              Project Number
+            </label>
+
+            <input
+              id="projectNumber"
+              type="text"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field wide">
+            <label for="projectAddress">
+              Address
+            </label>
+
+            <input
+              id="projectAddress"
+              type="text"
+              autocomplete="street-address"
+            >
+          </div>
+
+          <div class="field wide">
+            <label for="projectCityState">
+              City / State
+            </label>
+
+            <input
+              id="projectCityState"
+              type="text"
+              autocomplete="address-level2"
+            >
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+
+      <h2 class="card-heading">
+        General Loads
+      </h2>
+
+      <div class="card-body">
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Square Footage
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q5">
+                Square Feet
+              </label>
+
+              <input
+                id="q5"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v5">
+                VA Per ft²
+              </label>
+
+              <input
+                id="v5"
+                type="number"
+                value="3"
+                readonly
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e5"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f5"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Small Appliance Circuits
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q6">
+                Quantity
+              </label>
+
+              <input
+                id="q6"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                value="2"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v6">
+                VA Each
+              </label>
+
+              <input
+                id="v6"
+                type="number"
+                value="1500"
+                readonly
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e6"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f6"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Laundry Circuit
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q7">
+                Quantity
+              </label>
+
+              <input
+                id="q7"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                value="1"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v7">
+                VA Each
+              </label>
+
+              <input
+                id="v7"
+                type="number"
+                value="1500"
+                readonly
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e7"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f7"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="summary-strip">
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Service General VA
+            </div>
+
+            <div
+              id="e8"
+              class="summary-value"
+            ></div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Generator General VA
+            </div>
+
+            <div
+              id="f8"
+              class="summary-value"
+            ></div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+    <section class="card">
+
+      <h2 class="card-heading">
+        Appliance Loads
+      </h2>
+
+      <div class="card-body">
+
+        <p class="section-note">
+          Enter the quantity and nameplate VA for each load.
+          Tap the Managed box to remove all entered units from the
+          generator load. Tap the number beside the check mark to
+          reduce the managed quantity.
+        </p>
+
+        <div id="applianceRows"></div>
+
+        <div class="summary-strip">
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Service Appliance VA
+            </div>
+
+            <div
+              id="e31"
+              class="summary-value"
+            ></div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Generator Appliance VA
+            </div>
+
+            <div
+              id="f31"
+              class="summary-value"
+            ></div>
+          </div>
+
+        </div>
+
+        <div class="summary-strip">
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Service After Demand
+            </div>
+
+            <div
+              id="e35"
+              class="summary-value"
+            ></div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Generator After Demand
+            </div>
+
+            <div
+              id="f35"
+              class="summary-value"
+            ></div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+
+      <h2 class="card-heading">
+        HVAC and Continuous Loads
+      </h2>
+
+      <div class="card-body">
+
+        <p class="section-note">
+          The calculator uses the larger of the air-conditioning
+          load or the calculated heating load. Four or more heating
+          units are calculated at 40 percent.
+        </p>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Air Conditioning Group 1
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q37">
+                Quantity
+              </label>
+
+              <input
+                id="q37"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v37">
+                VA Each
+              </label>
+
+              <input
+                id="v37"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e37"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f37"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="managed-row">
+
+            <div class="managed-label">
+              Managed Load
+            </div>
+
+            <div class="managed-controls">
+
+              <button
+                id="m37"
+                class="managed-check"
+                type="button"
+                aria-label="Manage air conditioning group 1"
+              ></button>
+
+              <button
+                id="mq37"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >
+                0
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Heating Group 1
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q38">
+                Quantity
+              </label>
+
+              <input
+                id="q38"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v38">
+                VA Each
+              </label>
+
+              <input
+                id="v38"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e38"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f38"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="managed-row">
+
+            <div class="managed-label">
+              Managed Load
+            </div>
+
+            <div class="managed-controls">
+
+              <button
+                id="m38"
+                class="managed-check"
+                type="button"
+                aria-label="Manage heating group 1"
+              ></button>
+
+              <button
+                id="mq38"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >
+                0
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Air Conditioning Group 2
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q39">
+                Quantity
+              </label>
+
+              <input
+                id="q39"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v39">
+                VA Each
+              </label>
+
+              <input
+                id="v39"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e39"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f39"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="managed-row">
+
+            <div class="managed-label">
+              Managed Load
+            </div>
+
+            <div class="managed-controls">
+
+              <button
+                id="m39"
+                class="managed-check"
+                type="button"
+                aria-label="Manage air conditioning group 2"
+              ></button>
+
+              <button
+                id="mq39"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >
+                0
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Heating Group 2
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q40">
+                Quantity
+              </label>
+
+              <input
+                id="q40"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v40">
+                VA Each
+              </label>
+
+              <input
+                id="v40"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e40"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f40"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="managed-row">
+
+            <div class="managed-label">
+              Managed Load
+            </div>
+
+            <div class="managed-controls">
+
+              <button
+                id="m40"
+                class="managed-check"
+                type="button"
+                aria-label="Manage heating group 2"
+              ></button>
+
+              <button
+                id="mq40"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >
+                0
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+        <div class="load-row">
+
+          <div class="load-name">
+            Additional Continuous Load
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q42">
+                Quantity
+              </label>
+
+              <input
+                id="q42"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v42">
+                VA Each
+              </label>
+
+              <input
+                id="v42"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              >
+            </div>
+
+          </div>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e42"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f42"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="managed-row">
+
+            <div class="managed-label">
+              Managed Load
+            </div>
+
+            <div class="managed-controls">
+
+              <button
+                id="m42"
+                class="managed-check"
+                type="button"
+                aria-label="Manage additional continuous load"
+              ></button>
+
+              <button
+                id="mq42"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >
+                0
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            EV Charger
+          </div>
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q43">
+                Quantity
+              </label>
+
+              <input
+                id="q43"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                placeholder="Qty"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v43">
+                Nameplate W / VA
+              </label>
+
+              <input
+                id="v43"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+                placeholder="Nameplate"
+              >
+            </div>
+
+          </div>
+
+          <p class="section-note" style="padding-top:8px;padding-bottom:0">
+            The calculator uses 7,200 VA or the entered nameplate
+            rating, whichever is larger, for each EV charger.
+          </p>
+
+          <div class="row-output">
+
+            <div class="output-box">
+              <div class="output-label">
+                Service Load VA
+              </div>
+
+              <div
+                id="e43"
+                class="output-value"
+              ></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">
+                Generator Load VA
+              </div>
+
+              <div
+                id="f43"
+                class="output-value"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="managed-row">
+
+            <div class="managed-label">
+              Managed Load
+            </div>
+
+            <div class="managed-controls">
+
+              <button
+                id="m43"
+                class="managed-check"
+                type="button"
+                aria-label="Manage EV charger load"
+              ></button>
+
+              <button
+                id="mq43"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >
+                0
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="summary-strip">
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Service HVAC / Continuous VA
+            </div>
+
+            <div
+              id="e44"
+              class="summary-value"
+            ></div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">
+              Generator HVAC / Continuous VA
+            </div>
+
+            <div
+              id="f44"
+              class="summary-value"
+            ></div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+
+      <h2 class="card-heading">
+        Service Voltage
+      </h2>
+
+      <div class="card-body">
+
+        <div class="field">
+
+          <label for="q46">
+            Select Service Voltage
+          </label>
+
+          <select id="q46">
+
+            <option value="208">
+              208 Volts
+            </option>
+
+            <option value="240" selected>
+              240 Volts
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="bottom-results">
+
+  <div class="bottom-results-inner">
+
+    <div class="result-grid">
+
+      <div class="result-card">
+
+        <div class="result-label">
+          Service Amps
+        </div>
+
+        <div
+          id="serviceAmps"
+          class="result-value"
+        >
+          0 A
+        </div>
+
+      </div>
+
+      <div class="result-card generator">
+
+        <div class="result-label">
+          Generator Amps
+        </div>
+
+        <div
+          id="generatorAmps"
+          class="result-value"
+        >
+          0 A
+        </div>
+
+      </div>
+
     </div>
 
-    <div class="card" id="printCard">
-        <pre id="report" style="white-space: pre-wrap;"></pre>
+    <div
+      id="saveStatus"
+      class="save-status"
+    ></div>
+
+  </div>
+</div>
+
+<div
+  id="restoreModal"
+  class="modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="restoreTitle"
+>
+
+  <div class="modal-box">
+
+    <h2 id="restoreTitle">
+      LoadCalcPro
+    </h2>
+
+    <p>
+      <strong>A previous calculation was found.</strong>
+    </p>
+
+    <p>
+      Would you like to continue your previous calculation
+      or start a new one?
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="secondary"
+        onclick="startNewFromSavedPrompt()"
+      >
+        Start New Calculation
+      </button>
+
+      <button
+        type="button"
+        onclick="continuePreviousCalculation()"
+      >
+        Continue Previous Calculation
+      </button>
+
     </div>
 
-    <script>
-        const applList = [
-            ["Dishwasher","dw"], ["Disposal","disp"], ["Refrigerator","ref"], ["Freezer","freezer"],
-            ["Microwave","mw"], ["Hood fan","hood"], ["Range","range"], ["Wall oven","oven"],
-            ["Cooktop","cooktop"], ["Central vacuum","cvac"], ["Indoor jacuzzi","jacuzzi"],
-            ["Wine cooler","wine"], ["Coffee machine","coffee"], ["Bath fan","bathfan"],
-            ["Garage door opener","gdoor"], ["Sump pump","sump"], ["Spa pump","spa"],
-            ["Water heater","wh"], ["Washer","washer"], ["Dryer","dryer"]
-        ];
+  </div>
+</div>
 
-        let html = "";
-        applList.forEach(a => {
-            html += `<div class="item-label">${a[0]}</div>
-                     <div class="row">
-                        <input id="${a[1]}Qty" class="qty" type="number">
-                        <input id="${a[1]}VA" class="va" type="number" placeholder="VA">
-                     </div>`;
-        });
-        document.getElementById("applianceInputs").innerHTML = html;
+<section
+  id="printReport"
+  class="print-report"
+></section>
 
-        function n(id){ 
-            let v = Number(document.getElementById(id)?.value); 
-            return isNaN(v)?0:v; 
+<script>
+"use strict";
+
+const STORAGE_KEY =
+  "loadcalcpro_generator_mobile_nec2023_v1";
+
+const MANAGED_QTY_STORAGE_KEY =
+  "loadcalcpro_generator_mobile_managed_quantities_v1";
+
+const LOADCALCPRO_API_BASE =
+  "https://loadcalcpro-hcml-api-staging.onrender.com";
+
+const LOADCALCPRO_ACCESS_ENDPOINT =
+  LOADCALCPRO_API_BASE + "/api/access";
+
+const LOADCALCPRO_ACCESS_KEY =
+  "loadcalcpro_member_access_generator_mobile_nec2023";
+
+const LOADCALCPRO_REMEMBERED_EMAIL_KEY =
+  "loadcalcpro_remembered_member_email";
+
+const LOADCALCPRO_SUPABASE_URL =
+  "https://jvnkncpljuaeycwjyeai.supabase.co";
+
+const LOADCALCPRO_SUPABASE_KEY =
+  "sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF";
+
+const LOADCALCPRO_V2_ACCESS_ENDPOINT =
+  LOADCALCPRO_API_BASE + "/api/v2/access";
+
+const loadCalcProSupabase =
+  window.supabase.createClient(
+    LOADCALCPRO_SUPABASE_URL,
+    LOADCALCPRO_SUPABASE_KEY,
+    {
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    }
+  );
+
+let suppressAutoSave = false;
+let restorePromptOpen = false;
+let saveStatusTimer = null;
+
+const managedQuantities = readManagedQuantities();
+
+const APPLIANCES = [
+  {row:10,label:"Dishwasher",qty:1,va:1500},
+  {row:11,label:"Disposal",qty:1,va:1500},
+  {row:12,label:"Refrigerator",qty:1,va:1500},
+  {row:13,label:"Microwave"},
+  {row:14,label:"Hood Fan"},
+  {row:15,label:"Freezer"},
+  {row:16,label:"Range — Nameplate"},
+  {row:17,label:"Wall Oven — Nameplate"},
+  {row:18,label:"Cooktop"},
+  {row:19,label:"Bath Fan",editable:true},
+  {row:20,label:"Wine Cooler",editable:true},
+  {row:21,label:"Coffee Machine",editable:true},
+  {row:22,label:"Golf Cart Charger",editable:true},
+  {row:23,label:"",editable:true},
+  {row:24,label:"Irrigation Pump",editable:true},
+  {row:25,label:"Garage Door Opener",editable:true},
+  {row:26,label:"",editable:true},
+  {row:27,label:"Pool Equipment",editable:true},
+  {row:28,label:"Sauna",editable:true},
+  {row:29,label:"Water Heater"},
+  {row:30,label:"Dryer"}
+];
+
+const MANAGED_ROWS = [
+  10,11,12,13,14,15,16,17,18,19,20,
+  21,22,23,24,25,26,27,28,29,30,
+  37,38,39,40,42,43
+];
+
+const INPUT_ROWS = [
+  5,6,7,
+  10,11,12,13,14,15,16,17,18,19,20,
+  21,22,23,24,25,26,27,28,29,30,
+  37,38,39,40,42,43
+];
+function numberValue(id){
+  const el = document.getElementById(id);
+  const n = Number(el ? el.value : 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function positiveQuantity(id){
+  const n = Math.floor(numberValue(id));
+  return n > 0 ? n : 0;
+}
+
+function formatted(value){
+  const n = Number(value);
+  if(!Number.isFinite(n) || n === 0){
+    return "";
+  }
+
+  return Math.round(n).toLocaleString("en-US");
+}
+
+function setOutput(id,value){
+  const el = document.getElementById(id);
+  if(el){
+    el.textContent = formatted(value);
+  }
+}
+
+function readOutput(id){
+  const el = document.getElementById(id);
+
+  if(!el){
+    return 0;
+  }
+
+  const n = Number(
+    String(el.textContent || "")
+      .replace(/[^0-9.-]/g,"")
+  );
+
+  return Number.isFinite(n) ? n : 0;
+}
+
+function readManagedQuantities(){
+  try{
+    const saved =
+      localStorage.getItem(MANAGED_QTY_STORAGE_KEY);
+
+    return saved ? JSON.parse(saved) : {};
+  }catch(e){
+    return {};
+  }
+}
+
+function saveManagedQuantities(){
+  try{
+    localStorage.setItem(
+      MANAGED_QTY_STORAGE_KEY,
+      JSON.stringify(managedQuantities)
+    );
+  }catch(e){}
+}
+
+function totalQuantity(row){
+  return positiveQuantity("q" + row);
+}
+
+function managedQuantity(row){
+  const total = totalQuantity(row);
+
+  let selected =
+    Math.floor(Number(managedQuantities[row] || 0));
+
+  if(!Number.isFinite(selected) || selected < 0){
+    selected = 0;
+  }
+
+  if(selected > total){
+    selected = total;
+  }
+
+  managedQuantities[row] = selected;
+
+  return selected;
+}
+
+function updateManagedControl(row){
+  const check =
+    document.getElementById("m" + row);
+
+  const quantityButton =
+    document.getElementById("mq" + row);
+
+  if(!check || !quantityButton){
+    return;
+  }
+
+  const selected = managedQuantity(row);
+
+  check.classList.toggle(
+    "checked",
+    selected > 0
+  );
+
+  check.textContent =
+    selected > 0 ? "✓" : "";
+
+  quantityButton.classList.toggle(
+    "show",
+    selected > 0
+  );
+
+  quantityButton.textContent =
+    String(selected);
+
+  check.title =
+    selected > 0
+      ? "Click to remove managed selection"
+      : "Click to manage all entered units";
+
+  quantityButton.title =
+    "Click to reduce the managed quantity";
+}
+
+function toggleManaged(row){
+  const total = totalQuantity(row);
+  const selected = managedQuantity(row);
+
+  managedQuantities[row] =
+    selected > 0 ? 0 : total;
+
+  saveManagedQuantities();
+  updateManagedControl(row);
+  calculate();
+}
+
+function reduceManagedQuantity(row){
+  const total = totalQuantity(row);
+
+  if(total < 1){
+    return;
+  }
+
+  let selected =
+    managedQuantity(row) - 1;
+
+  if(selected < 0){
+    selected = total;
+  }
+
+  managedQuantities[row] = selected;
+
+  saveManagedQuantities();
+  updateManagedControl(row);
+  calculate();
+}
+
+function generatorRowValue(row,serviceValue){
+  const total = totalQuantity(row);
+
+  if(total < 1){
+    return serviceValue;
+  }
+
+  const selected = managedQuantity(row);
+
+  return (
+    serviceValue *
+    Math.max(total - selected,0) /
+    total
+  );
+}
+
+function applianceDescription(row,defaultLabel){
+  const input =
+    document.getElementById("d" + row);
+
+  if(input){
+    return String(input.value || "").trim();
+  }
+
+  return defaultLabel || "";
+}
+
+function createApplianceRows(){
+  const container =
+    document.getElementById("applianceRows");
+
+  if(!container){
+    return;
+  }
+
+  container.innerHTML = "";
+
+  for(const item of APPLIANCES){
+
+    const row = document.createElement("div");
+    row.className = "load-row";
+
+    const nameArea =
+      document.createElement("div");
+
+    nameArea.className = "load-name";
+
+    if(item.editable){
+      const description =
+        document.createElement("input");
+
+      description.id = "d" + item.row;
+      description.type = "text";
+      description.className = "descInput";
+      description.placeholder =
+        item.label || "Enter load description";
+      description.value = item.label || "";
+
+      description.addEventListener(
+        "input",
+        function(){
+          saveState();
         }
-        function t(id){ return document.getElementById(id)?.value || ""; }
+      );
 
-        function calc(){
-            const voltage = n("voltage");
-            const report = [];
-            function add(label,val){ if(val>0) report.push(label+": "+Math.round(val)+" VA"); }
+      nameArea.appendChild(description);
+    }else{
+      nameArea.textContent = item.label;
+    }
 
-            report.push("Customer Name: " + t("custName"), "Address: " + t("addr"), "Project: " + t("projNum"), "");
+    const inputs =
+      document.createElement("div");
 
-            const genSqft = n("sqftQty") * 3;
-            const genSmall = n("smallQty") * 1500;
-            const genLaundry = n("laundryQty") * 1500;
-            const genTotal = genSqft + genSmall + genLaundry;
-            
-            let applTotal = 0;
-            applList.forEach(a => {
-                let load = n(a[1]+"Qty") * n(a[1]+"VA");
-                if(load > 0) { add(a[0], load); applTotal += load; }
-            });
+    inputs.className = "load-inputs";
 
-            const totalGenAppl = genTotal + applTotal;
-            const deratedGenAppl = Math.min(totalGenAppl, 10000) + (Math.max(totalGenAppl - 10000, 0) * 0.40);
+    const qtyBlock =
+      document.createElement("div");
 
-            report.push("DERATED GENERAL/APPLIANCE: " + Math.round(deratedGenAppl) + " VA", "");
+    qtyBlock.className = "input-block";
 
-            // HVAC - Individual comparison
-            const hvac1 = Math.max(n("ac1Qty")*n("ac1VA"), n("heat1Qty")*n("heat1VA")*0.65);
-            const hvac2 = Math.max(n("ac2Qty")*n("ac2VA"), n("heat2Qty")*n("heat2VA")*0.65);
-            const hvacTotal = hvac1 + hvac2;
-            if(hvacTotal > 0) {
-                report.push("HVAC LOADS");
-                add("HVAC #1", hvac1);
-                add("HVAC #2", hvac2);
-                report.push("");
-            }
+    const qtyLabel =
+      document.createElement("label");
 
-            // EV Calculation: Larger of 7200 or nameplate at 100%
-            const evQty = n("evQty");
-            const evBase = Math.max(7200, n("evVA"));
-            const evTotal = evQty * evBase;
-            if(evTotal > 0) {
-                report.push("EV CHARGER");
-                add(`EV Charger (${evQty} unit(s) @ ${evBase}VA)`, evTotal);
-                report.push("");
-            }
+    qtyLabel.setAttribute(
+      "for",
+      "q" + item.row
+    );
 
-            const motorTotal = (n("motorLargestQty")*n("motorLargestVA")*1.25) + (n("motorOtherQty")*n("motorOtherVA"));
-            if(motorTotal > 0) {
-                report.push("MOTORS");
-                add("Motor Total", motorTotal);
-                report.push("");
-            }
+    qtyLabel.textContent = "Quantity";
 
-            const totalVA = deratedGenAppl + hvacTotal + evTotal + motorTotal;
-            const amps = voltage ? totalVA / voltage : 0;
-            
-            const results = "Total VA: " + Math.round(totalVA) + "\nMin Service Amps: " + Math.round(amps) + " A";
-            document.getElementById("out").textContent = results;
-            report.push("FINAL RESULTS", results);
-            document.getElementById("report").textContent = report.join("\n");
+    const qtyInput =
+      document.createElement("input");
+
+    qtyInput.id = "q" + item.row;
+    qtyInput.type = "number";
+    qtyInput.min = "0";
+    qtyInput.step = "1";
+    qtyInput.inputMode = "numeric";
+
+    if(item.qty !== undefined){
+      qtyInput.value = item.qty;
+    }
+
+    qtyInput.addEventListener(
+      "input",
+      function(){
+        const currentTotal =
+          totalQuantity(item.row);
+
+        if(
+          managedQuantity(item.row) >
+          currentTotal
+        ){
+          managedQuantities[item.row] =
+            currentTotal;
         }
-    </script>
+
+        updateManagedControl(item.row);
+        calculate();
+      }
+    );
+
+    qtyBlock.appendChild(qtyLabel);
+    qtyBlock.appendChild(qtyInput);
+
+    const vaBlock =
+      document.createElement("div");
+
+    vaBlock.className = "input-block";
+
+    const vaLabel =
+      document.createElement("label");
+
+    vaLabel.setAttribute(
+      "for",
+      "v" + item.row
+    );
+
+    vaLabel.textContent = "VA Each";
+
+    const vaInput =
+      document.createElement("input");
+
+    vaInput.id = "v" + item.row;
+    vaInput.type = "number";
+    vaInput.min = "0";
+    vaInput.step = "any";
+    vaInput.inputMode = "decimal";
+
+    if(item.va !== undefined){
+      vaInput.value = item.va;
+    }
+
+    vaInput.addEventListener(
+      "input",
+      calculate
+    );
+
+    vaBlock.appendChild(vaLabel);
+    vaBlock.appendChild(vaInput);
+
+    inputs.appendChild(qtyBlock);
+    inputs.appendChild(vaBlock);
+
+    const outputRow =
+      document.createElement("div");
+
+    outputRow.className = "row-output";
+
+    const serviceBox =
+      document.createElement("div");
+
+    serviceBox.className = "output-box";
+
+    serviceBox.innerHTML =
+      '<div class="output-label">' +
+      'Service Load VA' +
+      '</div>' +
+      '<div id="e' +
+      item.row +
+      '" class="output-value"></div>';
+
+    const generatorBox =
+      document.createElement("div");
+
+    generatorBox.className = "output-box";
+
+    generatorBox.innerHTML =
+      '<div class="output-label">' +
+      'Generator Load VA' +
+      '</div>' +
+      '<div id="f' +
+      item.row +
+      '" class="output-value"></div>';
+
+    outputRow.appendChild(serviceBox);
+    outputRow.appendChild(generatorBox);
+
+    const managedRow =
+      document.createElement("div");
+
+    managedRow.className = "managed-row";
+
+    const managedLabel =
+      document.createElement("div");
+
+    managedLabel.className =
+      "managed-label";
+
+    managedLabel.textContent =
+      "Managed Load";
+
+    const managedControls =
+      document.createElement("div");
+
+    managedControls.className =
+      "managed-controls";
+
+    const checkButton =
+      document.createElement("button");
+
+    checkButton.id = "m" + item.row;
+    checkButton.className =
+      "managed-check";
+    checkButton.type = "button";
+    checkButton.setAttribute(
+      "aria-label",
+      "Toggle managed load"
+    );
+
+    checkButton.addEventListener(
+      "click",
+      function(){
+        toggleManaged(item.row);
+      }
+    );
+
+    const qtyButton =
+      document.createElement("button");
+
+    qtyButton.id = "mq" + item.row;
+    qtyButton.className =
+      "managed-qty";
+    qtyButton.type = "button";
+    qtyButton.textContent = "0";
+    qtyButton.setAttribute(
+      "aria-label",
+      "Reduce managed quantity"
+    );
+
+    qtyButton.addEventListener(
+      "click",
+      function(event){
+        event.stopPropagation();
+        reduceManagedQuantity(item.row);
+      }
+    );
+
+    managedControls.appendChild(
+      checkButton
+    );
+
+    managedControls.appendChild(
+      qtyButton
+    );
+
+    managedRow.appendChild(
+      managedLabel
+    );
+
+    managedRow.appendChild(
+      managedControls
+    );
+
+    row.appendChild(nameArea);
+    row.appendChild(inputs);
+    row.appendChild(outputRow);
+    row.appendChild(managedRow);
+
+    container.appendChild(row);
+  }
+}
+
+function rowVA(row){
+  const quantity =
+    positiveQuantity("q" + row);
+
+  let va = numberValue("v" + row);
+
+  if(row === 43 && quantity > 0){
+    va = Math.max(va,7200);
+  }
+
+  return quantity * va;
+}
+
+function generalLoadCalculation(){
+  const squareFeet =
+    numberValue("q5");
+
+  const lighting =
+    squareFeet * 3;
+
+  const smallAppliance =
+    positiveQuantity("q6") * 1500;
+
+  const laundry =
+    positiveQuantity("q7") * 1500;
+
+  setOutput("e5",lighting);
+  setOutput("f5",lighting);
+
+  setOutput("e6",smallAppliance);
+  setOutput("f6",smallAppliance);
+
+  setOutput("e7",laundry);
+  setOutput("f7",laundry);
+
+  const total =
+    lighting +
+    smallAppliance +
+    laundry;
+
+  setOutput("e8",total);
+  setOutput("f8",total);
+
+  return total;
+}
+function applianceLoadCalculation(){
+  let serviceApplianceTotal = 0;
+  let generatorApplianceTotal = 0;
+
+  for(const item of APPLIANCES){
+    const serviceValue = rowVA(item.row);
+
+    const generatorValue =
+      generatorRowValue(
+        item.row,
+        serviceValue
+      );
+
+    setOutput(
+      "e" + item.row,
+      serviceValue
+    );
+
+    setOutput(
+      "f" + item.row,
+      generatorValue
+    );
+
+    serviceApplianceTotal +=
+      serviceValue;
+
+    generatorApplianceTotal +=
+      generatorValue;
+  }
+
+  setOutput(
+    "e31",
+    serviceApplianceTotal
+  );
+
+  setOutput(
+    "f31",
+    generatorApplianceTotal
+  );
+
+  return {
+    service:serviceApplianceTotal,
+    generator:generatorApplianceTotal
+  };
+}
+
+function optionalMethodDemand(load){
+  const total = Math.max(
+    Number(load) || 0,
+    0
+  );
+
+  if(total <= 10000){
+    return total;
+  }
+
+  return (
+    10000 +
+    ((total - 10000) * 0.40)
+  );
+}
+
+function combinedDemandCalculation(
+  generalLoad,
+  applianceLoads
+){
+  const serviceCombined =
+    generalLoad +
+    applianceLoads.service;
+
+  const generatorCombined =
+    generalLoad +
+    applianceLoads.generator;
+
+  const serviceAfterDemand =
+    optionalMethodDemand(
+      serviceCombined
+    );
+
+  const generatorAfterDemand =
+    optionalMethodDemand(
+      generatorCombined
+    );
+
+  setOutput(
+    "e35",
+    serviceAfterDemand
+  );
+
+  setOutput(
+    "f35",
+    generatorAfterDemand
+  );
+
+  return {
+    service:serviceAfterDemand,
+    generator:generatorAfterDemand
+  };
+}
+
+function calculateHeatingDemand(
+  firstHeatingLoad,
+  secondHeatingLoad,
+  firstQuantity,
+  secondQuantity
+){
+  const totalHeating =
+    firstHeatingLoad +
+    secondHeatingLoad;
+
+  const totalHeatingUnits =
+    firstQuantity +
+    secondQuantity;
+
+  if(totalHeatingUnits >= 4){
+    return totalHeating * 0.40;
+  }
+
+  return totalHeating;
+}
+
+function hvacLoadCalculation(){
+  const ac1Service = rowVA(37);
+  const heat1Service = rowVA(38);
+  const ac2Service = rowVA(39);
+  const heat2Service = rowVA(40);
+
+  const ac1Generator =
+    generatorRowValue(
+      37,
+      ac1Service
+    );
+
+  const heat1Generator =
+    generatorRowValue(
+      38,
+      heat1Service
+    );
+
+  const ac2Generator =
+    generatorRowValue(
+      39,
+      ac2Service
+    );
+
+  const heat2Generator =
+    generatorRowValue(
+      40,
+      heat2Service
+    );
+
+  setOutput("e37",ac1Service);
+  setOutput("f37",ac1Generator);
+
+  setOutput("e38",heat1Service);
+  setOutput("f38",heat1Generator);
+
+  setOutput("e39",ac2Service);
+  setOutput("f39",ac2Generator);
+
+  setOutput("e40",heat2Service);
+  setOutput("f40",heat2Generator);
+
+  const serviceAC =
+    ac1Service +
+    ac2Service;
+
+  const generatorAC =
+    ac1Generator +
+    ac2Generator;
+
+  const serviceHeating =
+    calculateHeatingDemand(
+      heat1Service,
+      heat2Service,
+      positiveQuantity("q38"),
+      positiveQuantity("q40")
+    );
+
+  const generatorHeatingUnits =
+    Math.max(
+      positiveQuantity("q38") -
+      managedQuantity(38),
+      0
+    ) +
+    Math.max(
+      positiveQuantity("q40") -
+      managedQuantity(40),
+      0
+    );
+
+  const generatorHeatingTotal =
+    heat1Generator +
+    heat2Generator;
+
+  const generatorHeating =
+    generatorHeatingUnits >= 4
+      ? generatorHeatingTotal * 0.40
+      : generatorHeatingTotal;
+
+  const serviceHVAC =
+    Math.max(
+      serviceAC,
+      serviceHeating
+    );
+
+  const generatorHVAC =
+    Math.max(
+      generatorAC,
+      generatorHeating
+    );
+
+  return {
+    service:serviceHVAC,
+    generator:generatorHVAC,
+    serviceAC:serviceAC,
+    generatorAC:generatorAC,
+    serviceHeating:serviceHeating,
+    generatorHeating:generatorHeating
+  };
+}
+
+function continuousLoadCalculation(){
+  const additionalService =
+    rowVA(42);
+
+  const additionalGenerator =
+    generatorRowValue(
+      42,
+      additionalService
+    );
+
+  setOutput(
+    "e42",
+    additionalService
+  );
+
+  setOutput(
+    "f42",
+    additionalGenerator
+  );
+
+  const evService =
+    rowVA(43);
+
+  const evGenerator =
+    generatorRowValue(
+      43,
+      evService
+    );
+
+  setOutput(
+    "e43",
+    evService
+  );
+
+  setOutput(
+    "f43",
+    evGenerator
+  );
+
+  return {
+    service:
+      additionalService +
+      evService,
+
+    generator:
+      additionalGenerator +
+      evGenerator,
+
+    additionalService:
+      additionalService,
+
+    additionalGenerator:
+      additionalGenerator,
+
+    evService:
+      evService,
+
+    evGenerator:
+      evGenerator
+  };
+}
+
+function serviceVoltage(){
+  const voltage =
+    numberValue("q46");
+
+  return voltage > 0
+    ? voltage
+    : 240;
+}
+
+function calculateAmps(
+  totalVA,
+  voltage
+){
+  if(
+    !Number.isFinite(totalVA) ||
+    !Number.isFinite(voltage) ||
+    voltage <= 0
+  ){
+    return 0;
+  }
+
+  return totalVA / voltage;
+}
+
+function displayAmps(
+  id,
+  amps
+){
+  const el =
+    document.getElementById(id);
+
+  if(!el){
+    return;
+  }
+
+  const rounded =
+    Math.ceil(
+      Number(amps) || 0
+    );
+
+  el.textContent =
+    rounded.toLocaleString("en-US") +
+    " A";
+}
+
+function calculate(){
+  const generalLoad =
+    generalLoadCalculation();
+
+  const applianceLoads =
+    applianceLoadCalculation();
+
+  const demandLoads =
+    combinedDemandCalculation(
+      generalLoad,
+      applianceLoads
+    );
+
+  const hvacLoads =
+    hvacLoadCalculation();
+
+  const continuousLoads =
+    continuousLoadCalculation();
+
+  const serviceHVACContinuous =
+    hvacLoads.service +
+    continuousLoads.service;
+
+  const generatorHVACContinuous =
+    hvacLoads.generator +
+    continuousLoads.generator;
+
+  setOutput(
+    "e44",
+    serviceHVACContinuous
+  );
+
+  setOutput(
+    "f44",
+    generatorHVACContinuous
+  );
+
+  const serviceTotalVA =
+    demandLoads.service +
+    serviceHVACContinuous;
+
+  const generatorTotalVA =
+    demandLoads.generator +
+    generatorHVACContinuous;
+
+  const voltage =
+    serviceVoltage();
+
+  const serviceCurrent =
+    calculateAmps(
+      serviceTotalVA,
+      voltage
+    );
+
+  const generatorCurrent =
+    calculateAmps(
+      generatorTotalVA,
+      voltage
+    );
+
+  displayAmps(
+    "serviceAmps",
+    serviceCurrent
+  );
+
+  displayAmps(
+    "generatorAmps",
+    generatorCurrent
+  );
+
+  updatePrintRows({
+    generalLoad:generalLoad,
+    applianceLoads:applianceLoads,
+    demandLoads:demandLoads,
+    hvacLoads:hvacLoads,
+    continuousLoads:continuousLoads,
+    serviceTotalVA:serviceTotalVA,
+    generatorTotalVA:generatorTotalVA,
+    serviceCurrent:serviceCurrent,
+    generatorCurrent:generatorCurrent,
+    voltage:voltage
+  });
+
+  for(const row of MANAGED_ROWS){
+    updateManagedControl(row);
+  }
+
+  if(!suppressAutoSave){
+    saveState(false);
+  }
+}
+
+function connectStaticManagedControls(){
+  const staticRows = [
+    37,38,39,40,42,43
+  ];
+
+  for(const row of staticRows){
+    const check =
+      document.getElementById(
+        "m" + row
+      );
+
+    const quantity =
+      document.getElementById(
+        "mq" + row
+      );
+
+    if(check){
+      check.addEventListener(
+        "click",
+        function(){
+          toggleManaged(row);
+        }
+      );
+    }
+
+    if(quantity){
+      quantity.addEventListener(
+        "click",
+        function(event){
+          event.stopPropagation();
+          reduceManagedQuantity(row);
+        }
+      );
+    }
+  }
+}
+
+function connectCalculatorInputs(){
+  const ids = [
+    "q5","q6","q7",
+    "q37","v37",
+    "q38","v38",
+    "q39","v39",
+    "q40","v40",
+    "q42","v42",
+    "q43","v43",
+    "q46"
+  ];
+
+  for(const id of ids){
+    const el =
+      document.getElementById(id);
+
+    if(!el){
+      continue;
+    }
+
+    const eventName =
+      el.tagName === "SELECT"
+        ? "change"
+        : "input";
+
+    el.addEventListener(
+      eventName,
+      function(){
+        const rowMatch =
+          id.match(/^q(\d+)$/);
+
+        if(rowMatch){
+          const row =
+            Number(rowMatch[1]);
+
+          if(
+            MANAGED_ROWS.includes(row)
+          ){
+            const total =
+              totalQuantity(row);
+
+            if(
+              managedQuantity(row) >
+              total
+            ){
+              managedQuantities[row] =
+                total;
+            }
+
+            updateManagedControl(row);
+          }
+        }
+
+        calculate();
+      }
+    );
+  }
+
+  const projectIds = [
+    "projectName",
+    "projectNumber",
+    "projectAddress",
+    "projectCityState"
+  ];
+
+  for(const id of projectIds){
+    const el =
+      document.getElementById(id);
+
+    if(el){
+      el.addEventListener(
+        "input",
+        function(){
+          saveState(false);
+        }
+      );
+    }
+  }
+}
+function calculatorState(){
+  const state = {
+    savedAt:new Date().toISOString(),
+    project:{},
+    inputs:{},
+    descriptions:{},
+    managedQuantities:{...managedQuantities}
+  };
+
+  const projectIds = [
+    "projectName",
+    "projectNumber",
+    "projectAddress",
+    "projectCityState"
+  ];
+
+  for(const id of projectIds){
+    const el = document.getElementById(id);
+
+    state.project[id] =
+      el ? el.value : "";
+  }
+
+  for(const row of INPUT_ROWS){
+    const quantity =
+      document.getElementById(
+        "q" + row
+      );
+
+    const va =
+      document.getElementById(
+        "v" + row
+      );
+
+    if(quantity){
+      state.inputs[
+        "q" + row
+      ] = quantity.value;
+    }
+
+    if(va){
+      state.inputs[
+        "v" + row
+      ] = va.value;
+    }
+
+    const description =
+      document.getElementById(
+        "d" + row
+      );
+
+    if(description){
+      state.descriptions[
+        "d" + row
+      ] = description.value;
+    }
+  }
+
+  const voltage =
+    document.getElementById("q46");
+
+  if(voltage){
+    state.inputs.q46 =
+      voltage.value;
+  }
+
+  return state;
+}
+
+function showSaveStatus(text){
+  const status =
+    document.getElementById(
+      "saveStatus"
+    );
+
+  if(!status){
+    return;
+  }
+
+  status.textContent = text || "";
+
+  if(saveStatusTimer){
+    clearTimeout(saveStatusTimer);
+  }
+
+  if(text){
+    saveStatusTimer =
+      setTimeout(function(){
+        status.textContent = "";
+      },1800);
+  }
+}
+
+function saveState(showMessage){
+  if(suppressAutoSave){
+    return;
+  }
+
+  try{
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        calculatorState()
+      )
+    );
+
+    saveManagedQuantities();
+
+    if(showMessage !== false){
+      showSaveStatus(
+        "Calculation saved"
+      );
+    }
+  }catch(e){
+    if(showMessage !== false){
+      showSaveStatus(
+        "Unable to save calculation"
+      );
+    }
+  }
+}
+
+function savedState(){
+  try{
+    const raw =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    if(!raw){
+      return null;
+    }
+
+    const data = JSON.parse(raw);
+
+    return (
+      data &&
+      typeof data === "object"
+    ) ? data : null;
+  }catch(e){
+    return null;
+  }
+}
+
+function hasSavedCalculation(){
+  const data = savedState();
+
+  if(!data){
+    return false;
+  }
+
+  const values = [
+    ...Object.values(
+      data.project || {}
+    ),
+    ...Object.values(
+      data.inputs || {}
+    ),
+    ...Object.values(
+      data.descriptions || {}
+    )
+  ];
+
+  return values.some(function(value){
+    return String(value || "")
+      .trim() !== "";
+  });
+}
+
+function restoreState(){
+  const state = savedState();
+
+  if(!state){
+    return false;
+  }
+
+  suppressAutoSave = true;
+
+  try{
+    for(
+      const [id,value]
+      of Object.entries(
+        state.project || {}
+      )
+    ){
+      const el =
+        document.getElementById(id);
+
+      if(el){
+        el.value =
+          value === null ||
+          value === undefined
+            ? ""
+            : value;
+      }
+    }
+
+    for(
+      const [id,value]
+      of Object.entries(
+        state.inputs || {}
+      )
+    ){
+      const el =
+        document.getElementById(id);
+
+      if(el){
+        el.value =
+          value === null ||
+          value === undefined
+            ? ""
+            : value;
+      }
+    }
+
+    for(
+      const [id,value]
+      of Object.entries(
+        state.descriptions || {}
+      )
+    ){
+      const el =
+        document.getElementById(id);
+
+      if(el){
+        el.value =
+          value === null ||
+          value === undefined
+            ? ""
+            : value;
+      }
+    }
+
+    const savedManaged =
+      state.managedQuantities || {};
+
+    for(
+      const key
+      of Object.keys(
+        managedQuantities
+      )
+    ){
+      delete managedQuantities[key];
+    }
+
+    for(
+      const [row,value]
+      of Object.entries(
+        savedManaged
+      )
+    ){
+      managedQuantities[row] =
+        Math.max(
+          Math.floor(
+            Number(value) || 0
+          ),
+          0
+        );
+    }
+
+    saveManagedQuantities();
+
+  }finally{
+    suppressAutoSave = false;
+  }
+
+  calculate();
+  showSaveStatus(
+    "Previous calculation restored"
+  );
+
+  return true;
+}
+
+function clearCalculatorFields(){
+  suppressAutoSave = true;
+
+  try{
+    const projectIds = [
+      "projectName",
+      "projectNumber",
+      "projectAddress",
+      "projectCityState"
+    ];
+
+    for(const id of projectIds){
+      const el =
+        document.getElementById(id);
+
+      if(el){
+        el.value = "";
+      }
+    }
+
+    for(const row of INPUT_ROWS){
+      const quantity =
+        document.getElementById(
+          "q" + row
+        );
+
+      const va =
+        document.getElementById(
+          "v" + row
+        );
+
+      const description =
+        document.getElementById(
+          "d" + row
+        );
+
+      if(quantity){
+        quantity.value = "";
+      }
+
+      if(va){
+        va.value = "";
+      }
+
+      if(description){
+        const appliance =
+          APPLIANCES.find(
+            function(item){
+              return item.row === row;
+            }
+          );
+
+        description.value =
+          appliance &&
+          appliance.label
+            ? appliance.label
+            : "";
+      }
+    }
+
+    const defaultAppliances = [
+      {row:10,qty:1,va:1500},
+      {row:11,qty:1,va:1500},
+      {row:12,qty:1,va:1500}
+    ];
+
+    for(
+      const item
+      of defaultAppliances
+    ){
+      const quantity =
+        document.getElementById(
+          "q" + item.row
+        );
+
+      const va =
+        document.getElementById(
+          "v" + item.row
+        );
+
+      if(quantity){
+        quantity.value = item.qty;
+      }
+
+      if(va){
+        va.value = item.va;
+      }
+    }
+
+    const smallAppliance =
+      document.getElementById("q6");
+
+    const laundry =
+      document.getElementById("q7");
+
+    const voltage =
+      document.getElementById("q46");
+
+    if(smallAppliance){
+      smallAppliance.value = "2";
+    }
+
+    if(laundry){
+      laundry.value = "1";
+    }
+
+    if(voltage){
+      voltage.value = "240";
+    }
+
+    for(
+      const key
+      of Object.keys(
+        managedQuantities
+      )
+    ){
+      delete managedQuantities[key];
+    }
+
+    localStorage.removeItem(
+      STORAGE_KEY
+    );
+
+    localStorage.removeItem(
+      MANAGED_QTY_STORAGE_KEY
+    );
+
+  }catch(e){
+  }finally{
+    suppressAutoSave = false;
+  }
+
+  calculate();
+}
+
+function clearInputs(){
+  clearCalculatorFields();
+  showSaveStatus(
+    "New calculation started"
+  );
+}
+
+function startNewCalculationFromButton(){
+  const hasData =
+    hasSavedCalculation();
+
+  if(
+    hasData &&
+    !window.confirm(
+      "Start a new calculation? " +
+      "The saved calculation on this device will be cleared."
+    )
+  ){
+    return;
+  }
+
+  clearInputs();
+}
+
+function openRestorePrompt(){
+  const modal =
+    document.getElementById(
+      "restoreModal"
+    );
+
+  if(!modal){
+    return;
+  }
+
+  restorePromptOpen = true;
+  modal.classList.add("show");
+}
+
+function closeRestorePrompt(){
+  const modal =
+    document.getElementById(
+      "restoreModal"
+    );
+
+  if(modal){
+    modal.classList.remove("show");
+  }
+
+  restorePromptOpen = false;
+}
+
+function continuePreviousCalculation(){
+  closeRestorePrompt();
+  restoreState();
+}
+
+function startNewFromSavedPrompt(){
+  closeRestorePrompt();
+  clearInputs();
+}
+
+function initializeSavedCalculation(){
+  if(hasSavedCalculation()){
+    openRestorePrompt();
+  }else{
+    calculate();
+  }
+}
+
+function escapeHTML(value){
+  return String(value || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function printNumber(value){
+  const number =
+    Math.round(
+      Number(value) || 0
+    );
+
+  return number > 0
+    ? number.toLocaleString("en-US")
+    : "";
+}
+
+function printLoadRow(
+  description,
+  serviceValue,
+  generatorValue
+){
+  if(
+    Number(serviceValue) <= 0 &&
+    Number(generatorValue) <= 0
+  ){
+    return "";
+  }
+
+  return (
+    "<tr>" +
+      "<td>" +
+        escapeHTML(description) +
+      "</td>" +
+      "<td class=\"number\">" +
+        printNumber(serviceValue) +
+      "</td>" +
+      "<td class=\"number\">" +
+        printNumber(generatorValue) +
+      "</td>" +
+    "</tr>"
+  );
+}
+function updatePrintRows(data){
+
+  const report =
+    document.getElementById("printReport");
+
+  if(!report){
+    return;
+  }
+
+  let html = "";
+
+  html += `
+  <div class="print-page">
+
+    <h1>Generator Optional Method Calculator</h1>
+
+    <div class="print-project">
+
+      <div><strong>Project:</strong>
+        ${escapeHTML(document.getElementById("projectName").value)}
+      </div>
+
+      <div><strong>Project #:</strong>
+        ${escapeHTML(document.getElementById("projectNumber").value)}
+      </div>
+
+      <div><strong>Address:</strong>
+        ${escapeHTML(document.getElementById("projectAddress").value)}
+      </div>
+
+      <div><strong>City / State:</strong>
+        ${escapeHTML(document.getElementById("projectCityState").value)}
+      </div>
+
+    </div>
+
+    <table class="print-table">
+
+      <thead>
+
+        <tr>
+          <th>Description</th>
+          <th>Service VA</th>
+          <th>Generator VA</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+  `;
+
+  html += printLoadRow(
+    "General Lighting",
+    readOutput("e5"),
+    readOutput("f5")
+  );
+
+  html += printLoadRow(
+    "Small Appliance Circuits",
+    readOutput("e6"),
+    readOutput("f6")
+  );
+
+  html += printLoadRow(
+    "Laundry Circuit",
+    readOutput("e7"),
+    readOutput("f7")
+  );
+
+  for(const item of APPLIANCES){
+
+    const label =
+      applianceDescription(
+        item.row,
+        item.label
+      );
+
+    html += printLoadRow(
+      label,
+      readOutput("e"+item.row),
+      readOutput("f"+item.row)
+    );
+
+  }
+
+  html += printLoadRow(
+    "Air Conditioning Group 1",
+    readOutput("e37"),
+    readOutput("f37")
+  );
+
+  html += printLoadRow(
+    "Heating Group 1",
+    readOutput("e38"),
+    readOutput("f38")
+  );
+
+  html += printLoadRow(
+    "Air Conditioning Group 2",
+    readOutput("e39"),
+    readOutput("f39")
+  );
+
+  html += printLoadRow(
+    "Heating Group 2",
+    readOutput("e40"),
+    readOutput("f40")
+  );
+
+  html += printLoadRow(
+    "Additional Continuous Load",
+    readOutput("e42"),
+    readOutput("f42")
+  );
+
+  html += printLoadRow(
+    "EV Charger",
+    readOutput("e43"),
+    readOutput("f43")
+  );
+
+  html += `
+      </tbody>
+
+      <tfoot>
+
+        <tr>
+          <td><strong>Demand Load</strong></td>
+          <td>${printNumber(data.demandLoads.service)}</td>
+          <td>${printNumber(data.demandLoads.generator)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>HVAC + Continuous</strong></td>
+          <td>${printNumber(
+            data.hvacLoads.service +
+            data.continuousLoads.service
+          )}</td>
+
+          <td>${printNumber(
+            data.hvacLoads.generator +
+            data.continuousLoads.generator
+          )}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Total VA</strong></td>
+
+          <td>${printNumber(
+            data.serviceTotalVA
+          )}</td>
+
+          <td>${printNumber(
+            data.generatorTotalVA
+          )}</td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+            <strong>
+              Calculated Amps
+            </strong>
+          </td>
+
+          <td>
+            ${Math.ceil(
+              data.serviceCurrent
+            )} A
+          </td>
+
+          <td>
+            ${Math.ceil(
+              data.generatorCurrent
+            )} A
+          </td>
+
+        </tr>
+
+      </tfoot>
+
+    </table>
+
+  </div>
+  `;
+
+  report.innerHTML = html;
+
+}
+
+function initializeCalculator(){
+
+  createApplianceRows();
+
+  connectStaticManagedControls();
+
+  connectCalculatorInputs();
+
+  for(const row of MANAGED_ROWS){
+    updateManagedControl(row);
+  }
+
+  calculate();
+
+  initializeSavedCalculation();
+
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeCalculator
+);
+
+window.addEventListener(
+  "beforeunload",
+  function(){
+    saveState(false);
+  }
+);
+function setAccessMessage(text,type){
+  const message =
+    document.getElementById(
+      "accessMessage"
+    );
+
+  if(!message){
+    return;
+  }
+
+  message.textContent =
+    text || "";
+
+  message.className =
+    "access-message";
+
+  if(type){
+    message.classList.add(type);
+  }
+}
+
+function validEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(email);
+}
+
+function getRememberedEmail(){
+  try{
+    return String(
+      localStorage.getItem(
+        REMEMBERED_EMAIL_KEY
+      ) || ""
+    )
+      .trim()
+      .toLowerCase();
+  }catch(e){
+    return "";
+  }
+}
+
+function saveRememberedEmail(email){
+  const remember =
+    document.getElementById(
+      "rememberMemberEmail"
+    );
+
+  try{
+    if(
+      remember &&
+      remember.checked
+    ){
+      localStorage.setItem(
+        REMEMBERED_EMAIL_KEY,
+        email
+      );
+    }else{
+      localStorage.removeItem(
+        REMEMBERED_EMAIL_KEY
+      );
+    }
+  }catch(e){}
+}
+
+function forgetRememberedEmail(){
+  try{
+    localStorage.removeItem(
+      REMEMBERED_EMAIL_KEY
+    );
+
+    sessionStorage.removeItem(
+      MEMBER_ACCESS_KEY
+    );
+  }catch(e){}
+
+  const email =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  const remember =
+    document.getElementById(
+      "rememberMemberEmail"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  if(email){
+    email.value = "";
+    email.focus();
+  }
+
+  if(remember){
+    remember.checked = false;
+  }
+
+  if(forgetButton){
+    forgetButton.style.display =
+      "none";
+  }
+
+  setAccessMessage(
+    "Saved email removed.",
+    "ok"
+  );
+}
+
+function loadRememberedEmail(){
+  const rememberedEmail =
+    getRememberedEmail();
+
+  const email =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  const remember =
+    document.getElementById(
+      "rememberMemberEmail"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  if(
+    email &&
+    rememberedEmail
+  ){
+    email.value =
+      rememberedEmail;
+  }
+
+  if(remember){
+    remember.checked =
+      Boolean(rememberedEmail);
+  }
+
+  if(forgetButton){
+    forgetButton.style.display =
+      rememberedEmail
+        ? "inline-flex"
+        : "none";
+  }
+}
+
+function unlockCalculator(){
+  document.body.classList.remove(
+    "access-locked"
+  );
+
+  const accessScreen =
+    document.getElementById(
+      "accessScreen"
+    );
+
+  if(accessScreen){
+    accessScreen.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+}
+
+function lockCalculator(){
+  document.body.classList.add(
+    "access-locked"
+  );
+
+  const accessScreen =
+    document.getElementById(
+      "accessScreen"
+    );
+
+  if(accessScreen){
+    accessScreen.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+  }
+}
+
+function saveTemporaryAccess(email){
+  try{
+    sessionStorage.setItem(
+      MEMBER_ACCESS_KEY,
+      JSON.stringify({
+        email:email,
+        grantedAt:
+          new Date().toISOString()
+      })
+    );
+  }catch(e){}
+}
+
+function getTemporaryAccess(){
+  try{
+    const raw =
+      sessionStorage.getItem(
+        MEMBER_ACCESS_KEY
+      );
+
+    if(!raw){
+      return null;
+    }
+
+    const access =
+      JSON.parse(raw);
+
+    if(
+      !access ||
+      !access.email
+    ){
+      return null;
+    }
+
+    return access;
+  }catch(e){
+    return null;
+  }
+}
+
+async function verifyMembershipEmail(
+  email
+){
+  const response = await fetch(
+    ACCESS_ENDPOINT,
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+          "application/json"
+      },
+
+      body:JSON.stringify({
+        email:email,
+        calculator:
+          "generator-nec2023",
+        product:
+          "LoadCalcPro Professional Membership"
+      })
+    }
+  );
+
+  let data = {};
+
+  try{
+    data =
+      await response.json();
+  }catch(e){
+    data = {};
+  }
+
+  if(!response.ok){
+    return {
+      active:false,
+
+      message:
+        data.message ||
+        data.error ||
+        "Membership check failed. Please try again."
+    };
+  }
+
+  const active =
+    data.active === true ||
+    data.access === true ||
+    data.allowed === true ||
+    data.ok === true ||
+    String(
+      data.status || ""
+    ).toLowerCase() ===
+      "active";
+
+  return {
+    active:active,
+
+    message:
+      data.message ||
+      (
+        active
+          ? "Access approved."
+          : "An active subscription is required."
+      )
+  };
+}
+
+async function verifySignedInAccess(){
+  if(
+    !loadCalcProSupabase
+  ){
+    return false;
+  }
+
+  try{
+    const result =
+      await loadCalcProSupabase
+        .auth
+        .getSession();
+
+    const session =
+      result &&
+      result.data
+        ? result.data.session
+        : null;
+
+    if(
+      !session ||
+      !session.access_token
+    ){
+      return false;
+    }
+
+    const response =
+      await fetch(
+        V2_ACCESS_ENDPOINT,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              "Bearer " +
+              session.access_token
+          },
+
+          body:JSON.stringify({
+            calculator:"generator"
+          })
+        }
+      );
+
+    let data = {};
+
+    try{
+      data =
+        await response.json();
+    }catch(e){
+      data = {};
+    }
+
+    const active =
+      response.ok &&
+      (
+        data.active === true ||
+        data.access === true ||
+        data.allowed === true
+      );
+
+    if(active){
+      const email =
+        session.user &&
+        session.user.email
+          ? session.user.email
+          : "";
+
+      saveTemporaryAccess(email);
+      unlockCalculator();
+
+      return true;
+    }
+
+  }catch(e){
+    return false;
+  }
+
+  return false;
+}
+
+async function requestCalculatorAccess(){
+  const emailInput =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  const accessButton =
+    document.getElementById(
+      "accessButton"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  const email =
+    String(
+      emailInput
+        ? emailInput.value
+        : ""
+    )
+      .trim()
+      .toLowerCase();
+
+  if(!validEmail(email)){
+    setAccessMessage(
+      "Please enter a valid email address.",
+      "error"
+    );
+
+    if(emailInput){
+      emailInput.focus();
+    }
+
+    return;
+  }
+
+  if(accessButton){
+    accessButton.disabled = true;
+    accessButton.textContent =
+      "Checking membership…";
+  }
+
+  setAccessMessage(
+    "Checking your membership…",
+    ""
+  );
+
+  try{
+    const result =
+      await verifyMembershipEmail(
+        email
+      );
+
+    if(!result.active){
+      setAccessMessage(
+        result.message,
+        "error"
+      );
+
+      return;
+    }
+
+    saveRememberedEmail(email);
+    saveTemporaryAccess(email);
+
+    if(forgetButton){
+      forgetButton.style.display =
+        "inline-flex";
+    }
+
+    setAccessMessage(
+      "Access approved.",
+      "ok"
+    );
+
+    unlockCalculator();
+
+  }catch(e){
+    setAccessMessage(
+      "The access server could not be reached. Please try again.",
+      "error"
+    );
+
+  }finally{
+    if(accessButton){
+      accessButton.disabled = false;
+      accessButton.textContent =
+        "Continue";
+    }
+  }
+}
+
+async function initializeAccessControl(){
+  lockCalculator();
+  loadRememberedEmail();
+
+  const temporaryAccess =
+    getTemporaryAccess();
+
+  if(
+    temporaryAccess &&
+    temporaryAccess.email
+  ){
+    unlockCalculator();
+    return;
+  }
+
+  const signedIn =
+    await verifySignedInAccess();
+
+  if(signedIn){
+    return;
+  }
+
+  const emailInput =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  if(emailInput){
+    emailInput.addEventListener(
+      "keydown",
+      function(event){
+        if(event.key === "Enter"){
+          event.preventDefault();
+          requestCalculatorAccess();
+        }
+      }
+    );
+  }
+}
+function goHome(){
+  window.location.href =
+    "member-dashboard.html";
+}
+
+function connectAccessButtons(){
+  const accessButton =
+    document.getElementById(
+      "accessButton"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  if(accessButton){
+    accessButton.addEventListener(
+      "click",
+      requestCalculatorAccess
+    );
+  }
+
+  if(forgetButton){
+    forgetButton.addEventListener(
+      "click",
+      forgetRememberedEmail
+    );
+  }
+}
+
+function connectToolbarButtons(){
+  const homeButton =
+    document.getElementById(
+      "homeButton"
+    );
+
+  const printButton =
+    document.getElementById(
+      "printButton"
+    );
+
+  const newButton =
+    document.getElementById(
+      "newCalculationButton"
+    );
+
+  if(homeButton){
+    homeButton.addEventListener(
+      "click",
+      goHome
+    );
+  }
+
+  if(printButton){
+    printButton.addEventListener(
+      "click",
+      function(){
+        calculate();
+        window.print();
+      }
+    );
+  }
+
+  if(newButton){
+    newButton.addEventListener(
+      "click",
+      startNewCalculationFromButton
+    );
+  }
+}
+
+function connectRestoreButtons(){
+  const continueButton =
+    document.getElementById(
+      "continuePreviousButton"
+    );
+
+  const startNewButton =
+    document.getElementById(
+      "startNewSavedButton"
+    );
+
+  if(continueButton){
+    continueButton.addEventListener(
+      "click",
+      continuePreviousCalculation
+    );
+  }
+
+  if(startNewButton){
+    startNewButton.addEventListener(
+      "click",
+      startNewFromSavedPrompt
+    );
+  }
+}
+
+function preparePrintReport(){
+  calculate();
+}
+
+window.addEventListener(
+  "beforeprint",
+  preparePrintReport
+);
+
+document.addEventListener(
+  "keydown",
+  function(event){
+    if(
+      event.key === "Escape" &&
+      restorePromptOpen
+    ){
+      closeRestorePrompt();
+    }
+  }
+);
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async function(){
+    connectAccessButtons();
+    connectToolbarButtons();
+    connectRestoreButtons();
+
+    await initializeAccessControl();
+  }
+);
+
+if(
+  loadCalcProSupabase &&
+  loadCalcProSupabase.auth
+){
+  loadCalcProSupabase.auth.onAuthStateChange(
+    async function(event,session){
+      if(
+        event === "SIGNED_OUT"
+      ){
+        try{
+          sessionStorage.removeItem(
+            MEMBER_ACCESS_KEY
+          );
+        }catch(e){}
+
+        lockCalculator();
+        return;
+      }
+
+      if(
+        session &&
+        session.access_token
+      ){
+        await verifySignedInAccess();
+      }
+    }
+  );
+}
+
+</script>
 </body>
 </html>
-
