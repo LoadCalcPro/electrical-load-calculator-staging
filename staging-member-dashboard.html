@@ -35,7 +35,7 @@
     <div class="actions"><button id="signOut">Sign Out</button></div>
   </section>
 </main>
-<footer class="site-footer">© LoadCalcPro X. All rights reserved.<br>Version 1.0.0</footer>
+<footer class="site-footer">© LoadCalcPro X. All rights reserved.<br>Version 1.0.1</footer>
 <script>
 (function routeAuthCallback(){
   const query=new URLSearchParams(location.search);
@@ -53,9 +53,10 @@
 const SUPABASE_URL="https://jvnkncpljuaeycwjyeai.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF";
 const API_BASE_URL="https://loadcalcpro-hcml-api-staging.onrender.com";
+const STAGING_SITE_BASE="https://loadcalcpro.github.io/electrical-load-calculator-staging/";
 const REMEMBERED_EMAIL_KEY="loadCalcProStagingRememberedEmail";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-const products={generator:{href:"generator.html",label:"Open Generator Access Test"},aic:{href:"aic_calculator.html",label:"Open AIC Access Test"}};
+const products={generator:{href:STAGING_SITE_BASE+"generator.html",label:"Open Generator Access Test"},aic:{href:STAGING_SITE_BASE+"aic_calculator.html",label:"Open AIC Access Test"}};
 const loginPanel=document.getElementById("loginPanel"),portal=document.getElementById("portal"),message=document.getElementById("message"),loginButton=document.getElementById("loginButton"),emailInput=document.getElementById("email"),rememberEmail=document.getElementById("rememberEmail");
 const savedEmail=localStorage.getItem(REMEMBERED_EMAIL_KEY)||"";
 if(savedEmail){emailInput.value=savedEmail;rememberEmail.checked=true}
