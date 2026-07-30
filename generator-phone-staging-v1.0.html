@@ -754,6 +754,37 @@ body.access-locked .bottom-results{
   text-align:left;
 }
 
+
+/* Version 2 mobile input field design */
+.input-block label{
+  display:none !important;
+}
+
+.input-block input,
+.input-block select{
+  text-align:left !important;
+  font-size:18px !important;
+  line-height:1.2;
+  padding:9px 10px !important;
+}
+
+.input-block input::placeholder{
+  color:#9ca3af !important;
+  opacity:1;
+  font-size:18px;
+  font-weight:400;
+}
+
+.field input,
+.field select{
+  text-align:left !important;
+}
+
+.field input::placeholder{
+  color:#9ca3af;
+  opacity:1;
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4475,5 +4506,61 @@ if(
 }
 
 </script>
+
+<script>
+(function(){
+  function applyInlineInputPlaceholders(root){
+    const scope = root && root.querySelectorAll ? root : document;
+
+    scope.querySelectorAll('.input-block').forEach(function(block){
+      const label = block.querySelector('label');
+      const input = block.querySelector('input, select');
+      if(!label || !input) return;
+
+      const placeholderText = label.textContent.replace(/\s+/g, ' ').trim();
+      if(input.tagName === 'INPUT' && placeholderText && !input.getAttribute('placeholder')){
+        input.setAttribute('placeholder', placeholderText);
+      }
+    });
+
+    const projectPlaceholders = {
+      projectName: 'Project Name',
+      projectNumber: 'Project Number',
+      projectAddress: 'Address',
+      projectCityState: 'City / State'
+    };
+
+    Object.keys(projectPlaceholders).forEach(function(id){
+      const input = document.getElementById(id);
+      if(input && !input.getAttribute('placeholder')){
+        input.setAttribute('placeholder', projectPlaceholders[id]);
+      }
+    });
+  }
+
+  function initializeInlinePlaceholders(){
+    applyInlineInputPlaceholders(document);
+
+    const observer = new MutationObserver(function(mutations){
+      mutations.forEach(function(mutation){
+        mutation.addedNodes.forEach(function(node){
+          if(node.nodeType === 1){
+            applyInlineInputPlaceholders(node);
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initializeInlinePlaceholders);
+  }else{
+    initializeInlinePlaceholders();
+  }
+})();
+</script>
+
 </body>
 </html>
