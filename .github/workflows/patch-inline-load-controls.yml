@@ -1,0 +1,49 @@
+name: Patch inline load controls
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-inline-load-controls.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update mobile calculator layout
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('generator-phone-staging-v1.0.html')
+          text = path.read_text(encoding='utf-8')
+
+          css_marker = '''.load-inputs{\n  display:grid;\n  grid-template-columns:minmax(0,1fr) minmax(0,1fr);\n  gap:9px;\n}\n'''
+          css_add = '''.load-inputs{\n  display:grid;\n  grid-template-columns:minmax(0,1fr) minmax(0,1fr);\n  gap:9px;\n}\n\n/* Mobile load-entry line: Quantity, VA, and managed check */\n.load-inputs.inline-load-row{\n  grid-template-columns:78px minmax(0,1fr) auto;\n  align-items:end;\n  gap:10px;\n}\n\n.load-inputs.inline-load-row .input-block input{\n  min-height:46px;\n  padding:9px 10px;\n  font-size:18px;\n  line-height:1.2;\n  text-align:left;\n}\n\n.inline-managed-controls{\n  display:flex;\n  align-items:center;\n  justify-content:flex-end;\n  gap:6px;\n  min-height:46px;\n}\n\n.inline-managed-controls .managed-check,\n.inline-managed-controls .managed-qty{\n  height:46px;\n  min-height:46px;\n  margin:0;\n  font-size:20px;\n}\n\n.inline-managed-controls .managed-check{\n  width:46px;\n  min-width:46px;\n}\n\n.inline-managed-controls .managed-qty{\n  min-width:46px;\n  padding:0 8px;\n}\n\n@media(max-width:420px){\n  .load-inputs.inline-load-row{\n    grid-template-columns:70px minmax(0,1fr) auto;\n    gap:8px;\n  }\n}\n'''
+          if 'load-inputs.inline-load-row' not in text:
+              if css_marker not in text:
+                  raise SystemExit('CSS marker not found')
+              text = text.replace(css_marker, css_add, 1)
+
+          function_marker = '''function initializeCalculator(){\n\n  createApplianceRows();\n'''
+          function_add = '''function organizeInlineLoadControls(){\n  const rows = document.querySelectorAll(".load-row");\n\n  for(const row of rows){\n    const inputs = row.querySelector(".load-inputs");\n    const managedRow = row.querySelector(".managed-row");\n    const controls = managedRow\n      ? managedRow.querySelector(".managed-controls")\n      : null;\n\n    if(!inputs || !managedRow || !controls){\n      continue;\n    }\n\n    inputs.classList.add("inline-load-row");\n    controls.classList.add("inline-managed-controls");\n    inputs.appendChild(controls);\n    managedRow.remove();\n  }\n}\n\nfunction initializeCalculator(){\n\n  createApplianceRows();\n  organizeInlineLoadControls();\n'''
+          if 'function organizeInlineLoadControls()' not in text:
+              if function_marker not in text:
+                  raise SystemExit('Initialization marker not found')
+              text = text.replace(function_marker, function_add, 1)
+
+          path.write_text(text, encoding='utf-8')
+
+          workflow = Path('.github/workflows/patch-inline-load-controls.yml')
+          if workflow.exists():
+              workflow.unlink()
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add generator-phone-staging-v1.0.html .github/workflows/patch-inline-load-controls.yml
+          git commit -m "Align quantity VA and managed controls on one line"
+          git push
