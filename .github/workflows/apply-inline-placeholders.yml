@@ -2,7 +2,6 @@ name: Apply inline input placeholders
 
 on:
   workflow_dispatch:
-  push:
 
 permissions:
   contents: write
@@ -12,93 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Update mobile calculator inputs
+        shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
+          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCnBhdGggPSBQYXRoKCJnZW5lcmF0b3ItcGhvbmUtc3RhZ2luZy12MS4wLmh0bWwiKQp0ZXh0ID0gcGF0aC5yZWFkX3RleHQoZW5jb2Rpbmc9InV0Zi04IikKCmNzcyA9ICIiIgovKiBNb2JpbGUgaW5wdXQgZGVzY3JpcHRpb25zIG5vdyBhcHBlYXIgaW5zaWRlIHRoZSBib3hlcyAqLwouaW5wdXQtYmxvY2sgbGFiZWx7CiAgZGlzcGxheTpub25lOwp9Ci5pbnB1dC1ibG9jayBpbnB1dCwKLmlucHV0LWJsb2NrIHNlbGVjdHsKICB0ZXh0LWFsaWduOmxlZnQ7CiAgZm9udC1zaXplOjE4cHg7CiAgcGFkZGluZy1sZWZ0OjEwcHg7Cn0KLmlucHV0LWJsb2NrIGlucHV0OjpwbGFjZWhvbGRlcnsKICBjb2xvcjojOWNhM2FmOwogIG9wYWNpdHk6MTsKICBmb250LXNpemU6MThweDsKICBmb250LXdlaWdodDo0MDA7Cn0KIiIiCgpqcyA9ICIiIgo8c2NyaXB0PgooZnVuY3Rpb24oKXsKICBmdW5jdGlvbiBhcHBseUlubGluZUlucHV0UGxhY2Vob2xkZXJzKHJvb3QpewogICAgY29uc3Qgc2NvcGUgPSByb290ICYmIHJvb3QucXVlcnlTZWxlY3RvckFsbCA/IHJvb3QgOiBkb2N1bWVudDsKICAgIHNjb3BlLnF1ZXJ5U2VsZWN0b3JBbGwoJy5pbnB1dC1ibG9jaycpLmZvckVhY2goZnVuY3Rpb24oYmxvY2spewogICAgICBjb25zdCBsYWJlbCA9IGJsb2NrLnF1ZXJ5U2VsZWN0b3IoJ2xhYmVsJyk7CiAgICAgIGNvbnN0IGlucHV0ID0gYmxvY2sucXVlcnlTZWxlY3RvcignaW5wdXQnKTsKICAgICAgaWYoIWxhYmVsIHx8ICFpbnB1dCkgcmV0dXJuOwogICAgICBjb25zdCBwbGFjZWhvbGRlclRleHQgPSBsYWJlbC50ZXh0Q29udGVudC5yZXBsYWNlKC9ccysvZywgJyAnKS50cmltKCk7CiAgICAgIGlmKHBsYWNlaG9sZGVyVGV4dCAmJiAhaW5wdXQuZ2V0QXR0cmlidXRlKCdwbGFjZWhvbGRlcicpKXsKICAgICAgICBpbnB1dC5zZXRBdHRyaWJ1dGUoJ3BsYWNlaG9sZGVyJywgcGxhY2Vob2xkZXJUZXh0KTsKICAgICAgfQogICAgfSk7CiAgfQoKICBmdW5jdGlvbiBpbml0aWFsaXplSW5saW5lUGxhY2Vob2xkZXJzKCl7CiAgICBhcHBseUlubGluZUlucHV0UGxhY2Vob2xkZXJzKGRvY3VtZW50KTsKICAgIGNvbnN0IG9ic2VydmVyID0gbmV3IE11dGF0aW9uT2JzZXJ2ZXIoZnVuY3Rpb24obXV0YXRpb25zKXsKICAgICAgbXV0YXRpb25zLmZvckVhY2goZnVuY3Rpb24obXV0YXRpb24pewogICAgICAgIG11dGF0aW9uLmFkZGVkTm9kZXMuZm9yRWFjaChmdW5jdGlvbihub2RlKXsKICAgICAgICAgIGlmKG5vZGUubm9kZVR5cGUgPT09IDEpewogICAgICAgICAgICBhcHBseUlubGluZUlucHV0UGxhY2Vob2xkZXJzKG5vZGUpOwogICAgICAgICAgICBpZihub2RlLm1hdGNoZXMgJiYgbm9kZS5tYXRjaGVzKCcuaW5wdXQtYmxvY2snKSl7CiAgICAgICAgICAgICAgYXBwbHlJbmxpbmVJbnB1dFBsYWNlaG9sZGVycyhub2RlLnBhcmVudEVsZW1lbnQgfHwgbm9kZSk7CiAgICAgICAgICAgIH0KICAgICAgICAgIH0KICAgICAgICB9KTsKICAgICAgfSk7CiAgICB9KTsKICAgIG9ic2VydmVyLm9ic2VydmUoZG9jdW1lbnQuYm9keSwge2NoaWxkTGlzdDp0cnVlLCBzdWJ0cmVlOnRydWV9KTsKICB9CgogIGlmKGRvY3VtZW50LnJlYWR5U3RhdGUgPT09ICdsb2FkaW5nJyl7CiAgICBkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdET01Db250ZW50TG9hZGVkJywgaW5pdGlhbGl6ZUlubGluZVBsYWNlaG9sZGVycyk7CiAgfWVsc2V7CiAgICBpbml0aWFsaXplSW5saW5lUGxhY2Vob2xkZXJzKCk7CiAgfQp9KSgpOwo8L3NjcmlwdD4KIiIiCgppZiAiTW9iaWxlIGlucHV0IGRlc2NyaXB0aW9ucyBub3cgYXBwZWFyIGluc2lkZSB0aGUgYm94ZXMiIG5vdCBpbiB0ZXh0OgogICAgdGV4dCA9IHRleHQucmVwbGFjZSgiPC9zdHlsZT4iLCBjc3MgKyAiXG48L3N0eWxlPiIsIDEpCmlmICJpbml0aWFsaXplSW5saW5lUGxhY2Vob2xkZXJzIiBub3QgaW4gdGV4dDoKICAgIHRleHQgPSB0ZXh0LnJlcGxhY2UoIjwvYm9keT4iLCBqcyArICJcbjwvYm9keT4iLCAxKQpwYXRoLndyaXRlX3RleHQodGV4dCwgZW5jb2Rpbmc9InV0Zi04Iik=' | base64 --decode > /tmp/apply_placeholders.py
+          python /tmp/apply_placeholders.py
 
-          path = Path('generator-phone-staging-v1.0.html')
-          text = path.read_text(encoding='utf-8')
-
-          css = r'''
-
-/* Mobile input descriptions now appear inside the boxes */
-.input-block label{
-  display:none;
-}
-
-.input-block input,
-.input-block select{
-  text-align:left;
-  font-size:18px;
-  padding-left:10px;
-}
-
-.input-block input::placeholder{
-  color:#9ca3af;
-  opacity:1;
-  font-size:18px;
-  font-weight:400;
-}
-'''
-
-          js = r'''
-<script>
-(function(){
-  function applyInlineInputPlaceholders(root){
-    const scope = root && root.querySelectorAll ? root : document;
-    scope.querySelectorAll('.input-block').forEach(function(block){
-      const label = block.querySelector('label');
-      const input = block.querySelector('input');
-      if(!label || !input) return;
-
-      const placeholderText = label.textContent.replace(/\s+/g, ' ').trim();
-      if(placeholderText && !input.getAttribute('placeholder')){
-        input.setAttribute('placeholder', placeholderText);
-      }
-    });
-  }
-
-  function initializeInlinePlaceholders(){
-    applyInlineInputPlaceholders(document);
-
-    const observer = new MutationObserver(function(mutations){
-      mutations.forEach(function(mutation){
-        mutation.addedNodes.forEach(function(node){
-          if(node.nodeType === 1){
-            applyInlineInputPlaceholders(node);
-            if(node.matches && node.matches('.input-block')){
-              applyInlineInputPlaceholders(node.parentElement || node);
-            }
-          }
-        });
-      });
-    });
-
-    observer.observe(document.body, {childList:true, subtree:true});
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initializeInlinePlaceholders);
-  }else{
-    initializeInlinePlaceholders();
-  }
-})();
-</script>
-'''
-
-          if 'Mobile input descriptions now appear inside the boxes' not in text:
-              text = text.replace('</style>', css + '\n</style>', 1)
-
-          if 'initializeInlinePlaceholders' not in text:
-              text = text.replace('</body>', js + '\n</body>', 1)
-
-          path.write_text(text, encoding='utf-8')
-          PY
       - name: Commit changes
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add generator-phone-staging-v1.0.html
-          git commit -m "Move calculator input descriptions inside fields" || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m "Move calculator input descriptions inside fields"
           git push
