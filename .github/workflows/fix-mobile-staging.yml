@@ -1,0 +1,77 @@
+name: Fix mobile staging calculator
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-mobile-staging.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct mobile calculator JavaScript
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('generator-phone-staging-v1.0.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              'REMEMBERED_EMAIL_KEY': 'LOADCALCPRO_REMEMBERED_EMAIL_KEY',
+              'MEMBER_ACCESS_KEY': 'LOADCALCPRO_ACCESS_KEY',
+              'V2_ACCESS_ENDPOINT': 'LOADCALCPRO_V2_ACCESS_ENDPOINT',
+              'ACCESS_ENDPOINT': 'LOADCALCPRO_ACCESS_ENDPOINT',
+          }
+
+          for old, new in replacements.items():
+              text = re.sub(rf'(?<![A-Za-z0-9_]){old}(?![A-Za-z0-9_])', new, text)
+
+          text = text.replace(
+              'message.className =\n    "access-message";',
+              'message.className =\n    "access-msg";'
+          )
+
+          text = text.replace(
+              '    connectAccessButtons();\n    connectToolbarButtons();',
+              '    connectToolbarButtons();'
+          )
+
+          if 'function printCalculation()' not in text:
+              text = text.replace(
+                  'function goHome(){',
+                  'function printCalculation(){\n  calculate();\n  window.print();\n}\n\nfunction goHome(){',
+                  1
+              )
+
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('generator-phone-staging-v1.0.html').read_text(encoding='utf-8')
+          start = text.index('<script>') + len('<script>')
+          end = text.rindex('</script>')
+          Path('/tmp/mobile.js').write_text(text[start:end], encoding='utf-8')
+          PY
+          node --check /tmp/mobile.js
+      - name: Commit corrected calculator
+        shell: bash
+        run: |
+          if git diff --quiet -- generator-phone-staging-v1.0.html; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git config user.name "LoadCalcPro Fix Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add generator-phone-staging-v1.0.html
+          git commit -m "Fix mobile calculator access constants"
+          git push
