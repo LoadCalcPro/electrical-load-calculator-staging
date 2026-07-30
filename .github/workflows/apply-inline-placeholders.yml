@@ -3,8 +3,6 @@ name: Apply inline input placeholders
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '.github/workflows/apply-inline-placeholders.yml'
 
 permissions:
   contents: write
