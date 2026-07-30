@@ -1,15 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
->
-<meta name="robots" content="noindex,nofollow">
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<meta content="noindex,nofollow" name="robots"/>
 <title>Generator Optional Method Calculator | Mobile Staging</title>
-
 <style>
 :root{
   --page:#f3f4f6;
@@ -808,1026 +804,468 @@ body.access-locked .bottom-results{
 }
 
 </style>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body class="access-locked">
-
-<div id="accessScreen" class="access-screen">
-  <div class="access-card">
-
-    <div class="access-topline">
+<div class="access-screen" id="accessScreen">
+<div class="access-card">
+<div class="access-topline">
       LoadCalcPro<span class="brand-x">X</span> Protected Access
     </div>
-
-    <h1>Professional Membership</h1>
-
-    <p class="subtitle">
+<h1>Professional Membership</h1>
+<p class="subtitle">
       Please enter the email address used for your LoadCalcPro
       subscription to continue.
     </p>
-
-    <label for="memberEmail">
+<label for="memberEmail">
       Membership Email
     </label>
-
-    <input
-      id="memberEmail"
-      type="email"
-      autocomplete="email"
-      placeholder="you@example.com"
-    >
-
-    <label
-      class="remember-row"
-      for="rememberMemberEmail"
-    >
-      <input
-        id="rememberMemberEmail"
-        type="checkbox"
-        checked
-      >
+<input autocomplete="email" id="memberEmail" placeholder="you@example.com" type="email"/>
+<label class="remember-row" for="rememberMemberEmail">
+<input checked="" id="rememberMemberEmail" type="checkbox"/>
       Remember this email on this device
     </label>
-
-    <button
-      id="accessButton"
-      type="button"
-      onclick="requestCalculatorAccess()"
-    >
+<button id="accessButton" onclick="requestCalculatorAccess()" type="button">
       Continue
     </button>
-
-    <button
-      id="forgetEmailButton"
-      class="forget-email"
-      type="button"
-      onclick="forgetRememberedEmail()"
-      style="display:none"
-    >
+<button class="forget-email" id="forgetEmailButton" onclick="forgetRememberedEmail()" style="display:none" type="button">
       Forget saved email
     </button>
-
-    <div
-      id="accessMessage"
-      class="access-msg"
-    ></div>
-
-    <p class="access-note">
-      <strong>Membership access:</strong>
+<div class="access-msg" id="accessMessage"></div>
+<p class="access-note">
+<strong>Membership access:</strong>
       This calculator checks your subscription through the
       LoadCalcPro secure access server.
     </p>
-
-  </div>
 </div>
-
+</div>
 <div class="mobile-app">
-
-  <header class="app-header">
-
-    <div class="brand-row">
-
-      <div>
-        <h1 class="app-title">
+<header class="app-header">
+<div class="brand-row">
+<div>
+<h1 class="app-title">
           Generator Optional Method Calculator
         </h1>
-
-        <div class="app-version">
+<div class="app-version">
           NEC 2023 | Mobile Staging Version 1.0
         </div>
-      </div>
-
-      <div class="app-brand">
-        <span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span>
-      </div>
-
-    </div>
-
-    <div class="header-actions">
-
-      <button
-        type="button"
-        onclick="goHome()"
-      >
+</div>
+<div class="app-brand">
+<span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span>
+</div>
+</div>
+<div class="header-actions">
+<button onclick="goHome()" type="button">
         Calculators
       </button>
-
-      <button
-        type="button"
-        class="primary"
-        onclick="printCalculation()"
-      >
+<button class="primary" onclick="printCalculation()" type="button">
         Print / PDF
       </button>
-
-      <button
-        type="button"
-        onclick="saveState(true)"
-      >
+<button onclick="saveState(true)" type="button">
         Save
       </button>
-
-      <button
-        type="button"
-        onclick="startNewCalculationFromButton()"
-      >
+<button onclick="startNewCalculationFromButton()" type="button">
         New Calculation
       </button>
-
-    </div>
-
-  </header>
-
-  <main class="main-content">
-
-    <section class="card">
-
-      <h2 class="card-heading">
+</div>
+</header>
+<main class="main-content">
+<section class="card">
+<h2 class="card-heading">
         Project Information
       </h2>
-
-      <div class="card-body">
-
-        <div class="field-grid">
-
-          <div class="field">
-            <label for="projectName">
+<div class="card-body">
+<div class="field-grid">
+<div class="field">
+<label for="projectName">
               Project Name
             </label>
-
-            <input
-              id="projectName"
-              type="text"
-              autocomplete="off"
-            >
-          </div>
-
-          <div class="field">
-            <label for="projectNumber">
+<input autocomplete="off" id="projectName" type="text"/>
+</div>
+<div class="field">
+<label for="projectNumber">
               Project Number
             </label>
-
-            <input
-              id="projectNumber"
-              type="text"
-              autocomplete="off"
-            >
-          </div>
-
-          <div class="field wide">
-            <label for="projectAddress">
+<input autocomplete="off" id="projectNumber" type="text"/>
+</div>
+<div class="field wide">
+<label for="projectAddress">
               Address
             </label>
-
-            <input
-              id="projectAddress"
-              type="text"
-              autocomplete="street-address"
-            >
-          </div>
-
-          <div class="field wide">
-            <label for="projectCityState">
+<input autocomplete="street-address" id="projectAddress" type="text"/>
+</div>
+<div class="field wide">
+<label for="projectCityState">
               City / State
             </label>
-
-            <input
-              id="projectCityState"
-              type="text"
-              autocomplete="address-level2"
-            >
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-    <section class="card">
-
-      <h2 class="card-heading">
+<input autocomplete="address-level2" id="projectCityState" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<section class="card">
+<h2 class="card-heading">
         General Loads
       </h2>
-
-      <div class="card-body">
-
-        <div class="load-row">
-
-          <div class="load-name">
+<div class="card-body">
+<div class="load-row">
+<div class="load-name">
             Square Footage at 3 VA/ft²
           </div>
-
-          <div class="load-inputs general-load-inputs">
-
-            <div class="input-block">
-              <label for="q5">
+<div class="load-inputs general-load-inputs">
+<div class="input-block">
+<label for="q5">
                 Square Feet
               </label>
+<input id="q5" inputmode="decimal" min="0" step="any" type="number"/>
+</div>
+</div>
 
-              <input
-                id="q5"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f5"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <div class="load-name">
+</div>
+</div>
+<div class="load-row">
+<div class="load-name">
             Small Appliance Circuits at 1,500 VA each
           </div>
-
-          <div class="load-inputs general-load-inputs">
-
-            <div class="input-block">
-              <label for="q6">
+<div class="load-inputs general-load-inputs">
+<div class="input-block">
+<label for="q6">
                 Quantity
               </label>
+<input id="q6" inputmode="numeric" min="0" step="1" type="number" value="2"/>
+</div>
+</div>
 
-              <input
-                id="q6"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-                value="2"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f6"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <div class="load-name">
+</div>
+</section></main></div>
+<div class="load-row">
+<div class="load-name">
             Laundry Circuit at 1,500 VA each
           </div>
-
-          <div class="load-inputs general-load-inputs">
-
-            <div class="input-block">
-              <label for="q7">
+<div class="load-inputs general-load-inputs">
+<div class="input-block">
+<label for="q7">
                 Quantity
               </label>
+<input id="q7" inputmode="numeric" min="0" step="1" type="number" value="1"/>
+</div>
+</div>
 
-              <input
-                id="q7"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-                value="1"
-              >
-            </div>
+</div>
 
-          </div>
 
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
 
-              <div
-                id="f7"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-        </div>
-
-        
-
-      </div>
-    </section>
-    <section class="card">
-
-      <h2 class="card-heading">
+<section class="card">
+<h2 class="card-heading">
         Appliance Loads
       </h2>
-
-      <div class="card-body">
-
-        <p class="section-note">
+<div class="card-body">
+<p class="section-note">
           Enter the quantity and nameplate VA for each load.
           Tap the Managed box to remove all entered units from the
           generator load. Tap the number beside the check mark to
           reduce the managed quantity.
         </p>
-
-        <div id="applianceRows"></div>
-
-          <div class="summary-box">
-            <div class="summary-label">
+<div id="applianceRows"></div>
+<div class="summary-box">
+<div class="summary-label">
               Generator Appliance VA
             </div>
-
-            <div
-              id="f31"
-              class="summary-value"
-            ></div>
-          </div>
-
-        </div>
-
-          <div class="summary-box">
-            <div class="summary-label">
+<div class="summary-value" id="f31"></div>
+</div>
+</div>
+<div class="summary-box">
+<div class="summary-label">
               Generator After Demand
             </div>
+<div class="summary-value" id="f35"></div>
+</div>
 
-            <div
-              id="f35"
-              class="summary-value"
-            ></div>
-          </div>
 
-        </div>
-
-      </div>
-    </section>
-
-    <section class="card">
-
-      <h2 class="card-heading">
+</section>
+<section class="card">
+<h2 class="card-heading">
         HVAC and Continuous Loads
       </h2>
-
-      <div class="card-body">
-
-        <p class="section-note">
+<div class="card-body">
+<p class="section-note">
           The calculator uses the larger of the air-conditioning
           load or the calculated heating load. Four or more heating
           units are calculated at 40 percent.
         </p>
-
-        <div class="load-row">
-
-          <div class="load-name">
+<div class="load-row">
+<div class="load-name">
             Air Conditioning Group 1
           </div>
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q37">
+<div class="load-inputs">
+<div class="input-block">
+<label for="q37">
                 Quantity
               </label>
-
-              <input
-                id="q37"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v37">
+<input id="q37" inputmode="numeric" min="0" step="1" type="number"/>
+</div>
+<div class="input-block">
+<label for="v37">
                 VA Each
               </label>
+<input id="v37" inputmode="decimal" min="0" step="any" type="number"/>
+</div>
+</div>
 
-              <input
-                id="v37"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f37"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
+</div>
+<div class="managed-row">
+<div class="managed-label">
               Managed Load
             </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m37"
-                class="managed-check"
-                type="button"
-                aria-label="Manage air conditioning group 1"
-              ></button>
-
-              <button
-                id="mq37"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
+<div class="managed-controls">
+<button aria-label="Manage air conditioning group 1" class="managed-check" id="m37" type="button"></button>
+<button aria-label="Reduce managed quantity" class="managed-qty" id="mq37" type="button">
                 0
               </button>
-
-            </div>
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <div class="load-name">
+</div>
+</div>
+</div>
+<div class="load-row">
+<div class="load-name">
             Heating Group 1
           </div>
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q38">
+<div class="load-inputs">
+<div class="input-block">
+<label for="q38">
                 Quantity
               </label>
-
-              <input
-                id="q38"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v38">
+<input id="q38" inputmode="numeric" min="0" step="1" type="number"/>
+</div>
+<div class="input-block">
+<label for="v38">
                 VA Each
               </label>
+<input id="v38" inputmode="decimal" min="0" step="any" type="number"/>
+</div>
+</div>
 
-              <input
-                id="v38"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f38"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
+</div>
+<div class="managed-row">
+<div class="managed-label">
               Managed Load
             </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m38"
-                class="managed-check"
-                type="button"
-                aria-label="Manage heating group 1"
-              ></button>
-
-              <button
-                id="mq38"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
+<div class="managed-controls">
+<button aria-label="Manage heating group 1" class="managed-check" id="m38" type="button"></button>
+<button aria-label="Reduce managed quantity" class="managed-qty" id="mq38" type="button">
                 0
               </button>
+</div>
+</div>
 
-            </div>
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <div class="load-name">
+<div class="load-row">
+<div class="load-name">
             Air Conditioning Group 2
           </div>
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q39">
+<div class="load-inputs">
+<div class="input-block">
+<label for="q39">
                 Quantity
               </label>
-
-              <input
-                id="q39"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v39">
+<input id="q39" inputmode="numeric" min="0" step="1" type="number"/>
+</div>
+<div class="input-block">
+<label for="v39">
                 VA Each
               </label>
+<input id="v39" inputmode="decimal" min="0" step="any" type="number"/>
+</div>
+</div>
 
-              <input
-                id="v39"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f39"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
+</div>
+<div class="managed-row">
+<div class="managed-label">
               Managed Load
             </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m39"
-                class="managed-check"
-                type="button"
-                aria-label="Manage air conditioning group 2"
-              ></button>
-
-              <button
-                id="mq39"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
+<div class="managed-controls">
+<button aria-label="Manage air conditioning group 2" class="managed-check" id="m39" type="button"></button>
+<button aria-label="Reduce managed quantity" class="managed-qty" id="mq39" type="button">
                 0
               </button>
+</div>
+</div>
 
-            </div>
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <div class="load-name">
+<div class="load-row">
+<div class="load-name">
             Heating Group 2
           </div>
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q40">
+<div class="load-inputs">
+<div class="input-block">
+<label for="q40">
                 Quantity
               </label>
-
-              <input
-                id="q40"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v40">
+<input id="q40" inputmode="numeric" min="0" step="1" type="number"/>
+</div>
+<div class="input-block">
+<label for="v40">
                 VA Each
               </label>
+<input id="v40" inputmode="decimal" min="0" step="any" type="number"/>
+</div>
+</div>
 
-              <input
-                id="v40"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f40"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
+</div>
+<div class="managed-row">
+<div class="managed-label">
               Managed Load
             </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m40"
-                class="managed-check"
-                type="button"
-                aria-label="Manage heating group 2"
-              ></button>
-
-              <button
-                id="mq40"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
+<div class="managed-controls">
+<button aria-label="Manage heating group 2" class="managed-check" id="m40" type="button"></button>
+<button aria-label="Reduce managed quantity" class="managed-qty" id="mq40" type="button">
                 0
               </button>
+</div>
+</div>
 
-            </div>
-          </div>
-
-        </div>
-        <div class="load-row">
-
-          <div class="load-name">
+<div class="load-row">
+<div class="load-name">
             Additional Continuous Load
           </div>
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q42">
+<div class="load-inputs">
+<div class="input-block">
+<label for="q42">
                 Quantity
               </label>
-
-              <input
-                id="q42"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v42">
+<input id="q42" inputmode="numeric" min="0" step="1" type="number"/>
+</div>
+<div class="input-block">
+<label for="v42">
                 VA Each
               </label>
+<input id="v42" inputmode="decimal" min="0" step="any" type="number"/>
+</div>
+</div>
 
-              <input
-                id="v42"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f42"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
+</div>
+<div class="managed-row">
+<div class="managed-label">
               Managed Load
             </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m42"
-                class="managed-check"
-                type="button"
-                aria-label="Manage additional continuous load"
-              ></button>
-
-              <button
-                id="mq42"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
+<div class="managed-controls">
+<button aria-label="Manage additional continuous load" class="managed-check" id="m42" type="button"></button>
+<button aria-label="Reduce managed quantity" class="managed-qty" id="mq42" type="button">
                 0
               </button>
+</div>
+</div>
 
-            </div>
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <div class="load-name">
+<div class="load-row">
+<div class="load-name">
             EV Charger
           </div>
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q43">
+<div class="load-inputs">
+<div class="input-block">
+<label for="q43">
                 Quantity
               </label>
-
-              <input
-                id="q43"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-                placeholder="Qty"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v43">
+<input id="q43" inputmode="numeric" min="0" placeholder="Qty" step="1" type="number"/>
+</div>
+<div class="input-block">
+<label for="v43">
                 Nameplate W / VA
               </label>
-
-              <input
-                id="v43"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-                placeholder="Nameplate"
-              >
-            </div>
-
-          </div>
-
-          <p class="section-note" style="padding-top:8px;padding-bottom:0">
+<input id="v43" inputmode="decimal" min="0" placeholder="Nameplate" step="any" type="number"/>
+</div>
+</div>
+<p class="section-note" style="padding-top:8px;padding-bottom:0">
             The calculator uses 7,200 VA or the entered nameplate
             rating, whichever is larger, for each EV charger.
           </p>
 
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f43"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
+</div>
+<div class="managed-row">
+<div class="managed-label">
               Managed Load
             </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m43"
-                class="managed-check"
-                type="button"
-                aria-label="Manage EV charger load"
-              ></button>
-
-              <button
-                id="mq43"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
+<div class="managed-controls">
+<button aria-label="Manage EV charger load" class="managed-check" id="m43" type="button"></button>
+<button aria-label="Reduce managed quantity" class="managed-qty" id="mq43" type="button">
                 0
               </button>
+</div>
+</div>
 
-            </div>
-          </div>
-
-        </div>
-
-          <div class="summary-box">
-            <div class="summary-label">
+<div class="summary-box">
+<div class="summary-label">
               Generator HVAC / Continuous VA
             </div>
+<div class="summary-value" id="f44"></div>
+</div>
 
-            <div
-              id="f44"
-              class="summary-value"
-            ></div>
-          </div>
 
-        </div>
-
-      </div>
-    </section>
-
-    <section class="card">
-
-      <h2 class="card-heading">
+</section>
+<section class="card">
+<h2 class="card-heading">
         Service Voltage
       </h2>
-
-      <div class="card-body">
-
-        <div class="field">
-
-          <label for="q46">
+<div class="card-body">
+<div class="field">
+<label for="q46">
             Select Service Voltage
           </label>
-
-          <select id="q46">
-
-            <option value="208">
+<select id="q46">
+<option value="208">
               208 Volts
             </option>
-
-            <option value="240" selected>
+<option selected="" value="240">
               240 Volts
             </option>
-
-          </select>
-
-        </div>
-
-      </div>
-    </section>
-
-  </main>
+</select>
 </div>
+</div>
+</section>
+
 
 <div class="bottom-results">
-
-  <div class="bottom-results-inner">
-
-    <div class="result-grid">
-
-      <div class="result-card">
-
-        <div class="result-label">
+<div class="bottom-results-inner">
+<div class="result-grid">
+<div class="result-card">
+<div class="result-label">
           Service Amps
         </div>
-
-        <div
-          id="serviceAmps"
-          class="result-value"
-        >
+<div class="result-value" id="serviceAmps">
           0 A
         </div>
-
-      </div>
-
-      <div class="result-card generator">
-
-        <div class="result-label">
+</div>
+<div class="result-card generator">
+<div class="result-label">
           Generator Amps
         </div>
-
-        <div
-          id="generatorAmps"
-          class="result-value"
-        >
+<div class="result-value" id="generatorAmps">
           0 A
         </div>
-
-      </div>
-
-    </div>
-
-    <div
-      id="saveStatus"
-      class="save-status"
-    ></div>
-
-  </div>
 </div>
-
-<div
-  id="restoreModal"
-  class="modal-backdrop"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="restoreTitle"
->
-
-  <div class="modal-box">
-
-    <h2 id="restoreTitle">
+</div>
+<div class="save-status" id="saveStatus"></div>
+</div>
+</div>
+<div aria-labelledby="restoreTitle" aria-modal="true" class="modal-backdrop" id="restoreModal" role="dialog">
+<div class="modal-box">
+<h2 id="restoreTitle">
       LoadCalcPro
     </h2>
-
-    <p>
-      <strong>A previous calculation was found.</strong>
-    </p>
-
-    <p>
+<p>
+<strong>A previous calculation was found.</strong>
+</p>
+<p>
       Would you like to continue your previous calculation
       or start a new one?
     </p>
-
-    <div class="modal-actions">
-
-      <button
-        type="button"
-        class="secondary"
-        onclick="startNewFromSavedPrompt()"
-      >
+<div class="modal-actions">
+<button class="secondary" onclick="startNewFromSavedPrompt()" type="button">
         Start New Calculation
       </button>
-
-      <button
-        type="button"
-        onclick="continuePreviousCalculation()"
-      >
+<button onclick="continuePreviousCalculation()" type="button">
         Continue Previous Calculation
       </button>
-
-    </div>
-
-  </div>
 </div>
-
-<section
-  id="printReport"
-  class="print-report"
-></section>
-
+</div>
+</div>
+<section class="print-report" id="printReport"></section>
 <script>
 "use strict";
 
@@ -4258,7 +3696,6 @@ if(
 }
 
 </script>
-
 <script>
 (function(){
   function applyInlineInputPlaceholders(root){
@@ -4313,6 +3750,5 @@ if(
   }
 })();
 </script>
-
 </body>
 </html>
