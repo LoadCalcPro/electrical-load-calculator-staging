@@ -800,6 +800,13 @@ body.access-locked .bottom-results{
   display: none !important;
 }
 
+
+/* Permanent repeated-output removal */
+.row-output,
+.summary-strip {
+  display: none !important;
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1030,19 +1037,6 @@ body.access-locked .bottom-results{
 
           </div>
 
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e5"
-                class="output-value"
-              ></div>
-            </div>
-
             <div class="output-box">
               <div class="output-label">
                 Generator Load VA
@@ -1082,19 +1076,6 @@ body.access-locked .bottom-results{
             </div>
 
           </div>
-
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e6"
-                class="output-value"
-              ></div>
-            </div>
 
             <div class="output-box">
               <div class="output-label">
@@ -1136,19 +1117,6 @@ body.access-locked .bottom-results{
 
           </div>
 
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e7"
-                class="output-value"
-              ></div>
-            </div>
-
             <div class="output-box">
               <div class="output-label">
                 Generator Load VA
@@ -1185,19 +1153,6 @@ body.access-locked .bottom-results{
 
         <div id="applianceRows"></div>
 
-        <div class="summary-strip">
-
-          <div class="summary-box">
-            <div class="summary-label">
-              Service Appliance VA
-            </div>
-
-            <div
-              id="e31"
-              class="summary-value"
-            ></div>
-          </div>
-
           <div class="summary-box">
             <div class="summary-label">
               Generator Appliance VA
@@ -1210,19 +1165,6 @@ body.access-locked .bottom-results{
           </div>
 
         </div>
-
-        <div class="summary-strip">
-
-          <div class="summary-box">
-            <div class="summary-label">
-              Service After Demand
-            </div>
-
-            <div
-              id="e35"
-              class="summary-value"
-            ></div>
-          </div>
 
           <div class="summary-box">
             <div class="summary-label">
@@ -1291,19 +1233,6 @@ body.access-locked .bottom-results{
             </div>
 
           </div>
-
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e37"
-                class="output-value"
-              ></div>
-            </div>
 
             <div class="output-box">
               <div class="output-label">
@@ -1385,19 +1314,6 @@ body.access-locked .bottom-results{
 
           </div>
 
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e38"
-                class="output-value"
-              ></div>
-            </div>
-
             <div class="output-box">
               <div class="output-label">
                 Generator Load VA
@@ -1477,19 +1393,6 @@ body.access-locked .bottom-results{
             </div>
 
           </div>
-
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e39"
-                class="output-value"
-              ></div>
-            </div>
 
             <div class="output-box">
               <div class="output-label">
@@ -1571,19 +1474,6 @@ body.access-locked .bottom-results{
 
           </div>
 
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e40"
-                class="output-value"
-              ></div>
-            </div>
-
             <div class="output-box">
               <div class="output-label">
                 Generator Load VA
@@ -1662,19 +1552,6 @@ body.access-locked .bottom-results{
             </div>
 
           </div>
-
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e42"
-                class="output-value"
-              ></div>
-            </div>
 
             <div class="output-box">
               <div class="output-label">
@@ -1763,19 +1640,6 @@ body.access-locked .bottom-results{
             rating, whichever is larger, for each EV charger.
           </p>
 
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e43"
-                class="output-value"
-              ></div>
-            </div>
-
             <div class="output-box">
               <div class="output-label">
                 Generator Load VA
@@ -1817,19 +1681,6 @@ body.access-locked .bottom-results{
           </div>
 
         </div>
-
-        <div class="summary-strip">
-
-          <div class="summary-box">
-            <div class="summary-label">
-              Service HVAC / Continuous VA
-            </div>
-
-            <div
-              id="e44"
-              class="summary-value"
-            ></div>
-          </div>
 
           <div class="summary-box">
             <div class="summary-label">
@@ -2381,120 +2232,6 @@ function createApplianceRows(){
 
     inputs.appendChild(qtyBlock);
     inputs.appendChild(vaBlock);
-
-    const outputRow =
-      document.createElement("div");
-
-    outputRow.className = "row-output";
-
-    const serviceBox =
-      document.createElement("div");
-
-    serviceBox.className = "output-box";
-
-    serviceBox.innerHTML =
-      '<div class="output-label">' +
-      'Service Load VA' +
-      '</div>' +
-      '<div id="e' +
-      item.row +
-      '" class="output-value"></div>';
-
-    const generatorBox =
-      document.createElement("div");
-
-    generatorBox.className = "output-box";
-
-    generatorBox.innerHTML =
-      '<div class="output-label">' +
-      'Generator Load VA' +
-      '</div>' +
-      '<div id="f' +
-      item.row +
-      '" class="output-value"></div>';
-
-    outputRow.appendChild(serviceBox);
-    outputRow.appendChild(generatorBox);
-
-    const managedRow =
-      document.createElement("div");
-
-    managedRow.className = "managed-row";
-
-    const managedLabel =
-      document.createElement("div");
-
-    managedLabel.className =
-      "managed-label";
-
-    managedLabel.textContent =
-      "Managed Load";
-
-    const managedControls =
-      document.createElement("div");
-
-    managedControls.className =
-      "managed-controls";
-
-    const checkButton =
-      document.createElement("button");
-
-    checkButton.id = "m" + item.row;
-    checkButton.className =
-      "managed-check";
-    checkButton.type = "button";
-    checkButton.setAttribute(
-      "aria-label",
-      "Toggle managed load"
-    );
-
-    checkButton.addEventListener(
-      "click",
-      function(){
-        toggleManaged(item.row);
-      }
-    );
-
-    const qtyButton =
-      document.createElement("button");
-
-    qtyButton.id = "mq" + item.row;
-    qtyButton.className =
-      "managed-qty";
-    qtyButton.type = "button";
-    qtyButton.textContent = "0";
-    qtyButton.setAttribute(
-      "aria-label",
-      "Reduce managed quantity"
-    );
-
-    qtyButton.addEventListener(
-      "click",
-      function(event){
-        event.stopPropagation();
-        reduceManagedQuantity(item.row);
-      }
-    );
-
-    managedControls.appendChild(
-      checkButton
-    );
-
-    managedControls.appendChild(
-      qtyButton
-    );
-
-    managedRow.appendChild(
-      managedLabel
-    );
-
-    managedRow.appendChild(
-      managedControls
-    );
-
-    row.appendChild(nameArea);
-    row.appendChild(inputs);
-    row.appendChild(outputRow);
     row.appendChild(managedRow);
 
     container.appendChild(row);
