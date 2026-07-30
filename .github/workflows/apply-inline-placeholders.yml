@@ -1,4 +1,4 @@
-name: Darken managed checkbox borders
+name: Load phone reset and HVAC 40 percent repair
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Make managed checkboxes easier to see
+      - name: Add repair script to phone calculator
         shell: bash
         run: |
           python - <<'PY'
@@ -23,28 +23,20 @@ jobs:
 
           path = Path('generator-phone-staging-v1.0.html')
           text = path.read_text(encoding='utf-8')
+          tag = '<script src="phone-reset-hvac40-fix.js"></script>'
 
-          text = text.replace(
-              'border:1px solid #86efac;\n  border-radius:8px;\n  background:#ffffff;',
-              'border:2px solid #22a447;\n  border-radius:8px;\n  background:#f7fff9;\n  box-shadow:0 0 0 1px rgba(21,128,61,.10);',
-              1,
-          )
-
-          text = text.replace(
-              '.managed-check.checked{\n  border-color:var(--green);\n  background:#dcfce7;\n}',
-              '.managed-check.checked{\n  border-color:#0f6f32;\n  background:#dcfce7;\n  box-shadow:0 0 0 1px rgba(15,111,50,.18);\n}',
-              1,
-          )
+          if tag not in text:
+              text = text.replace('</body>', tag + '\n</body>', 1)
 
           path.write_text(text, encoding='utf-8')
           PY
 
-      - name: Commit checkbox styling
+      - name: Commit calculator repair
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add generator-phone-staging-v1.0.html
           git diff --cached --quiet && exit 0
-          git commit -m "Darken managed checkbox outlines"
+          git commit -m "Fix phone clear function and restore HVAC 40 percent row"
           git push
