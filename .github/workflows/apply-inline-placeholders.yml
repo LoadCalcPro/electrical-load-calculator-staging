@@ -1,4 +1,4 @@
-name: Restore clean calculator and remove repeated outputs
+name: Sync phone calculator logic
 
 on:
   workflow_dispatch:
@@ -14,102 +14,180 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Restore known-good calculator and apply final cleanup
+      - name: Apply verified desktop calculation logic to phone calculator
         shell: bash
         run: |
-          git show 6b10aad3281ce931da95b827a1fd65f0a4ee80e1:generator-phone-staging-v1.0.html > generator-phone-staging-v1.0.html
-
           python - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('generator-phone-staging-v1.0.html')
           text = path.read_text(encoding='utf-8')
 
-          css = '''
-          /* Final clean mobile layout */
-          .row-output,
-          .summary-strip {
-            display:none !important;
-          }
-          .load-row {
-            padding:10px 0;
-          }
-          .load-inputs,
-          .load-inputs.inline-load-row {
-            grid-template-columns:90px minmax(0,1fr) 48px;
-            align-items:center;
-            gap:9px;
-          }
-          .general-load-inputs,
-          .general-load-inputs.inline-load-row {
-            grid-template-columns:minmax(0,1fr);
-          }
-          .input-block input,
-          .field input,
-          .field select {
-            min-height:48px;
-            font-size:18px !important;
-            text-align:left !important;
-          }
-          .managed-row {
-            display:none !important;
-          }
-          '''
+          start_marker = '<!-- PHONE-CALCULATION-SYNC-START -->'
+          end_marker = '<!-- PHONE-CALCULATION-SYNC-END -->'
+          if start_marker in text and end_marker in text:
+              text = re.sub(
+                  re.escape(start_marker) + r'.*?' + re.escape(end_marker),
+                  '',
+                  text,
+                  flags=re.S,
+              )
 
-          if '/* Final clean mobile layout */' not in text:
-              text = text.replace('</style>', css + '\n</style>', 1)
-
-          js = '''
+          override = r'''
+          <!-- PHONE-CALCULATION-SYNC-START -->
           <script>
+          /* Phone calculator calculation sync.
+             Matches the verified desktop optional-method behavior:
+             - first 10,000 VA at 100%, remainder at 40%
+             - HVAC uses A/C at 100% versus heat at 65% for 1-3 units
+             - HVAC uses heat at 40% for 4 or more heating units
+             - generator totals recalculate from the unmanaged quantities
+             - EV uses 7,200 VA or nameplate, whichever is larger */
           (function(){
-            function finishLayout(){
-              document.querySelectorAll('.load-row').forEach(function(row){
-                var inputs = row.querySelector('.load-inputs');
-                var managed = row.querySelector('.managed-controls');
-                if(inputs && managed && !inputs.contains(managed)){
-                  managed.classList.add('inline-managed-controls');
-                  inputs.classList.add('inline-load-row');
-                  inputs.appendChild(managed);
-                }
-              });
+            function remainingQuantity(row){
+              return Math.max(positiveQuantity('q' + row) - managedQuantity(row), 0);
+            }
 
-              var voltage = Array.from(document.querySelectorAll('main .card')).find(function(card){
-                var h = card.querySelector('.card-heading');
-                return h && h.textContent.replace(/\\s+/g,' ').trim() === 'Service Voltage';
-              });
-              var general = Array.from(document.querySelectorAll('main .card')).find(function(card){
-                var h = card.querySelector('.card-heading');
-                return h && h.textContent.replace(/\\s+/g,' ').trim() === 'General Loads';
-              });
-              if(voltage && general && voltage.nextElementSibling !== general){
-                general.parentNode.insertBefore(voltage, general);
+            function remainingRowVA(row){
+              const qty = remainingQuantity(row);
+              let va = numberValue('v' + row);
+              if(row === 43 && qty > 0){
+                va = Math.max(va, 7200);
               }
+              return qty * va;
             }
-            if(document.readyState === 'loading'){
-              document.addEventListener('DOMContentLoaded', finishLayout);
-            }else{
-              finishLayout();
+
+            function heatDemand(totalHeat, heatQty){
+              if(heatQty >= 4) return totalHeat * 0.40;
+              if(heatQty > 0) return totalHeat * 0.65;
+              return 0;
             }
-            new MutationObserver(finishLayout).observe(document.documentElement,{childList:true,subtree:true});
+
+            window.hvacLoadCalculation = function(){
+              const ac1Service = rowVA(37);
+              const heat1Service = rowVA(38);
+              const ac2Service = rowVA(39);
+              const heat2Service = rowVA(40);
+
+              const serviceAC = ac1Service + ac2Service;
+              const serviceHeatQty =
+                positiveQuantity('q38') + positiveQuantity('q40');
+              const serviceHeatTotal = heat1Service + heat2Service;
+              const serviceHeating = heatDemand(serviceHeatTotal, serviceHeatQty);
+              const serviceHVAC = Math.max(serviceAC, serviceHeating);
+
+              const ac1Generator = remainingRowVA(37);
+              const heat1Generator = remainingRowVA(38);
+              const ac2Generator = remainingRowVA(39);
+              const heat2Generator = remainingRowVA(40);
+
+              const generatorAC = ac1Generator + ac2Generator;
+              const generatorHeatQty = remainingQuantity(38) + remainingQuantity(40);
+              const generatorHeatTotal = heat1Generator + heat2Generator;
+              const generatorHeating = heatDemand(generatorHeatTotal, generatorHeatQty);
+              const generatorHVAC = Math.max(generatorAC, generatorHeating);
+
+              const serviceHeat40 = serviceHeatQty >= 4 ? serviceHeating : 0;
+              const generatorHeat40 = generatorHeatQty >= 4 ? generatorHeating : 0;
+              const q41 = document.getElementById('q41out');
+              if(q41){
+                q41.textContent = serviceHeatQty >= 4 ? String(serviceHeatQty) : '';
+              }
+
+              const serviceACControls = serviceAC > serviceHeating;
+              const generatorACControls = generatorAC > generatorHeating;
+
+              setOutput('e37', serviceACControls ? ac1Service : 0);
+              setOutput('e38', !serviceACControls && serviceHeatQty > 0 && serviceHeatQty < 4 ? heat1Service * 0.65 : 0);
+              setOutput('e39', serviceACControls ? ac2Service : 0);
+              setOutput('e40', !serviceACControls && serviceHeatQty > 0 && serviceHeatQty < 4 ? heat2Service * 0.65 : 0);
+              setOutput('e41', !serviceACControls ? serviceHeat40 : 0);
+
+              setOutput('f37', generatorACControls ? ac1Generator : 0);
+              setOutput('f38', !generatorACControls && generatorHeatQty > 0 && generatorHeatQty < 4 ? heat1Generator * 0.65 : 0);
+              setOutput('f39', generatorACControls ? ac2Generator : 0);
+              setOutput('f40', !generatorACControls && generatorHeatQty > 0 && generatorHeatQty < 4 ? heat2Generator * 0.65 : 0);
+              setOutput('f41', !generatorACControls ? generatorHeat40 : 0);
+
+              return {
+                service: serviceHVAC,
+                generator: generatorHVAC,
+                serviceAC: serviceAC,
+                generatorAC: generatorAC,
+                serviceHeating: serviceHeating,
+                generatorHeating: generatorHeating
+              };
+            };
+
+            window.continuousLoadCalculation = function(){
+              const additionalService = rowVA(42);
+              const additionalGenerator = remainingRowVA(42);
+              const evService = rowVA(43);
+              const evGenerator = remainingRowVA(43);
+
+              setOutput('e42', additionalService);
+              setOutput('f42', additionalGenerator);
+              setOutput('e43', evService);
+              setOutput('f43', evGenerator);
+
+              return {
+                service: additionalService + evService,
+                generator: additionalGenerator + evGenerator,
+                additionalService: additionalService,
+                additionalGenerator: additionalGenerator,
+                evService: evService,
+                evGenerator: evGenerator
+              };
+            };
+
+            const previousCalculate = window.calculate;
+            window.calculate = function(){
+              const generalLoad = generalLoadCalculation();
+              const applianceLoads = applianceLoadCalculation();
+              const demandLoads = combinedDemandCalculation(generalLoad, applianceLoads);
+              const hvacLoads = window.hvacLoadCalculation();
+              const continuousLoads = window.continuousLoadCalculation();
+
+              const serviceTotalVA =
+                demandLoads.service + hvacLoads.service + continuousLoads.service;
+              const generatorTotalVA =
+                demandLoads.generator + hvacLoads.generator + continuousLoads.generator;
+
+              setOutput('e44', hvacLoads.service + continuousLoads.service);
+              setOutput('f44', hvacLoads.generator + continuousLoads.generator);
+              setOutput('e45', serviceTotalVA);
+              setOutput('f45', generatorTotalVA);
+
+              const voltage = serviceVoltage();
+              displayAmps('serviceAmps', calculateAmps(serviceTotalVA, voltage));
+              displayAmps('generatorAmps', calculateAmps(generatorTotalVA, voltage));
+
+              if(typeof updateManagedControls === 'function') updateManagedControls();
+              if(typeof saveState === 'function') saveState();
+              if(typeof updatePrintReport === 'function') updatePrintReport();
+            };
+
+            if(typeof calculate === 'function') calculate();
           })();
           </script>
+          <!-- PHONE-CALCULATION-SYNC-END -->
           '''
 
-          if 'function finishLayout()' not in text:
-              text = text.replace('</body>', js + '\n</body>', 1)
+          if '</body>' not in text:
+              raise SystemExit('Calculator file is missing </body>; no change made.')
 
+          text = text.replace('</body>', override + '\n</body>', 1)
           path.write_text(text, encoding='utf-8')
           PY
 
-      - name: Commit restored calculator file
+      - name: Commit phone calculator logic
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add generator-phone-staging-v1.0.html
           git diff --cached --quiet && exit 0
-          git commit -m "Restore clean calculator and remove repeated load boxes"
+          git commit -m "Match phone HVAC and generator totals to desktop calculator"
           git push
