@@ -3773,7 +3773,7 @@ function setAccessMessage(text,type){
     text || "";
 
   message.className =
-    "access-message";
+    "access-msg";
 
   if(type){
     message.classList.add(type);
@@ -3789,7 +3789,7 @@ function getRememberedEmail(){
   try{
     return String(
       localStorage.getItem(
-        REMEMBERED_EMAIL_KEY
+        LOADCALCPRO_REMEMBERED_EMAIL_KEY
       ) || ""
     )
       .trim()
@@ -3811,12 +3811,12 @@ function saveRememberedEmail(email){
       remember.checked
     ){
       localStorage.setItem(
-        REMEMBERED_EMAIL_KEY,
+        LOADCALCPRO_REMEMBERED_EMAIL_KEY,
         email
       );
     }else{
       localStorage.removeItem(
-        REMEMBERED_EMAIL_KEY
+        LOADCALCPRO_REMEMBERED_EMAIL_KEY
       );
     }
   }catch(e){}
@@ -3825,11 +3825,11 @@ function saveRememberedEmail(email){
 function forgetRememberedEmail(){
   try{
     localStorage.removeItem(
-      REMEMBERED_EMAIL_KEY
+      LOADCALCPRO_REMEMBERED_EMAIL_KEY
     );
 
     sessionStorage.removeItem(
-      MEMBER_ACCESS_KEY
+      LOADCALCPRO_ACCESS_KEY
     );
   }catch(e){}
 
@@ -3947,7 +3947,7 @@ function lockCalculator(){
 function saveTemporaryAccess(email){
   try{
     sessionStorage.setItem(
-      MEMBER_ACCESS_KEY,
+      LOADCALCPRO_ACCESS_KEY,
       JSON.stringify({
         email:email,
         grantedAt:
@@ -3961,7 +3961,7 @@ function getTemporaryAccess(){
   try{
     const raw =
       sessionStorage.getItem(
-        MEMBER_ACCESS_KEY
+        LOADCALCPRO_ACCESS_KEY
       );
 
     if(!raw){
@@ -3988,7 +3988,7 @@ async function verifyMembershipEmail(
   email
 ){
   const response = await fetch(
-    ACCESS_ENDPOINT,
+    LOADCALCPRO_ACCESS_ENDPOINT,
     {
       method:"POST",
 
@@ -4078,7 +4078,7 @@ async function verifySignedInAccess(){
 
     const response =
       await fetch(
-        V2_ACCESS_ENDPOINT,
+        LOADCALCPRO_V2_ACCESS_ENDPOINT,
         {
           method:"POST",
 
@@ -4267,6 +4267,11 @@ async function initializeAccessControl(){
     );
   }
 }
+function printCalculation(){
+  calculate();
+  window.print();
+}
+
 function goHome(){
   window.location.href =
     "member-dashboard.html";
@@ -4389,7 +4394,6 @@ document.addEventListener(
 document.addEventListener(
   "DOMContentLoaded",
   async function(){
-    connectAccessButtons();
     connectToolbarButtons();
     connectRestoreButtons();
 
@@ -4408,7 +4412,7 @@ if(
       ){
         try{
           sessionStorage.removeItem(
-            MEMBER_ACCESS_KEY
+            LOADCALCPRO_ACCESS_KEY
           );
         }catch(e){}
 
