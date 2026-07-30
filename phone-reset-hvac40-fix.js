@@ -1,10 +1,30 @@
 (function(){
   'use strict';
 
+  const HEAT40_MANAGED_KEY='loadcalcpro_phone_heat40_managed_v1';
+
   function value(id){
     const el=document.getElementById(id);
     const n=el ? Number(el.value) : 0;
     return Number.isFinite(n) && n>0 ? n : 0;
+  }
+
+  function heat40Checked(){
+    const el=document.getElementById('m41');
+    return !!(el && el.classList.contains('checked'));
+  }
+
+  function saveHeat40Managed(){
+    try{localStorage.setItem(HEAT40_MANAGED_KEY,heat40Checked()?'1':'0');}catch(e){}
+  }
+
+  function restoreHeat40Managed(){
+    let checked=false;
+    try{checked=localStorage.getItem(HEAT40_MANAGED_KEY)==='1';}catch(e){}
+    const el=document.getElementById('m41');
+    if(!el) return;
+    el.classList.toggle('checked',checked);
+    el.textContent=checked?'✓':'';
   }
 
   function addStyles(){
@@ -12,104 +32,71 @@
     const style=document.createElement('style');
     style.id='phoneHvac40Styles';
     style.textContent=`
-      .hvac-40-row{
-        padding:12px 0;
-        border-bottom:1px solid #e5e7eb;
-      }
-      .hvac-40-title{
-        margin-bottom:9px;
-        color:#111827;
-        font-size:18px;
-        line-height:1.25;
-        font-weight:900;
-      }
-      .hvac-40-line{
-        display:grid;
-        grid-template-columns:82px minmax(0,1fr) 48px;
-        align-items:center;
-        gap:8px;
-      }
-      .hvac-40-qty,
-      .hvac-40-value{
-        min-height:46px;
-        display:flex;
-        align-items:center;
-        border:1px solid #cbd5e1;
-        border-radius:8px;
-        padding:9px 10px;
-        background:#eef2f7;
-        color:#111827;
-        font-size:18px;
-        line-height:1.2;
-        text-align:left;
-      }
-      .hvac-40-auto{
-        min-height:46px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border:2px solid #15803d;
-        border-radius:8px;
-        background:#f0fdf4;
-        color:#14532d;
-        font-size:14px;
-        font-weight:900;
-      }
-      .hvac-40-note{
-        margin-top:7px;
-        color:#6b7280;
-        font-size:14px;
-        line-height:1.35;
+      #phoneHeat40Row .heat40-auto-field{
+        width:100%;min-height:46px;border:1px solid #cbd5e1;border-radius:8px;
+        padding:9px 10px;background:#eef2f7;color:#64748b;font-size:18px;
+        font-weight:800;text-align:left;
       }
     `;
     document.head.appendChild(style);
   }
 
   function addRow(){
-    let row=document.getElementById('phoneHeat40Row');
-    if(row) return row;
+    if(document.getElementById('phoneHeat40Row')) return;
 
     const names=Array.from(document.querySelectorAll('.load-name'));
     const heat2=names.find(function(el){
       return el.textContent.replace(/\s+/g,' ').trim()==='Heating Group 2';
     });
     const heat2Row=heat2 ? heat2.closest('.load-row') : null;
-    if(!heat2Row) return null;
+    if(!heat2Row) return;
 
-    row=document.createElement('div');
+    const row=document.createElement('div');
     row.id='phoneHeat40Row';
-    row.className='load-row hvac-40-row';
+    row.className='load-row';
     row.innerHTML=`
-      <div class="hvac-40-title">Heat at 40%</div>
-      <div class="hvac-40-line">
-        <div id="phoneHeat40Qty" class="hvac-40-qty">Quantity</div>
-        <div id="phoneHeat40Value" class="hvac-40-value">Calculated VA</div>
-        <div class="hvac-40-auto">AUTO</div>
+      <div class="load-name">Heat at 40%</div>
+      <div class="load-inputs inline-load-row">
+        <div class="input-block">
+          <label for="q41phone">Quantity</label>
+          <input id="q41phone" class="heat40-auto-field" type="text" readonly placeholder="Qty">
+        </div>
+        <div class="input-block">
+          <label for="v41phone">VA</label>
+          <input id="v41phone" class="heat40-auto-field" type="text" readonly placeholder="Auto">
+        </div>
+        <div class="inline-managed-controls">
+          <button id="m41" class="managed-check" type="button" aria-label="Manage Heat at 40 percent load"></button>
+        </div>
       </div>
-      <div class="hvac-40-note">Used automatically when the total quantity in Heating Group 1 and Heating Group 2 is four or more.</div>
     `;
+
     heat2Row.insertAdjacentElement('afterend',row);
-    return row;
+
+    const check=row.querySelector('#m41');
+    if(check){
+      check.addEventListener('click',function(){
+        check.classList.toggle('checked');
+        check.textContent=check.classList.contains('checked')?'✓':'';
+        saveHeat40Managed();
+        if(typeof calculate==='function') calculate();
+      });
+    }
+
+    restoreHeat40Managed();
   }
 
   function updateRow(){
-    addStyles();
     addRow();
-
-    const qtyOut=document.getElementById('phoneHeat40Qty');
-    const vaOut=document.getElementById('phoneHeat40Value');
+    const qtyOut=document.getElementById('q41phone');
+    const vaOut=document.getElementById('v41phone');
     if(!qtyOut || !vaOut) return;
 
     const qty=value('q38')+value('q40');
     const totalHeat=(value('q38')*value('v38'))+(value('q40')*value('v40'));
 
-    if(qty>=4){
-      qtyOut.textContent=String(qty);
-      vaOut.textContent=Math.round(totalHeat*0.40).toLocaleString()+' VA';
-    }else{
-      qtyOut.textContent='Quantity';
-      vaOut.textContent='Calculated VA';
-    }
+    qtyOut.value=qty>=4 ? String(qty) : '';
+    vaOut.value=qty>=4 ? Math.round(totalHeat*0.40).toLocaleString() : '';
   }
 
   function reset(){
@@ -117,11 +104,11 @@
       localStorage.removeItem('loadcalcpro_generator_optional_nec2023_v1');
       localStorage.removeItem('loadcalcpro_generator_mobile_nec2023_v1');
       localStorage.removeItem('loadcalcpro_generator_mobile_managed_quantities_v1');
+      localStorage.removeItem(HEAT40_MANAGED_KEY);
     }catch(e){}
 
     ['projectName','projectNumber','projectAddress','projectCityState'].forEach(function(id){
-      const el=document.getElementById(id);
-      if(el) el.value='';
+      const el=document.getElementById(id);if(el)el.value='';
     });
 
     document.querySelectorAll('input[id^="q"],input[id^="v"]').forEach(function(el){
@@ -129,19 +116,17 @@
       else if(el.id==='q7') el.value='1';
       else if(el.id==='v5') el.value='3';
       else if(el.id==='v6'||el.id==='v7') el.value='1500';
-      else el.value='';
+      else if(el.id!=='q41phone' && el.id!=='v41phone') el.value='';
     });
 
     const voltage=document.getElementById('q46');
     if(voltage) voltage.value='240';
 
     document.querySelectorAll('.managed-check').forEach(function(el){
-      el.classList.remove('checked');
-      el.textContent='';
+      el.classList.remove('checked');el.textContent='';
     });
     document.querySelectorAll('.managed-qty').forEach(function(el){
-      el.classList.remove('show');
-      el.textContent='0';
+      el.classList.remove('show');el.textContent='0';
     });
 
     if(typeof calculate==='function') calculate();
@@ -155,10 +140,25 @@
   window.startNewFromSavedPrompt=function(){
     if(confirm('Start a new calculation? Your previously saved calculation will be replaced.')){
       const modal=document.getElementById('restoreModal');
-      if(modal) modal.classList.remove('show');
+      if(modal)modal.classList.remove('show');
       reset();
     }
   };
+
+  const originalHvac=window.hvacLoadCalculation;
+  if(typeof originalHvac==='function'){
+    window.hvacLoadCalculation=function(){
+      const result=originalHvac.apply(this,arguments);
+      const heatQty=value('q38')+value('q40');
+      const generatorHeatControls=result && result.generatorHeating>=result.generatorAC;
+
+      if(heatQty>=4 && generatorHeatControls && heat40Checked()){
+        result.generator=0;
+        if(typeof setOutput==='function') setOutput('f41',0);
+      }
+      return result;
+    };
+  }
 
   const oldCalculate=window.calculate;
   if(typeof oldCalculate==='function'){
@@ -169,9 +169,11 @@
   }
 
   addStyles();
+  addRow();
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',updateRow);
+    document.addEventListener('DOMContentLoaded',function(){addRow();restoreHeat40Managed();updateRow();});
   }else{
+    restoreHeat40Managed();
     updateRow();
   }
 })();
