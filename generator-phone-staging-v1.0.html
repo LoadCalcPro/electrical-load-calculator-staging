@@ -228,6 +228,10 @@ button{
   gap:9px;
 }
 
+.general-load-inputs{
+  grid-template-columns:1fr;
+}
+
 .input-block label{
   display:block;
   margin-bottom:4px;
@@ -878,10 +882,10 @@ body.access-locked .bottom-results{
         <div class="load-row">
 
           <div class="load-name">
-            Square Footage
+            Square Footage at 3 VA/ft²
           </div>
 
-          <div class="load-inputs">
+          <div class="load-inputs general-load-inputs">
 
             <div class="input-block">
               <label for="q5">
@@ -894,19 +898,6 @@ body.access-locked .bottom-results{
                 min="0"
                 step="any"
                 inputmode="decimal"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v5">
-                VA Per ft²
-              </label>
-
-              <input
-                id="v5"
-                type="number"
-                value="3"
-                readonly
               >
             </div>
 
@@ -943,10 +934,10 @@ body.access-locked .bottom-results{
         <div class="load-row">
 
           <div class="load-name">
-            Small Appliance Circuits
+            Small Appliance Circuits at 1,500 VA each
           </div>
 
-          <div class="load-inputs">
+          <div class="load-inputs general-load-inputs">
 
             <div class="input-block">
               <label for="q6">
@@ -960,19 +951,6 @@ body.access-locked .bottom-results{
                 step="1"
                 inputmode="numeric"
                 value="2"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v6">
-                VA Each
-              </label>
-
-              <input
-                id="v6"
-                type="number"
-                value="1500"
-                readonly
               >
             </div>
 
@@ -1009,10 +987,10 @@ body.access-locked .bottom-results{
         <div class="load-row">
 
           <div class="load-name">
-            Laundry Circuit
+            Laundry Circuit at 1,500 VA each
           </div>
 
-          <div class="load-inputs">
+          <div class="load-inputs general-load-inputs">
 
             <div class="input-block">
               <label for="q7">
@@ -1026,19 +1004,6 @@ body.access-locked .bottom-results{
                 step="1"
                 inputmode="numeric"
                 value="1"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v7">
-                VA Each
-              </label>
-
-              <input
-                id="v7"
-                type="number"
-                value="1500"
-                readonly
               >
             </div>
 
@@ -1072,31 +1037,7 @@ body.access-locked .bottom-results{
 
         </div>
 
-        <div class="summary-strip">
-
-          <div class="summary-box">
-            <div class="summary-label">
-              Service General VA
-            </div>
-
-            <div
-              id="e8"
-              class="summary-value"
-            ></div>
-          </div>
-
-          <div class="summary-box">
-            <div class="summary-label">
-              Generator General VA
-            </div>
-
-            <div
-              id="f8"
-              class="summary-value"
-            ></div>
-          </div>
-
-        </div>
+        
 
       </div>
     </section>
