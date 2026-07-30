@@ -1,10 +1,10 @@
-name: Remove per-row load VA displays
+name: Remove repeated load output boxes
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - '.github/workflows/apply-inline-placeholders.yml'
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Hide all per-row and section load VA boxes
+      - name: Hide repeated row and section output boxes
         shell: bash
         run: |
           python - <<'PY'
@@ -23,10 +23,10 @@ jobs:
 
           path = Path('generator-phone-staging-v1.0.html')
           text = path.read_text(encoding='utf-8')
-          marker = '/* Remove all repeated Service Load VA and Generator Load VA displays */'
-          css = '''
 
-          /* Remove all repeated Service Load VA and Generator Load VA displays */
+          marker = '/* Remove repeated per-row load output boxes */'
+          css = '''
+          /* Remove repeated per-row load output boxes */
           .row-output,
           .summary-strip {
             display: none !important;
@@ -39,12 +39,12 @@ jobs:
           path.write_text(text, encoding='utf-8')
           PY
 
-      - name: Commit calculator update
+      - name: Commit calculator change
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add generator-phone-staging-v1.0.html
           git diff --cached --quiet && exit 0
-          git commit -m "Remove repeated service and generator VA boxes"
+          git commit -m "Remove repeated service and generator load boxes"
           git push
