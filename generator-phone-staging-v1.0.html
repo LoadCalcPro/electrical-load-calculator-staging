@@ -228,6 +228,54 @@ button{
   gap:9px;
 }
 
+/* Mobile load-entry line: Quantity, VA, and managed check */
+.load-inputs.inline-load-row{
+  grid-template-columns:78px minmax(0,1fr) auto;
+  align-items:end;
+  gap:10px;
+}
+
+.load-inputs.inline-load-row .input-block input{
+  min-height:46px;
+  padding:9px 10px;
+  font-size:18px;
+  line-height:1.2;
+  text-align:left;
+}
+
+.inline-managed-controls{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-height:46px;
+}
+
+.inline-managed-controls .managed-check,
+.inline-managed-controls .managed-qty{
+  height:46px;
+  min-height:46px;
+  margin:0;
+  font-size:20px;
+}
+
+.inline-managed-controls .managed-check{
+  width:46px;
+  min-width:46px;
+}
+
+.inline-managed-controls .managed-qty{
+  min-width:46px;
+  padding:0 8px;
+}
+
+@media(max-width:420px){
+  .load-inputs.inline-load-row{
+    grid-template-columns:70px minmax(0,1fr) auto;
+    gap:8px;
+  }
+}
+
 .general-load-inputs{
   grid-template-columns:1fr;
 }
@@ -3671,9 +3719,31 @@ function updatePrintRows(data){
 
 }
 
+function organizeInlineLoadControls(){
+  const rows = document.querySelectorAll(".load-row");
+
+  for(const row of rows){
+    const inputs = row.querySelector(".load-inputs");
+    const managedRow = row.querySelector(".managed-row");
+    const controls = managedRow
+      ? managedRow.querySelector(".managed-controls")
+      : null;
+
+    if(!inputs || !managedRow || !controls){
+      continue;
+    }
+
+    inputs.classList.add("inline-load-row");
+    controls.classList.add("inline-managed-controls");
+    inputs.appendChild(controls);
+    managedRow.remove();
+  }
+}
+
 function initializeCalculator(){
 
   createApplianceRows();
+  organizeInlineLoadControls();
 
   connectStaticManagedControls();
 
