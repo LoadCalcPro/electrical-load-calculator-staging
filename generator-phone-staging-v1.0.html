@@ -4794,21 +4794,27 @@ if(
 <style>
   .hvac-40-row{display:none;}
   .hvac-40-row.show{display:block;}
-  .hvac-40-qty-button{
-    width:48px;
-    min-width:48px;
-    height:46px;
-    border:2px solid #0f6f32;
-    border-radius:8px;
-    background:#dcfce7;
-    color:#14532d;
-    font-size:20px;
-    font-weight:900;
-    cursor:pointer;
+  .hvac-40-controls{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:6px;
+    min-height:46px;
   }
-  .hvac-40-qty-button:disabled{
-    cursor:not-allowed;
-    opacity:.55;
+  .hvac-40-controls .managed-check,
+  .hvac-40-controls .managed-qty{
+    height:46px;
+    min-height:46px;
+    margin:0;
+    font-size:20px;
+  }
+  .hvac-40-controls .managed-check{
+    width:46px;
+    min-width:46px;
+  }
+  .hvac-40-controls .managed-qty{
+    min-width:46px;
+    padding:0 8px;
   }
   .hvac-control-disabled{
     opacity:.45;
@@ -4864,8 +4870,9 @@ if(
         <div class="input-block">
           <input id="v41out" type="text" readonly aria-label="Calculated heating VA at 40 percent">
         </div>
-        <div class="inline-managed-controls">
-          <button id="hvac40QtyButton" class="hvac-40-qty-button" type="button" aria-label="Heating units included in generator at 40 percent">0</button>
+        <div class="hvac-40-controls">
+          <button id="hvac40Check" class="managed-check" type="button" aria-label="Manage heating units at 40 percent"></button>
+          <button id="hvac40QtyButton" class="managed-qty" type="button" aria-label="Reduce managed heating quantity at 40 percent">0</button>
         </div>
       </div>
       <div class="row-output">
@@ -4875,14 +4882,23 @@ if(
 
     sourceRow.parentNode.insertBefore(row, sourceRow.nextSibling);
 
+    document.getElementById('hvac40Check').addEventListener('click', function(){
+      const total = totalHeatQty();
+      if(total < 1) return;
+      const included = hvac40IncludedQty === null ? total : Math.min(Math.max(hvac40IncludedQty,0),total);
+      hvac40IncludedQty = included < total ? total : 0;
+      saveStoredQty();
+      calculate();
+    });
+
     document.getElementById('hvac40QtyButton').addEventListener('click', function(){
       const total = totalHeatQty();
       if(total < 1) return;
-      if(hvac40IncludedQty === null || hvac40IncludedQty > total){
-        hvac40IncludedQty = total;
-      }
-      hvac40IncludedQty -= 1;
-      if(hvac40IncludedQty < 0) hvac40IncludedQty = total;
+      const included = hvac40IncludedQty === null ? total : Math.min(Math.max(hvac40IncludedQty,0),total);
+      let managed = total - included;
+      managed -= 1;
+      if(managed < 0) managed = total;
+      hvac40IncludedQty = total - managed;
       saveStoredQty();
       calculate();
     });
@@ -4944,12 +4960,22 @@ if(
 
       const qtyDisplay = document.getElementById('q41out');
       const vaDisplay = document.getElementById('v41out');
+      const checkButton = document.getElementById('hvac40Check');
       const qtyButton = document.getElementById('hvac40QtyButton');
+      const managed40Qty = Math.max(serviceHeatQty - hvac40IncludedQty,0);
       if(qtyDisplay) qtyDisplay.value = String(serviceHeatQty);
       if(vaDisplay) vaDisplay.value = Math.round(serviceHeating).toLocaleString('en-US') + ' VA';
+      if(checkButton){
+        checkButton.classList.toggle('checked', managed40Qty > 0);
+        checkButton.textContent = managed40Qty > 0 ? '✓' : '';
+        checkButton.title = managed40Qty > 0
+          ? 'Tap to restore all heating units to the generator'
+          : 'Tap to manage all heating units at 40%';
+      }
       if(qtyButton){
-        qtyButton.textContent = String(hvac40IncludedQty);
-        qtyButton.title = 'Tap to reduce the heating units included at 40%';
+        qtyButton.classList.toggle('show', managed40Qty > 0);
+        qtyButton.textContent = String(managed40Qty);
+        qtyButton.title = 'Tap to reduce the managed heating quantity at 40%';
       }
 
       setOutput('e37',0); setOutput('e38',0); setOutput('e39',0); setOutput('e40',0);
