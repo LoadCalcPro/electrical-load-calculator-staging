@@ -817,6 +817,25 @@ body.access-locked .bottom-results{
   display:none !important;
 }
 
+
+/* Version 2.2 — consistent 18px descriptive text */
+.field label,
+.input-block label,
+.output-label,
+.summary-box .summary-label,
+.result-label,
+.managed-label,
+.section-note{
+  font-size:18px !important;
+  line-height:1.25;
+  text-transform:none;
+}
+
+/* Keep hidden mobile input labels hidden while preserving 18px sizing if shown later */
+.input-block label{
+  display:none !important;
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
