@@ -8,7 +8,7 @@
 >
 <meta name="robots" content="noindex,nofollow">
 
-<title>Generator Optional Method Calculator | Mobile Staging</title>
+<title>V2.6 - Generator Optional Method Calculator | Mobile Staging</title>
 
 <style>
 :root{
@@ -1104,7 +1104,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q6">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1157,7 +1157,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q7">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1300,7 +1300,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q37">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1314,7 +1314,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v37">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1393,7 +1393,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q38">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1407,7 +1407,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v38">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1486,7 +1486,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q39">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1500,7 +1500,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v39">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1579,7 +1579,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q40">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1593,7 +1593,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v40">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1661,6 +1661,45 @@ body.access-locked .bottom-results{
           </div>
 
         </div>
+
+        <div class="load-row" id="heat40Row">
+
+          <div class="load-name">
+            Heat at 40%
+          </div>
+
+          <div class="load-inputs inline-load-row">
+
+            <div class="input-block">
+              <label>QTY</label>
+              <input id="q41out" type="text" readonly placeholder="QTY">
+            </div>
+
+            <div class="input-block">
+              <label>VA</label>
+              <input id="v41out" type="text" readonly placeholder="VA">
+            </div>
+
+            <div class="inline-managed-controls">
+              <button id="m41" class="managed-check" type="button" aria-label="Manage heat at 40 percent"></button>
+              <button id="mq41" class="managed-qty" type="button" aria-label="Reduce managed heating quantity">0</button>
+            </div>
+
+          </div>
+
+          <div class="row-output">
+            <div class="output-box">
+              <div class="output-label">Service Load VA</div>
+              <div id="e41" class="output-value"></div>
+            </div>
+            <div class="output-box">
+              <div class="output-label">Generator Load VA</div>
+              <div id="f41" class="output-value"></div>
+            </div>
+          </div>
+
+        </div>
+
         <div class="load-row">
 
           <div class="load-name">
@@ -1671,7 +1710,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q42">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1685,7 +1724,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v42">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1764,7 +1803,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q43">
-                Quantity
+                QTY
               </label>
 
               <input
@@ -1773,7 +1812,7 @@ body.access-locked .bottom-results{
                 min="0"
                 step="1"
                 inputmode="numeric"
-                placeholder="Qty"
+                placeholder="QTY"
               >
             </div>
 
@@ -2161,10 +2200,17 @@ function saveManagedQuantities(){
 }
 
 function totalQuantity(row){
+  if(row === 41){
+    return positiveQuantity("q38") + positiveQuantity("q40");
+  }
   return positiveQuantity("q" + row);
 }
 
 function managedQuantity(row){
+  if(row === 41){
+    return managedQuantity(38) + managedQuantity(40);
+  }
+
   const total = totalQuantity(row);
 
   let selected =
@@ -2222,6 +2268,18 @@ function updateManagedControl(row){
 }
 
 function toggleManaged(row){
+  if(row === 41){
+    const selected = managedQuantity(41);
+    managedQuantities[38] = selected > 0 ? 0 : totalQuantity(38);
+    managedQuantities[40] = selected > 0 ? 0 : totalQuantity(40);
+    saveManagedQuantities();
+    updateManagedControl(38);
+    updateManagedControl(40);
+    updateManagedControl(41);
+    calculate();
+    return;
+  }
+
   const total = totalQuantity(row);
   const selected = managedQuantity(row);
 
@@ -2230,10 +2288,28 @@ function toggleManaged(row){
 
   saveManagedQuantities();
   updateManagedControl(row);
+  if(row === 38 || row === 40) updateManagedControl(41);
   calculate();
 }
 
 function reduceManagedQuantity(row){
+  if(row === 41){
+    if(managedQuantity(40) > 0){
+      managedQuantities[40] = managedQuantity(40) - 1;
+    }else if(managedQuantity(38) > 0){
+      managedQuantities[38] = managedQuantity(38) - 1;
+    }else{
+      managedQuantities[38] = totalQuantity(38);
+      managedQuantities[40] = totalQuantity(40);
+    }
+    saveManagedQuantities();
+    updateManagedControl(38);
+    updateManagedControl(40);
+    updateManagedControl(41);
+    calculate();
+    return;
+  }
+
   const total = totalQuantity(row);
 
   if(total < 1){
@@ -2251,6 +2327,7 @@ function reduceManagedQuantity(row){
 
   saveManagedQuantities();
   updateManagedControl(row);
+  if(row === 38 || row === 40) updateManagedControl(41);
   calculate();
 }
 
@@ -2342,7 +2419,7 @@ function createApplianceRows(){
       "q" + item.row
     );
 
-    qtyLabel.textContent = "Quantity";
+    qtyLabel.textContent = "QTY";
 
     const qtyInput =
       document.createElement("input");
@@ -2392,7 +2469,7 @@ function createApplianceRows(){
       "v" + item.row
     );
 
-    vaLabel.textContent = "VA Each";
+    vaLabel.textContent = "VA";
 
     const vaInput =
       document.createElement("input");
@@ -4704,10 +4781,19 @@ if(
 
     const serviceHeat40 = serviceHeatQty >= 4 ? serviceHeating : 0;
     const generatorHeat40 = generatorHeatQty >= 4 ? generatorHeating : 0;
-    const q41 = document.getElementById('q41out');
-    if(q41){
-      q41.textContent = serviceHeatQty >= 4 ? String(serviceHeatQty) : '';
+    const heat40Row = document.getElementById('heat40Row');
+    if(heat40Row){
+      heat40Row.style.display = serviceHeatQty >= 4 ? '' : 'none';
     }
+    const q41 = document.getElementById('q41out');
+    const v41 = document.getElementById('v41out');
+    if(q41){
+      q41.value = serviceHeatQty >= 4 ? String(serviceHeatQty) : '';
+    }
+    if(v41){
+      v41.value = serviceHeatQty >= 4 ? 'Auto' : '';
+    }
+    updateManagedControl(41);
 
     const serviceACControls = serviceAC > serviceHeating;
     const generatorACControls = generatorAC > generatorHeating;
@@ -4733,6 +4819,26 @@ if(
       generatorHeating: generatorHeating
     };
   };
+
+  function wireHeat40ManagedControl(){
+    const check = document.getElementById("m41");
+    const qty = document.getElementById("mq41");
+    if(check && !check.dataset.wired){
+      check.dataset.wired = "1";
+      check.addEventListener("click", function(){ toggleManaged(41); });
+    }
+    if(qty && !qty.dataset.wired){
+      qty.dataset.wired = "1";
+      qty.addEventListener("click", function(){ reduceManagedQuantity(41); });
+    }
+    updateManagedControl(41);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", wireHeat40ManagedControl);
+  }else{
+    wireHeat40ManagedControl();
+  }
 
   window.continuousLoadCalculation = function(){
     const additionalService = rowVA(42);
