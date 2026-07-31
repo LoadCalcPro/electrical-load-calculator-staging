@@ -4858,50 +4858,19 @@ if(
     const sourceRow = heatingGroup2 ? heatingGroup2.closest('.load-row') : null;
     if(!sourceRow || !sourceRow.parentNode) return;
 
+    /* Keep the calculation IDs available without adding a second visible
+       Heating-at-40% row. The existing calculator row remains unchanged. */
     const row = document.createElement('div');
     row.id = 'hvac40Row';
-    row.className = 'load-row hvac-40-row';
+    row.hidden = true;
+    row.setAttribute('aria-hidden','true');
     row.innerHTML = `
-      <div class="load-name">Heating at 40%</div>
-      <div class="load-inputs inline-load-row">
-        <div class="input-block">
-          <input id="q41out" type="text" readonly aria-label="Original heating units qualifying for 40 percent">
-        </div>
-        <div class="input-block">
-          <input id="v41out" type="text" readonly aria-label="Calculated heating VA at 40 percent">
-        </div>
-        <div class="hvac-40-controls">
-          <button id="hvac40Check" class="managed-check" type="button" aria-label="Manage heating units at 40 percent"></button>
-          <button id="hvac40QtyButton" class="managed-qty" type="button" aria-label="Reduce managed heating quantity at 40 percent">0</button>
-        </div>
-      </div>
-      <div class="row-output">
-        <div class="output-box"><div class="output-label">Service Load VA</div><div id="e41" class="output-value"></div></div>
-        <div class="output-box"><div class="output-label">Generator Load VA</div><div id="f41" class="output-value"></div></div>
-      </div>`;
+      <input id="q41out" type="hidden">
+      <input id="v41out" type="hidden">
+      <div id="e41"></div>
+      <div id="f41"></div>`;
 
     sourceRow.parentNode.insertBefore(row, sourceRow.nextSibling);
-
-    document.getElementById('hvac40Check').addEventListener('click', function(){
-      const total = totalHeatQty();
-      if(total < 1) return;
-      const included = hvac40IncludedQty === null ? total : Math.min(Math.max(hvac40IncludedQty,0),total);
-      hvac40IncludedQty = included < total ? total : 0;
-      saveStoredQty();
-      calculate();
-    });
-
-    document.getElementById('hvac40QtyButton').addEventListener('click', function(){
-      const total = totalHeatQty();
-      if(total < 1) return;
-      const included = hvac40IncludedQty === null ? total : Math.min(Math.max(hvac40IncludedQty,0),total);
-      let managed = total - included;
-      managed -= 1;
-      if(managed < 0) managed = total;
-      hvac40IncludedQty = total - managed;
-      saveStoredQty();
-      calculate();
-    });
   }
 
   function setStandardHVACControlsDisabled(disabled){
@@ -4944,7 +4913,7 @@ if(
     const serviceHVAC = Math.max(serviceAC, serviceHeating);
 
     const row40 = document.getElementById('hvac40Row');
-    if(row40) row40.classList.toggle('show', fortyPercentMode);
+    /* The duplicate 40% check-mark row was removed; keep placeholders hidden. */
     setStandardHVACControlsDisabled(fortyPercentMode);
 
     let generatorAC = 0;
