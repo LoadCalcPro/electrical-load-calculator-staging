@@ -8,7 +8,7 @@
 >
 <meta name="robots" content="noindex,nofollow">
 
-<title>V2.3 - Generator Optional Method Calculator | Mobile Staging</title>
+<title>Generator Optional Method Calculator | Mobile Staging</title>
 
 <style>
 :root{
@@ -924,7 +924,7 @@ body.access-locked .bottom-results{
         </h1>
 
         <div class="app-version">
-          NEC 2023 | Mobile Staging Version 2.3
+          NEC 2023 | Mobile Staging Version 1.0
         </div>
       </div>
 
@@ -4688,91 +4688,41 @@ if(
     const serviceHeatQty =
       positiveQuantity('q38') + positiveQuantity('q40');
     const serviceHeatTotal = heat1Service + heat2Service;
-
-    /*
-      The service-side quantity determines the heating demand rate.
-      Load shedding never changes that service qualification:
-      - 1–3 service heating units: 65%
-      - 4 or more service heating units: 40%
-      Generator shedding removes only the shed units at that same rate.
-    */
-    const serviceHeatRate =
-      serviceHeatQty >= 4 ? 0.40 :
-      serviceHeatQty > 0 ? 0.65 : 0;
-
-    const serviceHeating =
-      serviceHeatTotal * serviceHeatRate;
-    const serviceHVAC =
-      Math.max(serviceAC, serviceHeating);
+    const serviceHeating = heatDemand(serviceHeatTotal, serviceHeatQty);
+    const serviceHVAC = Math.max(serviceAC, serviceHeating);
 
     const ac1Generator = remainingRowVA(37);
     const heat1Generator = remainingRowVA(38);
     const ac2Generator = remainingRowVA(39);
     const heat2Generator = remainingRowVA(40);
 
-    const generatorAC =
-      ac1Generator + ac2Generator;
-    const generatorHeatTotal =
-      heat1Generator + heat2Generator;
+    const generatorAC = ac1Generator + ac2Generator;
+    const generatorHeatQty = remainingQuantity(38) + remainingQuantity(40);
+    const generatorHeatTotal = heat1Generator + heat2Generator;
+    const generatorHeating = heatDemand(generatorHeatTotal, generatorHeatQty);
+    const generatorHVAC = Math.max(generatorAC, generatorHeating);
 
-    // Keep the service-selected heating rate after load shedding.
-    const generatorHeating =
-      generatorHeatTotal * serviceHeatRate;
-    const generatorHVAC =
-      Math.max(generatorAC, generatorHeating);
+    const serviceHeat40 = serviceHeatQty >= 4 ? serviceHeating : 0;
+    const generatorHeat40 = generatorHeatQty >= 4 ? generatorHeating : 0;
+    const q41 = document.getElementById('q41out');
+    if(q41){
+      q41.textContent = serviceHeatQty >= 4 ? String(serviceHeatQty) : '';
+    }
 
-    const serviceUses40 = serviceHeatRate === 0.40;
-    const serviceUses65 = serviceHeatRate === 0.65;
     const serviceACControls = serviceAC > serviceHeating;
     const generatorACControls = generatorAC > generatorHeating;
 
-    const q41 = document.getElementById('q41out');
-    if(q41){
-      q41.textContent =
-        serviceUses40 ? String(serviceHeatQty) : '';
-    }
-
     setOutput('e37', serviceACControls ? ac1Service : 0);
-    setOutput(
-      'e38',
-      !serviceACControls && serviceUses65
-        ? heat1Service * 0.65
-        : 0
-    );
+    setOutput('e38', !serviceACControls && serviceHeatQty > 0 && serviceHeatQty < 4 ? heat1Service * 0.65 : 0);
     setOutput('e39', serviceACControls ? ac2Service : 0);
-    setOutput(
-      'e40',
-      !serviceACControls && serviceUses65
-        ? heat2Service * 0.65
-        : 0
-    );
-    setOutput(
-      'e41',
-      !serviceACControls && serviceUses40
-        ? serviceHeating
-        : 0
-    );
+    setOutput('e40', !serviceACControls && serviceHeatQty > 0 && serviceHeatQty < 4 ? heat2Service * 0.65 : 0);
+    setOutput('e41', !serviceACControls ? serviceHeat40 : 0);
 
     setOutput('f37', generatorACControls ? ac1Generator : 0);
-    setOutput(
-      'f38',
-      !generatorACControls && serviceUses65
-        ? heat1Generator * 0.65
-        : 0
-    );
+    setOutput('f38', !generatorACControls && generatorHeatQty > 0 && generatorHeatQty < 4 ? heat1Generator * 0.65 : 0);
     setOutput('f39', generatorACControls ? ac2Generator : 0);
-    setOutput(
-      'f40',
-      !generatorACControls && serviceUses65
-        ? heat2Generator * 0.65
-        : 0
-    );
-    setOutput(
-      'f41',
-      !generatorACControls && serviceUses40
-        ? generatorHeating
-        : 0
-    );
+    setOutput('f40', !generatorACControls && generatorHeatQty > 0 && generatorHeatQty < 4 ? heat2Generator * 0.65 : 0);
+    setOutput('f41', !generatorACControls ? generatorHeat40 : 0);
 
     return {
       service: serviceHVAC,
@@ -4780,8 +4730,7 @@ if(
       serviceAC: serviceAC,
       generatorAC: generatorAC,
       serviceHeating: serviceHeating,
-      generatorHeating: generatorHeating,
-      serviceHeatRate: serviceHeatRate
+      generatorHeating: generatorHeating
     };
   };
 
@@ -4839,5 +4788,220 @@ if(
 <!-- PHONE-CALCULATION-SYNC-END -->
 
 <script src="phone-reset-hvac40-fix.js"></script>
+
+
+<!-- HVAC-40-PHONE-FIX-START -->
+<style>
+  .hvac-40-row{display:none;}
+  .hvac-40-row.show{display:block;}
+  .hvac-40-qty-button{
+    width:48px;
+    min-width:48px;
+    height:46px;
+    border:2px solid #0f6f32;
+    border-radius:8px;
+    background:#dcfce7;
+    color:#14532d;
+    font-size:20px;
+    font-weight:900;
+    cursor:pointer;
+  }
+  .hvac-40-qty-button:disabled{
+    cursor:not-allowed;
+    opacity:.55;
+  }
+  .hvac-control-disabled{
+    opacity:.45;
+    pointer-events:none;
+  }
+</style>
+<script>
+(function(){
+  'use strict';
+
+  const HVAC_40_QTY_KEY = 'loadcalcpro_generator_mobile_hvac40_included_qty_v1';
+  let hvac40IncludedQty = null;
+
+  function readStoredQty(){
+    try{
+      const value = Number(localStorage.getItem(HVAC_40_QTY_KEY));
+      return Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function saveStoredQty(){
+    try{
+      localStorage.setItem(HVAC_40_QTY_KEY, String(hvac40IncludedQty));
+    }catch(e){}
+  }
+
+  function totalHeatQty(){
+    return positiveQuantity('q38') + positiveQuantity('q40');
+  }
+
+  function totalHeatVA(){
+    return rowVA(38) + rowVA(40);
+  }
+
+  function ensure40PercentRow(){
+    if(document.getElementById('hvac40Row')) return;
+
+    const heatingGroup2 = document.getElementById('q40');
+    const sourceRow = heatingGroup2 ? heatingGroup2.closest('.load-row') : null;
+    if(!sourceRow || !sourceRow.parentNode) return;
+
+    const row = document.createElement('div');
+    row.id = 'hvac40Row';
+    row.className = 'load-row hvac-40-row';
+    row.innerHTML = `
+      <div class="load-name">Heating at 40%</div>
+      <div class="load-inputs inline-load-row">
+        <div class="input-block">
+          <input id="q41out" type="text" readonly aria-label="Original heating units qualifying for 40 percent">
+        </div>
+        <div class="input-block">
+          <input id="v41out" type="text" readonly aria-label="Calculated heating VA at 40 percent">
+        </div>
+        <div class="inline-managed-controls">
+          <button id="hvac40QtyButton" class="hvac-40-qty-button" type="button" aria-label="Heating units included in generator at 40 percent">0</button>
+        </div>
+      </div>
+      <div class="row-output">
+        <div class="output-box"><div class="output-label">Service Load VA</div><div id="e41" class="output-value"></div></div>
+        <div class="output-box"><div class="output-label">Generator Load VA</div><div id="f41" class="output-value"></div></div>
+      </div>`;
+
+    sourceRow.parentNode.insertBefore(row, sourceRow.nextSibling);
+
+    document.getElementById('hvac40QtyButton').addEventListener('click', function(){
+      const total = totalHeatQty();
+      if(total < 1) return;
+      if(hvac40IncludedQty === null || hvac40IncludedQty > total){
+        hvac40IncludedQty = total;
+      }
+      hvac40IncludedQty -= 1;
+      if(hvac40IncludedQty < 0) hvac40IncludedQty = total;
+      saveStoredQty();
+      calculate();
+    });
+  }
+
+  function setStandardHVACControlsDisabled(disabled){
+    [37,38,39,40].forEach(function(row){
+      const check = document.getElementById('m' + row);
+      const qty = document.getElementById('mq' + row);
+      [check,qty].forEach(function(control){
+        if(control){
+          control.disabled = disabled;
+          control.classList.toggle('hvac-control-disabled', disabled);
+        }
+      });
+    });
+  }
+
+  function remainingQty(row){
+    return Math.max(positiveQuantity('q' + row) - managedQuantity(row), 0);
+  }
+
+  function remainingVA(row){
+    return remainingQty(row) * numberValue('v' + row);
+  }
+
+  window.hvacLoadCalculation = function(){
+    ensure40PercentRow();
+
+    const ac1Service = rowVA(37);
+    const heat1Service = rowVA(38);
+    const ac2Service = rowVA(39);
+    const heat2Service = rowVA(40);
+
+    const serviceAC = ac1Service + ac2Service;
+    const serviceHeatQty = totalHeatQty();
+    const serviceHeatTotal = heat1Service + heat2Service;
+    const serviceHeating = serviceHeatQty >= 4
+      ? serviceHeatTotal * 0.40
+      : (serviceHeatQty > 0 ? serviceHeatTotal * 0.65 : 0);
+
+    const fortyPercentMode = serviceHeatQty >= 4 && serviceHeating >= serviceAC;
+    const serviceHVAC = Math.max(serviceAC, serviceHeating);
+
+    const row40 = document.getElementById('hvac40Row');
+    if(row40) row40.classList.toggle('show', fortyPercentMode);
+    setStandardHVACControlsDisabled(fortyPercentMode);
+
+    let generatorAC = 0;
+    let generatorHeating = 0;
+
+    if(fortyPercentMode){
+      const stored = hvac40IncludedQty === null ? readStoredQty() : hvac40IncludedQty;
+      hvac40IncludedQty = stored === null ? serviceHeatQty : Math.min(Math.max(stored,0),serviceHeatQty);
+      saveStoredQty();
+
+      const averageVAEach = serviceHeatQty > 0 ? serviceHeatTotal / serviceHeatQty : 0;
+      generatorHeating = hvac40IncludedQty * averageVAEach * 0.40;
+
+      const qtyDisplay = document.getElementById('q41out');
+      const vaDisplay = document.getElementById('v41out');
+      const qtyButton = document.getElementById('hvac40QtyButton');
+      if(qtyDisplay) qtyDisplay.value = String(serviceHeatQty);
+      if(vaDisplay) vaDisplay.value = Math.round(serviceHeating).toLocaleString('en-US') + ' VA';
+      if(qtyButton){
+        qtyButton.textContent = String(hvac40IncludedQty);
+        qtyButton.title = 'Tap to reduce the heating units included at 40%';
+      }
+
+      setOutput('e37',0); setOutput('e38',0); setOutput('e39',0); setOutput('e40',0);
+      setOutput('f37',0); setOutput('f38',0); setOutput('f39',0); setOutput('f40',0);
+      setOutput('e41',serviceHeating);
+      setOutput('f41',generatorHeating);
+    }else{
+      generatorAC = remainingVA(37) + remainingVA(39);
+      const generatorHeatQty = remainingQty(38) + remainingQty(40);
+      const generatorHeatTotal = remainingVA(38) + remainingVA(40);
+      generatorHeating = generatorHeatQty > 0 ? generatorHeatTotal * 0.65 : 0;
+
+      const generatorACControls = generatorAC >= generatorHeating;
+      const serviceACControls = serviceAC >= serviceHeating;
+
+      setOutput('e37',serviceACControls ? ac1Service : 0);
+      setOutput('e38',!serviceACControls ? heat1Service * 0.65 : 0);
+      setOutput('e39',serviceACControls ? ac2Service : 0);
+      setOutput('e40',!serviceACControls ? heat2Service * 0.65 : 0);
+      setOutput('e41',0);
+
+      setOutput('f37',generatorACControls ? remainingVA(37) : 0);
+      setOutput('f38',!generatorACControls ? remainingVA(38) * 0.65 : 0);
+      setOutput('f39',generatorACControls ? remainingVA(39) : 0);
+      setOutput('f40',!generatorACControls ? remainingVA(40) * 0.65 : 0);
+      setOutput('f41',0);
+    }
+
+    return {
+      service: serviceHVAC,
+      generator: fortyPercentMode ? generatorHeating : Math.max(generatorAC,generatorHeating),
+      serviceAC: serviceAC,
+      generatorAC: generatorAC,
+      serviceHeating: serviceHeating,
+      generatorHeating: generatorHeating,
+      fortyPercentMode: fortyPercentMode
+    };
+  };
+
+  function initializeHVAC40Fix(){
+    ensure40PercentRow();
+    calculate();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initializeHVAC40Fix);
+  }else{
+    initializeHVAC40Fix();
+  }
+})();
+</script>
+<!-- HVAC-40-PHONE-FIX-END -->
+
 </body>
 </html>
