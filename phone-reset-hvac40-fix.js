@@ -1,30 +1,26 @@
 (function(){
   'use strict';
 
-  const HEAT40_MANAGED_KEY='loadcalcpro_phone_heat40_managed_v1';
-
   function value(id){
     const el=document.getElementById(id);
     const n=el ? Number(el.value) : 0;
     return Number.isFinite(n) && n>0 ? n : 0;
   }
 
-  function heat40Checked(){
-    const el=document.getElementById('m41');
-    return !!(el && el.classList.contains('checked'));
+  function totalHeatQty(){
+    return Math.floor(value('q38'))+Math.floor(value('q40'));
   }
 
-  function saveHeat40Managed(){
-    try{localStorage.setItem(HEAT40_MANAGED_KEY,heat40Checked()?'1':'0');}catch(e){}
+  function totalHeatVA(){
+    return (value('q38')*value('v38'))+(value('q40')*value('v40'));
   }
 
-  function restoreHeat40Managed(){
-    let checked=false;
-    try{checked=localStorage.getItem(HEAT40_MANAGED_KEY)==='1';}catch(e){}
-    const el=document.getElementById('m41');
-    if(!el) return;
-    el.classList.toggle('checked',checked);
-    el.textContent=checked?'✓':'';
+  function remainingQty(row){
+    return Math.max(Math.floor(value('q'+row))-managedQuantity(row),0);
+  }
+
+  function remainingVA(row){
+    return remainingQty(row)*value('v'+row);
   }
 
   function addStyles(){
@@ -32,71 +28,184 @@
     const style=document.createElement('style');
     style.id='phoneHvac40Styles';
     style.textContent=`
+      #phoneHeat40Row{display:none;}
+      #phoneHeat40Row.show{display:block;}
       #phoneHeat40Row .heat40-auto-field{
         width:100%;min-height:46px;border:1px solid #cbd5e1;border-radius:8px;
         padding:9px 10px;background:#eef2f7;color:#64748b;font-size:18px;
         font-weight:800;text-align:left;
       }
+      .hvac-control-disabled{opacity:.45;pointer-events:none;}
     `;
     document.head.appendChild(style);
   }
 
   function addRow(){
-    if(document.getElementById('phoneHeat40Row')) return;
+    const oldHidden=document.getElementById('hvac40Row');
+    if(oldHidden) oldHidden.remove();
 
-    const names=Array.from(document.querySelectorAll('.load-name'));
-    const heat2=names.find(function(el){
-      return el.textContent.replace(/\s+/g,' ').trim()==='Heating Group 2';
-    });
-    const heat2Row=heat2 ? heat2.closest('.load-row') : null;
-    if(!heat2Row) return;
+    let row=document.getElementById('phoneHeat40Row');
+    if(row) return row;
 
-    const row=document.createElement('div');
+    const q40=document.getElementById('q40');
+    const heat2Row=q40 ? q40.closest('.load-row') : null;
+    if(!heat2Row) return null;
+
+    row=document.createElement('div');
     row.id='phoneHeat40Row';
     row.className='load-row';
     row.innerHTML=`
       <div class="load-name">Heat at 40%</div>
       <div class="load-inputs inline-load-row">
         <div class="input-block">
-          <label for="q41phone">Quantity</label>
-          <input id="q41phone" class="heat40-auto-field" type="text" readonly placeholder="Qty">
+          <input id="q41" class="heat40-auto-field" type="number" readonly placeholder="Qty" aria-label="Heating units at 40 percent">
         </div>
         <div class="input-block">
-          <label for="v41phone">VA</label>
-          <input id="v41phone" class="heat40-auto-field" type="text" readonly placeholder="Auto">
+          <input id="v41" class="heat40-auto-field" type="text" readonly placeholder="Auto" aria-label="Calculated heating load at 40 percent">
         </div>
         <div class="inline-managed-controls">
           <button id="m41" class="managed-check" type="button" aria-label="Manage Heat at 40 percent load"></button>
+          <button id="mq41" class="managed-qty" type="button" aria-label="Reduce managed heating quantity">0</button>
         </div>
       </div>
-    `;
+      <div id="e41" hidden></div>
+      <div id="f41" hidden></div>`;
 
     heat2Row.insertAdjacentElement('afterend',row);
 
-    const check=row.querySelector('#m41');
-    if(check){
-      check.addEventListener('click',function(){
-        check.classList.toggle('checked');
-        check.textContent=check.classList.contains('checked')?'✓':'';
-        saveHeat40Managed();
-        if(typeof calculate==='function') calculate();
-      });
-    }
+    document.getElementById('m41').addEventListener('click',function(){
+      toggleManaged(41);
+    });
+    document.getElementById('mq41').addEventListener('click',function(){
+      reduceManagedQuantity(41);
+    });
 
-    restoreHeat40Managed();
+    return row;
   }
 
-  function updateRow(){
+  function disableStandardHVACManaged(disabled){
+    [37,38,39,40].forEach(function(row){
+      ['m','mq'].forEach(function(prefix){
+        const control=document.getElementById(prefix+row);
+        if(control){
+          control.disabled=disabled;
+          control.classList.toggle('hvac-control-disabled',disabled);
+        }
+      });
+    });
+  }
+
+  function installFinalFix(){
+    addStyles();
     addRow();
-    const qtyOut=document.getElementById('q41phone');
-    const vaOut=document.getElementById('v41phone');
-    if(!qtyOut || !vaOut) return;
 
-    const qty=value('q38')+value('q40');
-    const totalHeat=(value('q38')*value('v38'))+(value('q40')*value('v40'));
+    window.hvacLoadCalculation=function(){
+      const row=addRow();
+      const ac1Service=value('q37')*value('v37');
+      const heat1Service=value('q38')*value('v38');
+      const ac2Service=value('q39')*value('v39');
+      const heat2Service=value('q40')*value('v40');
 
-    qtyOut.value=qty>=4 ? String(qty) : '';
-    vaOut.value=qty>=4 ? Math.round(totalHeat*0.40).toLocaleString() : '';
+      const serviceAC=ac1Service+ac2Service;
+      const serviceHeatQty=totalHeatQty();
+      const serviceHeatTotal=totalHeatVA();
+      const serviceHeating=serviceHeatQty>=4
+        ? serviceHeatTotal*0.40
+        : (serviceHeatQty>0 ? serviceHeatTotal*0.65 : 0);
+      const fortyPercentMode=serviceHeatQty>=4 && serviceHeating>=serviceAC;
+      const serviceHVAC=Math.max(serviceAC,serviceHeating);
+
+      if(row) row.classList.toggle('show',fortyPercentMode);
+      disableStandardHVACManaged(fortyPercentMode);
+
+      let generatorAC=0;
+      let generatorHeating=0;
+
+      if(fortyPercentMode){
+        const q41=document.getElementById('q41');
+        const v41=document.getElementById('v41');
+        if(q41) q41.value=String(serviceHeatQty);
+        if(v41) v41.value=Math.round(serviceHeating).toLocaleString('en-US')+' VA';
+
+        /* Service remains based on all original heating units.
+           Row 41 only removes selected units from the generator load. */
+        const managed40=managedQuantity(41);
+        const generatorHeatQty=Math.max(serviceHeatQty-managed40,0);
+        const averageVAEach=serviceHeatQty>0 ? serviceHeatTotal/serviceHeatQty : 0;
+        generatorHeating=generatorHeatQty*averageVAEach*0.40;
+
+        updateManagedControl(41);
+
+        setOutput('e37',0);setOutput('e38',0);setOutput('e39',0);setOutput('e40',0);
+        setOutput('f37',0);setOutput('f38',0);setOutput('f39',0);setOutput('f40',0);
+        setOutput('e41',serviceHeating);
+        setOutput('f41',generatorHeating);
+      }else{
+        managedQuantities[41]=0;
+        updateManagedControl(41);
+
+        generatorAC=remainingVA(37)+remainingVA(39);
+        const generatorHeatQty=remainingQty(38)+remainingQty(40);
+        const generatorHeatTotal=remainingVA(38)+remainingVA(40);
+        generatorHeating=generatorHeatQty>0 ? generatorHeatTotal*0.65 : 0;
+
+        const serviceACControls=serviceAC>=serviceHeating;
+        const generatorACControls=generatorAC>=generatorHeating;
+
+        setOutput('e37',serviceACControls?ac1Service:0);
+        setOutput('e38',!serviceACControls?heat1Service*0.65:0);
+        setOutput('e39',serviceACControls?ac2Service:0);
+        setOutput('e40',!serviceACControls?heat2Service*0.65:0);
+        setOutput('e41',0);
+
+        setOutput('f37',generatorACControls?remainingVA(37):0);
+        setOutput('f38',!generatorACControls?remainingVA(38)*0.65:0);
+        setOutput('f39',generatorACControls?remainingVA(39):0);
+        setOutput('f40',!generatorACControls?remainingVA(40)*0.65:0);
+        setOutput('f41',0);
+      }
+
+      saveManagedQuantities();
+
+      return {
+        service:serviceHVAC,
+        generator:fortyPercentMode?generatorHeating:Math.max(generatorAC,generatorHeating),
+        serviceAC:serviceAC,
+        generatorAC:generatorAC,
+        serviceHeating:serviceHeating,
+        generatorHeating:generatorHeating,
+        fortyPercentMode:fortyPercentMode
+      };
+    };
+
+    const priorCalculate=window.calculate;
+    window.calculate=function(){
+      const generalLoad=generalLoadCalculation();
+      const applianceLoads=applianceLoadCalculation();
+      const demandLoads=combinedDemandCalculation(generalLoad,applianceLoads);
+      const hvacLoads=window.hvacLoadCalculation();
+      const continuousLoads=window.continuousLoadCalculation
+        ? window.continuousLoadCalculation()
+        : continuousLoadCalculation();
+
+      const serviceTotalVA=demandLoads.service+hvacLoads.service+continuousLoads.service;
+      const generatorTotalVA=demandLoads.generator+hvacLoads.generator+continuousLoads.generator;
+
+      setOutput('e44',hvacLoads.service+continuousLoads.service);
+      setOutput('f44',hvacLoads.generator+continuousLoads.generator);
+      setOutput('e45',serviceTotalVA);
+      setOutput('f45',generatorTotalVA);
+
+      const voltage=serviceVoltage();
+      displayAmps('serviceAmps',calculateAmps(serviceTotalVA,voltage));
+      displayAmps('generatorAmps',calculateAmps(generatorTotalVA,voltage));
+
+      if(typeof updateManagedControls==='function') updateManagedControls();
+      if(typeof saveState==='function') saveState();
+      if(typeof updatePrintReport==='function') updatePrintReport();
+    };
+
+    if(typeof window.calculate==='function') window.calculate();
   }
 
   function reset(){
@@ -104,7 +213,6 @@
       localStorage.removeItem('loadcalcpro_generator_optional_nec2023_v1');
       localStorage.removeItem('loadcalcpro_generator_mobile_nec2023_v1');
       localStorage.removeItem('loadcalcpro_generator_mobile_managed_quantities_v1');
-      localStorage.removeItem(HEAT40_MANAGED_KEY);
     }catch(e){}
 
     ['projectName','projectNumber','projectAddress','projectCityState'].forEach(function(id){
@@ -116,21 +224,17 @@
       else if(el.id==='q7') el.value='1';
       else if(el.id==='v5') el.value='3';
       else if(el.id==='v6'||el.id==='v7') el.value='1500';
-      else if(el.id!=='q41phone' && el.id!=='v41phone') el.value='';
+      else if(el.id!=='q41'&&el.id!=='v41') el.value='';
     });
 
     const voltage=document.getElementById('q46');
     if(voltage) voltage.value='240';
 
-    document.querySelectorAll('.managed-check').forEach(function(el){
-      el.classList.remove('checked');el.textContent='';
-    });
-    document.querySelectorAll('.managed-qty').forEach(function(el){
-      el.classList.remove('show');el.textContent='0';
-    });
-
-    if(typeof calculate==='function') calculate();
-    updateRow();
+    Object.keys(managedQuantities).forEach(function(key){delete managedQuantities[key];});
+    saveManagedQuantities();
+    document.querySelectorAll('.managed-check').forEach(function(el){el.classList.remove('checked');el.textContent='';});
+    document.querySelectorAll('.managed-qty').forEach(function(el){el.classList.remove('show');el.textContent='0';});
+    if(typeof window.calculate==='function') window.calculate();
   }
 
   window.clearInputs=reset;
@@ -145,35 +249,7 @@
     }
   };
 
-  const originalHvac=window.hvacLoadCalculation;
-  if(typeof originalHvac==='function'){
-    window.hvacLoadCalculation=function(){
-      const result=originalHvac.apply(this,arguments);
-      const heatQty=value('q38')+value('q40');
-      const generatorHeatControls=result && result.generatorHeating>=result.generatorAC;
-
-      if(heatQty>=4 && generatorHeatControls && heat40Checked()){
-        result.generator=0;
-        if(typeof setOutput==='function') setOutput('f41',0);
-      }
-      return result;
-    };
-  }
-
-  const oldCalculate=window.calculate;
-  if(typeof oldCalculate==='function'){
-    window.calculate=function(){
-      oldCalculate.apply(this,arguments);
-      updateRow();
-    };
-  }
-
-  addStyles();
-  addRow();
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){addRow();restoreHeat40Managed();updateRow();});
-  }else{
-    restoreHeat40Managed();
-    updateRow();
-  }
+  window.addEventListener('load',function(){
+    setTimeout(installFinalFix,0);
+  });
 })();
