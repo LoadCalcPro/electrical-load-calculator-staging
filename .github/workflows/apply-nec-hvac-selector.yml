@@ -1,0 +1,338 @@
+name: Apply NEC HVAC selector fix
+
+on:
+  push:
+    paths:
+      - .github/workflows/apply-nec-hvac-selector.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-phone-calculator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch phone HVAC selector and generator logic
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('generator-phone-staging-v1.0.html')
+          text = path.read_text(encoding='utf-8')
+
+          if '<!-- NEC-HVAC-SELECTOR-FIX-START -->' in text:
+              print('NEC HVAC selector fix already present.')
+              raise SystemExit(0)
+
+          old_note = '''        <p class="section-note">
+          The calculator uses the larger of the air-conditioning
+          load or the calculated heating load. Four or more heating
+          units are calculated at 40 percent.
+        </p>'''
+
+          new_note = '''        <p class="section-note">
+          The calculator uses the applicable NEC heating or cooling
+          selection. Choose the heating system type below before
+          entering the HVAC equipment.
+        </p>
+
+        <div class="heating-type-selector" role="radiogroup" aria-label="Heating system type">
+          <button type="button" class="heating-type-choice" data-heating-type="central" role="radio" aria-checked="true">
+            <span class="heating-type-check">✓</span>
+            <span>Central electric heat</span>
+          </button>
+          <button type="button" class="heating-type-choice" data-heating-type="space" role="radio" aria-checked="false">
+            <span class="heating-type-check"></span>
+            <span>Separately controlled electric space-heating units</span>
+          </button>
+          <button type="button" class="heating-type-choice" data-heating-type="heatpump" role="radio" aria-checked="false">
+            <span class="heating-type-check"></span>
+            <span>Heat pump with supplemental electric heat</span>
+          </button>
+        </div>
+
+        <div id="hvacMethodUsed" class="hvac-method-used" aria-live="polite"></div>
+        <div id="hvac40Summary" class="hvac-40-summary" hidden>
+          <strong>Heat at 40%</strong>
+          <span id="hvac40SummaryText"></span>
+        </div>'''
+
+          if old_note not in text:
+              raise SystemExit('Expected HVAC description was not found; no file was changed.')
+          text = text.replace(old_note, new_note, 1)
+
+          css = r'''
+
+/* NEC-HVAC-SELECTOR-FIX-START */
+.heating-type-selector{
+  display:grid;
+  gap:8px;
+  margin:0 0 9px;
+}
+.heating-type-choice{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  align-items:center;
+  gap:9px;
+  width:100%;
+  min-height:48px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:8px 10px;
+  background:#ffffff;
+  color:#111827;
+  font-size:16px;
+  font-weight:800;
+  line-height:1.25;
+  text-align:left;
+  cursor:pointer;
+}
+.heating-type-choice.selected{
+  border:2px solid var(--green);
+  padding:7px 9px;
+  background:#f0fdf4;
+  color:#14532d;
+}
+.heating-type-check{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:32px;
+  border:2px solid #22a447;
+  border-radius:8px;
+  background:#f7fff9;
+  color:var(--green);
+  font-family:"Segoe UI Symbol",Arial,sans-serif;
+  font-size:21px;
+  font-weight:900;
+}
+.heating-type-choice:not(.selected) .heating-type-check{
+  color:transparent;
+}
+.hvac-method-used{
+  margin:0 0 4px;
+  border-radius:8px;
+  padding:8px 10px;
+  background:#e8eefc;
+  color:#1e3a8a;
+  font-size:14px;
+  font-weight:900;
+  line-height:1.3;
+}
+.hvac-40-summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:5px 0 2px;
+  border:1px solid #d1fae5;
+  border-radius:9px;
+  padding:9px 10px;
+  background:#f0fdf4;
+  color:#14532d;
+  font-size:14px;
+}
+.hvac-40-summary[hidden]{display:none!important;}
+/* NEC-HVAC-SELECTOR-FIX-END */
+'''
+          text = text.replace('</style>', css + '\n</style>', 1)
+
+          script = r'''
+
+<!-- NEC-HVAC-SELECTOR-FIX-START -->
+<script>
+(function(){
+  'use strict';
+
+  const HEATING_TYPE_KEY = 'loadcalcpro_generator_mobile_heating_type_v2';
+  let heatingType = readHeatingType();
+
+  function readHeatingType(){
+    try{
+      const saved = localStorage.getItem(HEATING_TYPE_KEY);
+      return ['central','space','heatpump'].includes(saved) ? saved : 'central';
+    }catch(e){
+      return 'central';
+    }
+  }
+
+  function saveHeatingType(){
+    try{ localStorage.setItem(HEATING_TYPE_KEY, heatingType); }catch(e){}
+  }
+
+  function remainingQuantity(row){
+    return Math.max(positiveQuantity('q' + row) - managedQuantity(row), 0);
+  }
+
+  function remainingVA(row){
+    return remainingQuantity(row) * numberValue('v' + row);
+  }
+
+  function installedHeatQuantity(){
+    return positiveQuantity('q38') + positiveQuantity('q40');
+  }
+
+  function installedHeatVA(){
+    return rowVA(38) + rowVA(40);
+  }
+
+  function spaceHeatFactor(){
+    return installedHeatQuantity() >= 4 ? 0.40 : 0.65;
+  }
+
+  function methodLabel(){
+    if(heatingType === 'space'){
+      const qty = installedHeatQuantity();
+      return qty >= 4
+        ? 'Method used: Four or more separately controlled units — 40%'
+        : 'Method used: Fewer than four separately controlled units — 65%';
+    }
+    if(heatingType === 'heatpump'){
+      return 'Method used: Heat-pump compressor at 100% + supplemental heat at 65%';
+    }
+    return 'Method used: Other central electric heat — 100%';
+  }
+
+  function updateSelectorUI(){
+    document.querySelectorAll('.heating-type-choice').forEach(function(button){
+      const selected = button.dataset.heatingType === heatingType;
+      button.classList.toggle('selected', selected);
+      button.setAttribute('aria-checked', selected ? 'true' : 'false');
+      const check = button.querySelector('.heating-type-check');
+      if(check) check.textContent = selected ? '✓' : '';
+    });
+
+    const method = document.getElementById('hvacMethodUsed');
+    if(method) method.textContent = methodLabel();
+
+    const summary = document.getElementById('hvac40Summary');
+    const summaryText = document.getElementById('hvac40SummaryText');
+    const show40 = heatingType === 'space' && installedHeatQuantity() >= 4;
+    if(summary) summary.hidden = !show40;
+    if(summaryText){
+      summaryText.textContent = show40
+        ? installedHeatQuantity() + ' installed unit' + (installedHeatQuantity() === 1 ? '' : 's')
+        : '';
+    }
+  }
+
+  function serviceHeatingSelection(acTotal, heatTotal){
+    if(heatingType === 'space') return heatTotal * spaceHeatFactor();
+    if(heatingType === 'heatpump') return acTotal + (heatTotal * 0.65);
+    return heatTotal;
+  }
+
+  function generatorHeatingSelection(generatorAC, generatorHeat){
+    if(heatingType === 'space'){
+      /* The service-side installed-unit count determines 65% or 40%.
+         Generator shedding changes quantity only; it never changes the factor. */
+      return generatorHeat * spaceHeatFactor();
+    }
+    if(heatingType === 'heatpump') return generatorAC + (generatorHeat * 0.65);
+    return generatorHeat;
+  }
+
+  window.hvacLoadCalculation = function(){
+    const ac1Service = rowVA(37);
+    const heat1Service = rowVA(38);
+    const ac2Service = rowVA(39);
+    const heat2Service = rowVA(40);
+
+    const serviceAC = ac1Service + ac2Service;
+    const serviceHeatTotal = heat1Service + heat2Service;
+    const serviceHeating = serviceHeatingSelection(serviceAC, serviceHeatTotal);
+    const serviceHVAC = heatingType === 'heatpump'
+      ? serviceHeating
+      : Math.max(serviceAC, serviceHeating);
+
+    const ac1Generator = remainingVA(37);
+    const heat1Generator = remainingVA(38);
+    const ac2Generator = remainingVA(39);
+    const heat2Generator = remainingVA(40);
+
+    const generatorAC = ac1Generator + ac2Generator;
+    const generatorHeatTotal = heat1Generator + heat2Generator;
+    const generatorHeating = generatorHeatingSelection(generatorAC, generatorHeatTotal);
+    const generatorHVAC = heatingType === 'heatpump'
+      ? generatorHeating
+      : Math.max(generatorAC, generatorHeating);
+
+    const serviceHeatControls = heatingType === 'heatpump' || serviceHeating >= serviceAC;
+    const generatorHeatControls = heatingType === 'heatpump' || generatorHeating >= generatorAC;
+    const heatFactor = heatingType === 'space' ? spaceHeatFactor() : (heatingType === 'heatpump' ? 0.65 : 1);
+
+    setOutput('e37', heatingType === 'heatpump' ? ac1Service : (!serviceHeatControls ? ac1Service : 0));
+    setOutput('e38', serviceHeatControls ? heat1Service * heatFactor : 0);
+    setOutput('e39', heatingType === 'heatpump' ? ac2Service : (!serviceHeatControls ? ac2Service : 0));
+    setOutput('e40', serviceHeatControls ? heat2Service * heatFactor : 0);
+    setOutput('e41', 0);
+
+    setOutput('f37', heatingType === 'heatpump' ? ac1Generator : (!generatorHeatControls ? ac1Generator : 0));
+    setOutput('f38', generatorHeatControls ? heat1Generator * heatFactor : 0);
+    setOutput('f39', heatingType === 'heatpump' ? ac2Generator : (!generatorHeatControls ? ac2Generator : 0));
+    setOutput('f40', generatorHeatControls ? heat2Generator * heatFactor : 0);
+    setOutput('f41', 0);
+
+    updateSelectorUI();
+
+    return {
+      service: serviceHVAC,
+      generator: generatorHVAC,
+      serviceAC: serviceAC,
+      generatorAC: generatorAC,
+      serviceHeating: serviceHeating,
+      generatorHeating: generatorHeating,
+      heatingType: heatingType,
+      heatingFactor: heatFactor
+    };
+  };
+
+  function connectSelector(){
+    document.querySelectorAll('.heating-type-choice').forEach(function(button){
+      button.addEventListener('click', function(){
+        heatingType = button.dataset.heatingType || 'central';
+        saveHeatingType();
+        updateSelectorUI();
+        calculate();
+      });
+    });
+
+    ['q38','v38','q40','v40'].forEach(function(id){
+      const input = document.getElementById(id);
+      if(input){
+        input.addEventListener('input', updateSelectorUI);
+      }
+    });
+
+    updateSelectorUI();
+    calculate();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', connectSelector);
+  }else{
+    connectSelector();
+  }
+})();
+</script>
+<!-- NEC-HVAC-SELECTOR-FIX-END -->
+'''
+
+          text = text.replace('</body>', script + '\n</body>', 1)
+          path.write_text(text, encoding='utf-8')
+
+      - name: Commit patched calculator
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add generator-phone-staging-v1.0.html
+          git commit -m "Fix NEC HVAC selector and generator heating control"
+          git push
