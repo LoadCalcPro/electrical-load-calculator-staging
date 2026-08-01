@@ -99,7 +99,7 @@ button{
   flex:0 0 auto;
   padding-top:2px;
   color:#ffffff;
-  font-size:13px;
+  font-size:15px;
   font-weight:900;
   white-space:nowrap;
 }
@@ -122,7 +122,7 @@ button{
 }
 
 .header-actions button{
-  min-height:42px;
+  min-height:50px;
   border:1px solid rgba(255,255,255,.4);
   border-radius:10px;
   padding:9px 10px;
@@ -765,7 +765,7 @@ body.access-locked .bottom-results{
 .input-block input,
 .input-block select{
   text-align:left !important;
-  font-size:18px !important;
+  font-size:30px !important;
   line-height:1.2;
   padding:9px 10px !important;
 }
@@ -834,6 +834,35 @@ body.access-locked .bottom-results{
 /* Keep hidden mobile input labels hidden while preserving 18px sizing if shown later */
 .input-block label{
   display:none !important;
+}
+
+/* Editable load description styled like the other load-name headings */
+input.editable-load-name{
+  display:block;
+  width:100%;
+  min-height:0 !important;
+  margin:0 0 9px;
+  border:0 !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#111827 !important;
+  font-size:18px !important;
+  line-height:1.25 !important;
+  font-weight:900 !important;
+  text-align:left !important;
+}
+
+input.editable-load-name:focus{
+  outline:2px solid #cbd5e1;
+  outline-offset:4px;
+}
+
+input.editable-load-name::placeholder{
+  color:#9ca3af !important;
+  opacity:1;
+  font-weight:900 !important;
 }
 
 </style>
@@ -1104,7 +1133,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q6">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1113,8 +1142,7 @@ body.access-locked .bottom-results{
                 min="0"
                 step="1"
                 inputmode="numeric"
-                value="2"
-              >
+                >
             </div>
 
           </div>
@@ -1157,7 +1185,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q7">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1166,8 +1194,7 @@ body.access-locked .bottom-results{
                 min="0"
                 step="1"
                 inputmode="numeric"
-                value="1"
-              >
+                >
             </div>
 
           </div>
@@ -1285,22 +1312,20 @@ body.access-locked .bottom-results{
       <div class="card-body">
 
         <p class="section-note">
-          The calculator uses the larger of the air-conditioning
-          load or the calculated heating load. Four or more heating
-          units are calculated at 40 percent.
+          Select the applicable heating method below. The calculator uses the appropriate HVAC calculation for that selection.
         </p>
 
         <div class="load-row">
 
           <div class="load-name">
-            Air Conditioning Group 1
+            Air Conditioning
           </div>
 
           <div class="load-inputs">
 
             <div class="input-block">
               <label for="q37">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1314,7 +1339,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v37">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1386,14 +1411,14 @@ body.access-locked .bottom-results{
         <div class="load-row">
 
           <div class="load-name">
-            Heating Group 1
+            Heating
           </div>
 
           <div class="load-inputs">
 
             <div class="input-block">
               <label for="q38">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1407,7 +1432,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v38">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1479,14 +1504,14 @@ body.access-locked .bottom-results{
         <div class="load-row">
 
           <div class="load-name">
-            Air Conditioning Group 2
+            Air Conditioning
           </div>
 
           <div class="load-inputs">
 
             <div class="input-block">
               <label for="q39">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1500,7 +1525,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v39">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1572,14 +1597,14 @@ body.access-locked .bottom-results{
         <div class="load-row">
 
           <div class="load-name">
-            Heating Group 2
+            Heating
           </div>
 
           <div class="load-inputs">
 
             <div class="input-block">
               <label for="q40">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1593,7 +1618,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v40">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1663,15 +1688,19 @@ body.access-locked .bottom-results{
         </div>
         <div class="load-row">
 
-          <div class="load-name">
-            Additional Continuous Load
-          </div>
+          <input
+            id="d42"
+            class="editable-load-name"
+            type="text"
+            autocomplete="off"
+            aria-label="Additional continuous load description"
+            placeholder="Additional Continuous Load">
 
           <div class="load-inputs">
 
             <div class="input-block">
               <label for="q42">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -1685,7 +1714,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="v42">
-                VA Each
+                VA
               </label>
 
               <input
@@ -1764,7 +1793,7 @@ body.access-locked .bottom-results{
 
             <div class="input-block">
               <label for="q43">
-                Quantity
+                Qty
               </label>
 
               <input
@@ -2063,9 +2092,9 @@ let saveStatusTimer = null;
 const managedQuantities = readManagedQuantities();
 
 const APPLIANCES = [
-  {row:10,label:"Dishwasher",qty:1,va:1500},
-  {row:11,label:"Disposal",qty:1,va:1500},
-  {row:12,label:"Refrigerator",qty:1,va:1500},
+  {row:10,label:"Dishwasher"},
+  {row:11,label:"Disposal"},
+  {row:12,label:"Refrigerator"},
   {row:13,label:"Microwave"},
   {row:14,label:"Hood Fan"},
   {row:15,label:"Freezer"},
@@ -2089,7 +2118,7 @@ const APPLIANCES = [
 const MANAGED_ROWS = [
   10,11,12,13,14,15,16,17,18,19,20,
   21,22,23,24,25,26,27,28,29,30,
-  37,38,39,40,42,43
+  37,38,39,40,41,42,43
 ];
 
 const INPUT_ROWS = [
@@ -2342,7 +2371,7 @@ function createApplianceRows(){
       "q" + item.row
     );
 
-    qtyLabel.textContent = "Quantity";
+    qtyLabel.textContent = "Qty";
 
     const qtyInput =
       document.createElement("input");
@@ -2392,7 +2421,7 @@ function createApplianceRows(){
       "v" + item.row
     );
 
-    vaLabel.textContent = "VA Each";
+    vaLabel.textContent = "VA";
 
     const vaInput =
       document.createElement("input");
@@ -2925,10 +2954,14 @@ function calculate(){
     );
 
   const hvacLoads =
-    hvacLoadCalculation();
+    (typeof window.hvacLoadCalculation === 'function'
+      ? window.hvacLoadCalculation()
+      : hvacLoadCalculation());
 
   const continuousLoads =
-    continuousLoadCalculation();
+    (typeof window.continuousLoadCalculation === 'function'
+      ? window.continuousLoadCalculation()
+      : continuousLoadCalculation());
 
   const serviceHVACContinuous =
     hvacLoads.service +
@@ -3453,51 +3486,8 @@ function clearCalculatorFields(){
       }
     }
 
-    const defaultAppliances = [
-      {row:10,qty:1,va:1500},
-      {row:11,qty:1,va:1500},
-      {row:12,qty:1,va:1500}
-    ];
-
-    for(
-      const item
-      of defaultAppliances
-    ){
-      const quantity =
-        document.getElementById(
-          "q" + item.row
-        );
-
-      const va =
-        document.getElementById(
-          "v" + item.row
-        );
-
-      if(quantity){
-        quantity.value = item.qty;
-      }
-
-      if(va){
-        va.value = item.va;
-      }
-    }
-
-    const smallAppliance =
-      document.getElementById("q6");
-
-    const laundry =
-      document.getElementById("q7");
-
     const voltage =
       document.getElementById("q46");
-
-    if(smallAppliance){
-      smallAppliance.value = "2";
-    }
-
-    if(laundry){
-      laundry.value = "1";
-    }
 
     if(voltage){
       voltage.value = "240";
@@ -3510,6 +3500,16 @@ function clearCalculatorFields(){
       )
     ){
       delete managedQuantities[key];
+    }
+
+    if(typeof window.resetHeatingMethodSelection === "function"){
+      window.resetHeatingMethodSelection();
+    }else{
+      try{
+        localStorage.removeItem(
+          "loadcalcpro_generator_mobile_heating_method_v2"
+        );
+      }catch(e){}
     }
 
     localStorage.removeItem(
@@ -3729,25 +3729,25 @@ function updatePrintRows(data){
   }
 
   html += printLoadRow(
-    "Air Conditioning Group 1",
+    "Air Conditioning",
     readOutput("e37"),
     readOutput("f37")
   );
 
   html += printLoadRow(
-    "Heating Group 1",
+    "Heating",
     readOutput("e38"),
     readOutput("f38")
   );
 
   html += printLoadRow(
-    "Air Conditioning Group 2",
+    "Air Conditioning",
     readOutput("e39"),
     readOutput("f39")
   );
 
   html += printLoadRow(
-    "Heating Group 2",
+    "Heating",
     readOutput("e40"),
     readOutput("f40")
   );
@@ -4649,354 +4649,359 @@ if(
 </script>
 
 
-<!-- PHONE-CALCULATION-SYNC-START -->
-<script>
-/* Phone calculator calculation sync.
-   Matches the verified desktop optional-method behavior:
-   - first 10,000 VA at 100%, remainder at 40%
-   - HVAC uses A/C at 100% versus heat at 65% for 1-3 units
-   - HVAC uses heat at 40% for 4 or more heating units
-   - generator totals recalculate from the unmanaged quantities
-   - EV uses 7,200 VA or nameplate, whichever is larger */
-(function(){
-  function remainingQuantity(row){
-    return Math.max(positiveQuantity('q' + row) - managedQuantity(row), 0);
-  }
-
-  function remainingRowVA(row){
-    const qty = remainingQuantity(row);
-    let va = numberValue('v' + row);
-    if(row === 43 && qty > 0){
-      va = Math.max(va, 7200);
-    }
-    return qty * va;
-  }
-
-  function heatDemand(totalHeat, heatQty){
-    if(heatQty >= 4) return totalHeat * 0.40;
-    if(heatQty > 0) return totalHeat * 0.65;
-    return 0;
-  }
-
-  window.hvacLoadCalculation = function(){
-    const ac1Service = rowVA(37);
-    const heat1Service = rowVA(38);
-    const ac2Service = rowVA(39);
-    const heat2Service = rowVA(40);
-
-    const serviceAC = ac1Service + ac2Service;
-    const serviceHeatQty =
-      positiveQuantity('q38') + positiveQuantity('q40');
-    const serviceHeatTotal = heat1Service + heat2Service;
-    const serviceHeating = heatDemand(serviceHeatTotal, serviceHeatQty);
-    const serviceHVAC = Math.max(serviceAC, serviceHeating);
-
-    const ac1Generator = remainingRowVA(37);
-    const heat1Generator = remainingRowVA(38);
-    const ac2Generator = remainingRowVA(39);
-    const heat2Generator = remainingRowVA(40);
-
-    const generatorAC = ac1Generator + ac2Generator;
-    const generatorHeatQty = remainingQuantity(38) + remainingQuantity(40);
-    const generatorHeatTotal = heat1Generator + heat2Generator;
-    const generatorHeating = heatDemand(generatorHeatTotal, generatorHeatQty);
-    const generatorHVAC = Math.max(generatorAC, generatorHeating);
-
-    const serviceHeat40 = serviceHeatQty >= 4 ? serviceHeating : 0;
-    const generatorHeat40 = generatorHeatQty >= 4 ? generatorHeating : 0;
-    const q41 = document.getElementById('q41out');
-    if(q41){
-      q41.textContent = serviceHeatQty >= 4 ? String(serviceHeatQty) : '';
-    }
-
-    const serviceACControls = serviceAC > serviceHeating;
-    const generatorACControls = generatorAC > generatorHeating;
-
-    setOutput('e37', serviceACControls ? ac1Service : 0);
-    setOutput('e38', !serviceACControls && serviceHeatQty > 0 && serviceHeatQty < 4 ? heat1Service * 0.65 : 0);
-    setOutput('e39', serviceACControls ? ac2Service : 0);
-    setOutput('e40', !serviceACControls && serviceHeatQty > 0 && serviceHeatQty < 4 ? heat2Service * 0.65 : 0);
-    setOutput('e41', !serviceACControls ? serviceHeat40 : 0);
-
-    setOutput('f37', generatorACControls ? ac1Generator : 0);
-    setOutput('f38', !generatorACControls && generatorHeatQty > 0 && generatorHeatQty < 4 ? heat1Generator * 0.65 : 0);
-    setOutput('f39', generatorACControls ? ac2Generator : 0);
-    setOutput('f40', !generatorACControls && generatorHeatQty > 0 && generatorHeatQty < 4 ? heat2Generator * 0.65 : 0);
-    setOutput('f41', !generatorACControls ? generatorHeat40 : 0);
-
-    return {
-      service: serviceHVAC,
-      generator: generatorHVAC,
-      serviceAC: serviceAC,
-      generatorAC: generatorAC,
-      serviceHeating: serviceHeating,
-      generatorHeating: generatorHeating
-    };
-  };
-
-  window.continuousLoadCalculation = function(){
-    const additionalService = rowVA(42);
-    const additionalGenerator = remainingRowVA(42);
-    const evService = rowVA(43);
-    const evGenerator = remainingRowVA(43);
-
-    setOutput('e42', additionalService);
-    setOutput('f42', additionalGenerator);
-    setOutput('e43', evService);
-    setOutput('f43', evGenerator);
-
-    return {
-      service: additionalService + evService,
-      generator: additionalGenerator + evGenerator,
-      additionalService: additionalService,
-      additionalGenerator: additionalGenerator,
-      evService: evService,
-      evGenerator: evGenerator
-    };
-  };
-
-  const previousCalculate = window.calculate;
-  window.calculate = function(){
-    const generalLoad = generalLoadCalculation();
-    const applianceLoads = applianceLoadCalculation();
-    const demandLoads = combinedDemandCalculation(generalLoad, applianceLoads);
-    const hvacLoads = window.hvacLoadCalculation();
-    const continuousLoads = window.continuousLoadCalculation();
-
-    const serviceTotalVA =
-      demandLoads.service + hvacLoads.service + continuousLoads.service;
-    const generatorTotalVA =
-      demandLoads.generator + hvacLoads.generator + continuousLoads.generator;
-
-    setOutput('e44', hvacLoads.service + continuousLoads.service);
-    setOutput('f44', hvacLoads.generator + continuousLoads.generator);
-    setOutput('e45', serviceTotalVA);
-    setOutput('f45', generatorTotalVA);
-
-    const voltage = serviceVoltage();
-    displayAmps('serviceAmps', calculateAmps(serviceTotalVA, voltage));
-    displayAmps('generatorAmps', calculateAmps(generatorTotalVA, voltage));
-
-    if(typeof updateManagedControls === 'function') updateManagedControls();
-    if(typeof saveState === 'function') saveState();
-    if(typeof updatePrintReport === 'function') updatePrintReport();
-  };
-
-  if(typeof calculate === 'function') calculate();
-})();
-</script>
-<!-- PHONE-CALCULATION-SYNC-END -->
-
-<script src="phone-reset-hvac40-fix.js"></script>
 
 
-<!-- HVAC-40-PHONE-FIX-START -->
+<!-- UNIFIED-HVAC-METHOD-CONTROLLER-START -->
 <style>
-  .hvac-40-row{display:none;}
-  .hvac-40-row.show{display:block;}
-  .hvac-40-controls{
+  .heating-method-panel{
+    margin:0 0 14px;
+    padding:12px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    background:#f8fafc;
+  }
+  .heating-method-title{
+    margin:0 0 8px;
+    color:#0f172a;
+    font-size:18px;
+    font-weight:900;
+  }
+  .heating-method-choice{
+    display:grid;
+    grid-template-columns:42px minmax(0,1fr);
+    align-items:center;
+    gap:9px;
+    width:100%;
+    min-height:54px;
+    margin-top:8px;
+    border:1px solid #cbd5e1;
+    border-radius:9px;
+    padding:7px 9px;
+    background:#fff;
+    color:#111827;
+    text-align:left;
+    cursor:pointer;
+  }
+  .heating-method-choice.selected{
+    border-color:#15803d;
+    background:#ecfdf5;
+  }
+  .heating-method-check{
     display:flex;
     align-items:center;
-    justify-content:flex-end;
-    gap:6px;
-    min-height:46px;
+    justify-content:center;
+    width:36px;
+    height:36px;
+    border:2px solid #22a447;
+    border-radius:8px;
+    background:#f7fff9;
+    color:#15803d;
+    font-family:"Segoe UI Symbol",Arial,sans-serif;
+    font-size:22px;
+    font-weight:900;
   }
-  .hvac-40-controls .managed-check,
-  .hvac-40-controls .managed-qty{
-    height:46px;
-    min-height:46px;
-    margin:0;
-    font-size:20px;
+  .heating-method-text{
+    font-size:16px;
+    line-height:1.25;
+    font-weight:800;
   }
-  .hvac-40-controls .managed-check{
-    width:46px;
-    min-width:46px;
-  }
-  .hvac-40-controls .managed-qty{
-    min-width:46px;
-    padding:0 8px;
-  }
-  .hvac-control-disabled{
+  .heating-row-disabled{
     opacity:.45;
-    pointer-events:none;
+  }
+  .heating-row-disabled input,
+  .heating-row-disabled button{
+    pointer-events:none!important;
+  }
+  #phoneHeat40Row{display:none;}
+  #phoneHeat40Row.show{display:block;}
+  #phoneHeat40Row .heat40-auto-field{
+    width:100%;
+    min-height:48px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    padding:9px 10px;
+    background:#eef2f7;
+    color:#64748b;
+    font-size:18px;
+    font-weight:800;
+    text-align:left;
   }
 </style>
 <script>
 (function(){
   'use strict';
 
-  const HVAC_40_QTY_KEY = 'loadcalcpro_generator_mobile_hvac40_included_qty_v1';
-  let hvac40IncludedQty = null;
+  const METHOD_KEY='loadcalcpro_generator_mobile_heating_method_v2';
+  const METHODS={
+    CENTRAL:'central65',
+    FORTY:'separate40',
+    HEATPUMP:'heatpump'
+  };
+  let selectedMethod='';
 
-  function readStoredQty(){
-    try{
-      const value = Number(localStorage.getItem(HVAC_40_QTY_KEY));
-      return Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
-    }catch(e){
-      return null;
-    }
+  function value(id){
+    const el=document.getElementById(id);
+    const n=el ? Number(el.value) : 0;
+    return Number.isFinite(n) && n>0 ? n : 0;
+  }
+  function rowService(row){return value('q'+row)*value('v'+row);}
+  function remainingQty(row){
+    return Math.max(Math.floor(value('q'+row))-managedQuantity(row),0);
+  }
+  function remainingVA(row){return remainingQty(row)*value('v'+row);}
+  function heatQty(){return Math.floor(value('q38'))+Math.floor(value('q40'));}
+  function heatVA(){return rowService(38)+rowService(40);}
+
+  function findHVACBody(){
+    const card=Array.from(document.querySelectorAll('main .card')).find(function(el){
+      const heading=el.querySelector('.card-heading');
+      return heading && heading.textContent.replace(/\s+/g,' ').trim()==='HVAC and Continuous Loads';
+    });
+    return card ? card.querySelector('.card-body') : null;
   }
 
-  function saveStoredQty(){
-    try{
-      localStorage.setItem(HVAC_40_QTY_KEY, String(hvac40IncludedQty));
-    }catch(e){}
+  function ensureMethodPanel(){
+    let panel=document.getElementById('heatingMethodPanel');
+    if(panel) return panel;
+    const body=findHVACBody();
+    if(!body) return null;
+    const note=body.querySelector('.section-note');
+    panel=document.createElement('div');
+    panel.id='heatingMethodPanel';
+    panel.className='heating-method-panel';
+    panel.innerHTML=`
+      <div class="heating-method-title">Heating Method (Required)</div>
+      <button type="button" class="heating-method-choice" data-method="${METHODS.CENTRAL}">
+        <span class="heating-method-check"></span>
+        <span class="heating-method-text">Cooling Only / Central Electric Heat (65%)</span>
+      </button>
+      <button type="button" class="heating-method-choice" data-method="${METHODS.FORTY}">
+        <span class="heating-method-check"></span>
+        <span class="heating-method-text">Four or More Separately Controlled Electric Heating Systems (40%)</span>
+      </button>
+      <button type="button" class="heating-method-choice" data-method="${METHODS.HEATPUMP}">
+        <span class="heating-method-check"></span>
+        <span class="heating-method-text">Heat Pump with Supplemental Electric Heat</span>
+      </button>`;
+    if(note) note.insertAdjacentElement('afterend',panel);
+    else body.insertBefore(panel,body.firstChild);
+    panel.querySelectorAll('.heating-method-choice').forEach(function(button){
+      button.addEventListener('click',function(){selectMethod(button.dataset.method);});
+    });
+    return panel;
   }
 
-  function totalHeatQty(){
-    return positiveQuantity('q38') + positiveQuantity('q40');
+  function ensure40Row(){
+    let row=document.getElementById('phoneHeat40Row');
+    if(row) return row;
+    const q40=document.getElementById('q40');
+    const source=q40 ? q40.closest('.load-row') : null;
+    if(!source || !source.parentNode) return null;
+    row=document.createElement('div');
+    row.id='phoneHeat40Row';
+    row.className='load-row';
+    row.innerHTML=`
+      <div class="load-name">Heat at 40%</div>
+      <div class="load-inputs inline-load-row">
+        <div class="input-block"><input id="q41" class="heat40-auto-field" type="number" readonly placeholder="Qty"></div>
+        <div class="input-block"><input id="v41" class="heat40-auto-field" type="text" readonly placeholder="Auto"></div>
+        <div class="inline-managed-controls">
+          <button id="m41" class="managed-check" type="button" aria-label="Manage heat at 40 percent"></button>
+          <button id="mq41" class="managed-qty" type="button" aria-label="Reduce managed heating quantity">0</button>
+        </div>
+      </div>
+      <div id="e41" hidden></div><div id="f41" hidden></div>`;
+    source.insertAdjacentElement('afterend',row);
+    row.querySelector('#m41').addEventListener('click',function(){toggleManaged(41);});
+    row.querySelector('#mq41').addEventListener('click',function(){reduceManagedQuantity(41);});
+    return row;
   }
 
-  function totalHeatVA(){
-    return rowVA(38) + rowVA(40);
+  function rowFor(row){
+    const input=document.getElementById('q'+row);
+    return input ? input.closest('.load-row') : null;
   }
-
-  function ensure40PercentRow(){
-    if(document.getElementById('hvac40Row')) return;
-
-    const heatingGroup2 = document.getElementById('q40');
-    const sourceRow = heatingGroup2 ? heatingGroup2.closest('.load-row') : null;
-    if(!sourceRow || !sourceRow.parentNode) return;
-
-    /* Keep the calculation IDs available without adding a second visible
-       Heating-at-40% row. The existing calculator row remains unchanged. */
-    const row = document.createElement('div');
-    row.id = 'hvac40Row';
-    row.hidden = true;
-    row.setAttribute('aria-hidden','true');
-    row.innerHTML = `
-      <input id="q41out" type="hidden">
-      <input id="v41out" type="hidden">
-      <div id="e41"></div>
-      <div id="f41"></div>`;
-
-    sourceRow.parentNode.insertBefore(row, sourceRow.nextSibling);
+  function setLabel(row,label){
+    const container=rowFor(row);
+    const name=container && container.querySelector('.load-name');
+    if(name) name.textContent=label;
   }
-
-  function setStandardHVACControlsDisabled(disabled){
-    [37,38,39,40].forEach(function(row){
-      const check = document.getElementById('m' + row);
-      const qty = document.getElementById('mq' + row);
-      [check,qty].forEach(function(control){
-        if(control){
-          control.disabled = disabled;
-          control.classList.toggle('hvac-control-disabled', disabled);
-        }
+  function disableHeatingRows(disabled){
+    [38,40].forEach(function(row){
+      const container=rowFor(row);
+      if(container) container.classList.toggle('heating-row-disabled',disabled);
+      ['q','v','m','mq'].forEach(function(prefix){
+        const control=document.getElementById(prefix+row);
+        if(control) control.disabled=disabled;
+      });
+    });
+  }
+  function disableStandardHeatingManagement(disabled){
+    [38,40].forEach(function(row){
+      ['m','mq'].forEach(function(prefix){
+        const control=document.getElementById(prefix+row);
+        if(control) control.disabled=disabled;
       });
     });
   }
 
-  function remainingQty(row){
-    return Math.max(positiveQuantity('q' + row) - managedQuantity(row), 0);
+  function saveMethod(){
+    try{localStorage.setItem(METHOD_KEY,selectedMethod);}catch(e){}
+  }
+  function readMethod(){
+    try{
+      const method=localStorage.getItem(METHOD_KEY)||'';
+      return Object.values(METHODS).includes(method) ? method : '';
+    }catch(e){return '';}
   }
 
-  function remainingVA(row){
-    return remainingQty(row) * numberValue('v' + row);
-  }
-
-  window.hvacLoadCalculation = function(){
-    ensure40PercentRow();
-
-    const ac1Service = rowVA(37);
-    const heat1Service = rowVA(38);
-    const ac2Service = rowVA(39);
-    const heat2Service = rowVA(40);
-
-    const serviceAC = ac1Service + ac2Service;
-    const serviceHeatQty = totalHeatQty();
-    const serviceHeatTotal = heat1Service + heat2Service;
-    const serviceHeating = serviceHeatQty >= 4
-      ? serviceHeatTotal * 0.40
-      : (serviceHeatQty > 0 ? serviceHeatTotal * 0.65 : 0);
-
-    const fortyPercentMode = serviceHeatQty >= 4 && serviceHeating >= serviceAC;
-    const serviceHVAC = Math.max(serviceAC, serviceHeating);
-
-    const row40 = document.getElementById('hvac40Row');
-    /* The duplicate 40% check-mark row was removed; keep placeholders hidden. */
-    setStandardHVACControlsDisabled(fortyPercentMode);
-
-    let generatorAC = 0;
-    let generatorHeating = 0;
-
-    if(fortyPercentMode){
-      const stored = hvac40IncludedQty === null ? readStoredQty() : hvac40IncludedQty;
-      hvac40IncludedQty = stored === null ? serviceHeatQty : Math.min(Math.max(stored,0),serviceHeatQty);
-      saveStoredQty();
-
-      const averageVAEach = serviceHeatQty > 0 ? serviceHeatTotal / serviceHeatQty : 0;
-      generatorHeating = hvac40IncludedQty * averageVAEach * 0.40;
-
-      const qtyDisplay = document.getElementById('q41out');
-      const vaDisplay = document.getElementById('v41out');
-      const checkButton = document.getElementById('hvac40Check');
-      const qtyButton = document.getElementById('hvac40QtyButton');
-      const managed40Qty = Math.max(serviceHeatQty - hvac40IncludedQty,0);
-      if(qtyDisplay) qtyDisplay.value = String(serviceHeatQty);
-      if(vaDisplay) vaDisplay.value = Math.round(serviceHeating).toLocaleString('en-US') + ' VA';
-      if(checkButton){
-        checkButton.classList.toggle('checked', managed40Qty > 0);
-        checkButton.textContent = managed40Qty > 0 ? '✓' : '';
-        checkButton.title = managed40Qty > 0
-          ? 'Tap to restore all heating units to the generator'
-          : 'Tap to manage all heating units at 40%';
-      }
-      if(qtyButton){
-        qtyButton.classList.toggle('show', managed40Qty > 0);
-        qtyButton.textContent = String(managed40Qty);
-        qtyButton.title = 'Tap to reduce the managed heating quantity at 40%';
-      }
-
-      setOutput('e37',0); setOutput('e38',0); setOutput('e39',0); setOutput('e40',0);
-      setOutput('f37',0); setOutput('f38',0); setOutput('f39',0); setOutput('f40',0);
-      setOutput('e41',serviceHeating);
-      setOutput('f41',generatorHeating);
-    }else{
-      generatorAC = remainingVA(37) + remainingVA(39);
-      const generatorHeatQty = remainingQty(38) + remainingQty(40);
-      const generatorHeatTotal = remainingVA(38) + remainingVA(40);
-      generatorHeating = generatorHeatQty > 0 ? generatorHeatTotal * 0.65 : 0;
-
-      const generatorACControls = generatorAC >= generatorHeating;
-      const serviceACControls = serviceAC >= serviceHeating;
-
-      setOutput('e37',serviceACControls ? ac1Service : 0);
-      setOutput('e38',!serviceACControls ? heat1Service * 0.65 : 0);
-      setOutput('e39',serviceACControls ? ac2Service : 0);
-      setOutput('e40',!serviceACControls ? heat2Service * 0.65 : 0);
-      setOutput('e41',0);
-
-      setOutput('f37',generatorACControls ? remainingVA(37) : 0);
-      setOutput('f38',!generatorACControls ? remainingVA(38) * 0.65 : 0);
-      setOutput('f39',generatorACControls ? remainingVA(39) : 0);
-      setOutput('f40',!generatorACControls ? remainingVA(40) * 0.65 : 0);
-      setOutput('f41',0);
+  function updateMethodUI(){
+    const panel=ensureMethodPanel();
+    const row40=ensure40Row();
+    if(panel){
+      panel.querySelectorAll('.heating-method-choice').forEach(function(button){
+        const active=button.dataset.method===selectedMethod;
+        button.classList.toggle('selected',active);
+        const check=button.querySelector('.heating-method-check');
+        if(check) check.textContent=active?'✓':'';
+      });
     }
 
-    return {
-      service: serviceHVAC,
-      generator: fortyPercentMode ? generatorHeating : Math.max(generatorAC,generatorHeating),
-      serviceAC: serviceAC,
-      generatorAC: generatorAC,
-      serviceHeating: serviceHeating,
-      generatorHeating: generatorHeating,
-      fortyPercentMode: fortyPercentMode
-    };
-  };
+    disableHeatingRows(!selectedMethod);
+    if(row40) row40.classList.toggle('show',selectedMethod===METHODS.FORTY);
+    disableStandardHeatingManagement(selectedMethod===METHODS.FORTY);
 
-  function initializeHVAC40Fix(){
-    ensure40PercentRow();
+    if(selectedMethod===METHODS.HEATPUMP){
+      setLabel(37,'Heat Pump Compressor');
+      setLabel(38,'Supplemental Electric Heat');
+      setLabel(39,'Heat Pump Compressor');
+      setLabel(40,'Supplemental Electric Heat');
+    }else{
+      setLabel(37,'Air Conditioning');
+      setLabel(38,'Heating');
+      setLabel(39,'Air Conditioning');
+      setLabel(40,'Heating');
+    }
+  }
+
+  function selectMethod(method){
+    selectedMethod=selectedMethod===method ? '' : method;
+    if(selectedMethod!==METHODS.FORTY){
+      managedQuantities[41]=0;
+    }
+    saveMethod();
+    updateMethodUI();
+    saveManagedQuantities();
     calculate();
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initializeHVAC40Fix);
-  }else{
-    initializeHVAC40Fix();
+  window.hvacLoadCalculation=function(){
+    ensure40Row();
+    updateMethodUI();
+
+    const ac1=rowService(37), ac2=rowService(39);
+    const heat1=rowService(38), heat2=rowService(40);
+    const serviceAC=ac1+ac2;
+    const serviceHeatTotal=heat1+heat2;
+
+    let service=serviceAC;
+    let generatorAC=remainingVA(37)+remainingVA(39);
+    let generatorHeat=0;
+    let generator=generatorAC;
+
+    if(!selectedMethod){
+      setOutput('e37',serviceAC); setOutput('e38',0); setOutput('e39',0); setOutput('e40',0); setOutput('e41',0);
+      setOutput('f37',generatorAC); setOutput('f38',0); setOutput('f39',0); setOutput('f40',0); setOutput('f41',0);
+      return {service:service,generator:generator,serviceAC:serviceAC,generatorAC:generatorAC,serviceHeating:0,generatorHeating:0,method:''};
+    }
+
+    if(selectedMethod===METHODS.CENTRAL){
+      const serviceHeating=serviceHeatTotal*0.65;
+      generatorHeat=(remainingVA(38)+remainingVA(40))*0.65;
+      service=Math.max(serviceAC,serviceHeating);
+
+      /* Keep the generator on the same controlling HVAC method selected by
+         the service calculation. If central electric heat controls the
+         service load, reducing the managed heating quantity must reduce the
+         generator load at every step instead of switching back to A/C. */
+      const serviceACControls=serviceAC>=serviceHeating;
+      generator=serviceACControls ? generatorAC : generatorHeat;
+
+      setOutput('e37',serviceACControls?ac1:0); setOutput('e39',serviceACControls?ac2:0);
+      setOutput('e38',serviceACControls?0:heat1*0.65); setOutput('e40',serviceACControls?0:heat2*0.65); setOutput('e41',0);
+
+      setOutput('f37',serviceACControls?remainingVA(37):0); setOutput('f39',serviceACControls?remainingVA(39):0);
+      setOutput('f38',serviceACControls?0:remainingVA(38)*0.65); setOutput('f40',serviceACControls?0:remainingVA(40)*0.65); setOutput('f41',0);
+
+      return {service:service,generator:generator,serviceAC:serviceAC,generatorAC:generatorAC,serviceHeating:serviceHeating,generatorHeating:generatorHeat,method:selectedMethod};
+    }
+
+    if(selectedMethod===METHODS.FORTY){
+      const totalQty=heatQty();
+      const qualifies=totalQty>=4;
+      const serviceHeating=qualifies ? serviceHeatTotal*0.40 : 0;
+      const q41=document.getElementById('q41');
+      const v41=document.getElementById('v41');
+      if(q41) q41.value=qualifies?String(totalQty):'';
+      if(v41) v41.value=qualifies&&serviceHeating>0?Math.round(serviceHeating).toLocaleString('en-US')+' VA':'';
+      if(!qualifies) managedQuantities[41]=0;
+      const managed40=qualifies ? managedQuantity(41) : 0;
+      const remaining40=Math.max(totalQty-managed40,0);
+      const averageVA=totalQty>0?serviceHeatTotal/totalQty:0;
+      generatorHeat=qualifies ? remaining40*averageVA*0.40 : 0;
+      service=Math.max(serviceAC,serviceHeating);
+
+      /* In the selected 40% heating mode, the generator-side managed
+         quantity applies directly to the 40% heating load. Do not switch
+         back to the A/C load while the user reduces the managed quantity;
+         otherwise the displayed generator amps remain flat for several
+         clicks. The service side still uses the larger of A/C or heat. */
+      generator=generatorHeat;
+
+      updateManagedControl(41);
+      const serviceACControls=serviceAC>=serviceHeating;
+      setOutput('e37',serviceACControls?ac1:0); setOutput('e39',serviceACControls?ac2:0);
+      setOutput('e38',0); setOutput('e40',0); setOutput('e41',serviceACControls?0:serviceHeating);
+      setOutput('f37',0); setOutput('f39',0);
+      setOutput('f38',0); setOutput('f40',0); setOutput('f41',generatorHeat);
+      return {service:service,generator:generator,serviceAC:serviceAC,generatorAC:generatorAC,serviceHeating:serviceHeating,generatorHeating:generatorHeat,method:selectedMethod};
+    }
+
+    /* Heat-pump method: compressor(s) at 100% plus supplemental heat at 65%. */
+    const serviceSupplemental=serviceHeatTotal*0.65;
+    const generatorSupplemental=(remainingVA(38)+remainingVA(40))*0.65;
+    service=serviceAC+serviceSupplemental;
+    generator=generatorAC+generatorSupplemental;
+    setOutput('e37',ac1); setOutput('e39',ac2);
+    setOutput('e38',heat1*0.65); setOutput('e40',heat2*0.65); setOutput('e41',0);
+    setOutput('f37',remainingVA(37)); setOutput('f39',remainingVA(39));
+    setOutput('f38',remainingVA(38)*0.65); setOutput('f40',remainingVA(40)*0.65); setOutput('f41',0);
+    return {service:service,generator:generator,serviceAC:serviceAC,generatorAC:generatorAC,serviceHeating:serviceSupplemental,generatorHeating:generatorSupplemental,method:selectedMethod};
+  };
+
+  window.resetHeatingMethodSelection=function(){
+    selectedMethod='';
+    managedQuantities[41]=0;
+    try{
+      localStorage.removeItem(METHOD_KEY);
+    }catch(e){}
+    saveManagedQuantities();
+    updateMethodUI();
+  };
+
+  function initialize(){
+    ensureMethodPanel();
+    ensure40Row();
+    selectedMethod=readMethod();
+    updateMethodUI();
+    calculate();
   }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initialize);
+  else initialize();
 })();
 </script>
-<!-- HVAC-40-PHONE-FIX-END -->
+<!-- UNIFIED-HVAC-METHOD-CONTROLLER-END -->
 
 </body>
 </html>
