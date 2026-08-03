@@ -156,7 +156,7 @@ button{
   padding:13px 14px;
   background:var(--blue);
   color:#ffffff;
-  font-size:15px;
+  font-size: 18px;
   font-weight:900;
   text-align:center;
 }
@@ -891,117 +891,54 @@ input.editable-load-name::placeholder{
 }
 
 
-/* Version 2.0 Alpha — Step 6 print report */
-.print-page{
-  width:100%;
-  color:#111827;
-  font-family:Arial,Helvetica,sans-serif;
-}
-.print-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:18px;
-  padding-bottom:10px;
-  border-bottom:3px solid #1e3a8a;
-}
-.print-header h1{
-  margin:0;
-  color:#1e3a8a;
-  font-size:20px;
-  line-height:1.2;
-}
-.print-subtitle{
-  margin-top:3px;
-  color:#0f766e;
-  font-size:12px;
-  font-weight:800;
-}
-.print-version{
-  color:#475569;
-  font-size:10px;
-  font-weight:700;
-  text-align:right;
-}
-.print-project-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px 14px;
-  margin-top:12px;
-  padding:10px;
-  border:1px solid #cbd5e1;
-  border-radius:6px;
-}
-.print-project-grid .wide{
-  grid-column:1 / -1;
-}
-.print-project-grid div,
-.print-method-box div{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  font-size:11px;
-}
-.print-label{
-  color:#64748b;
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:.03em;
-  text-transform:uppercase;
-}
-.print-method-box{
-  display:grid;
-  gap:7px;
-  margin-top:10px;
-  padding:10px;
+/* Version 2.0 Alpha — Step 6 Fixed */
+.print-method-details{
+  margin:8px 0 12px;
+  padding:8px 10px;
   border-left:4px solid #0f766e;
   background:#f0fdfa;
-}
-.print-summary-table,
-.print-managed-table{
-  width:100%;
-  margin-top:12px;
-  border-collapse:collapse;
-  font-size:10px;
-}
-.print-summary-table th,
-.print-summary-table td,
-.print-managed-table th,
-.print-managed-table td{
-  border:1px solid #cbd5e1;
-  padding:6px 7px;
-}
-.print-summary-table th,
-.print-managed-table th{
-  background:#e8eefc;
-  color:#0f172a;
-  text-align:left;
-}
-.print-summary-table td:not(:first-child),
-.print-managed-table td:not(:first-child){
-  text-align:right;
-}
-.print-managed-heading{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  margin-top:14px;
-  color:#0f172a;
-  font-size:12px;
-  font-weight:900;
-}
-.print-managed-heading span{
-  color:#475569;
-  font-size:10px;
+  font-size:11px;
+  line-height:1.45;
 }
 .print-code-note{
-  margin-top:14px;
+  margin-top:12px;
   border-top:1px solid #94a3b8;
   padding-top:8px;
   color:#475569;
   font-size:9px;
   line-height:1.4;
 }
+
+
+/* Three-method 40% behavior */
+.load-inputs.forty-method-entry-only{
+  grid-template-columns:90px minmax(0,1fr) !important;
+}
+.load-inputs.forty-method-entry-only > .inline-managed-controls{
+  display:none !important;
+}
+.forty-unit-warning{
+  display:none;
+  margin:10px 0 0;
+  border:1px solid #fca5a5;
+  border-radius:9px;
+  padding:9px 10px;
+  background:#fef2f2;
+  color:#991b1b;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:800;
+}
+.forty-unit-warning.show{
+  display:block;
+}
+@media(max-width:420px){
+  .load-inputs.forty-method-entry-only{
+    grid-template-columns:70px minmax(0,1fr) !important;
+  }
+}
+
+
 
 </style>
 
@@ -1091,7 +1028,7 @@ input.editable-load-name::placeholder{
         </h1>
 
         <div class="app-version">
-          NEC 2023 | Version 2.0 Alpha — Step 6
+          NEC 2023 | Version 2.0 Alpha — Appliance Order Updated
         </div>
       </div>
 
@@ -1826,103 +1763,6 @@ input.editable-load-name::placeholder{
         </div>
         <div class="load-row">
 
-          <input
-            id="d42"
-            class="editable-load-name"
-            type="text"
-            autocomplete="off"
-            aria-label="Additional continuous load description"
-            placeholder="Additional Continuous Load">
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q42">
-                Qty
-              </label>
-
-              <input
-                id="q42"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v42">
-                VA
-              </label>
-
-              <input
-                id="v42"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-              >
-            </div>
-
-          </div>
-
-          <div class="row-output">
-
-            <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e42"
-                class="output-value"
-              ></div>
-            </div>
-
-            <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f42"
-                class="output-value"
-              ></div>
-            </div>
-
-          </div>
-
-          <div class="managed-row">
-
-            <div class="managed-label">
-              Managed Load
-            </div>
-
-            <div class="managed-controls">
-
-              <button
-                id="m42"
-                class="managed-check"
-                type="button"
-                aria-label="Manage additional continuous load"
-              ></button>
-
-              <button
-                id="mq42"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >
-                0
-              </button>
-
-            </div>
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
           <div class="load-name">
             EV Charger
           </div>
@@ -1930,10 +1770,7 @@ input.editable-load-name::placeholder{
           <div class="load-inputs">
 
             <div class="input-block">
-              <label for="q43">
-                Qty
-              </label>
-
+              <label for="q43">Qty</label>
               <input
                 id="q43"
                 type="number"
@@ -1945,10 +1782,7 @@ input.editable-load-name::placeholder{
             </div>
 
             <div class="input-block">
-              <label for="v43">
-                Nameplate W / VA
-              </label>
-
+              <label for="v43">Nameplate W / VA</label>
               <input
                 id="v43"
                 type="number"
@@ -1967,39 +1801,21 @@ input.editable-load-name::placeholder{
           </p>
 
           <div class="row-output">
-
             <div class="output-box">
-              <div class="output-label">
-                Service Load VA
-              </div>
-
-              <div
-                id="e43"
-                class="output-value"
-              ></div>
+              <div class="output-label">Service Load VA</div>
+              <div id="e43" class="output-value"></div>
             </div>
 
             <div class="output-box">
-              <div class="output-label">
-                Generator Load VA
-              </div>
-
-              <div
-                id="f43"
-                class="output-value"
-              ></div>
+              <div class="output-label">Generator Load VA</div>
+              <div id="f43" class="output-value"></div>
             </div>
-
           </div>
 
           <div class="managed-row">
-
-            <div class="managed-label">
-              Managed Load
-            </div>
+            <div class="managed-label">Managed Load</div>
 
             <div class="managed-controls">
-
               <button
                 id="m43"
                 class="managed-check"
@@ -2012,10 +1828,205 @@ input.editable-load-name::placeholder{
                 class="managed-qty"
                 type="button"
                 aria-label="Reduce managed quantity"
-              >
-                0
-              </button>
+              >0</button>
+            </div>
+          </div>
 
+        </div>
+
+        <div class="load-row">
+
+          <input
+            id="d45"
+            class="editable-load-name"
+            type="text"
+            autocomplete="off"
+            aria-label="Additional load description"
+            placeholder="Enter Load Description"
+          >
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q45">Qty</label>
+              <input
+                id="q45"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                placeholder="Qty"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v45">VA</label>
+              <input
+                id="v45"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+                placeholder="VA"
+              >
+            </div>
+
+          </div>
+
+          <p class="section-note" style="padding-top:8px;padding-bottom:0">
+            This additional load is calculated at 100%.
+          </p>
+
+          <div class="row-output">
+            <div class="output-box">
+              <div class="output-label">Service Load VA</div>
+              <div id="e45" class="output-value"></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">Generator Load VA</div>
+              <div id="f45" class="output-value"></div>
+            </div>
+          </div>
+
+          <div class="managed-row">
+            <div class="managed-label">Managed Load</div>
+
+            <div class="managed-controls">
+              <button
+                id="m45"
+                class="managed-check"
+                type="button"
+                aria-label="Manage additional 100 percent load"
+              ></button>
+
+              <button
+                id="mq45"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >0</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <input
+            id="d42"
+            class="editable-load-name"
+            type="text"
+            autocomplete="off"
+            aria-label="Additional continuous load description"
+            placeholder="Additional Continuous Load (125%)"
+          >
+
+          <div class="load-inputs">
+
+            <div class="input-block">
+              <label for="q42">Qty</label>
+              <input
+                id="q42"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                placeholder="Qty"
+              >
+            </div>
+
+            <div class="input-block">
+              <label for="v42">VA</label>
+              <input
+                id="v42"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+                placeholder="VA"
+              >
+            </div>
+
+          </div>
+
+          <p class="section-note" style="padding-top:8px;padding-bottom:0">
+            Enter the actual load. The calculator automatically applies 125%.
+          </p>
+
+          <div class="row-output">
+            <div class="output-box">
+              <div class="output-label">Service Load VA</div>
+              <div id="e42" class="output-value"></div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">Generator Load VA</div>
+              <div id="f42" class="output-value"></div>
+            </div>
+          </div>
+
+          <div class="managed-row">
+            <div class="managed-label">Managed Load</div>
+
+            <div class="managed-controls">
+              <button
+                id="m42"
+                class="managed-check"
+                type="button"
+                aria-label="Manage additional continuous load"
+              ></button>
+
+              <button
+                id="mq42"
+                class="managed-qty"
+                type="button"
+                aria-label="Reduce managed quantity"
+              >0</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="load-row">
+
+          <div class="load-name">
+            Largest Motor (Additional 25%)
+          </div>
+
+          <label style="display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;margin-bottom:10px;">
+            <input
+              id="includeLargestMotor"
+              type="checkbox"
+              onchange="syncLargestMotorSection()"
+            >
+            Include Largest Motor (25%)
+          </label>
+
+          <div
+            id="largestMotorSection"
+            style="display:none;margin-top:12px;padding:12px;border:1px solid #d1d5db;border-radius:10px;background:#f8fafc;"
+          >
+            <p class="section-note">
+              Enter the full VA of the selected motor. The calculator adds only the additional 25%.
+            </p>
+
+            <label><input type="radio" name="largestMotorType" value="Pool Pump"> Pool Pump</label><br>
+            <label><input type="radio" name="largestMotorType" value="Well Pump"> Well Pump</label><br>
+            <label><input type="radio" name="largestMotorType" value="Irrigation Pump"> Irrigation Pump</label><br>
+            <label><input type="radio" name="largestMotorType" value="A/C Compressor"> A/C Compressor</label><br>
+            <label><input type="radio" name="largestMotorType" value="Heat Pump Compressor"> Heat Pump Compressor</label><br>
+            <label><input type="radio" name="largestMotorType" value="Other Motor"> Other Motor</label>
+
+            <div class="input-block" style="margin-top:10px;">
+              <input
+                id="largestMotorVA"
+                type="number"
+                min="0"
+                step="any"
+                inputmode="decimal"
+                placeholder="Motor Full-Load VA"
+              >
             </div>
           </div>
 
@@ -2183,6 +2194,14 @@ input.editable-load-name::placeholder{
 <script>
 "use strict";
 
+function syncLargestMotorSection(){
+  const checkbox=document.getElementById("includeLargestMotor");
+  const section=document.getElementById("largestMotorSection");
+  if(!checkbox || !section) return;
+  section.style.display=checkbox.checked ? "block" : "none";
+}
+
+
 const STORAGE_KEY =
   "loadcalcpro_generator_mobile_nec2023_v1";
 
@@ -2256,14 +2275,14 @@ const APPLIANCES = [
 const MANAGED_ROWS = [
   10,11,12,13,14,15,16,17,18,19,20,
   21,22,23,24,25,26,27,28,29,30,
-  37,38,39,40,41,42,43
+  37,38,39,40,41,42,43,45
 ];
 
 const INPUT_ROWS = [
   5,6,7,
   10,11,12,13,14,15,16,17,18,19,20,
   21,22,23,24,25,26,27,28,29,30,
-  37,38,39,40,42,43
+  37,38,39,40,42,43,45
 ];
 function numberValue(id){
   const el = document.getElementById(id);
@@ -2351,70 +2370,6 @@ function managedQuantity(row){
 }
 
 
-function managedRowHasValidLoad(row){
-  return totalQuantity(row) > 0 && numberValue("v" + row) > 0;
-}
-
-function managedRowIsApplicable(row){
-  const numericRow = Number(row);
-
-  if(!managedRowHasValidLoad(numericRow)){
-    return false;
-  }
-
-  if(
-    numericRow >= 37 &&
-    numericRow <= 40 &&
-    typeof window.isHVACManagedRowApplicable === "function"
-  ){
-    return window.isHVACManagedRowApplicable(numericRow);
-  }
-
-  return true;
-}
-
-function sanitizeManagedQuantity(row){
-  const numericRow = Number(row);
-  const total = totalQuantity(numericRow);
-  let selected = managedQuantity(numericRow);
-
-  if(!managedRowIsApplicable(numericRow)){
-    selected = 0;
-  }
-
-  if(selected > total){
-    selected = total;
-  }
-
-  if(selected < 0 || !Number.isFinite(selected)){
-    selected = 0;
-  }
-
-  if(Number(managedQuantities[numericRow] || 0) !== selected){
-    managedQuantities[numericRow] = selected;
-    saveManagedQuantities();
-  }
-
-  return selected;
-}
-
-function clearManagedRows(rows){
-  let changed = false;
-
-  rows.forEach(function(row){
-    if(Number(managedQuantities[row] || 0) !== 0){
-      managedQuantities[row] = 0;
-      changed = true;
-    }
-  });
-
-  if(changed){
-    saveManagedQuantities();
-  }
-
-  rows.forEach(updateManagedControl);
-}
-
 function updateManagedControl(row){
   const check =
     document.getElementById("m" + row);
@@ -2426,8 +2381,17 @@ function updateManagedControl(row){
     return;
   }
 
-  const applicable = managedRowIsApplicable(row);
-  const selected = sanitizeManagedQuantity(row);
+  let selected = managedQuantity(row);
+
+  const isHVACRow = row >= 37 && row <= 40;
+  const applicable =
+    !isHVACRow ||
+    typeof window.isHVACManagedRowApplicable !== "function" ||
+    window.isHVACManagedRowApplicable(row);
+
+  if(!applicable || totalQuantity(row) < 1 || numberValue("v" + row) <= 0){
+    selected = 0;
+  }
 
   check.classList.toggle(
     "checked",
@@ -2445,30 +2409,21 @@ function updateManagedControl(row){
   quantityButton.textContent =
     String(selected);
 
-  check.disabled = !applicable;
-  quantityButton.disabled = !applicable;
-
-  check.classList.toggle("managed-control-inactive", !applicable);
-  quantityButton.classList.toggle("managed-control-inactive", !applicable);
-
   check.title =
-    !applicable
-      ? "This managed selection does not apply to an active load"
-      : selected > 0
-        ? "Click to remove managed selection"
-        : "Click to manage all entered units";
+    selected > 0
+      ? "Click to remove managed selection"
+      : "Click to manage all entered units";
 
   quantityButton.title =
-    applicable
-      ? "Click to reduce the managed quantity"
-      : "This managed selection does not apply to an active load";
+    "Click to reduce the managed quantity";
 }
 
 function toggleManaged(row){
-  if(!managedRowIsApplicable(row)){
-    managedQuantities[row] = 0;
-    saveManagedQuantities();
-    updateManagedControl(row);
+  if(
+    row >= 37 && row <= 40 &&
+    typeof window.isHVACManagedRowApplicable === "function" &&
+    !window.isHVACManagedRowApplicable(row)
+  ){
     return;
   }
 
@@ -2484,10 +2439,11 @@ function toggleManaged(row){
 }
 
 function reduceManagedQuantity(row){
-  if(!managedRowIsApplicable(row)){
-    managedQuantities[row] = 0;
-    saveManagedQuantities();
-    updateManagedControl(row);
+  if(
+    row >= 37 && row <= 40 &&
+    typeof window.isHVACManagedRowApplicable === "function" &&
+    !window.isHVACManagedRowApplicable(row)
+  ){
     return;
   }
 
@@ -3137,36 +3093,21 @@ function applicableManagedLoadCount(){
     const va = numberValue("v" + row);
     if(quantity < 1 || va <= 0) continue;
 
-    if(!managedRowIsApplicable(row)){
+    if(
+      row >= 37 && row <= 40 &&
+      typeof window.isHVACManagedRowApplicable === "function" &&
+      !window.isHVACManagedRowApplicable(row)
+    ){
       continue;
     }
 
-    total += Math.min(sanitizeManagedQuantity(row), quantity);
+    total += Math.min(managedQuantity(row), quantity);
   }
 
   return total;
 }
 
 function continuousLoadCalculation(){
-  const additionalService =
-    rowVA(42);
-
-  const additionalGenerator =
-    generatorRowValue(
-      42,
-      additionalService
-    );
-
-  setOutput(
-    "e42",
-    additionalService
-  );
-
-  setOutput(
-    "f42",
-    additionalGenerator
-  );
-
   const evService =
     rowVA(43);
 
@@ -3186,26 +3127,69 @@ function continuousLoadCalculation(){
     evGenerator
   );
 
+  const additional100Service =
+    rowVA(45);
+
+  const additional100Generator =
+    generatorRowValue(
+      45,
+      additional100Service
+    );
+
+  setOutput(
+    "e45",
+    additional100Service
+  );
+
+  setOutput(
+    "f45",
+    additional100Generator
+  );
+
+  const additionalContinuousService =
+    rowVA(42) * 1.25;
+
+  const additionalContinuousGenerator =
+    generatorRowValue(
+      42,
+      additionalContinuousService
+    );
+
+  setOutput(
+    "e42",
+    additionalContinuousService
+  );
+
+  setOutput(
+    "f42",
+    additionalContinuousGenerator
+  );
+
   return {
     service:
-      additionalService +
-      evService,
+      evService +
+      additional100Service +
+      additionalContinuousService,
 
     generator:
-      additionalGenerator +
-      evGenerator,
+      evGenerator +
+      additional100Generator +
+      additionalContinuousGenerator,
+
+    evService:evService,
+    evGenerator:evGenerator,
+
+    additional100Service:
+      additional100Service,
+
+    additional100Generator:
+      additional100Generator,
 
     additionalService:
-      additionalService,
+      additionalContinuousService,
 
     additionalGenerator:
-      additionalGenerator,
-
-    evService:
-      evService,
-
-    evGenerator:
-      evGenerator
+      additionalContinuousGenerator
   };
 }
 
@@ -3253,6 +3237,7 @@ function displayAmps(
     rounded.toLocaleString("en-US") +
     " A";
 }
+
 
 function calculate(){
   const generalLoad =
@@ -3344,9 +3329,11 @@ function calculate(){
 
     if(requiredLoads.valid && !hvacMethod.valid){
       const message =
-        hvacMethod.method==="heatpump" && !hvacMethod.heatPumpReady
-          ? "Heat-pump answer required"
-          : "HVAC method required";
+        hvacMethod.method==="separate40" && !hvacMethod.fortyPercentReady
+          ? "Four heating units required"
+          : hvacMethod.method==="heatpump" && !hvacMethod.heatPumpReady
+            ? "Heat-pump answer required"
+            : "HVAC method required";
 
       if(serviceResult) serviceResult.textContent=message;
       if(generatorResult) generatorResult.textContent=message;
@@ -3364,8 +3351,6 @@ function calculate(){
     serviceCurrent:serviceCurrent,
     generatorCurrent:generatorCurrent,
     voltage:voltage,
-    serviceVA:serviceTotal,
-    generatorVA:generatorTotal,
     requiredLoadsValid:requiredLoads.valid,
     managedLoadCount:applicableManagedLoadCount()
   });
@@ -3374,14 +3359,22 @@ function calculate(){
     updateManagedControl(row);
   }
 
+  /* A final HVAC-only refresh guarantees that the visible controlling rows
+     are clickable after every input or method change. */
+  [37,38,39,40].forEach(function(row){
+    updateManagedControl(row);
+  });
+
+
   if(!suppressAutoSave){
     saveState(false);
   }
 }
 
+
 function connectStaticManagedControls(){
   const staticRows = [
-    37,38,39,40,42,43
+    37,38,39,40,42,43,45
   ];
 
   for(const row of staticRows){
@@ -3425,6 +3418,7 @@ function connectCalculatorInputs(){
     "q40","v40",
     "q42","v42",
     "q43","v43",
+    "q45","v45",
     "q46"
   ];
 
@@ -3987,253 +3981,837 @@ function printLoadRow(
   );
 }
 
-function currentHVACMethodSummary(){
+function printHVACMethod(){
   return typeof window.getHVACMethodSummary === "function"
     ? window.getHVACMethodSummary()
     : "Not selected";
 }
 
-function currentHeatPumpCondition(){
+function printHeatPumpCondition(){
   const validation =
     typeof window.validateHVACMethodSelection === "function"
       ? window.validateHVACMethodSelection()
-      : {method:"",heatPumpReady:false};
+      : {method:""};
 
   if(validation.method !== "heatpump"){
     return "";
   }
 
-  const summary = currentHVACMethodSummary();
+  const summary = printHVACMethod();
 
-  if(summary.includes("compressor at 100%")){
+  if(summary.indexOf("compressor at 100%") >= 0){
     return "Compressor and supplemental electric heat can operate simultaneously";
   }
 
-  if(summary.includes("compressor locked out")){
-    return "Compressor is locked out during supplemental electric heat";
+  if(summary.indexOf("compressor locked out") >= 0){
+    return "Compressor locked out during supplemental electric heat";
   }
 
-  return "Heat-pump operating condition not selected";
-}
-
-function managedLoadsSummary(){
-  const rows = [];
-
-  for(const row of MANAGED_ROWS){
-    if(row === 41) continue;
-
-    const quantity = totalQuantity(row);
-    const vaEach = numberValue("v" + row);
-    const managed = sanitizeManagedQuantity(row);
-
-    if(quantity < 1 || vaEach <= 0 || managed < 1){
-      continue;
-    }
-
-    let label = "";
-
-    if(row >= 10 && row <= 30){
-      const appliance = APPLIANCES.find(item => item.row === row);
-      const editable = document.getElementById("d" + row);
-      label =
-        String(editable ? editable.value : "").trim() ||
-        (appliance ? appliance.label : "") ||
-        "Appliance Load";
-    }else if(row >= 37 && row <= 40){
-      label =
-        typeof window.getHVACRowLabel === "function"
-          ? window.getHVACRowLabel(row)
-          : (row === 37 || row === 39 ? "Air Conditioning" : "Heating");
-    }else if(row === 42){
-      label =
-        String((document.getElementById("d42") || {}).value || "").trim() ||
-        "Additional Continuous Load";
-    }else if(row === 43){
-      label = "EV Charger";
-    }
-
-    if(!label) continue;
-
-    rows.push({
-      label:label,
-      managed:managed,
-      vaEach:vaEach,
-      removedVA:managed * vaEach
-    });
-  }
-
-  return rows;
-}
-
-function formatPrintNumber(value){
-  const n = Number(value);
-  return Number.isFinite(n)
-    ? Math.round(n).toLocaleString("en-US")
-    : "0";
+  return "Operating condition not selected";
 }
 
 function updatePrintRows(data){
-  const report = document.getElementById("printReport");
+
+  const report =
+    document.getElementById("printReport");
+
   if(!report){
     return;
   }
 
-  const projectName =
-    String((document.getElementById("projectName") || {}).value || "").trim();
+  let html = "";
 
-  const projectNumber =
-    String((document.getElementById("projectNumber") || {}).value || "").trim();
+  html += `
+  <div class="print-page">
 
-  const projectAddress =
-    String((document.getElementById("projectAddress") || {}).value || "").trim();
+    <h1>Generator Optional Method Calculator</h1>
 
-  const projectCityState =
-    String((document.getElementById("projectCityState") || {}).value || "").trim();
+    <div class="print-project">
 
-  const serviceVoltage = Number(data && data.voltage) || numberValue("q46") || 240;
-  const serviceVA = Number(data && data.serviceVA) || 0;
-  const generatorVA = Number(data && data.generatorVA) || 0;
-  const serviceAmps = serviceVoltage > 0 ? serviceVA / serviceVoltage : 0;
-  const generatorAmps = serviceVoltage > 0 ? generatorVA / serviceVoltage : 0;
-  const hvacMethod = currentHVACMethodSummary();
-  const heatPumpCondition = currentHeatPumpCondition();
-  const managedRows = managedLoadsSummary();
-  const managedCount =
-    typeof applicableManagedLoadCount === "function"
-      ? applicableManagedLoadCount()
-      : managedRows.reduce((sum,item) => sum + item.managed,0);
+      <div><strong>Project:</strong>
+        ${escapeHTML(document.getElementById("projectName").value)}
+      </div>
 
-  let managedHTML = "";
+      <div><strong>Project #:</strong>
+        ${escapeHTML(document.getElementById("projectNumber").value)}
+      </div>
 
-  if(managedRows.length){
-    managedHTML = managedRows.map(function(item){
-      return `
+      <div><strong>Address:</strong>
+        ${escapeHTML(document.getElementById("projectAddress").value)}
+      </div>
+
+      <div><strong>City / State:</strong>
+        ${escapeHTML(document.getElementById("projectCityState").value)}
+      </div>
+
+    </div>
+
+    <div class="print-method-details">
+      <div>
+        <strong>HVAC Method:</strong>
+        ${escapeHTML(printHVACMethod())}
+      </div>
+
+      ${
+        printHeatPumpCondition()
+          ? `<div>
+               <strong>Heat-Pump Operating Condition:</strong>
+               ${escapeHTML(printHeatPumpCondition())}
+             </div>`
+          : ""
+      }
+
+      <div>
+        <strong>Service Voltage:</strong>
+        ${printNumber(data.voltage)} V
+      </div>
+
+      <div>
+        <strong>Service Total:</strong>
+        ${printNumber(data.serviceTotalVA)} VA /
+        ${Math.ceil(data.serviceCurrent)} A
+      </div>
+
+      <div>
+        <strong>Generator Total:</strong>
+        ${printNumber(data.generatorTotalVA)} VA /
+        ${Math.ceil(data.generatorCurrent)} A
+      </div>
+    </div>
+
+    <table class="print-table">
+
+      <thead>
+
         <tr>
-          <td>${escapeHTML(item.label)}</td>
-          <td>${formatPrintNumber(item.managed)}</td>
-          <td>${formatPrintNumber(item.vaEach)}</td>
-          <td>${formatPrintNumber(item.removedVA)}</td>
-        </tr>`;
-    }).join("");
-  }else{
-    managedHTML = `
-      <tr>
-        <td colspan="4" style="text-align:center;color:#64748b">
-          No managed loads selected
-        </td>
-      </tr>`;
+          <th>Description</th>
+          <th>Service VA</th>
+          <th>Generator VA</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+  `;
+
+  html += printLoadRow(
+    "General Lighting",
+    readOutput("e5"),
+    readOutput("f5")
+  );
+
+  html += printLoadRow(
+    "Small Appliance Circuits",
+    readOutput("e6"),
+    readOutput("f6")
+  );
+
+  html += printLoadRow(
+    "Laundry Circuit",
+    readOutput("e7"),
+    readOutput("f7")
+  );
+
+  for(const item of APPLIANCES){
+
+    const label =
+      applianceDescription(
+        item.row,
+        item.label
+      );
+
+    html += printLoadRow(
+      label,
+      readOutput("e"+item.row),
+      readOutput("f"+item.row)
+    );
+
   }
 
-  report.innerHTML = `
-    <div class="print-page">
+  html += printLoadRow(
+    typeof window.getHVACRowLabel === "function" ? window.getHVACRowLabel(37) : "Air Conditioning",
+    readOutput("e37"),
+    readOutput("f37")
+  );
 
-      <div class="print-header">
-        <div>
-          <h1>Generator Optional Method Calculation</h1>
-          <div class="print-subtitle">
-            LoadCalcPro X
-          </div>
-        </div>
+  html += printLoadRow(
+    typeof window.getHVACRowLabel === "function" ? window.getHVACRowLabel(38) : "Heating",
+    readOutput("e38"),
+    readOutput("f38")
+  );
 
-        <div class="print-version">
-          Version 2.0 Alpha — Step 6
-        </div>
-      </div>
+  html += printLoadRow(
+    "Air Conditioning",
+    readOutput("e39"),
+    readOutput("f39")
+  );
 
-      <div class="print-project-grid">
-        <div>
-          <span class="print-label">Project Name</span>
-          <span>${escapeHTML(projectName || "—")}</span>
-        </div>
+  html += printLoadRow(
+    typeof window.getHVACRowLabel === "function" ? window.getHVACRowLabel(40) : "Heating",
+    readOutput("e40"),
+    readOutput("f40")
+  );
 
-        <div>
-          <span class="print-label">Project Number</span>
-          <span>${escapeHTML(projectNumber || "—")}</span>
-        </div>
+  html += printLoadRow(
+    "EV Charger",
+    readOutput("e43"),
+    readOutput("f43")
+  );
 
-        <div class="wide">
-          <span class="print-label">Address</span>
-          <span>${escapeHTML(projectAddress || "—")}</span>
-        </div>
+  const additionalLoadDescription =
+    String((document.getElementById("d45") || {}).value || "").trim() ||
+    "Additional Load (100%)";
 
-        <div class="wide">
-          <span class="print-label">City / State</span>
-          <span>${escapeHTML(projectCityState || "—")}</span>
-        </div>
-      </div>
+  html += printLoadRow(
+    additionalLoadDescription,
+    readOutput("e45"),
+    readOutput("f45")
+  );
 
-      <div class="print-method-box">
-        <div>
-          <span class="print-label">HVAC Method</span>
-          <span>${escapeHTML(hvacMethod)}</span>
-        </div>
+  const continuousDescription =
+    String((document.getElementById("d42") || {}).value || "").trim() ||
+    "Additional Continuous Load (125%)";
 
-        ${
-          heatPumpCondition
-            ? `<div>
-                 <span class="print-label">Heat-Pump Operating Condition</span>
-                 <span>${escapeHTML(heatPumpCondition)}</span>
-               </div>`
-            : ""
+  html += printLoadRow(
+    continuousDescription,
+    readOutput("e42"),
+    readOutput("f42")
+  );
+
+  html += `
+      </tbody>
+
+      <tfoot>
+
+        <tr>
+          <td><strong>Demand Load</strong></td>
+          <td>${printNumber(data.demandLoads.service)}</td>
+          <td>${printNumber(data.demandLoads.generator)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>HVAC + Continuous</strong></td>
+          <td>${printNumber(
+            data.hvacLoads.service +
+            data.continuousLoads.service
+          )}</td>
+
+          <td>${printNumber(
+            data.hvacLoads.generator +
+            data.continuousLoads.generator
+          )}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Total VA</strong></td>
+
+          <td>${printNumber(
+            data.serviceTotalVA
+          )}</td>
+
+          <td>${printNumber(
+            data.generatorTotalVA
+          )}</td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+            <strong>
+              Calculated Amps
+            </strong>
+          </td>
+
+          <td>
+            ${Math.ceil(
+              data.serviceCurrent
+            )} A
+          </td>
+
+          <td>
+            ${Math.ceil(
+              data.generatorCurrent
+            )} A
+          </td>
+
+        </tr>
+
+      </tfoot>
+
+    </table>
+
+    <div class="print-code-note">
+      Calculated using the NEC 2023 optional method for one-family dwellings.
+      Final approval remains subject to the authority having jurisdiction,
+      actual equipment ratings, and equipment control conditions.
+    </div>
+
+  </div>
+  `;
+
+  report.innerHTML = html;
+
+}
+
+function organizeInlineLoadControls(){
+  const rows = document.querySelectorAll(".load-row");
+
+  for(const row of rows){
+    const inputs = row.querySelector(".load-inputs");
+    const managedRow = row.querySelector(".managed-row");
+    const controls = managedRow
+      ? managedRow.querySelector(".managed-controls")
+      : null;
+
+    if(!inputs || !managedRow || !controls){
+      continue;
+    }
+
+    inputs.classList.add("inline-load-row");
+    controls.classList.add("inline-managed-controls");
+    inputs.appendChild(controls);
+    managedRow.remove();
+  }
+}
+
+function initializeCalculator(){
+
+  createApplianceRows();
+  organizeInlineLoadControls();
+
+  connectStaticManagedControls();
+
+  connectCalculatorInputs();
+
+  for(const row of MANAGED_ROWS){
+    updateManagedControl(row);
+  }
+
+  calculate();
+
+  initializeSavedCalculation();
+
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeCalculator
+);
+
+window.addEventListener(
+  "beforeunload",
+  function(){
+    saveState(false);
+  }
+);
+function setAccessMessage(text,type){
+  const message =
+    document.getElementById(
+      "accessMessage"
+    );
+
+  if(!message){
+    return;
+  }
+
+  message.textContent =
+    text || "";
+
+  message.className =
+    "access-msg";
+
+  if(type){
+    message.classList.add(type);
+  }
+}
+
+function validEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(email);
+}
+
+function getRememberedEmail(){
+  try{
+    return String(
+      localStorage.getItem(
+        LOADCALCPRO_REMEMBERED_EMAIL_KEY
+      ) || ""
+    )
+      .trim()
+      .toLowerCase();
+  }catch(e){
+    return "";
+  }
+}
+
+function saveRememberedEmail(email){
+  const remember =
+    document.getElementById(
+      "rememberMemberEmail"
+    );
+
+  try{
+    if(
+      remember &&
+      remember.checked
+    ){
+      localStorage.setItem(
+        LOADCALCPRO_REMEMBERED_EMAIL_KEY,
+        email
+      );
+    }else{
+      localStorage.removeItem(
+        LOADCALCPRO_REMEMBERED_EMAIL_KEY
+      );
+    }
+  }catch(e){}
+}
+
+function forgetRememberedEmail(){
+  try{
+    localStorage.removeItem(
+      LOADCALCPRO_REMEMBERED_EMAIL_KEY
+    );
+
+    sessionStorage.removeItem(
+      LOADCALCPRO_ACCESS_KEY
+    );
+  }catch(e){}
+
+  const email =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  const remember =
+    document.getElementById(
+      "rememberMemberEmail"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  if(email){
+    email.value = "";
+    email.focus();
+  }
+
+  if(remember){
+    remember.checked = false;
+  }
+
+  if(forgetButton){
+    forgetButton.style.display =
+      "none";
+  }
+
+  setAccessMessage(
+    "Saved email removed.",
+    "ok"
+  );
+}
+
+function loadRememberedEmail(){
+  const rememberedEmail =
+    getRememberedEmail();
+
+  const email =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  const remember =
+    document.getElementById(
+      "rememberMemberEmail"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  if(
+    email &&
+    rememberedEmail
+  ){
+    email.value =
+      rememberedEmail;
+  }
+
+  if(remember){
+    remember.checked =
+      Boolean(rememberedEmail);
+  }
+
+  if(forgetButton){
+    forgetButton.style.display =
+      rememberedEmail
+        ? "inline-flex"
+        : "none";
+  }
+}
+
+function unlockCalculator(){
+  document.body.classList.remove(
+    "access-locked"
+  );
+
+  const accessScreen =
+    document.getElementById(
+      "accessScreen"
+    );
+
+  if(accessScreen){
+    accessScreen.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+}
+
+function lockCalculator(){
+  document.body.classList.add(
+    "access-locked"
+  );
+
+  const accessScreen =
+    document.getElementById(
+      "accessScreen"
+    );
+
+  if(accessScreen){
+    accessScreen.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+  }
+}
+
+function saveTemporaryAccess(email){
+  try{
+    sessionStorage.setItem(
+      LOADCALCPRO_ACCESS_KEY,
+      JSON.stringify({
+        email:email,
+        grantedAt:
+          new Date().toISOString()
+      })
+    );
+  }catch(e){}
+}
+
+function getTemporaryAccess(){
+  try{
+    const raw =
+      sessionStorage.getItem(
+        LOADCALCPRO_ACCESS_KEY
+      );
+
+    if(!raw){
+      return null;
+    }
+
+    const access =
+      JSON.parse(raw);
+
+    if(
+      !access ||
+      !access.email
+    ){
+      return null;
+    }
+
+    return access;
+  }catch(e){
+    return null;
+  }
+}
+
+async function verifyMembershipEmail(
+  email
+){
+  const response = await fetch(
+    LOADCALCPRO_ACCESS_ENDPOINT,
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+          "application/json"
+      },
+
+      body:JSON.stringify({
+        email:email,
+        calculator:
+          "generator-nec2023",
+        product:
+          "LoadCalcPro Professional Membership"
+      })
+    }
+  );
+
+  let data = {};
+
+  try{
+    data =
+      await response.json();
+  }catch(e){
+    data = {};
+  }
+
+  if(!response.ok){
+    return {
+      active:false,
+
+      message:
+        data.message ||
+        data.error ||
+        "Membership check failed. Please try again."
+    };
+  }
+
+  const active =
+    data.active === true ||
+    data.access === true ||
+    data.allowed === true ||
+    data.ok === true ||
+    String(
+      data.status || ""
+    ).toLowerCase() ===
+      "active";
+
+  return {
+    active:active,
+
+    message:
+      data.message ||
+      (
+        active
+          ? "Access approved."
+          : "An active subscription is required."
+      )
+  };
+}
+
+async function verifySignedInAccess(){
+  if(
+    !loadCalcProSupabase
+  ){
+    return false;
+  }
+
+  try{
+    const result =
+      await loadCalcProSupabase
+        .auth
+        .getSession();
+
+    const session =
+      result &&
+      result.data
+        ? result.data.session
+        : null;
+
+    if(
+      !session ||
+      !session.access_token
+    ){
+      return false;
+    }
+
+    const response =
+      await fetch(
+        LOADCALCPRO_V2_ACCESS_ENDPOINT,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              "Bearer " +
+              session.access_token
+          },
+
+          body:JSON.stringify({
+            calculator:"generator"
+          })
         }
+      );
 
-        <div>
-          <span class="print-label">Service Voltage</span>
-          <span>${formatPrintNumber(serviceVoltage)} V</span>
-        </div>
-      </div>
+    let data = {};
 
-      <table class="print-summary-table">
-        <thead>
-          <tr>
-            <th>Calculation</th>
-            <th>VA</th>
-            <th>Amps</th>
-          </tr>
-        </thead>
+    try{
+      data =
+        await response.json();
+    }catch(e){
+      data = {};
+    }
 
-        <tbody>
-          <tr>
-            <td>Service Load</td>
-            <td>${formatPrintNumber(serviceVA)}</td>
-            <td>${formatPrintNumber(serviceAmps)}</td>
-          </tr>
+    const active =
+      response.ok &&
+      (
+        data.active === true ||
+        data.access === true ||
+        data.allowed === true
+      );
 
-          <tr>
-            <td>Generator Load</td>
-            <td>${formatPrintNumber(generatorVA)}</td>
-            <td>${formatPrintNumber(generatorAmps)}</td>
-          </tr>
-        </tbody>
-      </table>
+    if(active){
+      const email =
+        session.user &&
+        session.user.email
+          ? session.user.email
+          : "";
 
-      <div class="print-managed-heading">
-        Managed Loads Removed
-        <span>${formatPrintNumber(managedCount)} total unit${managedCount === 1 ? "" : "s"}</span>
-      </div>
+      saveTemporaryAccess(email);
+      unlockCalculator();
 
-      <table class="print-managed-table">
-        <thead>
-          <tr>
-            <th>Load</th>
-            <th>Managed Qty</th>
-            <th>VA Each</th>
-            <th>Removed VA</th>
-          </tr>
-        </thead>
+      return true;
+    }
 
-        <tbody>
-          ${managedHTML}
-        </tbody>
-      </table>
+  }catch(e){
+    return false;
+  }
 
-      <div class="print-code-note">
-        Calculated using the NEC 2023 optional method for one-family dwellings.
-        Final approval remains subject to the authority having jurisdiction and
-        the actual equipment ratings and control conditions.
-      </div>
+  return false;
+}
 
-    </div>`;
+async function requestCalculatorAccess(){
+  const emailInput =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  const accessButton =
+    document.getElementById(
+      "accessButton"
+    );
+
+  const forgetButton =
+    document.getElementById(
+      "forgetEmailButton"
+    );
+
+  const email =
+    String(
+      emailInput
+        ? emailInput.value
+        : ""
+    )
+      .trim()
+      .toLowerCase();
+
+  if(!validEmail(email)){
+    setAccessMessage(
+      "Please enter a valid email address.",
+      "error"
+    );
+
+    if(emailInput){
+      emailInput.focus();
+    }
+
+    return;
+  }
+
+  if(accessButton){
+    accessButton.disabled = true;
+    accessButton.textContent =
+      "Checking membership…";
+  }
+
+  setAccessMessage(
+    "Checking your membership…",
+    ""
+  );
+
+  try{
+    const result =
+      await verifyMembershipEmail(
+        email
+      );
+
+    if(!result.active){
+      setAccessMessage(
+        result.message,
+        "error"
+      );
+
+      return;
+    }
+
+    saveRememberedEmail(email);
+    saveTemporaryAccess(email);
+
+    if(forgetButton){
+      forgetButton.style.display =
+        "inline-flex";
+    }
+
+    setAccessMessage(
+      "Access approved.",
+      "ok"
+    );
+
+    unlockCalculator();
+
+  }catch(e){
+    setAccessMessage(
+      "The access server could not be reached. Please try again.",
+      "error"
+    );
+
+  }finally{
+    if(accessButton){
+      accessButton.disabled = false;
+      accessButton.textContent =
+        "Continue";
+    }
+  }
+}
+
+async function initializeAccessControl(){
+  lockCalculator();
+  loadRememberedEmail();
+
+  const temporaryAccess =
+    getTemporaryAccess();
+
+  if(
+    temporaryAccess &&
+    temporaryAccess.email
+  ){
+    unlockCalculator();
+    return;
+  }
+
+  const signedIn =
+    await verifySignedInAccess();
+
+  if(signedIn){
+    return;
+  }
+
+  const emailInput =
+    document.getElementById(
+      "memberEmail"
+    );
+
+  if(emailInput){
+    emailInput.addEventListener(
+      "keydown",
+      function(event){
+        if(event.key === "Enter"){
+          event.preventDefault();
+          requestCalculatorAccess();
+        }
+      }
+    );
+  }
 }
 function printCalculation(){
   calculate();
@@ -4252,7 +4830,9 @@ function printCalculation(){
       : {valid:false};
 
   if(!hvacMethod.valid){
-    if(hvacMethod.method==="heatpump" && !hvacMethod.heatPumpReady){
+    if(hvacMethod.method==="separate40" && !hvacMethod.fortyPercentReady){
+      alert("Four or more separately controlled electric heating units are required before the 40% method can be printed as a final calculation.");
+    }else if(hvacMethod.method==="heatpump" && !hvacMethod.heatPumpReady){
       alert("Select whether the heat-pump compressor and supplemental electric heat can operate simultaneously before printing.");
     }else{
       alert("Select one HVAC method before printing.");
@@ -4513,6 +5093,10 @@ if(
     if(voltage && general && voltage.nextElementSibling !== general){
       general.parentNode.insertBefore(voltage, general);
     }
+
+    if(typeof window.syncFortyMethodEntryControls === 'function'){
+      window.syncFortyMethodEntryControls();
+    }
   }
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', finishLayout);
@@ -4739,11 +5323,11 @@ if(
       <div class="heating-method-title">Select Heating Method</div>
       <button type="button" class="heating-method-choice" data-method="${METHODS.CENTRAL}">
         <span class="heating-method-check"></span>
-        <span class="heating-method-text">Cooling Only / Central Electric Heat (65%)</span>
+        <span class="heating-method-text">Cooling at 100% / Central Electric Heat at 65%</span>
       </button>
       <button type="button" class="heating-method-choice" data-method="${METHODS.FORTY}">
         <span class="heating-method-check"></span>
-        <span class="heating-method-text">Four or More Separately Controlled Electric Heating Systems (40%)</span>
+        <span class="heating-method-text">Separately Controlled Electric Heating Systems at 40% — Four or More Required</span>
       </button>
       <button type="button" class="heating-method-choice" data-method="${METHODS.HEATPUMP}">
         <span class="heating-method-check"></span>
@@ -4751,6 +5335,9 @@ if(
       </button>
       <div id="heatingMethodRequiredNote" class="heating-method-required-note">
         Select one HVAC method before the final calculation can be completed.
+      </div>
+      <div id="fortyUnitWarning" class="forty-unit-warning">
+        The 40% rows are shown for entry and testing, but four or more separately controlled heating units are required for the final calculation.
       </div>`;
     if(note) note.insertAdjacentElement('afterend',panel);
     else body.insertBefore(panel,body.firstChild);
@@ -4852,23 +5439,52 @@ if(
     return [row1,row2];
   }
 
+  function syncFortyMethodEntryControls(){
+    const fortySelected=selectedMethod===METHODS.FORTY;
+    const qualifies=heatQty()>=4;
+
+    [38,40].forEach(function(row){
+      const container=rowFor(row);
+      const inputs=container ? container.querySelector('.load-inputs') : null;
+      const check=document.getElementById('m'+row);
+      const qty=document.getElementById('mq'+row);
+      const controls=check ? check.closest('.inline-managed-controls') : null;
+
+      if(inputs){
+        inputs.classList.toggle('forty-method-entry-only',fortySelected);
+      }
+
+      if(controls){
+        controls.hidden=fortySelected;
+        controls.style.display=fortySelected ? 'none' : '';
+        controls.setAttribute('aria-hidden',fortySelected ? 'true' : 'false');
+      }
+
+      if(check){
+        check.tabIndex=fortySelected ? -1 : 0;
+        check.style.pointerEvents=fortySelected ? 'none' : '';
+      }
+
+      if(qty){
+        qty.tabIndex=fortySelected ? -1 : 0;
+        qty.style.pointerEvents=fortySelected ? 'none' : '';
+      }
+    });
+
+    const warning=document.getElementById('fortyUnitWarning');
+    if(warning){
+      warning.classList.toggle('show',fortySelected && !qualifies);
+    }
+  }
+
   function sync40PercentManagedControls(){
     [
       {source:38,index:1},
       {source:40,index:2}
     ].forEach(function(item){
+      const selected=managedQuantity(item.source);
       const total=Math.floor(value('q'+item.source));
-      const valid=
-        total>0 &&
-        value('v'+item.source)>0 &&
-        selectedMethod===METHODS.FORTY &&
-        activeHVACManagedRows.has(item.source);
-      const selected=valid ? sanitizeManagedQuantity(item.source) : 0;
-
-      if(!valid && Number(managedQuantities[item.source] || 0) !== 0){
-        managedQuantities[item.source]=0;
-        saveManagedQuantities();
-      }
+      const valid=total>0 && value('v'+item.source)>0;
       const check=document.getElementById('m41_'+item.index);
       const qty=document.getElementById('mq41_'+item.index);
 
@@ -4946,18 +5562,6 @@ if(
         qty.disabled=!active || useFortyRowControl;
       }
     });
-
-    [37,38,39,40].forEach(function(row){
-      const active =
-        activeHVACManagedRows.has(row) &&
-        rowService(row) > 0;
-
-      if(!active && Number(managedQuantities[row] || 0) !== 0){
-        managedQuantities[row] = 0;
-      }
-    });
-
-    saveManagedQuantities();
     sync40PercentManagedControls();
   }
 
@@ -4997,6 +5601,7 @@ if(
     rows40.forEach(function(row){
       if(row) row.classList.toggle('show',selectedMethod===METHODS.FORTY);
     });
+    syncFortyMethodEntryControls();
     sync40PercentManagedControls();
 
     if(selectedMethod===METHODS.HEATPUMP){
@@ -5041,11 +5646,17 @@ if(
       hpCompressorSupplemental==='yes' ||
       hpCompressorSupplemental==='no';
 
+    const fortyPercentReady=
+      selectedMethod!==METHODS.FORTY ||
+      heatQty()>=4;
+
     return {
-      valid:methodSelected && heatPumpReady,
+      valid:methodSelected && heatPumpReady && fortyPercentReady,
       method:selectedMethod,
       methodSelected:methodSelected,
-      heatPumpReady:heatPumpReady
+      heatPumpReady:heatPumpReady,
+      fortyPercentReady:fortyPercentReady,
+      heatingUnitCount:heatQty()
     };
   };
 
@@ -5074,6 +5685,8 @@ if(
     }
     return (row===37 || row===39) ? 'Air Conditioning' : 'Heating';
   };
+
+  window.syncFortyMethodEntryControls=syncFortyMethodEntryControls;
 
   window.getHVACMethodSummary=function(){
     if(selectedMethod===METHODS.CENTRAL) return 'Cooling Only / Central Electric Heat — larger of cooling at 100% or heat at 65%';
@@ -5112,6 +5725,8 @@ if(
     }
 
     if(selectedMethod===METHODS.CENTRAL){
+      /* Central method always remains cooling at 100% versus electric heat
+         at 65%. Entering four or more heating units does not switch methods. */
       const serviceHeating=serviceHeatTotal*0.65;
       const acControls=serviceAC>=serviceHeating;
 
@@ -5137,34 +5752,36 @@ if(
     if(selectedMethod===METHODS.FORTY){
       const totalQty=heatQty();
       const qualifies=totalQty>=4;
-      const serviceHeating=qualifies ? serviceHeatTotal*0.40 : 0;
+      const serviceHeating=serviceHeatTotal*0.40;
       const acControls=serviceAC>=serviceHeating;
       const q41_1=document.getElementById('q41_1');
       const v41_1=document.getElementById('v41_1');
       const q41_2=document.getElementById('q41_2');
       const v41_2=document.getElementById('v41_2');
 
-      if(q41_1) q41_1.value=qualifies && value('q38')>0 ? String(Math.floor(value('q38'))) : '';
-      if(v41_1) v41_1.value=qualifies && heat1>0
+      if(q41_1) q41_1.value=value('q38')>0 ? String(Math.floor(value('q38'))) : '';
+      if(v41_1) v41_1.value=heat1>0
         ? Math.round(heat1*0.40).toLocaleString('en-US')+' VA'
         : '';
 
-      if(q41_2) q41_2.value=qualifies && value('q40')>0 ? String(Math.floor(value('q40'))) : '';
-      if(v41_2) v41_2.value=qualifies && heat2>0
+      if(q41_2) q41_2.value=value('q40')>0 ? String(Math.floor(value('q40'))) : '';
+      if(v41_2) v41_2.value=heat2>0
         ? Math.round(heat2*0.40).toLocaleString('en-US')+' VA'
         : '';
 
       service=Math.max(serviceAC,serviceHeating);
 
+      /* In the 40% method, only the Heat at 40% controls may be used.
+         The original heating and A/C managed controls remain inactive. */
+      setManagedRowsActive([38,40]);
+
       if(acControls){
-        setManagedRowsActive([37,39]);
-        generatorAC=remainingVA(37)+remainingVA(39);
+        generatorAC=serviceAC;
         generator=generatorAC;
       }else{
-        setManagedRowsActive([38,40]);
         /* Each heating row is reduced independently before applying 40%.
            This preserves the actual VA of differently sized heating units. */
-        generatorHeat=qualifies ? (remainingVA(38)+remainingVA(40))*0.40 : 0;
+        generatorHeat=(remainingVA(38)+remainingVA(40))*0.40;
         generator=generatorHeat;
       }
 
@@ -5172,6 +5789,7 @@ if(
       setOutput('e38',0); setOutput('e40',0); setOutput('e41',acControls?0:serviceHeating);
       setOutput('f37',acControls?remainingVA(37):0); setOutput('f39',acControls?remainingVA(39):0);
       setOutput('f38',0); setOutput('f40',0); setOutput('f41',acControls?0:generatorHeat);
+      syncFortyMethodEntryControls();
       sync40PercentManagedControls();
 
       return {service:service,generator:generator,serviceAC:serviceAC,generatorAC:generatorAC,serviceHeating:serviceHeating,generatorHeating:generatorHeat,method:selectedMethod,qualifies:qualifies};
