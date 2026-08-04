@@ -981,7 +981,7 @@ input.editable-load-name::placeholder{
         type="checkbox"
         checked
       >
-      Remember this email on this device
+      Remember this device for 180 days
     </label>
 
     <button
@@ -1028,7 +1028,7 @@ input.editable-load-name::placeholder{
         </h1>
 
         <div class="app-version">
-          NEC 2023 | Version 2.0 Alpha — Appliance Order Updated
+          NEC 2023 | Version 2.0 Release Candidate
         </div>
       </div>
 
@@ -2199,6 +2199,23 @@ function syncLargestMotorSection(){
   const section=document.getElementById("largestMotorSection");
   if(!checkbox || !section) return;
   section.style.display=checkbox.checked ? "block" : "none";
+  calculate();
+}
+
+function largestMotorCalculation(){
+  const checkbox=document.getElementById("includeLargestMotor");
+  const vaInput=document.getElementById("largestMotorVA");
+  const included=Boolean(checkbox && checkbox.checked);
+  const fullLoadVA=included && vaInput ? Math.max(Number(vaInput.value)||0,0) : 0;
+  const additionalVA=fullLoadVA*0.25;
+  const selectedType=document.querySelector('input[name="largestMotorType"]:checked');
+
+  return {
+    included:included,
+    fullLoadVA:fullLoadVA,
+    additionalVA:additionalVA,
+    type:selectedType ? selectedType.value : "Largest Motor"
+  };
 }
 
 
@@ -2219,6 +2236,11 @@ const LOADCALCPRO_ACCESS_KEY =
 
 const LOADCALCPRO_REMEMBERED_EMAIL_KEY =
   "loadcalcpro_remembered_member_email";
+
+const LOADCALCPRO_REMEMBERED_EMAIL_EXPIRES_KEY =
+  "loadcalcpro_remembered_member_email_expires";
+
+const LOADCALCPRO_TRUSTED_DEVICE_DAYS = 180;
 
 const LOADCALCPRO_SUPABASE_URL =
   "https://jvnkncpljuaeycwjyeai.supabase.co";
@@ -2261,13 +2283,13 @@ const APPLIANCES = [
   {row:19,label:"Bath Fan",editable:true},
   {row:20,label:"Wine Cooler",editable:true},
   {row:21,label:"Coffee Machine",editable:true},
-  {row:22,label:"Golf Cart Charger",editable:true},
-  {row:23,label:"",editable:true},
-  {row:24,label:"Irrigation Pump",editable:true},
-  {row:25,label:"Garage Door Opener",editable:true},
-  {row:26,label:"",editable:true},
-  {row:27,label:"Pool Equipment",editable:true},
-  {row:28,label:"Sauna",editable:true},
+  {row:22,label:"Garage Door Opener",editable:true},
+  {row:23,label:"Golf Cart Charger",editable:true},
+  {row:24,label:"Pool Equipment",editable:true},
+  {row:25,label:"Irrigation Pump",editable:true},
+  {row:26,label:"Sauna",editable:true},
+  {row:27,label:"",editable:true},
+  {row:28,label:"",editable:true},
   {row:29,label:"Water Heater"},
   {row:30,label:"Dryer"}
 ];
@@ -3246,10 +3268,29 @@ function calculate(){
   const applianceLoads =
     applianceLoadCalculation();
 
+  const continuousLoads =
+    (typeof window.continuousLoadCalculation === 'function'
+      ? window.continuousLoadCalculation()
+      : continuousLoadCalculation());
+
+  const largestMotor = largestMotorCalculation();
+
+  /* NEC 2023 optional method: EVSE and the additional 25% of the
+     largest motor are included with the 220.82(B) loads before the
+     first 10 kVA at 100% / remainder at 40% demand is applied. */
   const demandLoads =
     combinedDemandCalculation(
       generalLoad,
-      applianceLoads
+      {
+        service:
+          applianceLoads.service +
+          continuousLoads.evService +
+          largestMotor.additionalVA,
+        generator:
+          applianceLoads.generator +
+          continuousLoads.evGenerator +
+          largestMotor.additionalVA
+      }
     );
 
   const hvacLoads =
@@ -3257,18 +3298,14 @@ function calculate(){
       ? window.hvacLoadCalculation()
       : hvacLoadCalculation());
 
-  const continuousLoads =
-    (typeof window.continuousLoadCalculation === 'function'
-      ? window.continuousLoadCalculation()
-      : continuousLoadCalculation());
-
+  /* EVSE and largest-motor adder are already included in demandLoads. */
   const serviceHVACContinuous =
     hvacLoads.service +
-    continuousLoads.service;
+    (continuousLoads.service - continuousLoads.evService);
 
   const generatorHVACContinuous =
     hvacLoads.generator +
-    continuousLoads.generator;
+    (continuousLoads.generator - continuousLoads.evGenerator);
 
   setOutput(
     "e44",
@@ -3346,6 +3383,7 @@ function calculate(){
     demandLoads:demandLoads,
     hvacLoads:hvacLoads,
     continuousLoads:continuousLoads,
+    largestMotor:largestMotor,
     serviceTotalVA:serviceTotalVA,
     generatorTotalVA:generatorTotalVA,
     serviceCurrent:serviceCurrent,
@@ -3419,6 +3457,7 @@ function connectCalculatorInputs(){
     "q42","v42",
     "q43","v43",
     "q45","v45",
+    "largestMotorVA",
     "q46"
   ];
 
@@ -3467,6 +3506,12 @@ function connectCalculatorInputs(){
       }
     );
   }
+
+  document.querySelectorAll('input[name="largestMotorType"]').forEach(function(el){
+    el.addEventListener("change",function(){
+      calculate();
+    });
+  });
 
   const projectIds = [
     "projectName",
@@ -3554,6 +3599,15 @@ function calculatorState(){
     state.inputs.q46 =
       voltage.value;
   }
+
+  const motorCheckbox=document.getElementById("includeLargestMotor");
+  const motorVA=document.getElementById("largestMotorVA");
+  const motorType=document.querySelector('input[name="largestMotorType"]:checked');
+  state.largestMotor={
+    included:Boolean(motorCheckbox && motorCheckbox.checked),
+    va:motorVA ? motorVA.value : "",
+    type:motorType ? motorType.value : ""
+  };
 
   return state;
 }
@@ -3649,6 +3703,9 @@ function hasSavedCalculation(){
     ),
     ...Object.values(
       data.descriptions || {}
+    ),
+    ...Object.values(
+      data.largestMotor || {}
     )
   ];
 
@@ -3829,6 +3886,15 @@ function clearCalculatorFields(){
     if(voltage){
       voltage.value = "240";
     }
+
+    const motorCheckbox=document.getElementById("includeLargestMotor");
+    const motorVA=document.getElementById("largestMotorVA");
+    if(motorCheckbox) motorCheckbox.checked=false;
+    if(motorVA) motorVA.value="";
+    document.querySelectorAll('input[name="largestMotorType"]').forEach(function(el){
+      el.checked=false;
+    });
+    syncLargestMotorSection();
 
     for(
       const key
@@ -4141,7 +4207,7 @@ function updatePrintRows(data){
   );
 
   html += printLoadRow(
-    "Air Conditioning",
+    typeof window.getHVACRowLabel === "function" ? window.getHVACRowLabel(39) : "Air Conditioning",
     readOutput("e39"),
     readOutput("f39")
   );
@@ -4178,6 +4244,14 @@ function updatePrintRows(data){
     readOutput("f42")
   );
 
+  if(data.largestMotor && data.largestMotor.additionalVA > 0){
+    html += printLoadRow(
+      data.largestMotor.type + " — Additional 25%",
+      data.largestMotor.additionalVA,
+      data.largestMotor.additionalVA
+    );
+  }
+
   html += `
       </tbody>
 
@@ -4193,12 +4267,14 @@ function updatePrintRows(data){
           <td><strong>HVAC + Continuous</strong></td>
           <td>${printNumber(
             data.hvacLoads.service +
-            data.continuousLoads.service
+            data.continuousLoads.service +
+            (data.largestMotor ? data.largestMotor.additionalVA : 0)
           )}</td>
 
           <td>${printNumber(
             data.hvacLoads.generator +
-            data.continuousLoads.generator
+            data.continuousLoads.generator +
+            (data.largestMotor ? data.largestMotor.additionalVA : 0)
           )}</td>
         </tr>
 
@@ -4283,6 +4359,7 @@ function initializeCalculator(){
   connectStaticManagedControls();
 
   connectCalculatorInputs();
+  syncLargestMotorSection();
 
   for(const row of MANAGED_ROWS){
     updateManagedControl(row);
@@ -4331,15 +4408,47 @@ function validEmail(email){
     .test(email);
 }
 
+function clearRememberedDevice(){
+  try{
+    localStorage.removeItem(
+      LOADCALCPRO_REMEMBERED_EMAIL_KEY
+    );
+
+    localStorage.removeItem(
+      LOADCALCPRO_REMEMBERED_EMAIL_EXPIRES_KEY
+    );
+  }catch(e){}
+}
+
 function getRememberedEmail(){
   try{
-    return String(
+    const email = String(
       localStorage.getItem(
         LOADCALCPRO_REMEMBERED_EMAIL_KEY
       ) || ""
     )
       .trim()
       .toLowerCase();
+
+    const expiresAt = Number(
+      localStorage.getItem(
+        LOADCALCPRO_REMEMBERED_EMAIL_EXPIRES_KEY
+      ) || 0
+    );
+
+    if(!email){
+      return "";
+    }
+
+    if(
+      !expiresAt ||
+      Date.now() >= expiresAt
+    ){
+      clearRememberedDevice();
+      return "";
+    }
+
+    return email;
   }catch(e){
     return "";
   }
@@ -4356,23 +4465,31 @@ function saveRememberedEmail(email){
       remember &&
       remember.checked
     ){
+      const expiresAt =
+        Date.now() +
+        (
+          LOADCALCPRO_TRUSTED_DEVICE_DAYS *
+          24 * 60 * 60 * 1000
+        );
+
       localStorage.setItem(
         LOADCALCPRO_REMEMBERED_EMAIL_KEY,
         email
       );
-    }else{
-      localStorage.removeItem(
-        LOADCALCPRO_REMEMBERED_EMAIL_KEY
+
+      localStorage.setItem(
+        LOADCALCPRO_REMEMBERED_EMAIL_EXPIRES_KEY,
+        String(expiresAt)
       );
+    }else{
+      clearRememberedDevice();
     }
   }catch(e){}
 }
 
 function forgetRememberedEmail(){
   try{
-    localStorage.removeItem(
-      LOADCALCPRO_REMEMBERED_EMAIL_KEY
-    );
+    clearRememberedDevice();
 
     sessionStorage.removeItem(
       LOADCALCPRO_ACCESS_KEY
@@ -4794,6 +4911,46 @@ async function initializeAccessControl(){
 
   if(signedIn){
     return;
+  }
+
+  const rememberedEmail =
+    getRememberedEmail();
+
+  if(rememberedEmail){
+    setAccessMessage(
+      "Recognizing this trusted device and checking membership…",
+      ""
+    );
+
+    try{
+      const result =
+        await verifyMembershipEmail(
+          rememberedEmail
+        );
+
+      if(result.active){
+        saveTemporaryAccess(
+          rememberedEmail
+        );
+
+        unlockCalculator();
+        return;
+      }
+
+      clearRememberedDevice();
+      loadRememberedEmail();
+
+      setAccessMessage(
+        result.message ||
+        "Your membership is not currently active. Please sign in again after renewing.",
+        "error"
+      );
+    }catch(e){
+      setAccessMessage(
+        "Your saved device was found, but membership could not be checked. Please try again.",
+        "error"
+      );
+    }
   }
 
   const emailInput =
