@@ -940,6 +940,18 @@ input.editable-load-name::placeholder{
 
 
 
+
+/* Non-blocking phone calculation */
+.nec-required-warning,
+.forty-unit-warning,
+.heating-method-required-note{
+  display:none !important;
+}
+.nec-invalid-input{
+  border-color:#cbd5e1 !important;
+  box-shadow:none !important;
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3341,41 +3353,18 @@ function calculate(){
     );
 
   const requiredLoads = validateRequiredGeneralLoads();
-  const hvacMethod =
-    typeof window.validateHVACMethodSelection === "function"
-      ? window.validateHVACMethodSelection()
-      : {valid:false,method:""};
 
-  if(requiredLoads.valid && hvacMethod.valid){
-    clearIncompleteResultStyle();
+  clearIncompleteResultStyle();
 
-    displayAmps(
-      "serviceAmps",
-      serviceCurrent
-    );
+  displayAmps(
+    "serviceAmps",
+    serviceCurrent
+  );
 
-    displayAmps(
-      "generatorAmps",
-      generatorCurrent
-    );
-  }else{
-    showIncompleteResults();
-
-    const serviceResult=document.getElementById("serviceAmps");
-    const generatorResult=document.getElementById("generatorAmps");
-
-    if(requiredLoads.valid && !hvacMethod.valid){
-      const message =
-        hvacMethod.method==="separate40" && !hvacMethod.fortyPercentReady
-          ? "Four heating units required"
-          : hvacMethod.method==="heatpump" && !hvacMethod.heatPumpReady
-            ? "Heat-pump answer required"
-            : "HVAC method required";
-
-      if(serviceResult) serviceResult.textContent=message;
-      if(generatorResult) generatorResult.textContent=message;
-    }
-  }
+  displayAmps(
+    "generatorAmps",
+    generatorCurrent
+  );
 
   updatePrintRows({
     generalLoad:generalLoad,
@@ -4972,34 +4961,6 @@ async function initializeAccessControl(){
 }
 function printCalculation(){
   calculate();
-
-  const requiredLoads = validateRequiredGeneralLoads();
-  if(!requiredLoads.valid){
-    alert("Enter at least 2 small-appliance circuits and 1 laundry circuit before printing.");
-    const firstInvalid = document.querySelector(".nec-invalid-input");
-    if(firstInvalid) firstInvalid.focus();
-    return;
-  }
-
-  const hvacMethod =
-    typeof window.validateHVACMethodSelection === "function"
-      ? window.validateHVACMethodSelection()
-      : {valid:false};
-
-  if(!hvacMethod.valid){
-    if(hvacMethod.method==="separate40" && !hvacMethod.fortyPercentReady){
-      alert("Four or more separately controlled electric heating units are required before the 40% method can be printed as a final calculation.");
-    }else if(hvacMethod.method==="heatpump" && !hvacMethod.heatPumpReady){
-      alert("Select whether the heat-pump compressor and supplemental electric heat can operate simultaneously before printing.");
-    }else{
-      alert("Select one HVAC method before printing.");
-    }
-
-    if(typeof window.focusHVACMethodSelection === "function"){
-      window.focusHVACMethodSelection();
-    }
-    return;
-  }
 
   window.print();
 }
