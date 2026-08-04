@@ -1849,83 +1849,6 @@ input.editable-load-name::placeholder{
         <div class="load-row">
 
           <input
-            id="d45"
-            class="editable-load-name"
-            type="text"
-            autocomplete="off"
-            aria-label="Additional load description"
-            placeholder="Enter Load Description"
-          >
-
-          <div class="load-inputs">
-
-            <div class="input-block">
-              <label for="q45">Qty</label>
-              <input
-                id="q45"
-                type="number"
-                min="0"
-                step="1"
-                inputmode="numeric"
-                placeholder="Qty"
-              >
-            </div>
-
-            <div class="input-block">
-              <label for="v45">VA</label>
-              <input
-                id="v45"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-                placeholder="VA"
-              >
-            </div>
-
-          </div>
-
-          <p class="section-note" style="padding-top:8px;padding-bottom:0">
-            This additional load is calculated at 100%.
-          </p>
-
-          <div class="row-output">
-            <div class="output-box">
-              <div class="output-label">Service Load VA</div>
-              <div id="e45" class="output-value"></div>
-            </div>
-
-            <div class="output-box">
-              <div class="output-label">Generator Load VA</div>
-              <div id="f45" class="output-value"></div>
-            </div>
-          </div>
-
-          <div class="managed-row">
-            <div class="managed-label">Managed Load</div>
-
-            <div class="managed-controls">
-              <button
-                id="m45"
-                class="managed-check"
-                type="button"
-                aria-label="Manage additional 100 percent load"
-              ></button>
-
-              <button
-                id="mq45"
-                class="managed-qty"
-                type="button"
-                aria-label="Reduce managed quantity"
-              >0</button>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="load-row">
-
-          <input
             id="d42"
             class="editable-load-name"
             type="text"
@@ -2164,7 +2087,7 @@ input.editable-load-name::placeholder{
 
 function syncLargestMotorSection(){}
 
-function largestMotorCalculation(){ return {service:0,generator:0}; }
+function largestMotorCalculation(){ return {service:0,generator:0,additionalVA:0,type:""}; }
 
 
 const STORAGE_KEY =
@@ -2174,7 +2097,7 @@ const MANAGED_QTY_STORAGE_KEY =
   "loadcalcpro_generator_mobile_managed_quantities_v1";
 
 const LOADCALCPRO_API_BASE =
-  "https://loadcalcpro-hcml-api-staging.onrender.com";
+  "https://loadcalcpro-hcml-api.onrender.com";
 
 const LOADCALCPRO_ACCESS_ENDPOINT =
   LOADCALCPRO_API_BASE + "/api/access";
@@ -2245,14 +2168,14 @@ const APPLIANCES = [
 const MANAGED_ROWS = [
   10,11,12,13,14,15,16,17,18,19,20,
   21,22,23,24,25,26,27,28,29,30,
-  37,38,39,40,41,42,43,45
+  37,38,39,40,41,42,43
 ];
 
 const INPUT_ROWS = [
   5,6,7,
   10,11,12,13,14,15,16,17,18,19,20,
   21,22,23,24,25,26,27,28,29,30,
-  37,38,39,40,42,43,45
+  37,38,39,40,42,43
 ];
 function numberValue(id){
   const el = document.getElementById(id);
@@ -3097,24 +3020,6 @@ function continuousLoadCalculation(){
     evGenerator
   );
 
-  const additional100Service =
-    rowVA(45);
-
-  const additional100Generator =
-    generatorRowValue(
-      45,
-      additional100Service
-    );
-
-  setOutput(
-    "e45",
-    additional100Service
-  );
-
-  setOutput(
-    "f45",
-    additional100Generator
-  );
 
   const additionalContinuousService =
     rowVA(42) * 1.25;
@@ -3138,22 +3043,15 @@ function continuousLoadCalculation(){
   return {
     service:
       evService +
-      additional100Service +
       additionalContinuousService,
 
     generator:
       evGenerator +
-      additional100Generator +
       additionalContinuousGenerator,
 
     evService:evService,
     evGenerator:evGenerator,
 
-    additional100Service:
-      additional100Service,
-
-    additional100Generator:
-      additional100Generator,
 
     additionalService:
       additionalContinuousService,
@@ -3337,7 +3235,7 @@ function calculate(){
 
 function connectStaticManagedControls(){
   const staticRows = [
-    37,38,39,40,42,43,45
+    37,38,39,40,42,43
   ];
 
   for(const row of staticRows){
@@ -3381,8 +3279,6 @@ function connectCalculatorInputs(){
     "q40","v40",
     "q42","v42",
     "q43","v43",
-    "q45","v45",
-    "largestMotorVA",
     "q46"
   ];
 
@@ -4149,15 +4045,6 @@ function updatePrintRows(data){
     readOutput("f43")
   );
 
-  const additionalLoadDescription =
-    String((document.getElementById("d45") || {}).value || "").trim() ||
-    "Additional Load (100%)";
-
-  html += printLoadRow(
-    additionalLoadDescription,
-    readOutput("e45"),
-    readOutput("f45")
-  );
 
   const continuousDescription =
     String((document.getElementById("d42") || {}).value || "").trim() ||
