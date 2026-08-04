@@ -2000,50 +2000,6 @@ input.editable-load-name::placeholder{
 
         </div>
 
-        <div class="load-row">
-
-          <div class="load-name">
-            Largest Motor (Additional 25%)
-          </div>
-
-          <label style="display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;margin-bottom:10px;">
-            <input
-              id="includeLargestMotor"
-              type="checkbox"
-              onchange="syncLargestMotorSection()"
-            >
-            Include Largest Motor (25%)
-          </label>
-
-          <div
-            id="largestMotorSection"
-            style="display:none;margin-top:12px;padding:12px;border:1px solid #d1d5db;border-radius:10px;background:#f8fafc;"
-          >
-            <p class="section-note">
-              Enter the full VA of the selected motor. The calculator adds only the additional 25%.
-            </p>
-
-            <label><input type="radio" name="largestMotorType" value="Pool Pump"> Pool Pump</label><br>
-            <label><input type="radio" name="largestMotorType" value="Well Pump"> Well Pump</label><br>
-            <label><input type="radio" name="largestMotorType" value="Irrigation Pump"> Irrigation Pump</label><br>
-            <label><input type="radio" name="largestMotorType" value="A/C Compressor"> A/C Compressor</label><br>
-            <label><input type="radio" name="largestMotorType" value="Heat Pump Compressor"> Heat Pump Compressor</label><br>
-            <label><input type="radio" name="largestMotorType" value="Other Motor"> Other Motor</label>
-
-            <div class="input-block" style="margin-top:10px;">
-              <input
-                id="largestMotorVA"
-                type="number"
-                min="0"
-                step="any"
-                inputmode="decimal"
-                placeholder="Motor Full-Load VA"
-              >
-            </div>
-          </div>
-
-        </div>
-
         <div class="summary-strip">
 
           <div class="summary-box">
@@ -2206,29 +2162,9 @@ input.editable-load-name::placeholder{
 <script>
 "use strict";
 
-function syncLargestMotorSection(){
-  const checkbox=document.getElementById("includeLargestMotor");
-  const section=document.getElementById("largestMotorSection");
-  if(!checkbox || !section) return;
-  section.style.display=checkbox.checked ? "block" : "none";
-  calculate();
-}
+function syncLargestMotorSection(){}
 
-function largestMotorCalculation(){
-  const checkbox=document.getElementById("includeLargestMotor");
-  const vaInput=document.getElementById("largestMotorVA");
-  const included=Boolean(checkbox && checkbox.checked);
-  const fullLoadVA=included && vaInput ? Math.max(Number(vaInput.value)||0,0) : 0;
-  const additionalVA=fullLoadVA*0.25;
-  const selectedType=document.querySelector('input[name="largestMotorType"]:checked');
-
-  return {
-    included:included,
-    fullLoadVA:fullLoadVA,
-    additionalVA:additionalVA,
-    type:selectedType ? selectedType.value : "Largest Motor"
-  };
-}
+function largestMotorCalculation(){ return {service:0,generator:0}; }
 
 
 const STORAGE_KEY =
