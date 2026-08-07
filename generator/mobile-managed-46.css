@@ -1,0 +1,20 @@
+@media (max-width:899px){
+  .managed-check,
+  .inline-managed-controls .managed-check,
+  .v57-managed-button{
+    width:46px!important;
+    min-width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+  }
+
+  .managed-qty,
+  .inline-managed-controls .managed-qty,
+  .v57-managed-qty{
+    width:46px!important;
+    min-width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+    padding:0!important;
+  }
+}
