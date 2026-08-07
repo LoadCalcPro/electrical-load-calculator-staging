@@ -1,0 +1,1574 @@
+/* ===== Consolidated stylesheet blocks, original cascade order preserved ===== */
+:root{--page:#f3f4f6;--card:#ffffff;--ink:#111827;--muted:#6b7280;--blue:#1e3a8a;--navy:#0f172a;--green:#15803d;--teal:#0f766e;--line:#d1d5db;--soft-blue:#e8eefc;--soft-green:#dff0e7;--danger:#b42318}*{box-sizing:border-box}html{width:100%;min-height:100%;background:var(--page)}body{width:100%;min-height:100%;margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}button,input,select{font:inherit}button{touch-action:manipulation}.mobile-app{width:100%;max-width:680px;min-height:100vh;margin:0 auto;padding-bottom:190px}.app-header{position:relative;padding:max(18px,env(safe-area-inset-top)) 18px 18px;background:linear-gradient(135deg,var(--blue),var(--navy));color:#ffffff}.brand-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.app-title{margin:0;font-size:22px;line-height:1.2;font-weight:900}.app-version{margin-top:5px;color:#dbeafe;font-size:12px;font-weight:700}.app-brand{flex:0 0 auto;padding-top:2px;color:#ffffff;font-size:15px;font-weight:900;white-space:nowrap}.app-brand .bolt{color:#5eead4;margin-right:3px}.app-brand .brand-x{color:#5eead4;margin-left:2px}.header-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.header-actions button{min-height:50px;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:9px 10px;background:rgba(255,255,255,.1);color:#ffffff;font-size:13px;font-weight:800;cursor:pointer}.header-actions button.primary{background:var(--teal);border-color:var(--teal)}.main-content{padding:14px}.card{margin-bottom:14px;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:0 4px 16px rgba(15,23,42,.08)}.card-heading{margin:0;padding:13px 14px;background:var(--blue);color:#ffffff;font-size:18px;font-weight:900;text-align:center}.card-body{padding:13px}.field-grid{display:grid;grid-template-columns:1fr;gap:11px}.field label{display:block;margin-bottom:5px;color:#374151;font-size:12px;font-weight:800}.field input,.field select{width:100%;min-height:44px;border:1px solid #cbd5e1;border-radius:9px;padding:9px 10px;background:#ffffff;color:#111827;font-size:16px}.field input[type="number"]{text-align:right}.field input[readonly]{background:#eef2f7;color:#64748b;font-weight:800}.load-row{padding:12px 0;border-bottom:1px solid #e5e7eb}.load-row:first-child{padding-top:0}.load-row:last-child{padding-bottom:0;border-bottom:0}.load-name{margin-bottom:9px;color:#111827;font-size:18px;font-weight:900}.load-inputs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}.load-inputs.inline-load-row{grid-template-columns:78px minmax(0,1fr) auto;align-items:end;gap:10px}.load-inputs.inline-load-row .input-block input{min-height:46px;padding:9px 10px;font-size:18px;line-height:1.2;text-align:left}.inline-managed-controls{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:46px}.inline-managed-controls .managed-check,.inline-managed-controls .managed-qty{height:46px;min-height:46px;margin:0;font-size:20px}.inline-managed-controls .managed-check{width:46px;min-width:46px}.inline-managed-controls .managed-qty{min-width:46px;padding:0 8px}@media(max-width:420px){.load-inputs.inline-load-row{grid-template-columns:70px minmax(0,1fr) auto;gap:8px}}.general-load-inputs{grid-template-columns:1fr}.input-block label{display:block;margin-bottom:4px;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase}.input-block input,.input-block select{width:100%;min-height:43px;border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#ffffff;color:#111827;font-size:16px;text-align:right}.input-block input[readonly]{background:#eef2f7;color:#64748b;font-weight:800}.row-output{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}.output-box{min-height:45px;border:1px solid #d8dee9;border-radius:8px;padding:6px 8px;background:#f8fafc}.output-label{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase}.output-value{margin-top:3px;color:#0f172a;font-size:15px;font-weight:900;text-align:right;font-variant-numeric:tabular-nums}.managed-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:9px 10px;border:1px solid #d1fae5;border-radius:9px;background:#f0fdf4}.managed-label{color:#14532d;font-size:12px;font-weight:900}.managed-controls{display:flex;align-items:center;justify-content:flex-end;gap:7px}.managed-check{width:38px;height:34px;border:2px solid #22a447;border-radius:8px;background:#f7fff9;box-shadow:0 0 0 1px rgba(21,128,61,.10);color:var(--green);font-family:"Segoe UI Symbol",Arial,sans-serif;font-size:21px;font-weight:900;cursor:pointer}.managed-check.checked{border-color:#0f6f32;background:#dcfce7;box-shadow:0 0 0 1px rgba(15,111,50,.18)}.managed-qty{display:none;min-width:42px;height:34px;border:1px solid var(--green);border-radius:8px;padding:0 8px;background:#ffffff;color:#14532d;font-size:15px;font-weight:900;cursor:pointer}.managed-qty.show{display:inline-flex;align-items:center;justify-content:center}.section-note{margin:0;padding:0 1px 11px;color:var(--muted);font-size:12px;line-height:1.4}.summary-strip{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;padding-top:12px;border-top:1px solid #dbe3ef}.summary-box{border-radius:9px;padding:10px;background:var(--soft-blue)}.summary-box .summary-label{color:#475569;font-size:10px;font-weight:800;text-transform:uppercase}.summary-box .summary-value{margin-top:4px;color:#0f172a;font-size:17px;font-weight:900;text-align:right}.bottom-results{position:fixed;right:0;bottom:0;left:0;z-index:20;padding:10px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:rgba(15,23,42,.96);box-shadow:0 -6px 22px rgba(15,23,42,.25)}.bottom-results-inner{width:100%;max-width:680px;margin:0 auto}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.result-card{min-width:0;border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px;background:#ffffff}.result-card.generator{background:#dcfce7}.result-label{color:#64748b;font-size:10px;font-weight:900;text-align:center;text-transform:uppercase}.result-value{margin-top:4px;color:#0f172a;font-size:24px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums}.save-status{min-height:16px;margin-top:7px;color:#bbf7d0;font-size:11px;font-weight:700;text-align:center}.print-report{display:none}.modal-backdrop{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.6)}.modal-backdrop.show{display:flex}.modal-box{width:100%;max-width:430px;border:1px solid #d1d5db;border-radius:16px;padding:21px;background:#ffffff;box-shadow:0 24px 80px rgba(0,0,0,.32)}.modal-box h2{margin:0 0 8px;color:var(--blue);font-size:21px}.modal-box p{margin:8px 0 15px;color:#374151;line-height:1.45}.modal-actions{display:grid;grid-template-columns:1fr;gap:9px}.modal-actions button{min-height:43px;border:1px solid var(--blue);border-radius:9px;padding:9px 11px;background:var(--blue);color:#ffffff;font-weight:800;cursor:pointer}.modal-actions button.secondary{background:#ffffff;color:var(--blue)}@media(min-width:520px){.field-grid{grid-template-columns:1fr 1fr}.field.wide{grid-column:1 / -1}.modal-actions{grid-template-columns:1fr 1fr}}@media print{@page{size:letter portrait;margin:.22in}html,body{margin:0!important;padding:0!important;background:#fff!important;color:#222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.mobile-app,.bottom-results,.modal-backdrop{display:none!important}.print-report{display:block!important;width:100%!important;margin:0!important;padding:0!important;color:#222!important;font-family:Arial,Helvetica,sans-serif!important}.print-page{width:100%;margin:0;padding:0}.print-page h1{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 5px 0;padding:0 0 5px 0;border-bottom:1.5px solid #4b5563;color:#222;font-size:12px;line-height:1.1;font-weight:800}.print-title-text{min-width:0}.print-brand{flex:0 0 auto;color:#17377f;font-size:10px;font-weight:900;white-space:nowrap}.print-brand .bolt{color:#0f766e;margin-right:3px}.print-brand .brand-x{color:#0f766e;margin-left:2px}.print-project{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin:0 0 5px 0;padding:0 0 5px 0;border-bottom:1px solid #c7cdd4;font-size:9px;line-height:1.25}.print-method-details{display:grid;grid-template-columns:1.4fr 1fr;gap:2px 12px;margin:0 0 5px 0;padding:4px 5px;border:1px solid #cfd4da;border-left:3px solid #4b5563;background:#f7f7f7!important;font-size:8.2px;line-height:1.25}.print-table{width:100%;border-collapse:collapse;table-layout:fixed;margin:0}.print-table th,.print-table td{height:20px;border:1px solid #cfd4da;padding:2px 4px;background:#fff!important;color:#222!important;font-size:8.4px;line-height:1.15;vertical-align:middle}.print-table thead th{border-top:1.2px solid #6b7280;border-bottom:1.2px solid #6b7280;background:#f3f4f6!important;color:#333!important;font-size:8px;font-weight:800;text-align:center}.print-table th:first-child,.print-table td:first-child{width:46%;text-align:left}.print-table th:nth-child(2),.print-table td:nth-child(2){width:12%;text-align:center}.print-table th:nth-child(3),.print-table td:nth-child(3),.print-table th:nth-child(4),.print-table td:nth-child(4){width:21%;text-align:right}.print-table td.quantity{text-align:center;font-variant-numeric:tabular-nums}.print-table td.number{text-align:right;font-variant-numeric:tabular-nums}.print-table tfoot td{background:#f7f7f7!important;font-weight:700}.print-table tfoot tr:nth-last-child(-n+2) td{background:#fff!important;border-top:1.5px solid #4b5563;font-weight:900}.print-code-note{margin-top:6px;padding-top:5px;border-top:1px solid #94a3b8;color:#555;font-size:7.5px;line-height:1.3}.print-table tr{break-inside:avoid;page-break-inside:avoid}}.output-box{text-align:left}.output-label{font-size:18px;line-height:1.25;text-align:left;text-transform:none}.output-value{font-size:18px;line-height:1.25;text-align:left}.summary-box .summary-label{font-size:18px;line-height:1.25;text-align:left;text-transform:none}.summary-box .summary-value{font-size:18px;line-height:1.25;text-align:left}.input-block label{display:none !important}.input-block input,.input-block select{text-align:left !important;font-size:30px !important;line-height:1.2;padding:9px 10px !important}.input-block input::placeholder{color:#9ca3af !important;opacity:1;font-size:18px;font-weight:400}.field input,.field select{text-align:left !important}.field input::placeholder{color:#9ca3af;opacity:1}.row-output,.summary-strip{display:none !important}.load-row{padding:10px 0}.load-inputs,.load-inputs.inline-load-row{grid-template-columns:90px minmax(0,1fr) 48px;align-items:center;gap:9px}.general-load-inputs,.general-load-inputs.inline-load-row{grid-template-columns:minmax(0,1fr)}.input-block input,.field input,.field select{min-height:48px;font-size:18px !important;text-align:left !important}.managed-row{display:none !important}.field label,.input-block label,.output-label,.summary-box .summary-label,.result-label,.managed-label,.section-note{font-size:18px !important;line-height:1.25;text-transform:none}.input-block label{display:none !important}input.editable-load-name{display:block;width:100%;min-height:0 !important;margin:0 0 9px;border:0 !important;border-radius:0 !important;padding:0 !important;background:transparent !important;box-shadow:none !important;color:#111827 !important;font-size:18px !important;line-height:1.25 !important;font-weight:900 !important;text-align:left !important}input.editable-load-name:focus{outline:2px solid #cbd5e1;outline-offset:4px}input.editable-load-name::placeholder{color:#9ca3af !important;opacity:1;font-weight:900 !important}.nec-required-warning{display:none;margin:12px 0 0;border:1px solid #fca5a5;border-radius:10px;padding:10px 12px;background:#fef2f2;color:#991b1b;font-size:15px;line-height:1.35;font-weight:800}.nec-required-warning.show{display:block}.nec-invalid-input{border-color:#dc2626 !important;box-shadow:0 0 0 2px rgba(220,38,38,.14) !important}.result-value.incomplete{font-size:16px;line-height:1.2;color:#991b1b}.print-method-details{margin:8px 0 12px;padding:8px 10px;border-left:4px solid #0f766e;background:#f0fdfa;font-size:11px;line-height:1.45}.print-code-note{margin-top:12px;border-top:1px solid #94a3b8;padding-top:8px;color:#475569;font-size:9px;line-height:1.4}.load-inputs.forty-method-entry-only{grid-template-columns:90px minmax(0,1fr) !important}.load-inputs.forty-method-entry-only>.inline-managed-controls{display:none !important}.forty-unit-warning{display:none;margin:10px 0 0;border:1px solid #fca5a5;border-radius:9px;padding:9px 10px;background:#fef2f2;color:#991b1b;font-size:14px;line-height:1.35;font-weight:800}.forty-unit-warning.show{display:block}@media(max-width:420px){.load-inputs.forty-method-entry-only{grid-template-columns:70px minmax(0,1fr) !important}}.nec-required-warning,.forty-unit-warning,.heating-method-required-note{display:none !important}.nec-invalid-input{border-color:#cbd5e1 !important;box-shadow:none !important}
+
+/* Responsive desktop presentation — mobile styles above remain unchanged */
+@media (min-width: 900px){
+  html,body{background:#e9edf3}
+  .mobile-app{max-width:1440px;min-height:100vh;padding-bottom:118px;background:#f8fafc;box-shadow:0 0 0 1px #d8dee8,0 18px 55px rgba(15,23,42,.12)}
+  .app-header{padding:18px 26px;background:linear-gradient(110deg,#17377f,#0f172a)}
+  .brand-row{align-items:center}
+  .app-title{font-size:27px;letter-spacing:-.02em}
+  .app-version{font-size:13px}
+  .app-brand{font-size:18px}
+  .header-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+  .header-actions button{min-width:145px;min-height:42px;padding:8px 16px;border-radius:7px;font-size:13px}
+  .main-content{padding:22px 26px 30px}
+  .card{margin-bottom:18px;border-radius:8px;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+  .card-heading{padding:11px 16px;background:#eef2f7;color:#17377f;border-bottom:2px solid #17377f;font-size:17px;text-align:left}
+  .card-body{padding:14px 16px}
+  .field-grid{grid-template-columns:1fr 1fr 1.5fr 1.2fr;gap:12px}
+  .field.wide{grid-column:auto}
+  .field label{font-size:12px}
+  .field input,.field select{min-height:39px;border-radius:5px;font-size:14px}
+  .section-note{padding:0 0 10px;font-size:12px}
+
+  .load-row{display:grid;grid-template-columns:minmax(230px,2.2fr) minmax(230px,1.25fr) minmax(250px,1.35fr) minmax(150px,.8fr);align-items:center;gap:14px;min-height:58px;padding:8px 6px;border-bottom:1px solid #dfe5ec}
+  .load-row:first-child{padding-top:8px}
+  .load-row:last-child{padding-bottom:8px}
+  .load-name{min-width:0;margin:0;font-size:14px;font-weight:800}
+  .load-inputs,.load-inputs.inline-load-row{grid-template-columns:80px minmax(110px,1fr);align-items:center;gap:8px}
+  .general-load-inputs,.general-load-inputs.inline-load-row{grid-template-columns:minmax(130px,1fr)}
+  .input-block label{display:block!important;margin-bottom:3px;font-size:10px!important;line-height:1.1;text-transform:uppercase!important}
+  .input-block input,.input-block select,.load-inputs.inline-load-row .input-block input{min-height:36px!important;padding:6px 8px!important;border-radius:5px;font-size:14px!important;line-height:1.1;text-align:right!important}
+  .input-block input::placeholder{font-size:12px}
+  input.editable-load-name{margin:0!important;font-size:14px!important;line-height:1.2!important}
+  .row-output{display:grid!important;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+  .output-box{min-height:40px;padding:5px 8px;border-radius:5px;background:#f8fafc}
+  .output-label{font-size:9px!important;line-height:1.1!important;text-align:right!important;text-transform:uppercase!important}
+  .output-value{margin-top:2px;font-size:14px!important;line-height:1.1!important;text-align:right!important}
+  .managed-row{display:flex!important;min-width:0;margin:0;padding:5px 7px;border-radius:6px}
+  .managed-label{font-size:10px!important;white-space:nowrap}
+  .managed-controls{gap:5px}
+  .managed-check{width:32px;min-width:32px;height:30px;font-size:18px;border-radius:5px}
+  .managed-qty{min-width:34px;height:30px;border-radius:5px;font-size:13px}
+  .inline-managed-controls{min-height:36px}
+  .inline-managed-controls .managed-check,.inline-managed-controls .managed-qty{height:36px;min-height:36px}
+  .inline-managed-controls .managed-check{width:36px;min-width:36px}
+  .inline-managed-controls .managed-qty{min-width:36px}
+  .load-inputs.forty-method-entry-only{grid-template-columns:80px minmax(110px,1fr)!important}
+
+  .summary-strip{grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;padding:10px 6px 0}
+  .summary-box{display:grid;grid-template-columns:1fr auto;align-items:center;padding:8px 10px;border-radius:5px}
+  .summary-box .summary-label{font-size:10px!important;line-height:1.1!important;text-transform:uppercase!important}
+  .summary-box .summary-value{margin:0;font-size:15px!important;line-height:1.1!important;text-align:right!important}
+  .bottom-results{padding:9px 26px;background:rgba(15,23,42,.97)}
+  .bottom-results-inner{max-width:1388px}
+  .result-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .result-card{display:flex;align-items:center;justify-content:center;gap:18px;min-height:58px;padding:8px 16px;border-radius:7px}
+  .result-label{font-size:11px!important;text-align:left}
+  .result-value{margin:0;font-size:27px;text-align:left}
+  .save-status{min-height:13px;margin-top:3px}
+}
+@media (min-width: 1180px){
+  .load-row{grid-template-columns:minmax(270px,2.5fr) minmax(250px,1.3fr) minmax(290px,1.45fr) minmax(170px,.8fr)}
+}
+
+.heating-method-panel{margin:0 0 14px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.heating-method-title{margin:0 0 8px;color:#0f172a;font-size:18px;font-weight:900}.heating-method-choice{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:9px;width:100%;min-height:54px;margin-top:8px;border:1px solid #cbd5e1;border-radius:9px;padding:7px 9px;background:#fff;color:#111827;text-align:left;cursor:pointer}.heating-method-choice.selected{border-color:#15803d;background:#ecfdf5}.heating-method-check{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:2px solid #22a447;border-radius:8px;background:#f7fff9;color:#15803d;font-family:"Segoe UI Symbol",Arial,sans-serif;font-size:22px;font-weight:900}.heating-method-text{font-size:16px;line-height:1.25;font-weight:800}.heating-row-disabled{opacity:.45}.heating-row-disabled input,.heating-row-disabled button{pointer-events:none!important}#phoneHeat40Row1,#phoneHeat40Row2{display:none!important}#phoneHeat40Row1.show,#phoneHeat40Row2.show{display:grid!important}@media(max-width:899px){#phoneHeat40Row1.show,#phoneHeat40Row2.show{display:block!important}}#phoneHeat40Row1 .heat40-auto-field,#phoneHeat40Row2 .heat40-auto-field{width:100%;min-height:48px;border:1px solid #cbd5e1;border-radius:8px;padding:9px 10px;background:#eef2f7;color:#64748b;font-size:18px;font-weight:800;text-align:left}.heatpump-questions{display:none;margin:12px 0 14px;padding:12px;border:1px solid #dbe3ef;border-radius:12px;background:#f8fafc}.heatpump-questions.show{display:block}.heatpump-question-title{margin-bottom:8px;color:#111827;font-size:16px;line-height:1.3;font-weight:900}.heatpump-answer{display:grid;grid-template-columns:36px 1fr;align-items:center;gap:10px;width:100%;min-height:48px;margin:7px 0;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:#fff;color:#111827;text-align:left;cursor:pointer}.heatpump-answer.selected{border-color:#15803d;background:#ecfdf5}.heatpump-answer-check{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border:2px solid #22a447;border-radius:8px;background:#f7fff9;color:#15803d;font-family:"Segoe UI Symbol",Arial,sans-serif;font-size:20px;font-weight:900}.heatpump-answer-text{font-size:15px;line-height:1.3;font-weight:800}.heatpump-required-note{margin-top:8px;color:#b42318;font-size:14px;font-weight:800}.managed-control-inactive{opacity:.35 !important;pointer-events:none !important}.heating-method-panel.method-required{border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.14)}.heating-method-required-note{display:none;margin-top:10px;border:1px solid #fca5a5;border-radius:9px;padding:9px 10px;background:#fef2f2;color:#991b1b;font-size:14px;line-height:1.35;font-weight:800}.heating-method-required-note.show{display:block}
+
+/* Subtle progressive disclosure for the second HVAC system */
+.additional-hvac-control{margin:10px 0 4px;padding:0}
+.additional-hvac-toggle{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:4px;padding:5px 3px;background:transparent;color:#64748b;font-size:12px;font-weight:700;cursor:pointer}
+.additional-hvac-toggle:hover,.additional-hvac-toggle:focus-visible{color:#334155;background:#f8fafc;outline:1px solid #cbd5e1}
+.additional-hvac-square{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #94a3b8;border-radius:2px;background:#fff;color:#475569;font-size:11px;line-height:1}
+.additional-hvac-toggle[aria-expanded="true"] .additional-hvac-square::after{content:"✓"}
+.additional-hvac-rows.is-hidden{display:none!important}
+@media(min-width:900px){.additional-hvac-control{grid-column:1/-1;margin:7px 6px 2px}.additional-hvac-toggle{font-size:12px}}
+@media print{.additional-hvac-control{display:none!important}.additional-hvac-rows.is-hidden{display:none!important}}
+
+/* LoadCalcPro X — Professional table presentation */
+:root{--v3-blue:#1f4e78;--v3-blue-dark:#17365d;--v3-line:#cfd8e3;--v3-soft:#f6f9fc;--v3-green:#15803d}
+@media (min-width:900px){
+  html,body{background:#eef2f6!important}
+  .mobile-app{max-width:1320px!important;margin:18px auto!important;padding-bottom:105px!important;background:#fff!important;box-shadow:0 8px 30px rgba(15,23,42,.10)!important}
+  .app-header{padding:15px 22px!important;background:#fff!important;color:#111827!important;border-bottom:3px solid var(--v3-blue)!important}
+  .brand-row{align-items:end!important}
+  .app-title{font-size:22px!important;color:var(--v3-blue-dark)!important}
+  .app-version{color:#64748b!important;font-size:11px!important}
+  .app-brand{color:var(--v3-blue)!important;font-size:16px!important}
+  .app-brand .bolt,.app-brand .brand-x{color:var(--v3-green)!important}
+  .header-actions{margin-top:10px!important;gap:8px!important}
+  .header-actions button{min-width:118px!important;min-height:34px!important;padding:6px 11px!important;border:1px solid #9fb1c5!important;border-radius:4px!important;background:#fff!important;color:var(--v3-blue-dark)!important;font-size:12px!important}
+  .header-actions button.primary{background:var(--v3-blue)!important;border-color:var(--v3-blue)!important;color:#fff!important}
+  .main-content{padding:14px 18px 22px!important}
+  .card{margin-bottom:10px!important;border:1px solid var(--v3-line)!important;border-radius:4px!important;box-shadow:none!important;overflow:visible!important}
+  .card-heading{padding:7px 10px!important;background:var(--v3-blue)!important;border:0!important;color:#fff!important;font-size:14px!important;letter-spacing:.03em!important;text-align:left!important;text-transform:uppercase!important}
+  .card-body{padding:0!important}
+  .card.project-card .card-body{padding:10px!important}
+  .field-grid{gap:8px 10px!important}
+  .field label{margin-bottom:3px!important;font-size:10px!important;color:#475569!important}
+  .field input,.field select{min-height:34px!important;padding:5px 7px!important;border-radius:3px!important;font-size:13px!important}
+  .section-note{margin:0!important;padding:8px 10px!important;border-bottom:1px solid var(--v3-line)!important;background:#f8fafc!important;font-size:11px!important}
+  .v3-column-header{display:grid;grid-template-columns:minmax(235px,2.35fr) 72px 110px 58px minmax(118px,1fr) minmax(128px,1fr);align-items:end;gap:8px;padding:7px 10px 5px;border-bottom:1px solid #9fb1c5;background:#eef4f8;color:#334155;font-size:9px;font-weight:800;letter-spacing:.04em;text-align:center;text-transform:uppercase}
+  .v3-column-header span:first-child{text-align:left}
+  .load-row{display:grid!important;grid-template-columns:minmax(235px,2.35fr) 72px 110px 58px minmax(118px,1fr) minmax(128px,1fr)!important;align-items:center!important;gap:8px!important;min-height:43px!important;padding:4px 10px!important;border-bottom:1px solid #dbe3eb!important}
+  .load-row:last-child{border-bottom:0!important}
+  .load-name{grid-column:1!important;margin:0!important;font-size:12px!important;font-weight:700!important;line-height:1.2!important}
+  input.editable-load-name,.descInput{grid-column:1!important;margin:0!important;font-size:12px!important;font-weight:700!important;line-height:1.2!important}
+  .load-inputs,.load-inputs.inline-load-row,.general-load-inputs,.general-load-inputs.inline-load-row{display:contents!important}
+  .load-inputs>.input-block:nth-child(1){grid-column:2!important}
+  .load-inputs>.input-block:nth-child(2){grid-column:3!important}
+  .general-load-inputs>.input-block:nth-child(1){grid-column:2!important}
+  .inline-managed-controls{grid-column:4!important;min-height:30px!important;justify-content:center!important;gap:3px!important}
+  .input-block label{display:none!important}
+  .input-block input,.input-block select,.load-inputs.inline-load-row .input-block input{width:100%!important;min-height:30px!important;padding:3px 6px!important;border:1px solid #b9c7d5!important;border-radius:3px!important;background:#fff!important;font-size:12px!important;line-height:1!important;text-align:right!important}
+  .row-output{display:contents!important}
+  .row-output>.output-box:nth-child(1){grid-column:5!important}
+  .row-output>.output-box:nth-child(2){grid-column:6!important}
+  .output-box{min-height:auto!important;border:0!important;border-radius:0!important;padding:0 4px!important;background:transparent!important;text-align:right!important}
+  .output-label{display:none!important}
+  .output-value{margin:0!important;color:#111827!important;font-size:12px!important;font-weight:700!important;text-align:right!important}
+  .managed-row{display:none!important}
+  .managed-check,.inline-managed-controls .managed-check{width:25px!important;min-width:25px!important;height:25px!important;min-height:25px!important;border-width:1.5px!important;border-radius:3px!important;background:#fff!important;font-size:15px!important;box-shadow:none!important}
+  .managed-check.checked{background:#f0fdf4!important}
+  .managed-qty,.inline-managed-controls .managed-qty{min-width:26px!important;height:25px!important;min-height:25px!important;padding:0 4px!important;border-radius:3px!important;font-size:10px!important}
+  .summary-strip{display:none!important}
+  .additional-hvac-control{margin:0!important;padding:5px 10px!important;border-bottom:1px solid #dbe3eb!important}
+  .additional-hvac-toggle{font-size:10px!important;font-weight:600!important}
+  .additional-hvac-square{width:13px!important;height:13px!important}
+  .demand-card .card-body{padding:0!important}
+  .demand-row{display:grid;grid-template-columns:minmax(235px,2.35fr) 72px 110px 58px minmax(118px,1fr) minmax(128px,1fr);gap:8px;align-items:center;min-height:35px;padding:5px 10px;border-bottom:1px solid #dbe3eb;font-size:12px}
+  .demand-row .demand-description{grid-column:1/5;font-weight:600}
+  .demand-row .demand-service{grid-column:5;text-align:right;font-variant-numeric:tabular-nums}
+  .demand-row .demand-generator{grid-column:6;text-align:right;font-variant-numeric:tabular-nums}
+  .demand-row.total{background:#f1f5f9;font-weight:800;border-top:1px solid #94a3b8}
+  .bottom-results{padding:7px 18px!important;background:#17365d!important}
+  .bottom-results-inner{max-width:1284px!important}
+  .result-card{min-height:45px!important;border-radius:3px!important;padding:5px 12px!important}
+  .result-card.generator{background:#fff!important}
+  .result-label{font-size:9px!important}
+  .result-value{font-size:22px!important}
+}
+@media (max-width:899px){
+  .v3-column-header{display:none}
+  .demand-card .card-body{padding:8px 12px!important}
+  .demand-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:9px 0;border-bottom:1px solid #e2e8f0;font-size:13px}
+  .demand-row .demand-service,.demand-row .demand-generator{text-align:right;font-weight:700}
+  .demand-row.total{font-weight:900}
+}
+@media print{
+  .print-table .print-section-row td{background:#e9eef3!important;color:#17365d!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.03em;text-align:left!important}
+  .print-table .demand-breakdown-row td{background:#fff!important}
+  .print-table .demand-total-row td{border-top:1.4px solid #4b5563!important;background:#f5f7f9!important;font-weight:900!important}
+}
+
+:root{--m-navy:#08245a;--m-blue:#123b7a;--m-line:#d6dee8;--m-soft:#f7f9fc;--m-text:#111827;--m-muted:#64748b;--m-green:#16933b}
+@media (min-width:900px){
+  html,body{background:#eef2f6!important}
+  .mobile-app{width:100%!important;max-width:1024px!important;min-height:100vh!important;margin:0 auto!important;padding-bottom:24px!important;background:#fff!important;box-shadow:0 0 0 1px #dbe2ea,0 12px 34px rgba(15,23,42,.10)!important}
+  .app-header{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:20px!important;min-height:76px!important;padding:14px 18px!important;background:linear-gradient(105deg,#0a2b69,#071b47)!important;border:0!important;color:#fff!important}
+  .brand-row{display:block!important}
+  .brand-row>div:first-child{display:block!important}
+  .app-title{margin:0!important;color:#fff!important;font-size:0!important;line-height:1!important}
+  .app-title::before{content:'LOADCALCPRO';font-size:26px;font-weight:900;letter-spacing:-.03em}
+  .app-title::after{content:' X';color:#4f8cff;font-size:26px;font-weight:900}
+  .app-version{margin-top:5px!important;color:#fff!important;font-size:12px!important;font-weight:700!important}
+  .app-version::first-letter{text-transform:uppercase}
+  .app-brand{display:none!important}
+  .header-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;margin:0!important}
+  .header-actions button{min-width:116px!important;min-height:42px!important;padding:8px 14px!important;border:1px solid rgba(255,255,255,.65)!important;border-radius:7px!important;background:transparent!important;color:#fff!important;font-size:13px!important;font-weight:800!important}
+  .header-actions button.primary{background:#178b37!important;border-color:#65c67b!important;color:#fff!important}
+  .main-content{padding:24px 22px 18px!important}
+  .card{margin:0 0 28px!important;overflow:hidden!important;border:1px solid var(--m-line)!important;border-radius:9px!important;background:#fff!important;box-shadow:0 2px 8px rgba(15,23,42,.035)!important}
+  .card-heading{padding:9px 12px 2px!important;background:#fff!important;border:0!important;color:#0d3470!important;font-size:17px!important;line-height:1.15!important;letter-spacing:0!important;text-align:left!important;text-transform:uppercase!important}
+  .card-body{padding:0!important}
+  .project-card,.voltage-card{margin-bottom:14px!important}
+  .project-card .card-heading,.voltage-card .card-heading{font-size:14px!important;padding:8px 12px 3px!important}
+  .project-card .card-body,.voltage-card .card-body{padding:8px 12px 12px!important}
+  .field-grid{grid-template-columns:1fr 1fr 1.45fr 1.15fr!important;gap:9px 10px!important}
+  .field.wide{grid-column:auto!important}
+  .field label{margin:0 0 4px!important;color:#475569!important;font-size:10px!important;font-weight:800!important}
+  .field input,.field select{min-height:34px!important;padding:5px 7px!important;border:1px solid #cbd6e2!important;border-radius:4px!important;font-size:13px!important}
+  .section-note{padding:0 12px 8px!important;border:0!important;background:#fff!important;color:#5f6f82!important;font-size:11px!important;line-height:1.3!important}
+  .v3-column-header{grid-template-columns:minmax(260px,2.55fr) 80px 96px 54px minmax(125px,1fr) minmax(135px,1.08fr)!important;gap:0!important;padding:7px 0 6px!important;border-top:1px solid #edf1f5!important;border-bottom:1px solid var(--m-line)!important;background:#fbfcfe!important;color:#17365d!important;font-size:10px!important;letter-spacing:0!important}
+  .v3-column-header span{padding:0 10px!important}
+  .load-row{grid-template-columns:minmax(260px,2.55fr) 80px 96px 54px minmax(125px,1fr) minmax(135px,1.08fr)!important;gap:0!important;min-height:45px!important;padding:0!important;border-bottom:1px solid #e5eaf0!important}
+  .load-row>*{padding-left:10px!important;padding-right:10px!important}
+  .load-name{font-size:13px!important;font-weight:600!important;color:#111827!important}
+  input.editable-load-name,.descInput{font-size:13px!important;font-weight:600!important;color:#111827!important}
+  .input-block input,.input-block select,.load-inputs.inline-load-row .input-block input{width:100%!important;min-height:31px!important;padding:4px 7px!important;border:1px solid #cbd6e2!important;border-radius:4px!important;background:#fff!important;font-size:12px!important;text-align:center!important}
+  .inline-managed-controls{padding:0!important}
+  .managed-check,.inline-managed-controls .managed-check{width:26px!important;min-width:26px!important;height:26px!important;min-height:26px!important;border:2px solid #18a443!important;border-radius:4px!important;background:#fff!important}
+  .managed-qty,.inline-managed-controls .managed-qty{height:26px!important;min-height:26px!important;border-radius:4px!important}
+  .output-box{padding:0 12px!important}
+  .output-value{font-size:13px!important;font-weight:600!important}
+  .additional-hvac-control{padding:7px 10px!important;background:#fff!important}
+  .additional-hvac-toggle{color:#475569!important;font-size:11px!important}
+  .additional-hvac-square{width:14px!important;height:14px!important;border-color:#64748b!important}
+  .demand-row{grid-template-columns:minmax(260px,2.55fr) 80px 96px 54px minmax(125px,1fr) minmax(135px,1.08fr)!important;gap:0!important;min-height:38px!important;padding:0!important;border-bottom:1px solid #e5eaf0!important;font-size:13px!important}
+  .demand-row>*{padding:0 12px!important}
+  .demand-row .demand-description{font-weight:600!important}
+  .demand-row.total{background:#fbfcfe!important;border-top:0!important;font-weight:800!important}
+  .heating-method-panel{margin:7px 10px 8px!important;padding:8px!important;border-radius:5px!important;background:#fbfcfe!important}
+  .heating-method-title{font-size:12px!important;margin-bottom:4px!important}
+  .heating-method-choice{display:inline-grid!important;grid-template-columns:18px auto!important;width:auto!important;min-height:30px!important;margin:3px 5px 3px 0!important;padding:4px 7px!important;border-radius:4px!important}
+  .heating-method-check{width:16px!important;height:16px!important;border-width:1.5px!important;border-radius:3px!important;font-size:12px!important}
+  .heating-method-text{font-size:11px!important}
+  .heatpump-questions{margin:6px 10px 8px!important;padding:8px!important;border-radius:5px!important}
+  .heatpump-question-title{font-size:11px!important}
+  .heatpump-answer{display:inline-grid!important;grid-template-columns:18px auto!important;width:auto!important;min-height:29px!important;margin:3px 5px 3px 0!important;padding:4px 7px!important;border-radius:4px!important}
+  .heatpump-answer-check{width:16px!important;height:16px!important;border-radius:3px!important;font-size:12px!important}
+  .heatpump-answer-text{font-size:11px!important}
+  .bottom-results{position:static!important;margin:0 22px 20px!important;padding:10px 14px!important;background:linear-gradient(105deg,#0a2b69,#071b47)!important;border-radius:8px!important;box-shadow:none!important}
+  .bottom-results-inner{max-width:none!important}
+  .result-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+  .result-card{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;min-height:54px!important;padding:7px 14px!important;border:0!important;border-radius:6px!important;background:#fff!important}
+  .result-card.generator{background:#fff!important}
+  .result-label{color:#334155!important;font-size:11px!important;text-align:left!important}
+  .result-value{margin:0!important;color:#0f172a!important;font-size:26px!important;text-align:right!important}
+  .save-status{display:none!important}
+}
+@media (max-width:899px){
+  .app-title::before{content:none}
+}
+
+@media print{
+  .print-project{grid-template-columns:1.3fr .7fr!important;column-gap:16px!important;font-size:9.4px!important}
+  .print-method-details{grid-template-columns:1fr 1fr!important;gap:3px 18px!important;margin:6px 0 0!important;padding:5px 7px!important;border-left:1px solid #cfd4da!important;background:#f7f7f7!important;font-size:8.7px!important}
+  .print-method-details .summary-item{display:flex;justify-content:flex-start;align-items:baseline;gap:8px;min-width:0}
+  .print-method-details .summary-item strong{white-space:nowrap}
+  .print-method-details .summary-item span{white-space:nowrap;text-align:left}
+  .print-section-row td{background:#f3f4f6!important;font-weight:800!important;text-transform:uppercase;letter-spacing:.03em;text-align:left!important}
+}
+.managed-loads-count{margin-top:2px;color:#475569;font-size:11px;font-weight:800;text-align:right}
+@media(max-width:899px){.managed-loads-count{text-align:center;font-size:10px}}
+
+.visually-hidden-result{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
+.total-load-panel{display:grid;grid-template-columns:minmax(180px,1fr) minmax(210px,.85fr) minmax(210px,.85fr);align-items:stretch;gap:12px;width:100%}
+.total-load-title{display:flex;align-items:center;color:#fff;font-size:16px;font-weight:900;letter-spacing:.01em}
+.total-load-item{position:relative;display:flex;min-height:78px;height:78px;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;padding:8px 12px;background:#fff}
+.total-load-item.generator-total-item{background:#dcfce7}
+.total-load-label{color:#334155;font-size:11px;font-weight:900;text-align:center;text-transform:uppercase}
+.total-load-value{margin-top:4px;color:#0f172a;font-size:28px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums}
+.total-managed-line{min-height:13px;margin-top:2px;color:#475569;font-size:10px;font-weight:800;text-align:center}
+@media (min-width:900px){
+  .header-actions{flex-wrap:wrap!important;max-width:540px!important}
+  .header-actions button{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+}
+@media (max-width:899px){
+  .total-load-panel{grid-template-columns:1fr 1fr;gap:9px}
+  .total-load-title{grid-column:1/-1;font-size:14px}
+  .total-load-item{min-height:70px;height:70px}
+  .total-load-value{font-size:23px}
+}
+@media print{.bottom-results{display:none!important}}
+
+/* Restore the original phone-file branding and result-card appearance on desktop. */
+@media (min-width:900px){
+  .app-header{
+    display:block!important;
+    min-height:0!important;
+    padding:18px 26px!important;
+    background:linear-gradient(135deg,var(--blue),var(--navy))!important;
+    color:#fff!important;
+  }
+  .brand-row{
+    display:flex!important;
+    align-items:flex-start!important;
+    justify-content:space-between!important;
+    gap:14px!important;
+  }
+  .brand-row>div:first-child{display:block!important}
+  .app-title{
+    margin:0!important;
+    color:#fff!important;
+    font-size:22px!important;
+    line-height:1.2!important;
+    font-weight:900!important;
+  }
+  .app-title::before,.app-title::after{content:none!important}
+  .app-version{
+    margin-top:5px!important;
+    color:#dbeafe!important;
+    font-size:12px!important;
+    font-weight:700!important;
+  }
+  .app-brand{
+    display:block!important;
+    flex:0 0 auto!important;
+    padding-top:2px!important;
+    color:#fff!important;
+    font-size:15px!important;
+    font-weight:900!important;
+    white-space:nowrap!important;
+  }
+  .app-brand .bolt{color:#5eead4!important;margin-right:3px!important}
+  .app-brand .brand-x{color:#5eead4!important;margin-left:2px!important}
+  .header-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:9px!important;
+    margin-top:16px!important;
+    max-width:none!important;
+  }
+  .header-actions button{
+    display:block!important;
+    min-width:0!important;
+    min-height:50px!important;
+    padding:9px 10px!important;
+    border:1px solid rgba(255,255,255,.4)!important;
+    border-radius:10px!important;
+    background:rgba(255,255,255,.1)!important;
+    color:#fff!important;
+    font-size:13px!important;
+    font-weight:800!important;
+  }
+  .header-actions button.primary{
+    background:var(--teal)!important;
+    border-color:var(--teal)!important;
+  }
+  .bottom-results{
+    position:static!important;
+    margin:0 22px 20px!important;
+    padding:10px 14px!important;
+    background:rgba(15,23,42,.96)!important;
+    border-radius:8px!important;
+    box-shadow:none!important;
+  }
+  .bottom-results-inner{max-width:none!important}
+  .result-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+  .result-card{
+    display:block!important;
+    min-height:0!important;
+    padding:10px!important;
+    border:1px solid rgba(255,255,255,.18)!important;
+    border-radius:12px!important;
+    background:#fff!important;
+  }
+  .result-card.generator{background:#dcfce7!important}
+  .result-label{
+    color:#64748b!important;
+    font-size:18px!important;
+    font-weight:900!important;
+    text-align:center!important;
+    text-transform:none!important;
+  }
+  .result-value{
+    margin-top:4px!important;
+    color:#0f172a!important;
+    font-size:24px!important;
+    font-weight:900!important;
+    text-align:center!important;
+  }
+}
+
+/* V5.0: three header actions remain on one row at all screen sizes. */
+.header-actions{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  max-width:none!important;
+  flex-wrap:nowrap!important;
+}
+.header-actions button{
+  min-width:0!important;
+  width:100%!important;
+  white-space:nowrap!important;
+}
+@media (max-width:420px){
+  .header-actions{gap:6px!important;}
+  .header-actions button{
+    min-height:44px!important;
+    padding:7px 4px!important;
+    font-size:11px!important;
+  }
+}
+
+/* V5.10 — one source of truth for all HVAC selector controls. */
+.continuous-loads-card{margin-top:18px}
+@media(min-width:900px){
+  #heatingMethodPanel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:14px;align-items:start}
+  #heatingMethodPanel .heating-method-title,
+  #heatingMethodPanel #heatingMethodRequiredNote,
+  #heatingMethodPanel #fortyUnitWarning{grid-column:1/-1}
+  #heatingMethodPanel .heating-method-choice[data-method="central65"]{grid-column:1;grid-row:2}
+  #heatingMethodPanel .heating-method-choice[data-method="heatpump"]{grid-column:2;grid-row:2}
+  #heatingMethodPanel .heating-method-choice[data-method="separate40"]{grid-column:1;grid-row:3}
+  #heatingMethodPanel #multipleHvacSystemsChoice{grid-column:2;grid-row:3}
+}
+/* The main methods, Multiple Systems, and heat-pump Yes/No use the exact same control geometry. */
+#heatingMethodPanel .heating-method-choice,
+#heatingMethodPanel #multipleHvacSystemsChoice,
+.v57-hp-option{
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:9px!important;
+  width:100%!important;
+  min-height:54px!important;
+  height:auto!important;
+  margin-top:8px!important;
+  padding:7px 9px!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  color:#111827!important;
+  text-align:left!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:16px!important;
+  line-height:1.25!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+}
+#heatingMethodPanel .heating-method-choice.selected,
+#heatingMethodPanel #multipleHvacSystemsChoice.selected,
+.v57-hp-option.selected{border-color:#15803d!important;background:#ecfdf5!important}
+#heatingMethodPanel .heating-method-check,
+#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-check,
+.v57-hp-check{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:36px!important;
+  min-width:36px!important;
+  height:36px!important;
+  min-height:36px!important;
+  margin:0!important;
+  padding:0!important;
+  border:2px solid #22a447!important;
+  border-radius:8px!important;
+  background:#f7fff9!important;
+  color:#15803d!important;
+  font-family:"Segoe UI Symbol",Arial,sans-serif!important;
+  font-size:22px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  box-sizing:border-box!important;
+}
+#heatingMethodPanel .heating-method-text,
+#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-text,
+.v57-hp-option>span:last-child{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:16px!important;
+  line-height:1.25!important;
+  font-weight:800!important;
+}
+#v57HvacMethodSections{display:grid;gap:14px;margin:14px 0 0}
+.v57-method-card{overflow:hidden;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+.v57-method-heading{padding:10px 12px;border-bottom:1px solid #dbe3ef;background:#eef2f7;color:#17377f;font-size:15px;font-weight:900}
+.v57-method-note{padding:8px 12px 0;color:#64748b;font-size:12px;line-height:1.35}
+.v57-method-row{display:grid;grid-template-columns:minmax(230px,2.2fr) minmax(230px,1.25fr) minmax(250px,1.35fr) minmax(150px,.8fr);align-items:center;gap:14px;min-height:58px;padding:8px 12px;border-top:1px solid #e5e7eb}
+.v57-method-name{font-size:14px;font-weight:800}
+.v57-method-inputs{display:grid;grid-template-columns:80px minmax(110px,1fr);gap:8px}
+.v57-method-inputs input{width:100%;min-height:36px;border:1px solid #cbd5e1;border-radius:5px;padding:6px 8px;background:#fff;font-size:14px;text-align:right}
+.v57-method-inputs input::placeholder{color:#9ca3af}
+.v57-method-managed{display:flex;align-items:center;justify-content:center;gap:5px}
+.v57-managed-button{width:32px;height:30px;border:2px solid #22a447;border-radius:5px;background:#f7fff9;color:#15803d;font-family:"Segoe UI Symbol",Arial,sans-serif;font-size:18px;font-weight:900;cursor:pointer}
+.v57-managed-button.checked{background:#dcfce7;border-color:#0f6f32}
+.v57-managed-qty{display:none;min-width:34px;height:30px;border:1px solid #15803d;border-radius:5px;padding:0 7px;background:#fff;color:#14532d;font-size:13px;font-weight:900;cursor:pointer}
+.v57-managed-qty.show{display:inline-flex;align-items:center;justify-content:center}
+.v57-method-output{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.v57-output-box{min-height:40px;border:1px solid #d8dee9;border-radius:5px;padding:5px 8px;background:#f8fafc}
+.v57-output-label{color:#64748b;font-size:9px;font-weight:800;text-align:right;text-transform:uppercase}
+.v57-output-value{margin-top:2px;font-size:14px;font-weight:900;text-align:right}
+.v57-hp-question{padding:10px 12px;border-top:1px solid #e5e7eb;background:#f8fafc}
+.v57-hp-question-title{margin-bottom:8px;font-size:14px;font-weight:900}
+.v57-hp-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#v57NoMethodMessage{padding:14px;border:1px dashed #cbd5e1;border-radius:9px;color:#64748b;text-align:center;font-size:13px}
+.v57-hide-legacy-hvac{display:none!important}
+@media(max-width:899px){
+  .v57-method-row{display:block;padding:12px}.v57-method-name{margin-bottom:9px;font-size:18px}
+  .v57-method-inputs{grid-template-columns:1fr 1fr}.v57-method-inputs input{min-height:44px;font-size:16px;text-align:left}
+  .v57-method-managed{justify-content:flex-start;margin-top:9px}.v57-method-output{margin-top:9px}
+  .v57-hp-options{grid-template-columns:1fr}.v57-method-heading{font-size:16px}
+}
+.v57-forty-comparison{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 12px;border-top:1px solid #dbe3eb;background:#f8fafc}.v57-forty-comparison>div{border:1px solid #d8dee9;border-radius:5px;padding:7px 9px;background:#fff}.v57-forty-comparison span{display:block;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase}.v57-forty-comparison strong{display:block;margin-top:3px;color:#0f172a;font-size:14px;text-align:right}.v57-forty-used{border-color:#0f766e!important;background:#f0fdfa!important}@media(max-width:899px){.v57-forty-comparison{grid-template-columns:1fr 1fr}.v57-forty-comparison strong{text-align:left}}
+@media print{#v57HvacMethodSections{display:none!important}}
+
+/* V5.12 — one visual system for managed-load and HVAC selection controls. */
+
+/* Generator managed-load controls: original compact green size everywhere. */
+.managed-check,
+.inline-managed-controls .managed-check{
+  width:26px !important;
+  min-width:26px !important;
+  height:26px !important;
+  min-height:26px !important;
+  padding:0 !important;
+  border:2px solid #18a443 !important;
+  border-radius:4px !important;
+  background:#ffffff !important;
+  box-shadow:none !important;
+  color:#15803d !important;
+  font-family:"Segoe UI Symbol",Arial,sans-serif !important;
+  font-size:16px !important;
+  line-height:1 !important;
+}
+.managed-check.checked,
+.inline-managed-controls .managed-check.checked{
+  border-color:#0f6f32 !important;
+  background:#f0fdf4 !important;
+}
+.managed-qty,
+.inline-managed-controls .managed-qty{
+  min-width:28px !important;
+  height:26px !important;
+  min-height:26px !important;
+  padding:0 4px !important;
+  border:1px solid #15803d !important;
+  border-radius:4px !important;
+  font-size:11px !important;
+}
+
+/* HVAC method selectors: compact teal controls, visually distinct from managed loads. */
+.heating-method-choice,
+#multipleHvacSystemsChoice,
+.v57-hp-option,
+.heatpump-answer{
+  display:grid !important;
+  grid-template-columns:20px minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:7px !important;
+  width:100% !important;
+  min-height:34px !important;
+  height:auto !important;
+  margin:4px 0 !important;
+  padding:5px 7px !important;
+  border:1px solid #94a3b8 !important;
+  border-radius:5px !important;
+  background:#ffffff !important;
+  color:#0f172a !important;
+  text-align:left !important;
+  box-shadow:none !important;
+  cursor:pointer !important;
+}
+.heating-method-choice.selected,
+#multipleHvacSystemsChoice.selected,
+.v57-hp-option.selected,
+.heatpump-answer.selected{
+  border-color:#0f766e !important;
+  background:#ecfeff !important;
+}
+
+/* Every HVAC checkbox uses the same compact teal dimensions. */
+.heating-method-check,
+#multipleHvacSystemsChoice .multiple-hvac-check,
+.v57-hp-check,
+.heatpump-answer-check{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:18px !important;
+  min-width:18px !important;
+  height:18px !important;
+  min-height:18px !important;
+  padding:0 !important;
+  border:1.5px solid #0f766e !important;
+  border-radius:3px !important;
+  background:#ffffff !important;
+  color:#0f766e !important;
+  box-shadow:none !important;
+  font-family:"Segoe UI Symbol",Arial,sans-serif !important;
+  font-size:13px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+}
+
+/* Every HVAC selector label uses the same compact typography. */
+.heating-method-text,
+#multipleHvacSystemsChoice .multiple-hvac-text,
+.v57-hp-option,
+.v57-hp-option .v57-hp-text,
+.heatpump-answer-text{
+  font-size:12px !important;
+  line-height:1.25 !important;
+  font-weight:700 !important;
+}
+
+@media(max-width:899px){
+  .managed-check,
+  .inline-managed-controls .managed-check{
+    width:34px !important;
+    min-width:34px !important;
+    height:32px !important;
+    min-height:32px !important;
+    border-radius:7px !important;
+    font-size:20px !important;
+  }
+  .managed-qty,
+  .inline-managed-controls .managed-qty{
+    min-width:38px !important;
+    height:32px !important;
+    min-height:32px !important;
+    font-size:13px !important;
+  }
+  .heating-method-choice,
+  #multipleHvacSystemsChoice,
+  .v57-hp-option,
+  .heatpump-answer{
+    grid-template-columns:24px minmax(0,1fr) !important;
+    min-height:40px !important;
+    padding:6px 8px !important;
+  }
+  .heating-method-check,
+  #multipleHvacSystemsChoice .multiple-hvac-check,
+  .v57-hp-check,
+  .heatpump-answer-check{
+    width:22px !important;
+    min-width:22px !important;
+    height:22px !important;
+    min-height:22px !important;
+    font-size:15px !important;
+  }
+  .heating-method-text,
+  #multipleHvacSystemsChoice .multiple-hvac-text,
+  .v57-hp-option,
+  .v57-hp-option .v57-hp-text,
+  .heatpump-answer-text{
+    font-size:14px !important;
+  }
+}
+
+/* V5.14 — cleaned HVAC logic; V5.5-sized teal checkboxes remain consistent. */
+.heating-method-check,
+#multipleHvacSystemsChoice .multiple-hvac-check,
+.v57-hp-check{
+  width:16px !important;
+  min-width:16px !important;
+  height:16px !important;
+  min-height:16px !important;
+  border:1.5px solid #0f766e !important;
+  border-radius:3px !important;
+  background:#ffffff !important;
+  color:#0f766e !important;
+  font-size:12px !important;
+}
+.heatpump-answer-check{
+  width:16px !important;
+  min-width:16px !important;
+  height:16px !important;
+  min-height:16px !important;
+  border:1.5px solid #0f766e !important;
+  border-radius:3px !important;
+  background:#ffffff !important;
+  color:#0f766e !important;
+  font-size:12px !important;
+}
+.heating-method-choice.selected,
+#multipleHvacSystemsChoice.selected,
+.v57-hp-option.selected,
+.heatpump-answer.selected{
+  border-color:#0f766e !important;
+  background:#ecfeff !important;
+}
+@media(max-width:899px){
+  .heating-method-check,
+  #multipleHvacSystemsChoice .multiple-hvac-check,
+  .v57-hp-check{
+    width:36px !important;
+    min-width:36px !important;
+    height:36px !important;
+    min-height:36px !important;
+    border-width:2px !important;
+    border-radius:8px !important;
+    font-size:22px !important;
+  }
+  .heatpump-answer-check{
+    width:36px !important;
+    min-width:36px !important;
+    height:36px !important;
+    min-height:36px !important;
+    border-width:2px !important;
+    border-radius:8px !important;
+    font-size:22px !important;
+  }
+  .heating-method-choice,
+  #multipleHvacSystemsChoice,
+  .v57-hp-option{
+    grid-template-columns:42px minmax(0,1fr) !important;
+  }
+  .heatpump-answer{
+    grid-template-columns:42px minmax(0,1fr) !important;
+  }
+}
+
+/* V5.16 — the four top HVAC selectors match the compact teal Yes/No controls. */
+#heatingMethodPanel .heating-method-choice,
+#heatingMethodPanel #multipleHvacSystemsChoice{
+  grid-template-columns:20px minmax(0,1fr) !important;
+  min-height:34px !important;
+  height:auto !important;
+  margin:4px 0 !important;
+  padding:5px 7px !important;
+  gap:7px !important;
+  border-radius:5px !important;
+  font-size:12px !important;
+  line-height:1.25 !important;
+  font-weight:700 !important;
+}
+#heatingMethodPanel .heating-method-check,
+#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-check{
+  width:16px !important;
+  min-width:16px !important;
+  height:16px !important;
+  min-height:16px !important;
+  border:1.5px solid #0f766e !important;
+  border-radius:3px !important;
+  background:#fff !important;
+  color:#0f766e !important;
+  font-size:12px !important;
+  line-height:1 !important;
+}
+#heatingMethodPanel .heating-method-text,
+#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-text{
+  font-size:12px !important;
+  line-height:1.25 !important;
+  font-weight:700 !important;
+}
+#heatingMethodPanel .heating-method-choice.selected,
+#heatingMethodPanel #multipleHvacSystemsChoice.selected{
+  border-color:#0f766e !important;
+  background:#ecfeff !important;
+}
+@media(max-width:899px){
+  #heatingMethodPanel .heating-method-choice,
+  #heatingMethodPanel #multipleHvacSystemsChoice{
+    grid-template-columns:20px minmax(0,1fr) !important;
+    min-height:34px !important;
+    padding:5px 7px !important;
+  }
+  #heatingMethodPanel .heating-method-check,
+  #heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-check{
+    width:16px !important;
+    min-width:16px !important;
+    height:16px !important;
+    min-height:16px !important;
+    border-width:1.5px !important;
+    border-radius:3px !important;
+    font-size:12px !important;
+  }
+  #heatingMethodPanel .heating-method-text,
+  #heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-text{
+    font-size:12px !important;
+  }
+}
+
+#multipleHvacSystemsChoice{display:none!important}
+.v522-system-group{margin:12px 0 16px;border:1px solid #cbd5e1;border-radius:8px;overflow:hidden;background:#fff}
+.v522-system-title{padding:8px 12px;background:#eef2f7;color:#17377f;font-weight:900;border-bottom:1px solid #cbd5e1}
+.v522-system-group .v57-method-row{margin:0;border-radius:0;border:0;border-bottom:1px solid #e5e7eb}
+.v522-system-group .v57-method-row:last-child{border-bottom:0}
+.v522-add-system{display:block;width:100%;min-height:42px;margin:12px 0;border:1px solid #0f766e;border-radius:7px;background:#f0fdfa;color:#0f766e;font-weight:900;cursor:pointer}
+.v522-calculated-row{background:#f8fafc}
+.v522-calculated-note{padding:8px;color:#64748b;font-size:12px;font-weight:700}
+@media(min-width:900px){#heatingMethodPanel .heating-method-choice[data-method="separate40"]{grid-column:1/-1!important}.v522-system-title{font-size:13px}.v522-add-system{max-width:260px}}
+
+.v523-system-controls{display:grid;grid-template-columns:1fr;gap:9px;margin:12px 0}
+.v523-system-controls .v522-add-system,.v523-remove-system{width:100%;min-height:42px;margin:0;border-radius:7px;font-weight:900;cursor:pointer}
+.v523-remove-system{border:1px solid #b42318;background:#fff7f7;color:#b42318}
+@media(min-width:700px){.v523-system-controls{grid-template-columns:1fr 1fr;max-width:560px}.v523-system-controls .v522-add-system{max-width:none}}
+
+/* V5.28 — comprehensive professional consistency pass. */
+:root{
+  --pro-navy:#08245a;
+  --pro-blue:#123b7a;
+  --pro-green:#16933b;
+  --pro-teal:#0f766e;
+  --pro-line:#d7e0e9;
+  --pro-line-strong:#bcc9d6;
+  --pro-soft:#f8fafc;
+  --pro-text:#111827;
+  --pro-muted:#64748b;
+  --pro-radius:7px;
+  --pro-control:30px;
+  --pro-check:26px;
+}
+
+/* Shared interaction quality. */
+button,input,select{transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(18,59,122,.18)!important;outline-offset:1px!important}
+input[type="number"]{font-variant-numeric:tabular-nums}
+
+/* All generator-management controls use one geometry and one state language. */
+.managed-check,.inline-managed-controls .managed-check,.v57-managed-button{
+  width:var(--pro-check)!important;min-width:var(--pro-check)!important;
+  height:var(--pro-check)!important;min-height:var(--pro-check)!important;
+  padding:0!important;border:2px solid var(--pro-green)!important;border-radius:4px!important;
+  background:#fff!important;color:var(--pro-green)!important;box-shadow:none!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  font-family:"Segoe UI Symbol",Arial,sans-serif!important;font-size:16px!important;line-height:1!important;font-weight:900!important;
+}
+.managed-check.checked,.inline-managed-controls .managed-check.checked,.v57-managed-button.checked{
+  border-color:#0f6f32!important;background:#ecfdf3!important;
+}
+.managed-qty,.inline-managed-controls .managed-qty,.v57-managed-qty{
+  min-width:30px!important;height:var(--pro-check)!important;min-height:var(--pro-check)!important;
+  padding:0 5px!important;border:1px solid var(--pro-green)!important;border-radius:4px!important;
+  background:#fff!important;color:#14532d!important;font-size:11px!important;font-weight:900!important;
+  align-items:center!important;justify-content:center!important;
+}
+
+/* All HVAC choices—including Multiple Systems and heat-pump Yes/No—match. */
+#multipleHvacSystemsChoice{display:grid!important}
+#heatingMethodPanel .heating-method-choice,
+#heatingMethodPanel #multipleHvacSystemsChoice,
+.v57-hp-option,.heatpump-answer{
+  display:grid!important;grid-template-columns:26px minmax(0,1fr)!important;align-items:center!important;gap:8px!important;
+  width:100%!important;min-height:40px!important;margin:4px 0!important;padding:6px 9px!important;
+  border:1px solid var(--pro-line-strong)!important;border-radius:5px!important;background:#fff!important;
+  color:var(--pro-text)!important;box-shadow:none!important;text-align:left!important;font-size:12px!important;line-height:1.3!important;font-weight:700!important;
+}
+#heatingMethodPanel .heating-method-choice:hover,
+#heatingMethodPanel #multipleHvacSystemsChoice:hover,
+.v57-hp-option:hover,.heatpump-answer:hover{border-color:#7f94aa!important;background:#fbfdff!important}
+#heatingMethodPanel .heating-method-choice.selected,
+#heatingMethodPanel #multipleHvacSystemsChoice.selected,
+.v57-hp-option.selected,.heatpump-answer.selected{border-color:var(--pro-teal)!important;background:#ecfeff!important}
+#heatingMethodPanel .heating-method-check,
+#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-check,
+.v57-hp-check,.heatpump-answer-check{
+  width:20px!important;min-width:20px!important;height:20px!important;min-height:20px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;
+  border:2px solid var(--pro-teal)!important;border-radius:4px!important;background:#fff!important;color:var(--pro-teal)!important;
+  font-family:"Segoe UI Symbol",Arial,sans-serif!important;font-size:14px!important;line-height:1!important;font-weight:900!important;
+}
+#heatingMethodPanel .heating-method-text,
+#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-text,
+.v57-hp-option>span:last-child,.heatpump-answer-text{font-size:12px!important;line-height:1.3!important;font-weight:700!important}
+
+/* HVAC generated sections use the same table rhythm as the main calculator. */
+.v57-method-card{border:1px solid var(--pro-line)!important;border-radius:7px!important;box-shadow:0 1px 3px rgba(15,23,42,.04)!important}
+.v57-method-heading{padding:9px 12px!important;background:#f2f6fa!important;color:var(--pro-navy)!important;border-bottom:1px solid var(--pro-line)!important;font-size:13px!important;letter-spacing:.01em!important}
+.v57-method-row{min-height:45px!important;border-top:0!important;border-bottom:1px solid #e6ebf0!important}
+.v57-method-row:last-of-type{border-bottom:0!important}
+.v57-method-name{color:var(--pro-text)!important;font-size:13px!important;font-weight:600!important}
+.v57-method-inputs input{height:var(--pro-control)!important;min-height:var(--pro-control)!important;border:1px solid #c4d0dc!important;border-radius:4px!important;padding:4px 7px!important;background:#fff!important;font-size:12px!important;text-align:center!important}
+.v57-method-inputs input:hover{border-color:#91a4b7!important}
+.v57-output-box{border:0!important;background:transparent!important;padding:0 8px!important;min-height:0!important}
+.v57-output-label{display:none!important}
+.v57-output-value{font-size:13px!important;font-weight:600!important;color:var(--pro-text)!important}
+.v57-hp-question{background:#fafcfe!important;border-top:1px solid var(--pro-line)!important}
+.v57-hp-question-title{color:var(--pro-text)!important;font-size:12px!important}
+.v57-forty-comparison{background:#fafcfe!important;border-top:1px solid var(--pro-line)!important}
+.v57-forty-comparison>div{border-color:var(--pro-line)!important;border-radius:5px!important;box-shadow:none!important}
+.v57-forty-used{border-color:var(--pro-teal)!important;background:#f0fdfa!important}
+.v522-add-system,.v523-remove-system{min-height:32px!important;border-radius:5px!important;padding:5px 10px!important;font-size:11px!important;font-weight:800!important}
+.v522-add-system{border:1px solid var(--pro-blue)!important;background:var(--pro-blue)!important;color:#fff!important}
+.v523-remove-system{border:1px solid #94a3b8!important;background:#fff!important;color:#475569!important}
+.v523-system-controls{display:flex!important;gap:8px!important;flex-wrap:wrap!important;padding:9px 12px!important;background:#fafcfe!important;border-top:1px solid var(--pro-line)!important}
+
+@media(min-width:900px){
+  html,body{background:#eef2f6!important}
+  .mobile-app{max-width:1180px!important;margin:0 auto!important;background:#fff!important;box-shadow:0 0 0 1px #dce3ea,0 14px 36px rgba(15,23,42,.10)!important}
+  .app-header{padding:15px 20px!important;background:linear-gradient(105deg,#0a2b69,#071b47)!important}
+  .app-title{font-size:24px!important;letter-spacing:-.02em!important}
+  .app-brand{font-size:16px!important}
+  .header-actions{grid-template-columns:repeat(3,minmax(110px,1fr))!important;gap:9px!important;margin-top:14px!important}
+  .header-actions button{min-height:40px!important;border-radius:6px!important;padding:7px 12px!important;font-size:12px!important}
+  .main-content{padding:20px 22px 18px!important}
+  .card{margin-bottom:20px!important;border:1px solid var(--pro-line)!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(15,23,42,.035)!important;overflow:hidden!important}
+  .card-heading{padding:9px 12px 3px!important;background:#fff!important;color:#0d3470!important;border:0!important;font-size:16px!important;letter-spacing:0!important;text-transform:uppercase!important}
+  .section-note{padding:0 12px 9px!important;background:#fff!important;border:0!important;color:var(--pro-muted)!important;font-size:11px!important}
+  .v3-column-header{grid-template-columns:minmax(270px,2.55fr) 82px 100px 62px minmax(130px,1fr) minmax(142px,1.08fr)!important;background:#fbfcfe!important;border-top:1px solid #edf1f5!important;border-bottom:1px solid var(--pro-line)!important;color:#17365d!important;font-size:10px!important}
+  .load-row{grid-template-columns:minmax(270px,2.55fr) 82px 100px 62px minmax(130px,1fr) minmax(142px,1.08fr)!important;min-height:45px!important;border-bottom:1px solid #e5eaf0!important}
+  .load-name,input.editable-load-name,.descInput{font-size:13px!important;font-weight:600!important}
+  .input-block input,.input-block select,.load-inputs.inline-load-row .input-block input{height:var(--pro-control)!important;min-height:var(--pro-control)!important;border:1px solid #c4d0dc!important;border-radius:4px!important;padding:4px 7px!important;font-size:12px!important;text-align:center!important}
+  .inline-managed-controls{min-height:var(--pro-control)!important;justify-content:center!important}
+  .output-value{font-size:13px!important;font-weight:600!important}
+  .heating-method-panel{margin:8px 10px 10px!important;padding:10px!important;border:1px solid var(--pro-line)!important;border-radius:6px!important;background:#fafcfe!important}
+  .heating-method-title{font-size:13px!important;color:var(--pro-navy)!important;margin-bottom:4px!important}
+  #heatingMethodPanel{column-gap:10px!important;row-gap:2px!important}
+  #v57HvacMethodSections{gap:12px!important;margin:10px!important}
+  .v57-method-row{grid-template-columns:minmax(270px,2.55fr) 190px 62px minmax(272px,2.08fr)!important;gap:0!important;padding:0 10px!important}
+  .v57-method-inputs{grid-template-columns:82px 100px!important;gap:8px!important}
+  .v57-method-managed{justify-content:center!important;gap:4px!important}
+  .v57-method-output{grid-template-columns:minmax(130px,1fr) minmax(142px,1.08fr)!important;gap:0!important}
+  .bottom-results{margin:0 22px 20px!important;padding:11px 14px!important;border-radius:8px!important;background:linear-gradient(105deg,#0a2b69,#071b47)!important}
+  .total-load-panel{gap:10px!important}
+  .total-load-item{height:72px!important;min-height:72px!important;border-radius:6px!important}
+  .total-load-value{font-size:27px!important}
+}
+
+@media(max-width:899px){
+  .mobile-app{padding-bottom:180px!important}
+  .card{border-radius:12px!important}
+  .card-heading{font-size:17px!important}
+  .managed-check,.inline-managed-controls .managed-check,.v57-managed-button{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;border-radius:7px!important;font-size:20px!important}
+  .managed-qty,.inline-managed-controls .managed-qty,.v57-managed-qty{height:34px!important;min-height:34px!important;min-width:38px!important;font-size:13px!important}
+  #heatingMethodPanel .heating-method-choice,#heatingMethodPanel #multipleHvacSystemsChoice,.v57-hp-option,.heatpump-answer{grid-template-columns:38px minmax(0,1fr)!important;min-height:50px!important;padding:7px 9px!important;border-radius:8px!important}
+  #heatingMethodPanel .heating-method-check,#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-check,.v57-hp-check,.heatpump-answer-check{width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important;border-radius:7px!important;font-size:19px!important}
+  #heatingMethodPanel .heating-method-text,#heatingMethodPanel #multipleHvacSystemsChoice .multiple-hvac-text,.v57-hp-option>span:last-child,.heatpump-answer-text{font-size:14px!important}
+  .v57-method-row{display:block!important;padding:12px!important}
+  .v57-method-name{margin-bottom:8px!important;font-size:16px!important}
+  .v57-method-inputs{grid-template-columns:1fr 1fr!important}
+  .v57-method-inputs input{min-height:44px!important;height:44px!important;font-size:16px!important;text-align:left!important}
+  .v57-method-managed{justify-content:flex-start!important;margin-top:9px!important}
+  .v57-method-output{margin-top:10px!important}
+}
+
+/* V5.30 — one straight six-column grid throughout the desktop calculator. */
+@media (min-width:900px){
+  :root{
+    --calc-cols:minmax(270px,2.55fr) 82px 100px 62px minmax(130px,1fr) minmax(142px,1.08fr);
+  }
+
+  /* Main calculator rows and every visible column heading share one grid. */
+  .v3-column-header,
+  .load-row,
+  .demand-row{
+    grid-template-columns:var(--calc-cols)!important;
+    column-gap:0!important;
+  }
+
+  /* Generated HVAC rows now use the identical six-column grid. */
+  .v57-method-row{
+    display:grid!important;
+    grid-template-columns:var(--calc-cols)!important;
+    align-items:center!important;
+    column-gap:0!important;
+    min-height:45px!important;
+    padding:0!important;
+  }
+  .v57-method-row>*{
+    min-width:0!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .v57-method-name{
+    grid-column:1!important;
+    margin:0!important;
+  }
+  .v57-method-inputs{
+    display:contents!important;
+  }
+  .v57-method-inputs>input:nth-child(1){
+    grid-column:2!important;
+    width:calc(100% - 20px)!important;
+    margin:0 10px!important;
+  }
+  .v57-method-inputs>input:nth-child(2){
+    grid-column:3!important;
+    width:calc(100% - 20px)!important;
+    margin:0 10px!important;
+  }
+  .v57-method-managed{
+    grid-column:4!important;
+    min-height:var(--pro-control)!important;
+    margin:0!important;
+    padding:0!important;
+    justify-content:center!important;
+  }
+  .v57-method-output{
+    display:contents!important;
+  }
+  .v57-method-output>.v57-output-box:nth-child(1){grid-column:5!important}
+  .v57-method-output>.v57-output-box:nth-child(2){grid-column:6!important}
+  .v57-output-box{
+    width:auto!important;
+    margin:0!important;
+    padding:0 12px!important;
+    text-align:right!important;
+  }
+  .v57-output-value{text-align:right!important}
+
+  /* Keep every input and managed control centered on the same horizontal axis. */
+  .load-row,
+  .v57-method-row{align-items:center!important}
+  .input-block,
+  .inline-managed-controls,
+  .v57-method-managed,
+  .row-output>.output-box,
+  .v57-output-box{align-self:center!important}
+
+  /* Additional HVAC system groups must not introduce side indents. */
+  .v522-system-group .v57-method-row{
+    margin:0!important;
+    padding:0!important;
+  }
+}
+
+/* V5.31 — final professional visual polish. Calculation and print logic unchanged. */
+:root{
+  --polish-navy:#0b2f68;
+  --polish-blue:#174b82;
+  --polish-teal:#0f766e;
+  --polish-green:#15803d;
+  --polish-line:#d5dee8;
+  --polish-input:#ffffff;
+  --polish-output:#f3f7fb;
+  --polish-muted:#607086;
+}
+html,body,button,input,select,textarea{
+  font-family:"Segoe UI",Inter,Arial,Helvetica,sans-serif!important;
+}
+button,input,select{transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:3px solid rgba(15,118,110,.20)!important;
+  outline-offset:1px!important;
+}
+.input-block input,.input-block select,.field input,.field select,.v57-method-inputs input{
+  background:var(--polish-input)!important;
+  border-color:#bdcbd9!important;
+}
+.input-block input:hover,.input-block select:hover,.field input:hover,.field select:hover,.v57-method-inputs input:hover{
+  border-color:#8298ae!important;
+}
+.output-box,.v57-output-box{
+  background:var(--polish-output)!important;
+}
+.managed-check.checked,.inline-managed-controls .managed-check.checked,.v57-managed-button.checked{
+  background:#e8f7ed!important;
+  border-color:var(--polish-green)!important;
+}
+
+@media (min-width:900px){
+  .mobile-app{border-radius:0 0 10px 10px!important}
+  .app-header{padding:14px 20px 15px!important}
+  .app-title{font-size:23px!important;letter-spacing:-.015em!important}
+  .app-version{font-size:11px!important;font-weight:600!important;color:#d6e3f5!important}
+  .header-actions{gap:8px!important;margin-top:12px!important}
+  .header-actions button{
+    min-height:36px!important;
+    padding:6px 11px!important;
+    border-radius:5px!important;
+    background:rgba(255,255,255,.06)!important;
+    border-color:rgba(255,255,255,.48)!important;
+    font-size:12px!important;
+    font-weight:700!important;
+  }
+  .header-actions button:hover{background:rgba(255,255,255,.14)!important}
+  .header-actions button.primary{
+    background:var(--polish-teal)!important;
+    border-color:#41a79f!important;
+    box-shadow:0 1px 2px rgba(0,0,0,.12)!important;
+  }
+  .main-content{padding:18px 22px 14px!important}
+  .card{
+    margin-bottom:14px!important;
+    border-color:var(--polish-line)!important;
+    box-shadow:0 1px 4px rgba(15,23,42,.035)!important;
+  }
+  .card-heading{
+    padding:8px 12px 4px!important;
+    color:var(--polish-navy)!important;
+    font-size:15px!important;
+    font-weight:750!important;
+    letter-spacing:.025em!important;
+  }
+  .section-note{padding-bottom:8px!important;color:var(--polish-muted)!important}
+  .v3-column-header{
+    background:#f3f6f9!important;
+    border-top-color:#e3e9ef!important;
+    color:#41546a!important;
+    font-weight:800!important;
+  }
+  .load-row{min-height:43px!important}
+  .load-row:hover{background:#fbfdff!important}
+  .output-box{padding:4px 10px!important;background:var(--polish-output)!important;border-left:1px solid #e2e9f0!important}
+  .output-value{font-variant-numeric:tabular-nums!important}
+
+  .heating-method-panel{
+    margin:7px 10px 9px!important;
+    padding:9px!important;
+    background:#f5f8fb!important;
+    border-color:#cdd8e3!important;
+  }
+  .heating-method-title{margin-bottom:5px!important;font-size:12px!important;letter-spacing:.015em!important}
+  #heatingMethodPanel .heating-method-choice,
+  #heatingMethodPanel #multipleHvacSystemsChoice,
+  .v57-hp-option,.heatpump-answer{
+    min-height:38px!important;
+    padding:6px 8px!important;
+    border-radius:5px!important;
+    background:#fff!important;
+  }
+  #heatingMethodPanel .heating-method-choice:hover,
+  #heatingMethodPanel #multipleHvacSystemsChoice:hover,
+  .v57-hp-option:hover,.heatpump-answer:hover{border-color:#8ba0b5!important}
+  #heatingMethodPanel .heating-method-choice.selected,
+  #heatingMethodPanel #multipleHvacSystemsChoice.selected,
+  .v57-hp-option.selected,.heatpump-answer.selected{
+    border-color:var(--polish-teal)!important;
+    background:#eefaf8!important;
+    box-shadow:inset 3px 0 0 var(--polish-teal)!important;
+  }
+  #v57HvacMethodSections{margin:12px 10px 10px!important;gap:10px!important}
+  .v57-method-card{border-color:#cdd8e3!important;box-shadow:none!important}
+  .v57-method-heading{
+    padding:8px 12px!important;
+    background:#edf3f8!important;
+    color:var(--polish-navy)!important;
+    font-size:12px!important;
+    text-transform:uppercase!important;
+    letter-spacing:.035em!important;
+  }
+  .v57-method-row{min-height:43px!important}
+  .v57-output-box{background:var(--polish-output)!important;border-left:1px solid #e2e9f0!important;padding:5px 10px!important}
+  .v523-system-controls{padding:7px 12px!important}
+
+  .bottom-results{
+    margin-top:2px!important;
+    padding:9px 12px!important;
+    background:linear-gradient(105deg,#0b326f,#081f4d)!important;
+  }
+  .total-load-panel{grid-template-columns:minmax(170px,.8fr) minmax(220px,1fr) minmax(220px,1fr)!important;gap:9px!important}
+  .total-load-title{font-size:14px!important;font-weight:800!important}
+  .total-load-item{height:64px!important;min-height:64px!important;padding:6px 12px!important;border-radius:5px!important}
+  .total-load-item:not(.generator-total-item){background:#fff!important}
+  .total-load-item.generator-total-item{background:#e5f7ea!important;border:1px solid #b8dfc3!important}
+  .total-load-label{font-size:10px!important;letter-spacing:.025em!important}
+  .total-load-value{font-size:25px!important;line-height:1!important}
+}
+
+@media (max-width:899px){
+  .app-header{padding-bottom:15px!important}
+  .header-actions button{font-weight:700!important}
+  .card-heading{font-weight:800!important;letter-spacing:.01em!important}
+  .output-box,.v57-output-box{background:var(--polish-output)!important}
+}
+
+@media print{
+  html,body,.print-report{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}
+}
+
+/* V5.32 — continuous-load notes stay with the description column so Qty and VA align with every other load row. */
+.continuous-load-name{min-width:0}
+.continuous-load-note{margin-top:3px;color:#64748b;font-size:10px;line-height:1.3;font-weight:500}
+@media (min-width:900px){
+  .continuous-load-name{grid-column:1!important;padding-left:10px!important;padding-right:10px!important}
+  .continuous-load-name .editable-load-name{width:100%!important}
+  .continuous-load-note{font-size:10px!important;line-height:1.25!important}
+}
+@media (max-width:899px){
+  .continuous-load-name{margin-bottom:9px}
+  .continuous-load-note{font-size:12px;line-height:1.35}
+}
+
+/* V5.36 — expanded HVAC rows follow the same readable phone layout as the main calculator rows. */
+@media (max-width:899px){
+  #v57HvacMethodSections{
+    margin:12px 0 0!important;
+    gap:14px!important;
+  }
+  .v57-method-card{
+    border:1px solid #d1d5db!important;
+    border-radius:12px!important;
+    overflow:hidden!important;
+    background:#fff!important;
+    box-shadow:0 2px 8px rgba(15,23,42,.04)!important;
+  }
+  .v57-method-heading{
+    padding:11px 13px!important;
+    background:#eef2f7!important;
+    color:#17377f!important;
+    font-size:15px!important;
+    line-height:1.3!important;
+    font-weight:900!important;
+    text-transform:none!important;
+    letter-spacing:0!important;
+  }
+  .v522-system-group{
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    overflow:visible!important;
+  }
+  .v522-system-title{
+    padding:9px 13px!important;
+    border-top:1px solid #dbe3eb!important;
+    border-bottom:1px solid #dbe3eb!important;
+    background:#f8fafc!important;
+    color:#334155!important;
+    font-size:13px!important;
+    font-weight:900!important;
+  }
+  .v57-method-row,
+  .v522-system-group .v57-method-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:9px 10px!important;
+    margin:0!important;
+    padding:12px 13px!important;
+    border:0!important;
+    border-bottom:1px solid #e5e7eb!important;
+    background:#fff!important;
+  }
+  .v57-method-row:last-child,
+  .v522-system-group .v57-method-row:last-child{
+    border-bottom:0!important;
+  }
+  .v57-method-name{
+    grid-column:1/-1!important;
+    margin:0!important;
+    color:#111827!important;
+    font-size:18px!important;
+    line-height:1.25!important;
+    font-weight:900!important;
+  }
+  .v57-method-inputs{
+    grid-column:1!important;
+    display:grid!important;
+    grid-template-columns:minmax(72px,.72fr) minmax(0,1.28fr)!important;
+    gap:9px!important;
+    min-width:0!important;
+  }
+  .v57-method-inputs input{
+    width:100%!important;
+    height:46px!important;
+    min-height:46px!important;
+    margin:0!important;
+    padding:9px 10px!important;
+    border:1px solid #cbd5e1!important;
+    border-radius:8px!important;
+    background:#fff!important;
+    color:#111827!important;
+    font-size:18px!important;
+    line-height:1.2!important;
+    text-align:left!important;
+  }
+  .v57-method-managed{
+    grid-column:2!important;
+    display:flex!important;
+    align-items:center!important;
+    align-self:stretch!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+    min-width:46px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .v57-managed-button{
+    width:46px!important;
+    min-width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+    border-radius:8px!important;
+    font-size:22px!important;
+  }
+  .v57-managed-qty{
+    min-width:44px!important;
+    height:46px!important;
+    min-height:46px!important;
+    border-radius:8px!important;
+    font-size:15px!important;
+  }
+  .v57-method-output{
+    grid-column:1/-1!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:9px!important;
+    margin:0!important;
+  }
+  .v57-output-box{
+    min-height:48px!important;
+    margin:0!important;
+    padding:7px 9px!important;
+    border:1px solid #d8dee9!important;
+    border-radius:8px!important;
+    background:#f3f7fb!important;
+    text-align:left!important;
+  }
+  .v57-output-label{
+    display:block!important;
+    color:#64748b!important;
+    font-size:10px!important;
+    line-height:1.15!important;
+    font-weight:800!important;
+    text-align:left!important;
+    text-transform:uppercase!important;
+  }
+  .v57-output-value{
+    margin-top:4px!important;
+    color:#0f172a!important;
+    font-size:16px!important;
+    line-height:1.15!important;
+    font-weight:900!important;
+    text-align:right!important;
+  }
+  .v57-method-row.v535-noncontrolling-row{
+    background:#f8fafc!important;
+    opacity:.52!important;
+  }
+  .v57-method-row.v535-noncontrolling-row .v57-method-name,
+  .v57-method-row.v535-noncontrolling-row .v57-output-value{
+    color:#64748b!important;
+  }
+  .v57-hp-question{
+    padding:12px 13px!important;
+  }
+  .v57-hp-question-title{
+    font-size:15px!important;
+    line-height:1.35!important;
+  }
+  .v57-forty-comparison{
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    padding:11px 13px!important;
+  }
+  .v523-system-controls{
+    padding:10px 13px!important;
+  }
+}
+
+/* V5.37 — improve mobile readability of Add/Remove HVAC System controls. */
+@media (max-width:899px){
+  .v523-system-controls{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    padding:10px 13px!important;
+    background:#f8fafc!important;
+    border-top:1px solid #dbe3eb!important;
+  }
+  .v523-system-controls .v522-add-system{
+    width:100%!important;
+    min-height:44px!important;
+    margin:0!important;
+    border:2px solid #0f766e!important;
+    border-radius:8px!important;
+    background:#ffffff!important;
+    color:#0f5f59!important;
+    font-size:15px!important;
+    line-height:1.2!important;
+    font-weight:900!important;
+    text-shadow:none!important;
+    box-shadow:0 1px 2px rgba(15,23,42,.06)!important;
+  }
+  .v523-system-controls .v522-add-system:active{
+    background:#ecfdf5!important;
+  }
+  .v523-system-controls .v523-remove-system{
+    width:100%!important;
+    min-height:42px!important;
+    margin:0!important;
+    border:1px solid #94a3b8!important;
+    border-radius:8px!important;
+    background:#ffffff!important;
+    color:#475569!important;
+    font-size:14px!important;
+    line-height:1.2!important;
+    font-weight:800!important;
+    text-shadow:none!important;
+  }
+}
+
+/* V5.38 — phone HVAC entries match the ordinary appliance load rows. */
+@media (max-width:899px){
+  #v57HvacMethodSections,
+  #v57HvacMethodSections .v57-method-card,
+  #v57HvacMethodSections .v522-system-group,
+  #v57HvacMethodSections .v57-method-row,
+  #v57HvacMethodSections .v523-system-controls{
+    background:#ffffff!important;
+  }
+  #v57HvacMethodSections .v57-method-card{
+    border:1px solid #d1d5db!important;
+    box-shadow:none!important;
+  }
+  #v57HvacMethodSections .v57-method-heading{
+    padding:10px 13px!important;
+    background:#ffffff!important;
+    border-bottom:2px solid #17377f!important;
+    color:#17377f!important;
+    font-size:17px!important;
+    line-height:1.25!important;
+  }
+  #v57HvacMethodSections .v522-system-title{
+    padding:8px 13px!important;
+    background:#ffffff!important;
+    border-top:0!important;
+    border-bottom:1px solid #dbe3eb!important;
+    color:#334155!important;
+    font-size:13px!important;
+  }
+  #v57HvacMethodSections .v57-method-row,
+  #v57HvacMethodSections .v522-system-group .v57-method-row{
+    padding:11px 13px!important;
+    background:#ffffff!important;
+    opacity:1!important;
+  }
+  #v57HvacMethodSections .v57-method-name{
+    color:#111827!important;
+    font-size:18px!important;
+    line-height:1.25!important;
+  }
+  #v57HvacMethodSections .v57-method-inputs input{
+    background:#ffffff!important;
+    color:#111827!important;
+    -webkit-text-fill-color:#111827!important;
+  }
+  /* Main phone appliance rows do not show separate service/generator output cards. */
+  #v57HvacMethodSections .v57-method-output{
+    display:none!important;
+  }
+  #v57HvacMethodSections .v57-method-row.v535-noncontrolling-row{
+    background:#f8fafc!important;
+    opacity:.48!important;
+  }
+  #v57HvacMethodSections .v57-method-row.v535-noncontrolling-row .v57-method-name{
+    color:#64748b!important;
+  }
+  #v57HvacMethodSections .v523-system-controls{
+    padding:10px 13px 12px!important;
+    border-top:1px solid #e5e7eb!important;
+    background:#ffffff!important;
+  }
+  #v57HvacMethodSections .v523-system-controls .v522-add-system{
+    display:block!important;
+    width:100%!important;
+    min-height:46px!important;
+    margin:0!important;
+    border:2px solid #0f766e!important;
+    border-radius:8px!important;
+    background:#ffffff!important;
+    background-image:none!important;
+    color:#0f5f59!important;
+    -webkit-text-fill-color:#0f5f59!important;
+    font-size:16px!important;
+    font-weight:900!important;
+    line-height:1.2!important;
+    text-shadow:none!important;
+    opacity:1!important;
+    filter:none!important;
+    appearance:none!important;
+    -webkit-appearance:none!important;
+  }
+  #v57HvacMethodSections .v523-system-controls .v523-remove-system{
+    display:block!important;
+    width:100%!important;
+    min-height:44px!important;
+    margin:0!important;
+    border:1px solid #94a3b8!important;
+    border-radius:8px!important;
+    background:#ffffff!important;
+    background-image:none!important;
+    color:#475569!important;
+    -webkit-text-fill-color:#475569!important;
+    font-size:15px!important;
+    font-weight:800!important;
+    opacity:1!important;
+    appearance:none!important;
+    -webkit-appearance:none!important;
+  }
+  #v57HvacMethodSections .v57-hp-question,
+  #v57HvacMethodSections .v57-forty-comparison{
+    background:#ffffff!important;
+  }
+}
+
+/* V5.40 — keep all HVAC rows at full contrast; only the unavailable managed control becomes pale green. */
+@media (max-width:899px){
+  #v57HvacMethodSections .v57-method-row,
+  #v57HvacMethodSections .v57-method-row.v535-noncontrolling-row{
+    background:#ffffff!important;
+    color:#111827!important;
+    opacity:1!important;
+    filter:none!important;
+  }
+  #v57HvacMethodSections .v57-method-row.v535-noncontrolling-row .v57-method-name,
+  #v57HvacMethodSections .v57-method-row.v535-noncontrolling-row .v57-output-value{
+    color:#111827!important;
+  }
+  #v57HvacMethodSections .v57-method-row.v535-noncontrolling-row input{
+    opacity:1!important;
+    color:#111827!important;
+    -webkit-text-fill-color:#111827!important;
+  }
+  #v57HvacMethodSections .v57-method-managed.v539-hide-noncontrolling-managed{
+    visibility:visible!important;
+    pointer-events:auto!important;
+  }
+  #v57HvacMethodSections .v57-managed-button.v535-managed-inactive,
+  #v57HvacMethodSections .v57-managed-qty.v535-managed-inactive{
+    opacity:1!important;
+    filter:none!important;
+    pointer-events:none!important;
+    cursor:default!important;
+    border-color:#9fd8ad!important;
+    background:#f3fbf5!important;
+    color:#86c795!important;
+    -webkit-text-fill-color:#86c795!important;
+    box-shadow:none!important;
+  }
+  #v57HvacMethodSections .v57-managed-button.v535-managed-inactive:hover,
+  #v57HvacMethodSections .v57-managed-qty.v535-managed-inactive:hover{
+    border-color:#9fd8ad!important;
+    background:#f3fbf5!important;
+  }
+}
+
+@media screen{
+  .v534-print-advisory{display:none!important}
+}
+@media print{
+  .v534-print-advisory{display:block!important;margin-top:5px;padding:4px 6px;border:1px solid #d6b86a;background:#fffaf0!important;color:#5f4a16;font-size:7.7px;line-height:1.3}
+}
+
+.v535-managed-inactive{opacity:.28!important;filter:grayscale(1);cursor:not-allowed!important;pointer-events:none!important}
+.v57-method-row.v535-noncontrolling-row{background:#f8fafc!important;color:#94a3b8!important}
+.v57-method-row.v535-noncontrolling-row .v57-method-name,
+.v57-method-row.v535-noncontrolling-row .v57-output-value{color:#94a3b8!important}
+
+/* V5.43 — HVAC section placement/polish. */
+.v523-system-controls .v522-add-system{
+  background:#f8fafc!important;
+  border:1px solid #cbd5e1!important;
+  color:#475569!important;
+  box-shadow:none!important;
+}
+.v523-system-controls .v522-add-system:hover,
+.v523-system-controls .v522-add-system:focus-visible{
+  background:#f1f5f9!important;
+  border-color:#94a3b8!important;
+  color:#334155!important;
+}
+.v543-hp-question{
+  margin:0;
+  padding:10px 12px 12px;
+  border-top:1px solid #e5e7eb;
+  background:#fafcfe;
+}
+.v543-hp-question-title{
+  margin-bottom:8px;
+  color:#111827;
+  font-size:13px;
+  line-height:1.35;
+  font-weight:900;
+}
+.v543-hp-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.v543-hp-option{
+  display:grid;
+  grid-template-columns:20px minmax(0,1fr);
+  align-items:center;
+  gap:7px;
+  width:100%;
+  min-height:34px;
+  margin:0;
+  padding:5px 7px;
+  border:1px solid #94a3b8;
+  border-radius:5px;
+  background:#fff;
+  color:#0f172a;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+}
+.v543-hp-option.selected{border-color:#0f766e;background:#ecfeff}
+.v543-hp-check{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+  border:1.5px solid #0f766e;
+  border-radius:3px;
+  background:#fff;
+  color:#0f766e;
+  font-family:"Segoe UI Symbol",Arial,sans-serif;
+  font-size:12px;
+  font-weight:900;
+}
+.v543-hp-option span:last-child{font-size:11px;line-height:1.3;font-weight:800}
+@media(max-width:899px){
+  .v543-hp-question{padding:12px 13px;background:#fff}
+  .v543-hp-question-title{font-size:15px}
+  .v543-hp-options{grid-template-columns:1fr}
+  .v543-hp-option{grid-template-columns:32px minmax(0,1fr);min-height:48px;padding:7px 10px;border-radius:8px}
+  .v543-hp-check{width:28px;height:28px;border-width:2px;border-radius:6px;font-size:18px}
+  .v543-hp-option span:last-child{font-size:14px}
+  .v523-system-controls .v522-add-system{background:#f8fafc!important;color:#475569!important;border-color:#d5dde6!important}
+}
+@media(min-width:900px){
+  /* The separate calculated Heat-at-40 row is redundant on desktop. */
+  #phoneHeat40Row1,#phoneHeat40Row2,.v522-calculated-row{display:none!important}
+}
