@@ -56,7 +56,7 @@ const API_BASE_URL="https://loadcalcpro-hcml-api-staging.onrender.com";
 const STAGING_SITE_BASE="https://loadcalcpro.github.io/electrical-load-calculator-staging/";
 const REMEMBERED_EMAIL_KEY="loadCalcProStagingRememberedEmail";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-const products={generator:{href:STAGING_SITE_BASE+"generator-managed-staging.html",label:"Open Generator Access Test"},aic:{href:STAGING_SITE_BASE+"aic_calculator.html",label:"Open AIC Access Test"}};
+const products={generator:{href:STAGING_SITE_BASE+"generator/",label:"Open Generator Access Test"},aic:{href:STAGING_SITE_BASE+"aic_calculator.html",label:"Open AIC Access Test"}};
 const loginPanel=document.getElementById("loginPanel"),portal=document.getElementById("portal"),message=document.getElementById("message"),loginButton=document.getElementById("loginButton"),emailInput=document.getElementById("email"),rememberEmail=document.getElementById("rememberEmail");
 const savedEmail=localStorage.getItem(REMEMBERED_EMAIL_KEY)||"";
 if(savedEmail){emailInput.value=savedEmail;rememberEmail.checked=true}
