@@ -18,3 +18,21 @@
     padding:0!important;
   }
 }
+
+/* Keep Heat Pump system controls after the operating-condition questions. */
+.v57-method-card[data-v522-card="heatpump"]{
+  display:flex;
+  flex-direction:column;
+}
+.v57-method-card[data-v522-card="heatpump"] > .v57-method-heading{
+  order:1;
+}
+.v57-method-card[data-v522-card="heatpump"] > .v522-system-group{
+  order:2;
+}
+.v57-method-card[data-v522-card="heatpump"] > .v57-hp-question{
+  order:3;
+}
+.v57-method-card[data-v522-card="heatpump"] > .v523-system-controls{
+  order:4;
+}
