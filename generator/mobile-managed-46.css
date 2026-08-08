@@ -18,7 +18,7 @@
     padding:0!important;
   }
 
-  /* Mobile readability pass: modest increases only. */
+  /* Mobile readability pass. */
   .header-actions button{
     min-height:52px!important;
     font-size:14px!important;
@@ -29,18 +29,27 @@
   }
 
   .load-name,
-  .v57-method-name{
+  .v57-method-name,
+  .field label{
     font-size:19px!important;
+    line-height:1.35!important;
   }
 
   .section-note,
-  .field label,
-  .managed-label,
+  .continuous-load-note,
+  #v57NoMethodMessage,
+  .heating-method-required-note,
+  .forty-unit-warning,
   .v57-hp-question-title,
   .v57-hp-option,
   .heating-method-text,
   .multiple-hvac-text{
-    font-size:13px!important;
+    font-size:16px!important;
+    line-height:1.5!important;
+  }
+
+  .managed-label{
+    font-size:15px!important;
     line-height:1.4!important;
   }
 }
