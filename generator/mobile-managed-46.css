@@ -170,16 +170,28 @@
   }
 
   .calculation-summary-row:last-child{
-    display:flex!important;
+    display:grid!important;
+    grid-template-columns:90px minmax(0,1fr) 48px!important;
     align-items:baseline!important;
-    justify-content:flex-end!important;
-    gap:12px!important;
+    gap:9px!important;
     padding:0!important;
-    color:#14532d!important;
+    color:#111827!important;
     font-family:Arial,Helvetica,sans-serif!important;
     font-size:15px!important;
     line-height:1.35!important;
     font-weight:900!important;
+  }
+
+  .calculation-summary-row:last-child > span:first-child{
+    grid-column:1 / 3!important;
+    color:#111827!important;
+    text-align:right!important;
+  }
+
+  .calculation-summary-row:last-child > span:last-child{
+    grid-column:3!important;
+    color:#111827!important;
+    text-align:center!important;
   }
 
   .load-name,
