@@ -157,6 +157,11 @@
     font-size:18px!important;
   }
 
+  /* Hide the duplicate Service Load / Generator Load / Managed Quantity summary on desktop. */
+  .calculation-summary{
+    display:none!important;
+  }
+
   .load-name,
   input.editable-load-name,
   .descInput,
@@ -168,10 +173,8 @@
   .v57-hp-question-title,
   .v57-hp-option,
   .v522-system-title,
-  .managed-label,
-  .calculation-summary,
-  .calculation-summary-row{
-    font-size:16px!important;
+  .managed-label{
+    font-size:15px!important;
     line-height:1.35!important;
   }
 
@@ -182,7 +185,7 @@
   .field select,
   .output-value,
   .summary-box .summary-value{
-    font-size:16px!important;
+    font-size:15px!important;
     line-height:1.25!important;
   }
 
