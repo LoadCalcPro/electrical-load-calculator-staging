@@ -1,68 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Member Dashboard | LoadCalcPro X</title>
-  <meta name="description" content="LoadCalcPro X is a professional electrical calculation suite providing accurate electrical calculation tools for contractors, designers, inspectors, and engineers.">
-  <style>
-    :root{--navy:#10233f;--green:#1f8a5b;--gold:#d2a84b;--page:#eef3f7;--card:#fff;--text:#182433;--muted:#667487;--border:#d9e1e8;--danger:#b42318}
-    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:var(--text);background:var(--page)}header{background:var(--navy);color:#fff;border-bottom:4px solid var(--gold)}.inner{width:min(1000px,calc(100% - 32px));margin:auto}.head{min-height:86px;display:flex;align-items:center;justify-content:space-between}main{padding:44px 0}.panel,.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;box-shadow:0 12px 30px rgba(16,35,63,.09)}.panel{max-width:540px;margin:auto}h1,h2{color:var(--navy)}label{display:block;font-weight:700;margin:16px 0 8px}input{width:100%;padding:13px;border:1px solid #bcc8d3;border-radius:8px;font:inherit}.remember-row{display:flex;align-items:center;gap:9px;margin-top:14px}.remember-row input{width:auto;margin:0}.remember-row label{display:inline;margin:0;font-weight:400}button,.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:8px;padding:13px 18px;font-weight:700;text-decoration:none;cursor:pointer}.primary{width:100%;margin-top:20px;background:var(--green);color:#fff}.link{display:block;text-align:center;margin-top:16px;color:#176b47;font-weight:700}.message{margin-top:16px;padding:12px;border-radius:8px;display:none}.message.error{display:block;background:#fff1f0;color:var(--danger)}.portal{display:none}.portal.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card.locked{opacity:.7}.button.open{background:var(--navy);color:#fff}.button.locked{background:#dfe4e9;color:#263442}.actions{margin-top:24px;text-align:center}.site-footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}@media(max-width:700px){.grid{grid-template-columns:1fr}.head{align-items:flex-start;padding:18px 0;gap:12px}.panel,.card{padding:20px}main{padding:26px 0}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Member Dashboard | LoadCalcPro X</title>
+<meta name="description" content="LoadCalcPro X professional electrical calculation suite.">
+<link rel="stylesheet" href="brand.css">
+<style>:root{--navy:#0f172a;--blue:#1e3a8a;--teal:#0f766e;--page:#f3f4f6;--card:#fff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--danger:#b42318}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--page)}.inner{width:min(1000px,calc(100% - 32px));margin:auto}main{padding:44px 0}.panel,.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;box-shadow:0 4px 16px rgba(15,23,42,.08)}.panel{max-width:540px;margin:auto}h1,h2{color:var(--blue)}label{display:block;font-weight:700;margin:16px 0 8px}input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.remember-row{display:flex;align-items:center;gap:9px;margin-top:14px}.remember-row input{width:auto;margin:0}.remember-row label{display:inline;margin:0;font-weight:400}button,.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;padding:13px 18px;font-weight:800;text-decoration:none;cursor:pointer}.primary{width:100%;margin-top:20px;background:var(--teal);color:#fff}.link{display:block;text-align:center;margin-top:16px;color:var(--teal);font-weight:800}.message{margin-top:16px;padding:12px;border-radius:8px;display:none}.message.error{display:block;background:#fff1f0;color:var(--danger)}.portal{display:none}.portal.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card.locked{opacity:.7}.button.open{background:var(--blue);color:#fff}.button.locked{background:#e5e7eb;color:#374151}.actions{margin-top:24px;text-align:center}.site-footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}@media(max-width:700px){.grid{grid-template-columns:1fr}.panel,.card{padding:20px}main{padding:26px 0}}</style>
 </head>
 <body>
-<header><div class="inner head"><div><strong style="font-size:24px">LoadCalcPro X</strong><div style="font-size:13px;opacity:.8">Professional Electrical Calculation Suite</div></div></div></header>
-<main class="inner">
-  <section id="loginPanel" class="panel">
-    <h1>Member Login</h1>
-    <form id="loginForm">
-      <label for="email">Email</label><input id="email" type="email" autocomplete="email" required>
-      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required>
-      <div class="remember-row"><input id="rememberEmail" type="checkbox"><label for="rememberEmail">Remember my email</label></div>
-      <button id="loginButton" class="primary" type="submit">Sign In</button>
-      <a class="link" href="staging-forgot-password.html">Forgot your password?</a>
-      <div id="message" class="message"></div>
-    </form>
-  </section>
-  <section id="portal" class="portal">
-    <h1>Member Dashboard</h1><p>Welcome to LoadCalcPro X. Signed in as <strong id="memberEmail"></strong></p>
-    <div class="grid">
-      <article class="card locked" data-product="generator"><h2>Optional Method Generator Calculator</h2><p data-status>Checking access…</p><a class="button locked" data-link href="#">Checking…</a></article>
-      <article class="card locked" data-product="aic"><h2>AIC Available Fault Current Calculator</h2><p data-status>Checking access…</p><a class="button locked" data-link href="#">Checking…</a></article>
-    </div>
-    <div class="actions"><button id="signOut">Sign Out</button></div>
-  </section>
-</main>
+<header class="lcp-brand-header"><div class="lcp-brand-wrap"><div><div class="lcp-wordmark medium"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div><div class="lcp-subtitle">Professional Electrical Calculation Suite</div></div></div></header>
+<main class="inner"><section id="loginPanel" class="panel"><h1>Member Login</h1><form id="loginForm"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><div class="remember-row"><input id="rememberEmail" type="checkbox"><label for="rememberEmail">Remember my email</label></div><button id="loginButton" class="primary" type="submit">Sign In</button><a class="link" href="staging-forgot-password.html">Forgot your password?</a><div id="message" class="message"></div></form></section><section id="portal" class="portal"><h1>Member Dashboard</h1><p>Welcome to LoadCalcPro X. Signed in as <strong id="memberEmail"></strong></p><div class="grid"><article class="card locked" data-product="generator"><h2>Optional Method Generator Calculator</h2><p data-status>Checking access…</p><a class="button locked" data-link href="#">Checking…</a></article><article class="card locked" data-product="aic"><h2>AIC Available Fault Current Calculator</h2><p data-status>Checking access…</p><a class="button locked" data-link href="#">Checking…</a></article></div><div class="actions"><button id="signOut">Sign Out</button></div></section></main>
 <footer class="site-footer">© LoadCalcPro X. All rights reserved.<br>Version 1.0.2</footer>
-<script>
-(function routeAuthCallback(){
-  const query=new URLSearchParams(location.search);
-  const hash=new URLSearchParams(location.hash.slice(1));
-  const type=query.get("type")||hash.get("type");
-  const hasSecureCallback=query.has("token_hash")||query.has("code")||hash.has("access_token")||hash.has("error_code");
-  if(hasSecureCallback&&(type==="invite"||type==="recovery"||query.has("token_hash")||query.has("code"))){location.replace("staging-create-password.html"+location.search+location.hash);}
-})();
-</script>
+<script>(function routeAuthCallback(){const query=new URLSearchParams(location.search);const hash=new URLSearchParams(location.hash.slice(1));const type=query.get("type")||hash.get("type");const hasSecureCallback=query.has("token_hash")||query.has("code")||hash.has("access_token")||hash.has("error_code");if(hasSecureCallback&&(type==="invite"||type==="recovery"||query.has("token_hash")||query.has("code"))){location.replace("staging-create-password.html"+location.search+location.hash);}})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-"use strict";
-const SUPABASE_URL="https://jvnkncpljuaeycwjyeai.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF";
-const API_BASE_URL="https://loadcalcpro-hcml-api-staging.onrender.com";
-const STAGING_SITE_BASE="https://loadcalcpro.github.io/electrical-load-calculator-staging/";
-const REMEMBERED_EMAIL_KEY="loadCalcProStagingRememberedEmail";
-const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-const products={generator:{href:STAGING_SITE_BASE+"generator/",label:"Open Generator"},aic:{href:STAGING_SITE_BASE+"aic_calculator.html",label:"Open AIC Calculator"}};
-const loginPanel=document.getElementById("loginPanel"),portal=document.getElementById("portal"),message=document.getElementById("message"),loginButton=document.getElementById("loginButton"),emailInput=document.getElementById("email"),rememberEmail=document.getElementById("rememberEmail");
-const savedEmail=localStorage.getItem(REMEMBERED_EMAIL_KEY)||"";if(savedEmail){emailInput.value=savedEmail;rememberEmail.checked=true}
-function showMessage(text){message.textContent=text;message.className="message error"}
-async function access(token,product){const r=await fetch(API_BASE_URL+"/api/v2/access",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({calculator:product})});let data={};try{data=await r.json()}catch{}return{ok:r.ok,data}}
-async function showDashboard(session){document.getElementById("memberEmail").textContent=session.user.email;loginPanel.style.display="none";portal.classList.add("active");for(const card of document.querySelectorAll("[data-product]")){const product=card.dataset.product,result=await access(session.access_token,product),status=card.querySelector("[data-status]"),link=card.querySelector("[data-link]");if(result.ok&&result.data.active===true){card.classList.remove("locked");status.textContent="Included in your membership.";link.textContent=products[product].label;link.href=products[product].href;link.className="button open"}else{status.textContent=result.data.message||"Not included in your membership.";link.textContent="No Access";link.removeAttribute("href");link.className="button locked"}}}
-document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();message.className="message";loginButton.disabled=true;loginButton.textContent="Signing In…";try{const email=emailInput.value.trim().toLowerCase(),password=document.getElementById("password").value;if(rememberEmail.checked){localStorage.setItem(REMEMBERED_EMAIL_KEY,email)}else{localStorage.removeItem(REMEMBERED_EMAIL_KEY)}const{data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;if(!data.session)throw new Error("No login session was created.");await showDashboard(data.session)}catch(err){await client.auth.signOut();showMessage(err.message||"Unable to sign in.")}finally{loginButton.disabled=false;loginButton.textContent="Sign In"}});
-rememberEmail.addEventListener("change",()=>{if(!rememberEmail.checked)localStorage.removeItem(REMEMBERED_EMAIL_KEY)});
-document.getElementById("signOut").addEventListener("click",async()=>{await client.auth.signOut();location.reload()});
-client.auth.getSession().then(({data})=>{if(data.session)showDashboard(data.session)});
-</script>
-</body>
-</html>
+<script>"use strict";const SUPABASE_URL="https://jvnkncpljuaeycwjyeai.supabase.co";const SUPABASE_PUBLISHABLE_KEY="sb_publishable_aMerqRsuagFjUU67WWmspA_2uDtn4CF";const API_BASE_URL="https://loadcalcpro-hcml-api-staging.onrender.com";const STAGING_SITE_BASE="https://loadcalcpro.github.io/electrical-load-calculator-staging/";const REMEMBERED_EMAIL_KEY="loadCalcProStagingRememberedEmail";const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const products={generator:{href:STAGING_SITE_BASE+"generator/",label:"Open Generator"},aic:{href:STAGING_SITE_BASE+"aic_calculator.html",label:"Open AIC Calculator"}};const loginPanel=document.getElementById("loginPanel"),portal=document.getElementById("portal"),message=document.getElementById("message"),loginButton=document.getElementById("loginButton"),emailInput=document.getElementById("email"),rememberEmail=document.getElementById("rememberEmail");const savedEmail=localStorage.getItem(REMEMBERED_EMAIL_KEY)||"";if(savedEmail){emailInput.value=savedEmail;rememberEmail.checked=true}function showMessage(text){message.textContent=text;message.className="message error"}async function access(token,product){const r=await fetch(API_BASE_URL+"/api/v2/access",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({calculator:product})});let data={};try{data=await r.json()}catch{}return{ok:r.ok,data}}async function showDashboard(session){document.getElementById("memberEmail").textContent=session.user.email;loginPanel.style.display="none";portal.classList.add("active");for(const card of document.querySelectorAll("[data-product]")){const product=card.dataset.product,result=await access(session.access_token,product),status=card.querySelector("[data-status]"),link=card.querySelector("[data-link]");if(result.ok&&result.data.active===true){card.classList.remove("locked");status.textContent="Included in your membership.";link.textContent=products[product].label;link.href=products[product].href;link.className="button open"}else{status.textContent=result.data.message||"Not included in your membership.";link.textContent="No Access";link.removeAttribute("href");link.className="button locked"}}}document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();message.className="message";loginButton.disabled=true;loginButton.textContent="Signing In…";try{const email=emailInput.value.trim().toLowerCase(),password=document.getElementById("password").value;if(rememberEmail.checked){localStorage.setItem(REMEMBERED_EMAIL_KEY,email)}else{localStorage.removeItem(REMEMBERED_EMAIL_KEY)}const{data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;if(!data.session)throw new Error("No login session was created.");await showDashboard(data.session)}catch(err){await client.auth.signOut();showMessage(err.message||"Unable to sign in.")}finally{loginButton.disabled=false;loginButton.textContent="Sign In"}});rememberEmail.addEventListener("change",()=>{if(!rememberEmail.checked)localStorage.removeItem(REMEMBERED_EMAIL_KEY)});document.getElementById("signOut").addEventListener("click",async()=>{await client.auth.signOut();location.reload()});client.auth.getSession().then(({data})=>{if(data.session)showDashboard(data.session)});</script>
+</body></html>
