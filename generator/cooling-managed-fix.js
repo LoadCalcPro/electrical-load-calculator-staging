@@ -217,3 +217,94 @@
     }
   }, true);
 })();
+
+/* Staging layout refinement: keep the fixed Service/Generator result boxes symmetrical. */
+(function(){
+  'use strict';
+
+  function makeRow(label, valueNode, suffix){
+    const row = document.createElement('div');
+    row.className = 'calculation-summary-row';
+
+    const labelNode = document.createElement('span');
+    labelNode.textContent = label;
+
+    const valueWrap = document.createElement('span');
+    valueWrap.appendChild(valueNode);
+    if(suffix){
+      valueWrap.appendChild(document.createTextNode(suffix));
+    }
+
+    row.appendChild(labelNode);
+    row.appendChild(valueWrap);
+    return row;
+  }
+
+  function syncSummaryValues(){
+    const serviceSource = document.getElementById('serviceTotalVAView');
+    const generatorSource = document.getElementById('generatorTotalVAView');
+    const serviceTarget = document.getElementById('calcSummaryServiceVA');
+    const generatorTarget = document.getElementById('calcSummaryGeneratorVA');
+
+    if(serviceSource && serviceTarget){
+      serviceTarget.textContent = serviceSource.textContent || '0';
+    }
+    if(generatorSource && generatorTarget){
+      generatorTarget.textContent = generatorSource.textContent || '0';
+    }
+  }
+
+  function watch(source){
+    if(!source) return;
+    new MutationObserver(syncSummaryValues).observe(source,{
+      childList:true,
+      characterData:true,
+      subtree:true
+    });
+  }
+
+  function init(){
+    if(document.getElementById('calculationFinalSummary')) return;
+
+    const q42 = document.getElementById('q42');
+    const additionalRow = q42 ? q42.closest('.load-row') : null;
+    const managedCount = document.getElementById('bottomManagedLoadCount');
+    const generatorVA = document.getElementById('generatorTotalVAView');
+    const generatorLine = generatorVA ? generatorVA.closest('.total-managed-line') : null;
+
+    if(!additionalRow || !managedCount || !generatorVA || !generatorLine) return;
+
+    const summary = document.createElement('div');
+    summary.id = 'calculationFinalSummary';
+    summary.className = 'calculation-summary';
+    summary.setAttribute('aria-label','Final calculation summary');
+
+    const serviceValue = document.createElement('span');
+    serviceValue.id = 'calcSummaryServiceVA';
+    serviceValue.textContent = '0';
+
+    const generatorValue = document.createElement('span');
+    generatorValue.id = 'calcSummaryGeneratorVA';
+    generatorValue.textContent = '0';
+
+    summary.appendChild(makeRow('Service Load:', serviceValue, ' VA'));
+    summary.appendChild(makeRow('Generator Load:', generatorValue, ' VA'));
+    summary.appendChild(makeRow('Managed Quantity:', managedCount, ''));
+
+    additionalRow.insertAdjacentElement('afterend', summary);
+
+    generatorLine.textContent = '';
+    generatorLine.appendChild(generatorVA);
+    generatorLine.appendChild(document.createTextNode(' VA'));
+
+    syncSummaryValues();
+    watch(document.getElementById('serviceTotalVAView'));
+    watch(generatorVA);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded',init,{once:true});
+  }else{
+    init();
+  }
+})();
