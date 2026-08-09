@@ -157,9 +157,29 @@
     font-size:18px!important;
   }
 
-  /* Hide the duplicate Service Load / Generator Load / Managed Quantity summary on desktop. */
+  /* Desktop: show only Managed Quantity below the Continuous Loads managed controls. */
   .calculation-summary{
+    display:block!important;
+    margin-top:12px!important;
+    padding:10px 0 0!important;
+    border-top:1px solid #dbe4ee!important;
+  }
+
+  .calculation-summary-row{
     display:none!important;
+  }
+
+  .calculation-summary-row:last-child{
+    display:flex!important;
+    align-items:baseline!important;
+    justify-content:flex-end!important;
+    gap:12px!important;
+    padding:0!important;
+    color:#14532d!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    font-size:15px!important;
+    line-height:1.35!important;
+    font-weight:900!important;
   }
 
   .load-name,
