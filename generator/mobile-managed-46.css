@@ -52,6 +52,31 @@
     font-size:15px!important;
     line-height:1.4!important;
   }
+
+  /* Demand Load rows match the readable HVAC selector typography. */
+  .demand-row,
+  .demand-row .demand-description,
+  .demand-row .demand-service,
+  .demand-row .demand-generator,
+  .demand-row.total{
+    color:#0f172a!important;
+    font-size:14px!important;
+    line-height:1.3!important;
+    font-weight:700!important;
+  }
+
+  /* HVAC System 1 / 2 / 3 subheadings. */
+  .v522-system-title{
+    font-size:15px!important;
+    line-height:1.35!important;
+  }
+
+  /* Bottom summary managed-load text. */
+  .total-managed-line,
+  .managed-loads-count{
+    font-size:14px!important;
+    line-height:1.35!important;
+  }
 }
 
 /* Keep Heat Pump system controls after the operating-condition questions. */
