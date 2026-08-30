@@ -36,8 +36,7 @@
     </div>
   </header>
   <nav class="nav" aria-label="Calculators">
-    <button class="active" data-panel="power">kVA / Amps</button>
-    <button data-panel="transformer">Transformer</button>
+    <button class="active" data-panel="transformer">Transformer Calculations</button>
     <button data-panel="vd">Voltage Drop</button>
     <button data-panel="convert">Length Converter</button>
     <button data-panel="breaker">Fuse / Breaker</button>
@@ -46,27 +45,14 @@
     <button data-panel="panelcalc">Panel Loads</button>
   </nav>
 
-  <section class="panel active" id="power">
+  <section class="panel active" id="transformer">
     <div class="card">
-      <h2>kVA ↔ Amps Calculator</h2>
-      <p class="note">Covers the single-phase and three-phase conversions shown at the top of the workbook.</p>
+      <h2>Transformer Calculations</h2>
+      <p class="note">Enter transformer kVA, primary amperage, or secondary amperage. The calculated kVA and currents automatically feed the transformer sizing results.</p>
       <div class="grid">
-        <div class="field"><label for="pPhase">Phase</label><select id="pPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
-        <div class="field"><label for="pVoltage">Voltage (V)</label><input id="pVoltage" type="number" min="1" value="208"></div>
-        <div class="field"><label for="pKnown">Known value</label><select id="pKnown"><option value="kva">kVA</option><option value="amps">Amps</option></select></div>
-        <div class="field"><label for="pValue">Value</label><input id="pValue" type="number" min="0" step="any" value="15"></div>
-      </div>
-      <div class="result-grid"><div class="result good"><div class="k" id="pOutLabel">Amps</div><div class="v" id="pOut">—</div></div></div>
-      <div class="formula" id="pFormula"></div><div class="msg" id="pMsg"></div>
-    </div>
-  </section>
-
-  <section class="panel" id="transformer">
-    <div class="card">
-      <h2>Transformer Sizing Calculator</h2>
-      <p class="note">Three-phase transformer calculations based on the workbook: primary/secondary current, 125% protection, conductor sizing, equipment grounding conductor lookup, secondary tap minimum ampacity, and voltage drop.</p>
-      <div class="grid">
-        <div class="field"><label for="tKva">Transformer kVA</label><input id="tKva" type="number" min="0" value="15"></div>
+        <div class="field"><label for="tPhase">Phase</label><select id="tPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
+        <div class="field"><label for="tKnown">Known value</label><select id="tKnown"><option value="kva">Transformer kVA</option><option value="primaryAmps">Primary amperage</option><option value="secondaryAmps">Secondary amperage</option></select></div>
+        <div class="field"><label for="tValue">Known value amount</label><input id="tValue" type="number" min="0" step="any" value="15"></div>
         <div class="field"><label for="tPv">Primary voltage (V)</label><input id="tPv" type="number" min="1" value="480"></div>
         <div class="field"><label for="tSv">Secondary voltage (V)</label><input id="tSv" type="number" min="1" value="208"></div>
         <div class="field"><label for="tMaterial">Conductor material</label><select id="tMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
@@ -82,7 +68,7 @@
         <div class="field"><label for="tapFactor">Tap factor</label><select id="tapFactor"><option value="0.3333333333">1/3 (workbook)</option><option value="0.25">1/4</option></select></div>
         <div class="result"><div class="k">Minimum secondary ampacity</div><div class="v" id="tapMin">—</div></div>
       </div>
-      <div class="formula">Transformer current = kVA × 1000 ÷ (1.732 × volts). Voltage drop uses the workbook's 75°C K values: copper 12.9 and aluminum 21.2.</div>
+      <div class="formula" id="tFormula">Transformer current and kVA are calculated from the selected phase and known value. Voltage drop uses the workbook's 75°C K values: copper 12.9 and aluminum 21.2.</div>
       <div class="msg" id="tMsg"></div>
     </div>
   </section>
@@ -166,7 +152,7 @@ function wireFor(v){const x=ampacity.find(r=>r[1]>=v);return x?x[0]:'Oversized'}
 function setPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.panel===id))}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setPanel(b.dataset.panel)));
 function activePanel(){return document.querySelector('.panel.active')}
-function refreshPanel(id){const refresh={power,transformer,vd,convert,breaker,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
+function refreshPanel(id){const refresh={transformer,vd,convert,breaker,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
 function resetActivePanel(){
   const panel=activePanel();if(!panel)return;
   if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
@@ -183,10 +169,8 @@ $('mainSiteButton').addEventListener('click',()=>{window.location.href='index.ht
 $('calculatorsButton').addEventListener('click',()=>{window.location.href='staging-member-dashboard.html'});
 $('printPdfButton').addEventListener('click',printActivePanel);
 $('newCalculationButton').addEventListener('click',resetActivePanel);
-function power(){const ph=$('pPhase').value,v=n('pVoltage'),x=n('pValue'),known=$('pKnown').value,msg=$('pMsg');if(!v||x===null||x<0){$('pOut').textContent='—';msg.textContent='Enter valid values.';return}msg.textContent='';const f=ph==='3'?1.732:1;if(known==='kva'){const a=x*1000/(v*f);$('pOutLabel').textContent='Amps';$('pOut').textContent=fmt(a,2)+' A';$('pFormula').textContent=`Amps = kVA × 1000 ÷ (${f} × V)`}else{const kva=x*v*f/1000;$('pOutLabel').textContent='kVA';$('pOut').textContent=fmt(kva,2)+' kVA';$('pFormula').textContent=`kVA = Amps × V × ${f} ÷ 1000`}}
-['pPhase','pVoltage','pKnown','pValue'].forEach(id=>$(id).addEventListener('input',power));
-function transformer(){const kva=n('tKva'),pv=n('tPv'),sv=n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,msg=$('tMsg');if(!kva||!pv||!sv||pl===null||sl===null||!pp||!sp){$('tResults').innerHTML='';msg.textContent='Enter valid transformer values.';return}msg.textContent='';const pi=kva*1000/(1.73205*pv),si=kva*1000/(1.73205*sv);const po=nextStd(pi*1.25),so=nextStd(si*1.25),pmax=prevStd(pi*2.5);const pw=wireFor(pi*1.25),sw=wireFor(si*1.25),g=groundFor(pmax||po||0);const k=mat==='cu'?12.9:21.2,pcm=cmFor(pw),scm=cmFor(sw);const pvd=pcm?1.73205*k*pi*pl/(pcm*pp):null,svd=scm?1.73205*k*si*sl/(scm*sp):null;const res=[['Primary current',fmt(pi,1)+' A'],['Secondary current',fmt(si,1)+' A'],['Primary 125% OCPD',po?po+' A':'—'],['Secondary 125% OCPD',so?so+' A':'—'],['Primary max @ 250%',pmax?pmax+' A':'—'],['Primary conductor',pw],['Secondary conductor',sw],['EGC from primary OCPD',g],['Primary VD',Number.isFinite(pvd)?fmt(pvd,2)+' V / '+fmt(pvd/pv*100,2)+'%':'—'],['Secondary VD',Number.isFinite(svd)?fmt(svd,2)+' V / '+fmt(svd/sv*100,2)+'%':'—']];$('tResults').innerHTML=res.map(([a,b])=>`<div class="result"><div class="k">${a}</div><div class="v">${b}</div></div>`).join('');const oc=n('tapPriOcpd'),factor=n('tapFactor');$('tapMin').textContent=oc&&factor?fmt((pv/sv)*oc*factor,1)+' A':'—'}
-['tKva','tPv','tSv','tMaterial','tPlen','tSlen','tParP','tParS','tapPriOcpd','tapFactor'].forEach(id=>$(id).addEventListener('input',transformer));
+function transformer(){const phase=$('tPhase').value,known=$('tKnown').value,value=n('tValue'),pv=n('tPv'),sv=n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;if(value===null||value<=0||!pv||!sv||pl===null||sl===null||!pp||!sp){$('tResults').innerHTML='';$('tapMin').textContent='—';msg.textContent='Enter valid transformer values.';return}let kva=value;if(known==='primaryAmps')kva=value*pv*factor/1000;if(known==='secondaryAmps')kva=value*sv*factor/1000;msg.textContent='';const pi=kva*1000/(factor*pv),si=kva*1000/(factor*sv),po=nextStd(pi*1.25),so=nextStd(si*1.25),pmax=prevStd(pi*2.5),pw=wireFor(pi*1.25),sw=wireFor(si*1.25),g=groundFor(pmax||po||0),k=mat==='cu'?12.9:21.2,pcm=cmFor(pw),scm=cmFor(sw),dropFactor=phase==='3'?Math.sqrt(3):2,pvd=pcm?dropFactor*k*pi*pl/(pcm*pp):null,svd=scm?dropFactor*k*si*sl/(scm*sp):null,res=[['Transformer kVA',fmt(kva,2)+' kVA'],['Primary current',fmt(pi,2)+' A'],['Secondary current',fmt(si,2)+' A'],['Primary 125% OCPD',po?po+' A':'—'],['Secondary 125% OCPD',so?so+' A':'—'],['Primary max @ 250%',pmax?pmax+' A':'—'],['Primary conductor',pw],['Secondary conductor',sw],['EGC from primary OCPD',g],['Primary VD',Number.isFinite(pvd)?fmt(pvd,2)+' V / '+fmt(pvd/pv*100,2)+'%':'—'],['Secondary VD',Number.isFinite(svd)?fmt(svd,2)+' V / '+fmt(svd/sv*100,2)+'%':'—']];$('tResults').innerHTML=res.map(([a,b])=>`<div class="result"><div class="k">${a}</div><div class="v">${b}</div></div>`).join('');const oc=n('tapPriOcpd'),tapFactor=n('tapFactor');$('tapMin').textContent=oc&&tapFactor?fmt((pv/sv)*oc*tapFactor,1)+' A':'—';const phaseText=phase==='3'?'√3 × voltage':'voltage';$('tFormula').textContent=known==='kva'?`Amps = kVA × 1000 ÷ (${phaseText}).`:`kVA = amps × ${phaseText} ÷ 1000.`}
+['tPhase','tKnown','tValue','tPv','tSv','tMaterial','tPlen','tSlen','tParP','tParS','tapPriOcpd','tapFactor'].forEach(id=>$(id).addEventListener('input',transformer));
 function fillWireSelect(){const s=$('vdWire');s.innerHTML=wireData.map(r=>`<option value="${r[0]}"${r[0]==='3/0 AWG'?' selected':''}>${r[0]}</option>`).join('')}
 function vd(){const units=$('vdUnits').value,ph=$('vdPhase').value,v=n('vdVolts'),a=n('vdAmps'),par=n('vdParallel'),len=n('vdLength'),size=$('vdWire').value,mat=$('vdMat').value,row=wireData.find(r=>r[0]===size),msg=$('vdMsg');if(!v||a===null||!par||len===null||!row){msg.textContent='Enter valid values.';return}msg.textContent='';const pf=ph==='3'?1.732:2;const area=units==='imperial'?row[1]:row[2];const k=units==='imperial'?(mat==='cu'?12.9:21.2):(mat==='cu'?0.0215:0.0344);const drop=pf*k*a*len/(area*par),pct=drop/v*100;$('vdVoltsOut').textContent=fmt(drop,3)+' V';$('vdPctOut').textContent=fmt(pct,3)+'%';$('vdAreaOut').textContent=units==='imperial'?fmt(area,0)+' CM':fmt(area,2)+' mm²';$('vdKOut').textContent=String(k);$('vdLengthLabel').textContent=units==='imperial'?'Length (ft)':'Length (m)';$('vdFormula').textContent=`VD = ${pf} × K × I × Length ÷ (Area × conductors/phase)`}
 ['vdUnits','vdPhase','vdVolts','vdAmps','vdWire','vdMat','vdParallel','vdLength'].forEach(id=>$(id).addEventListener('input',vd));
@@ -204,7 +188,7 @@ function panelCalc(){const sums={A:0,B:0,C:0};$('pcBody').querySelectorAll('tr')
 function clearPanel(){ $('pcBody').querySelectorAll('input').forEach(x=>x.value='');panelCalc() }
 function loadExample(){clearPanel();Object.entries(workbookPanelLoads).forEach(([c,v])=>{const tr=$('pcBody').querySelector(`tr[data-ckt="${c}"]`);if(tr){tr.querySelector('.pc-conn').value=v;tr.querySelector('.pc-dem').value=v}});panelCalc()}
 $('pcClear').addEventListener('click',clearPanel);$('pcExample').addEventListener('click',loadExample);['pcLN','pcOtherA','pcOtherB','pcOtherC'].forEach(id=>$(id).addEventListener('input',panelCalc));
-fillWireSelect();buildPanel();power();transformer();vd();convert();breaker();motor();panelCalc();
+fillWireSelect();buildPanel();transformer();vd();convert();breaker();motor();panelCalc();
 })();
 </script>
 </body>
