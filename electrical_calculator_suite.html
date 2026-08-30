@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LoadCalcPro X — Electrical Calculator Suite</title>
+<style>
+:root{--navy:#0b1f44;--navy2:#17365d;--teal:#0f766e;--teal2:#0d9488;--bg:#f4f7fb;--card:#fff;--line:#d8e1ec;--text:#142033;--muted:#667085;--warn:#9a6700;--danger:#b42318;--ok:#067647;--soft:#eef4fb;--radius:14px;--shadow:0 8px 24px rgba(15,23,42,.08)}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--bg);line-height:1.35}.app{max-width:1180px;margin:0 auto;padding:18px}.hero{display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--navy);color:#fff;border-radius:18px;padding:16px 18px;box-shadow:var(--shadow)}.brand-block{min-width:190px}.brand{font-size:28px;font-weight:900;letter-spacing:-.02em}.brand .accent{color:#5eead4}.sub{margin-top:3px;color:#dbeafe;font-size:13px;font-weight:700}.header-controls{display:flex;align-items:flex-end;justify-content:flex-end;gap:9px;flex-wrap:wrap}.header-button,.print-layout-select{height:42px;min-height:42px;border:1px solid rgba(255,255,255,.55);border-radius:9px;padding:9px 14px;font:inherit;font-size:13px;font-weight:800;line-height:1.2}.header-button{background:#fff;color:var(--navy);cursor:pointer}.header-button.primary{border-color:#5eead4;background:#0f766e;color:#fff}.print-layout-control{display:grid;gap:3px}.print-layout-control label{color:#dbeafe;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}.print-layout-select{min-width:104px;background:#fff;color:var(--navy);cursor:pointer}.nav{display:flex;gap:8px;overflow-x:auto;padding:14px 2px 8px;scrollbar-width:thin}.nav button{white-space:nowrap;border:1px solid #c9d5e3;background:#fff;color:var(--navy2);font-weight:800;border-radius:999px;padding:10px 14px;cursor:pointer}.nav button.active{background:var(--navy2);color:#fff;border-color:var(--navy2)}.panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:12px;box-shadow:var(--shadow)}h2{margin:0 0 6px;color:var(--navy2);font-size:22px}h3{margin:18px 0 8px;color:var(--navy2);font-size:16px}.note{color:var(--muted);font-size:13px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.field{min-width:0}.field label{display:block;font-size:12px;font-weight:800;color:#475467;margin:0 0 5px}.field input,.field select{width:100%;min-height:44px;border:1px solid #b8c5d5;border-radius:9px;padding:9px 10px;background:#fff;color:var(--text);font-size:16px}.field input:focus,.field select:focus{outline:3px solid rgba(13,148,136,.18);border-color:var(--teal2)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid var(--navy2);background:var(--navy2);color:#fff;border-radius:9px;min-height:42px;padding:9px 14px;font-weight:800;cursor:pointer}.btn.secondary{background:#fff;color:var(--navy2)}.result-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.result{border:1px solid #cad6e3;background:#f8fafc;border-radius:10px;padding:11px}.result .k{color:#667085;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.result .v{margin-top:3px;font-size:20px;font-weight:900;color:var(--navy2);overflow-wrap:anywhere}.result.good .v{color:var(--ok)}.result.warn .v{color:var(--warn)}.formula{margin-top:12px;padding:10px 12px;border-left:4px solid var(--teal);background:#f3faf9;color:#3b4b5f;font-size:13px;border-radius:8px}.msg{min-height:18px;margin-top:8px;font-size:13px;color:var(--danger);font-weight:700}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin-top:12px}.ref-table{width:100%;border-collapse:collapse;min-width:620px;background:#fff}.ref-table th,.ref-table td{padding:8px 9px;border-bottom:1px solid #e6ebf1;text-align:right;font-size:13px}.ref-table th{background:#edf3f9;color:var(--navy2);font-weight:900;position:sticky;top:0}.ref-table th:first-child,.ref-table td:first-child{text-align:left}.ref-table tr:last-child td{border-bottom:0}.panel-table{width:100%;border-collapse:collapse;min-width:780px}.panel-table th,.panel-table td{border:1px solid #d7dee8;padding:5px}.panel-table th{background:#eaf0f7;color:var(--navy2);font-size:12px}.panel-table input{width:100%;border:0;background:transparent;padding:7px;font-size:14px;min-width:70px}.panel-table .phase{text-align:center;font-weight:900}.panel-table .ckt{text-align:center;font-weight:800}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#e7f5f3;color:#11665e;font-size:11px;font-weight:800}.footer{color:#667085;font-size:12px;margin:18px 2px 8px}.hidden{display:none!important}
+@media(max-width:850px){.grid,.result-grid,.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.hero{align-items:flex-start;flex-direction:column}.header-controls{justify-content:flex-start;width:100%}}
+@media(max-width:560px){.app{padding:10px}.hero{padding:14px}.brand{font-size:23px}.header-controls{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:9px}.header-button,.print-layout-control,.print-layout-select{width:100%}.grid,.grid.two,.grid.three,.result-grid,.summary{grid-template-columns:1fr}.card{padding:14px}.nav button{padding:9px 12px}.result .v{font-size:19px}}
+@media print{body{background:#fff}.app{max-width:none;padding:0}.hero,.nav,.actions,.footer{display:none!important}.panel{display:none!important}.panel.active{display:block!important}.card{box-shadow:none;border:0;margin:0;padding:0}.field input,.field select{border:0;padding-left:0}.table-wrap{overflow:visible}.ref-table,.panel-table{min-width:0}body.print-compact .panel.active{width:62%;margin-left:0;margin-right:auto}body.print-full .panel.active{width:100%}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="hero">
+    <div class="brand-block">
+      <div class="brand">LoadCalcPro <span class="accent">X</span></div>
+      <div class="sub">Version 1</div>
+    </div>
+    <div class="header-controls" aria-label="Calculator controls">
+      <button class="header-button" id="mainSiteButton" type="button">Main Site</button>
+      <button class="header-button" id="calculatorsButton" type="button">Calculators</button>
+      <label class="print-layout-control" for="printLayout">
+        <span>Print option</span>
+        <select class="print-layout-select" id="printLayout">
+          <option value="full">Full</option>
+          <option value="compact">Compact</option>
+        </select>
+      </label>
+      <button class="header-button primary" id="printPdfButton" type="button">Print / PDF</button>
+      <button class="header-button" id="newCalculationButton" type="button">New Calculation</button>
+    </div>
+  </header>
+  <nav class="nav" aria-label="Calculators">
+    <button class="active" data-panel="power">kVA / Amps</button>
+    <button data-panel="transformer">Transformer</button>
+    <button data-panel="vd">Voltage Drop</button>
+    <button data-panel="convert">Length Converter</button>
+    <button data-panel="breaker">Fuse / Breaker</button>
+    <button data-panel="wire">Wire Reference</button>
+    <button data-panel="motor">Motor FLC</button>
+    <button data-panel="panelcalc">Panel Loads</button>
+  </nav>
+
+  <section class="panel active" id="power">
+    <div class="card">
+      <h2>kVA ↔ Amps Calculator</h2>
+      <p class="note">Covers the single-phase and three-phase conversions shown at the top of the workbook.</p>
+      <div class="grid">
+        <div class="field"><label for="pPhase">Phase</label><select id="pPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
+        <div class="field"><label for="pVoltage">Voltage (V)</label><input id="pVoltage" type="number" min="1" value="208"></div>
+        <div class="field"><label for="pKnown">Known value</label><select id="pKnown"><option value="kva">kVA</option><option value="amps">Amps</option></select></div>
+        <div class="field"><label for="pValue">Value</label><input id="pValue" type="number" min="0" step="any" value="15"></div>
+      </div>
+      <div class="result-grid"><div class="result good"><div class="k" id="pOutLabel">Amps</div><div class="v" id="pOut">—</div></div></div>
+      <div class="formula" id="pFormula"></div><div class="msg" id="pMsg"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="transformer">
+    <div class="card">
+      <h2>Transformer Sizing Calculator</h2>
+      <p class="note">Three-phase transformer calculations based on the workbook: primary/secondary current, 125% protection, conductor sizing, equipment grounding conductor lookup, secondary tap minimum ampacity, and voltage drop.</p>
+      <div class="grid">
+        <div class="field"><label for="tKva">Transformer kVA</label><input id="tKva" type="number" min="0" value="15"></div>
+        <div class="field"><label for="tPv">Primary voltage (V)</label><input id="tPv" type="number" min="1" value="480"></div>
+        <div class="field"><label for="tSv">Secondary voltage (V)</label><input id="tSv" type="number" min="1" value="208"></div>
+        <div class="field"><label for="tMaterial">Conductor material</label><select id="tMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
+        <div class="field"><label for="tPlen">Primary length (ft)</label><input id="tPlen" type="number" min="0" value="300"></div>
+        <div class="field"><label for="tSlen">Secondary length (ft)</label><input id="tSlen" type="number" min="0" value="100"></div>
+        <div class="field"><label for="tParP">Primary conductors/phase</label><input id="tParP" type="number" min="1" step="1" value="1"></div>
+        <div class="field"><label for="tParS">Secondary conductors/phase</label><input id="tParS" type="number" min="1" step="1" value="1"></div>
+      </div>
+      <div class="result-grid" id="tResults"></div>
+      <h3>Minimum Secondary Conductor — workbook 240.21(C)(6)(1) check</h3>
+      <div class="grid three">
+        <div class="field"><label for="tapPriOcpd">Primary OCPD (A)</label><input id="tapPriOcpd" type="number" min="0" value="150"></div>
+        <div class="field"><label for="tapFactor">Tap factor</label><select id="tapFactor"><option value="0.3333333333">1/3 (workbook)</option><option value="0.25">1/4</option></select></div>
+        <div class="result"><div class="k">Minimum secondary ampacity</div><div class="v" id="tapMin">—</div></div>
+      </div>
+      <div class="formula">Transformer current = kVA × 1000 ÷ (1.732 × volts). Voltage drop uses the workbook's 75°C K values: copper 12.9 and aluminum 21.2.</div>
+      <div class="msg" id="tMsg"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="vd">
+    <div class="card">
+      <h2>Voltage Drop Calculator</h2>
+      <p class="note">Includes both Imperial (feet / circular mils) and Metric (meters / mm²) methods from the workbook.</p>
+      <div class="grid">
+        <div class="field"><label for="vdUnits">Method</label><select id="vdUnits"><option value="imperial">Imperial</option><option value="metric">Metric</option></select></div>
+        <div class="field"><label for="vdPhase">Phase</label><select id="vdPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
+        <div class="field"><label for="vdVolts">System voltage (V)</label><input id="vdVolts" type="number" min="1" value="240"></div>
+        <div class="field"><label for="vdAmps">Current (A)</label><input id="vdAmps" type="number" min="0" value="400"></div>
+        <div class="field"><label for="vdWire">Wire size</label><select id="vdWire"></select></div>
+        <div class="field"><label for="vdMat">Material</label><select id="vdMat"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
+        <div class="field"><label for="vdParallel">Conductors per phase</label><input id="vdParallel" type="number" min="1" step="1" value="2"></div>
+        <div class="field"><label for="vdLength"><span id="vdLengthLabel">Length (ft)</span></label><input id="vdLength" type="number" min="0" value="64"></div>
+      </div>
+      <div class="result-grid"><div class="result good"><div class="k">Voltage drop</div><div class="v" id="vdVoltsOut">—</div></div><div class="result"><div class="k">Percent drop</div><div class="v" id="vdPctOut">—</div></div><div class="result"><div class="k">Conductor area</div><div class="v" id="vdAreaOut">—</div></div><div class="result"><div class="k">K factor</div><div class="v" id="vdKOut">—</div></div></div>
+      <div class="formula" id="vdFormula"></div><div class="msg" id="vdMsg"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="convert">
+    <div class="card"><h2>Feet ↔ Meters Converter</h2><p class="note">The same two conversions shown in the workbook.</p>
+      <div class="grid two"><div class="field"><label for="ftIn">Feet</label><input id="ftIn" type="number" step="any" value="65"></div><div class="result"><div class="k">Meters</div><div class="v" id="mOut">—</div></div><div class="field"><label for="mIn">Meters</label><input id="mIn" type="number" step="any" value="25"></div><div class="result"><div class="k">Feet</div><div class="v" id="ftOut">—</div></div></div>
+      <div class="formula">Meters = feet × 0.3048 &nbsp; | &nbsp; Feet = meters × 3.28084</div>
+    </div>
+  </section>
+
+  <section class="panel" id="breaker">
+    <div class="card"><h2>Standard Fuse / Inverse-Time Breaker Rating</h2><p class="note">Uses the standard ampere ratings listed in the workbook's NEC 240.6(A) reference block.</p>
+      <div class="grid three"><div class="field"><label for="brTarget">Calculated / target amperes</label><input id="brTarget" type="number" min="0" value="47"></div><div class="field"><label for="brMode">Selection</label><select id="brMode"><option value="up">Next standard size at or above</option><option value="down">Largest standard size at or below</option></select></div><div class="result good"><div class="k">Standard rating</div><div class="v" id="brOut">—</div></div></div>
+      <div class="table-wrap"><table class="ref-table"><thead><tr><th>Standard ratings (A)</th></tr></thead><tbody><tr><td id="brList" style="text-align:left"></td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="wire">
+    <div class="card"><h2>Wire Size Reference</h2><p class="note">AWG/kcmil, circular mil area, and approximate metric area copied from the workbook.</p>
+      <div class="table-wrap"><table class="ref-table" id="wireTable"><thead><tr><th>Wire size</th><th>Circular mils</th><th>Approx. mm²</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="motor">
+    <div class="card"><h2>Motor Full-Load Current Lookup</h2><p class="note">Lookup table from the workbook's NEC Table 430.250 reference section for three-phase AC motors.</p>
+      <div class="grid three"><div class="field"><label for="mHp">Horsepower</label><select id="mHp"></select></div><div class="field"><label for="mVolt">Voltage column</label><select id="mVolt"><option value="115">115 V</option><option value="208" selected>208 V</option><option value="230">230 V</option><option value="460">460 V</option><option value="575">575 V</option><option value="2300">2300 V</option></select></div><div class="result good"><div class="k">Table FLC</div><div class="v" id="mFlc">—</div></div></div>
+      <div class="table-wrap"><table class="ref-table" id="motorTable"><thead><tr><th>HP</th><th>115 V</th><th>208 V</th><th>230 V</th><th>460 V</th><th>575 V</th><th>2300 V</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panelcalc">
+    <div class="card"><h2>3-Phase Panel Load Calculator</h2><p class="note">A functional version of the panel schedule/math found in the lower-right of the workbook. Circuit rows are assigned A-B-C by vertical circuit pair, matching the schedule pattern.</p>
+      <div class="grid">
+        <div class="field"><label for="pcLN">Line-neutral voltage (V)</label><input id="pcLN" type="number" min="1" value="120"></div>
+        <div class="field"><label for="pcOtherA">Other / existing Panel A-phase kVA</label><input id="pcOtherA" type="number" step="any" value="11.2"></div>
+        <div class="field"><label for="pcOtherB">Other / existing Panel B-phase kVA</label><input id="pcOtherB" type="number" step="any" value="9.6"></div>
+        <div class="field"><label for="pcOtherC">Other / existing Panel C-phase kVA</label><input id="pcOtherC" type="number" step="any" value="9.6"></div>
+      </div>
+      <div class="actions"><button class="btn secondary" id="pcClear" type="button">Clear schedule loads</button><button class="btn secondary" id="pcExample" type="button">Load workbook example</button></div>
+      <div class="table-wrap"><table class="panel-table"><thead><tr><th>Ckt</th><th>Phase</th><th>Description</th><th>Connected kVA</th><th>Demand kVA</th></tr></thead><tbody id="pcBody"></tbody></table></div>
+      <div class="summary"><div class="result"><div class="k">A-phase total</div><div class="v" id="pcA">—</div></div><div class="result"><div class="k">B-phase total</div><div class="v" id="pcB">—</div></div><div class="result"><div class="k">C-phase total</div><div class="v" id="pcC">—</div></div><div class="result good"><div class="k">Total kVA</div><div class="v" id="pcTotal">—</div></div></div>
+      <div class="summary"><div class="result"><div class="k">A-phase amps</div><div class="v" id="pcAmpA">—</div></div><div class="result"><div class="k">B-phase amps</div><div class="v" id="pcAmpB">—</div></div><div class="result"><div class="k">C-phase amps</div><div class="v" id="pcAmpC">—</div></div></div>
+      <div class="formula">Per-phase amps = phase kVA × 1000 ÷ line-neutral voltage. The workbook's example uses 120 V and adds the Panel A phase totals to a separate baseline Panel B of 11.2 / 9.6 / 9.6 kVA.</div>
+    </div>
+  </section>
+
+  <div class="footer">Engineering reference tool reconstructed from the provided workbook. Verify project-specific code requirements, conductor conditions, temperature ratings, tap rules, and protective-device requirements before design use.</div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id), n=id=>{const v=Number($(id).value);return Number.isFinite(v)?v:null}, fmt=(v,d=2)=>Number.isFinite(v)?v.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):'—';
+const wireData=[
+['14 AWG',4110,2.08],['12 AWG',6530,3.31],['10 AWG',10380,5.26],['8 AWG',16510,8.37],['6 AWG',26240,13.3],['4 AWG',41740,21.15],['3 AWG',52620,26.67],['2 AWG',66360,33.62],['1 AWG',83690,42.41],['1/0 AWG',105600,53.49],['2/0 AWG',133100,67.43],['3/0 AWG',167800,85.01],['4/0 AWG',211600,107.22],['250 kcmil',250000,126.67],['300 kcmil',300000,152.01],['350 kcmil',350000,177.34],['400 kcmil',400000,202.68],['500 kcmil',500000,253.35],['600 kcmil',600000,304.02],['700 kcmil',700000,354.69],['750 kcmil',750000,380.02],['800 kcmil',800000,405.36],['900 kcmil',900000,456.03],['1000 kcmil',1000000,506.7]
+];
+const standardRatings=[15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200,1600,2000,2500,3000,4000,5000,6000];
+const ampacity=[['14 AWG',15],['12 AWG',20],['10 AWG',30],['8 AWG',50],['6 AWG',65],['4 AWG',85],['3 AWG',100],['2 AWG',115],['1 AWG',130],['1/0 AWG',150],['2/0 AWG',175],['3/0 AWG',230],['4/0 AWG',255],['250 kcmil',285],['300 kcmil',310],['350 kcmil',335],['500 kcmil',380],['600 kcmil',420]];
+const groundBreakpoints=[[15,'14 AWG'],[20,'12 AWG'],[60,'10 AWG'],[100,'8 AWG'],[200,'6 AWG'],[300,'4 AWG'],[400,'3 AWG'],[500,'2 AWG'],[600,'1 AWG'],[800,'1/0 AWG'],[1000,'2/0 AWG'],[1200,'3/0 AWG'],[1600,'4/0 AWG'],[2000,'250 kcmil'],[2500,'350 kcmil'],[3000,'400 kcmil'],[4000,'500 kcmil'],[5000,'700 kcmil'],[6000,'800 kcmil']];
+function nextStd(v){return standardRatings.find(x=>x>=v)??null} function prevStd(v){for(let i=standardRatings.length-1;i>=0;i--)if(standardRatings[i]<=v)return standardRatings[i];return null}
+function wireFor(v){const x=ampacity.find(r=>r[1]>=v);return x?x[0]:'Oversized'} function cmFor(size){const x=wireData.find(r=>r[0]===size);return x?x[1]:null} function groundFor(br){const x=groundBreakpoints.find(r=>r[0]>=br);return x?x[1]:'Oversized'}
+function setPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.panel===id))}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setPanel(b.dataset.panel)));
+function activePanel(){return document.querySelector('.panel.active')}
+function refreshPanel(id){const refresh={power,transformer,vd,convert,breaker,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
+function resetActivePanel(){
+  const panel=activePanel();if(!panel)return;
+  if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
+  panel.querySelectorAll('input').forEach(input=>{if(input.type==='checkbox'||input.type==='radio')input.checked=input.defaultChecked;else input.value=input.defaultValue});
+  panel.querySelectorAll('select').forEach(select=>{const original=Array.from(select.options).findIndex(option=>option.defaultSelected);select.selectedIndex=original>=0?original:0});
+  refreshPanel(panel.id);
+}
+function printActivePanel(){
+  document.body.classList.remove('print-full','print-compact');
+  document.body.classList.add($('printLayout').value==='compact'?'print-compact':'print-full');
+  window.print();
+}
+$('mainSiteButton').addEventListener('click',()=>{window.location.href='index.html'});
+$('calculatorsButton').addEventListener('click',()=>{window.location.href='staging-member-dashboard.html'});
+$('printPdfButton').addEventListener('click',printActivePanel);
+$('newCalculationButton').addEventListener('click',resetActivePanel);
+function power(){const ph=$('pPhase').value,v=n('pVoltage'),x=n('pValue'),known=$('pKnown').value,msg=$('pMsg');if(!v||x===null||x<0){$('pOut').textContent='—';msg.textContent='Enter valid values.';return}msg.textContent='';const f=ph==='3'?1.732:1;if(known==='kva'){const a=x*1000/(v*f);$('pOutLabel').textContent='Amps';$('pOut').textContent=fmt(a,2)+' A';$('pFormula').textContent=`Amps = kVA × 1000 ÷ (${f} × V)`}else{const kva=x*v*f/1000;$('pOutLabel').textContent='kVA';$('pOut').textContent=fmt(kva,2)+' kVA';$('pFormula').textContent=`kVA = Amps × V × ${f} ÷ 1000`}}
+['pPhase','pVoltage','pKnown','pValue'].forEach(id=>$(id).addEventListener('input',power));
+function transformer(){const kva=n('tKva'),pv=n('tPv'),sv=n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,msg=$('tMsg');if(!kva||!pv||!sv||pl===null||sl===null||!pp||!sp){$('tResults').innerHTML='';msg.textContent='Enter valid transformer values.';return}msg.textContent='';const pi=kva*1000/(1.73205*pv),si=kva*1000/(1.73205*sv);const po=nextStd(pi*1.25),so=nextStd(si*1.25),pmax=prevStd(pi*2.5);const pw=wireFor(pi*1.25),sw=wireFor(si*1.25),g=groundFor(pmax||po||0);const k=mat==='cu'?12.9:21.2,pcm=cmFor(pw),scm=cmFor(sw);const pvd=pcm?1.73205*k*pi*pl/(pcm*pp):null,svd=scm?1.73205*k*si*sl/(scm*sp):null;const res=[['Primary current',fmt(pi,1)+' A'],['Secondary current',fmt(si,1)+' A'],['Primary 125% OCPD',po?po+' A':'—'],['Secondary 125% OCPD',so?so+' A':'—'],['Primary max @ 250%',pmax?pmax+' A':'—'],['Primary conductor',pw],['Secondary conductor',sw],['EGC from primary OCPD',g],['Primary VD',Number.isFinite(pvd)?fmt(pvd,2)+' V / '+fmt(pvd/pv*100,2)+'%':'—'],['Secondary VD',Number.isFinite(svd)?fmt(svd,2)+' V / '+fmt(svd/sv*100,2)+'%':'—']];$('tResults').innerHTML=res.map(([a,b])=>`<div class="result"><div class="k">${a}</div><div class="v">${b}</div></div>`).join('');const oc=n('tapPriOcpd'),factor=n('tapFactor');$('tapMin').textContent=oc&&factor?fmt((pv/sv)*oc*factor,1)+' A':'—'}
+['tKva','tPv','tSv','tMaterial','tPlen','tSlen','tParP','tParS','tapPriOcpd','tapFactor'].forEach(id=>$(id).addEventListener('input',transformer));
+function fillWireSelect(){const s=$('vdWire');s.innerHTML=wireData.map(r=>`<option value="${r[0]}"${r[0]==='3/0 AWG'?' selected':''}>${r[0]}</option>`).join('')}
+function vd(){const units=$('vdUnits').value,ph=$('vdPhase').value,v=n('vdVolts'),a=n('vdAmps'),par=n('vdParallel'),len=n('vdLength'),size=$('vdWire').value,mat=$('vdMat').value,row=wireData.find(r=>r[0]===size),msg=$('vdMsg');if(!v||a===null||!par||len===null||!row){msg.textContent='Enter valid values.';return}msg.textContent='';const pf=ph==='3'?1.732:2;const area=units==='imperial'?row[1]:row[2];const k=units==='imperial'?(mat==='cu'?12.9:21.2):(mat==='cu'?0.0215:0.0344);const drop=pf*k*a*len/(area*par),pct=drop/v*100;$('vdVoltsOut').textContent=fmt(drop,3)+' V';$('vdPctOut').textContent=fmt(pct,3)+'%';$('vdAreaOut').textContent=units==='imperial'?fmt(area,0)+' CM':fmt(area,2)+' mm²';$('vdKOut').textContent=String(k);$('vdLengthLabel').textContent=units==='imperial'?'Length (ft)':'Length (m)';$('vdFormula').textContent=`VD = ${pf} × K × I × Length ÷ (Area × conductors/phase)`}
+['vdUnits','vdPhase','vdVolts','vdAmps','vdWire','vdMat','vdParallel','vdLength'].forEach(id=>$(id).addEventListener('input',vd));
+function convert(){const f=n('ftIn'),m=n('mIn');$('mOut').textContent=f===null?'—':fmt(f*.3048,4)+' m';$('ftOut').textContent=m===null?'—':fmt(m*3.28084,4)+' ft'}['ftIn','mIn'].forEach(id=>$(id).addEventListener('input',convert));
+function breaker(){const v=n('brTarget');if(v===null){$('brOut').textContent='—';return}const out=$('brMode').value==='up'?nextStd(v):prevStd(v);$('brOut').textContent=out?out+' A':'No listed size'}['brTarget','brMode'].forEach(id=>$(id).addEventListener('input',breaker));$('brList').textContent=standardRatings.join(', ');
+$('wireTable').querySelector('tbody').innerHTML=wireData.map(r=>`<tr><td>${r[0]}</td><td>${r[1].toLocaleString()}</td><td>${r[2]}</td></tr>`).join('');
+const motorData=[
+['1/2',4.4,2.4,2.2,1.1,.9,null],['3/4',6.4,3.5,3.2,1.6,1.3,null],['1',8.4,4.6,4.2,2.1,1.7,null],['1 1/2',12,6.6,6,3,2.4,null],['2',13.6,7.5,6.8,3.4,2.7,null],['3',null,10.6,9.6,4.8,3.9,null],['5',null,16.7,15.2,7.6,6.1,null],['7.5',null,24.2,22,11,9,null],['10',null,30.8,28,14,11,null],['15',null,46.2,42,21,17,null],['20',null,59.4,54,27,22,null],['25',null,74.8,68,34,27,null],['30',null,88,80,40,32,null],['40',null,114,104,52,41,null],['50',null,143,130,65,52,null],['75',null,211,192,96,77,20],['100',null,273,248,124,99,26],['125',null,343,312,156,125,31],['150',null,402,360,180,144,37],['200',null,528,480,240,192,49]
+];
+const voltIndex={'115':1,'208':2,'230':3,'460':4,'575':5,'2300':6};$('mHp').innerHTML=motorData.map((r,i)=>`<option value="${i}">${r[0]} HP</option>`).join('');$('motorTable').querySelector('tbody').innerHTML=motorData.map(r=>`<tr>${r.map((x,i)=>`<td>${x===null?'—':x}</td>`).join('')}</tr>`).join('');function motor(){const r=motorData[Number($('mHp').value)],v=r[voltIndex[$('mVolt').value]];$('mFlc').textContent=Number.isFinite(v)?v+' A':'—'}['mHp','mVolt'].forEach(id=>$(id).addEventListener('input',motor));
+const workbookPanelLoads={1:.8,2:.8,4:.8,6:.8,7:.8,8:.8,10:.8,11:.6,12:.8,13:.6,14:.8,16:.8,18:.8,19:1,20:.8,22:.8,24:.8,25:.8,26:.8,28:.8,30:.8,31:.8,32:.8,36:.8,37:.8,38:.8,40:.8};
+function phaseFor(ckt){return ['A','B','C'][Math.floor((ckt-1)/2)%3]}
+function buildPanel(){const body=$('pcBody');let h='';for(let c=1;c<=42;c++){h+=`<tr data-ckt="${c}"><td class="ckt">${c}</td><td class="phase">${phaseFor(c)}</td><td><input class="pc-desc" aria-label="Circuit ${c} description"></td><td><input class="pc-conn" type="number" min="0" step="any" aria-label="Circuit ${c} connected kVA"></td><td><input class="pc-dem" type="number" min="0" step="any" aria-label="Circuit ${c} demand kVA"></td></tr>`}body.innerHTML=h;body.addEventListener('input',panelCalc)}
+function panelCalc(){const sums={A:0,B:0,C:0};$('pcBody').querySelectorAll('tr').forEach(tr=>{const c=Number(tr.dataset.ckt),p=phaseFor(c),conn=Number(tr.querySelector('.pc-conn').value),demRaw=tr.querySelector('.pc-dem').value,dem=demRaw===''?conn:Number(demRaw);if(Number.isFinite(dem))sums[p]+=dem});sums.A+=(n('pcOtherA')||0);sums.B+=(n('pcOtherB')||0);sums.C+=(n('pcOtherC')||0);const ln=n('pcLN')||120;$('pcA').textContent=fmt(sums.A,2)+' kVA';$('pcB').textContent=fmt(sums.B,2)+' kVA';$('pcC').textContent=fmt(sums.C,2)+' kVA';$('pcTotal').textContent=fmt(sums.A+sums.B+sums.C,2)+' kVA';$('pcAmpA').textContent=fmt(sums.A*1000/ln,1)+' A';$('pcAmpB').textContent=fmt(sums.B*1000/ln,1)+' A';$('pcAmpC').textContent=fmt(sums.C*1000/ln,1)+' A'}
+function clearPanel(){ $('pcBody').querySelectorAll('input').forEach(x=>x.value='');panelCalc() }
+function loadExample(){clearPanel();Object.entries(workbookPanelLoads).forEach(([c,v])=>{const tr=$('pcBody').querySelector(`tr[data-ckt="${c}"]`);if(tr){tr.querySelector('.pc-conn').value=v;tr.querySelector('.pc-dem').value=v}});panelCalc()}
+$('pcClear').addEventListener('click',clearPanel);$('pcExample').addEventListener('click',loadExample);['pcLN','pcOtherA','pcOtherB','pcOtherC'].forEach(id=>$(id).addEventListener('input',panelCalc));
+fillWireSelect();buildPanel();power();transformer();vd();convert();breaker();motor();panelCalc();
+})();
+</script>
+</body>
+</html>
