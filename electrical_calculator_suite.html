@@ -277,7 +277,7 @@ $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').a
 ['pcPhase','pcVoltage','pcLN','pcLL','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'){const map={'120/240':[120,240],'120/208':[120,208],'277/480':[277,480]};if(map[e.target.value]){[$('pcLN').value,$('pcLL').value]=map[e.target.value]}}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 if(!restorePanel())addAssembly('standard1',1);else renderPanel();
 
-fillWireSelect();buildPanel();transformer();vd();convert();breaker();motor();panelCalc();
+fillWireSelect();transformer();vd();convert();breaker();motor();panelCalc();
 })();
 </script>
 </body>
