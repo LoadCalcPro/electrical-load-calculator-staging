@@ -1074,6 +1074,7 @@ function saveCurrentValues() {
 }
 
 let pendingSavedAicData = null;
+let savedCalculationPromptChecked = false;
 
 function hasMeaningfulSavedValues(saved) {
   if (!saved || !saved.values || typeof saved.values !== 'object') return false;
@@ -1111,6 +1112,9 @@ function hideRestoreModal() {
 }
 
 function loadSavedValues() {
+  if (savedCalculationPromptChecked) return;
+  savedCalculationPromptChecked = true;
+
   try {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return;
@@ -1148,7 +1152,6 @@ function initialize() {
   clearAicResult(1);
 
   addPanel(false);
-  loadSavedValues();
   updateAllSelectPlaceholders();
 
   for (let n = 1; n <= panelCount(); n++) calculate(n);
@@ -1186,6 +1189,11 @@ async function verifyDashboardSessionAccess(token) {
 function showCalculator() {
   document.getElementById('accessGate').hidden = true;
   document.body.classList.remove('access-locked');
+
+  // Do not compete with the access gate during startup.  The calculator and
+  // its final viewport are now stable, so the saved-work dialog can be shown
+  // once without shifting when the gate or scrollbar changes.
+  requestAnimationFrame(loadSavedValues);
 }
 
 function showAccessGate(message='') {
