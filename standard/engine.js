@@ -70,7 +70,6 @@ function calculate(s){
   ['cool','heat','coolMotor','heatMotor'].forEach(k=>check(h[k],'HVAC '+(i+1)+' '+k));
   const c=number(h.cool),t=number(h.heat),cm=number(h.coolMotor),hm=number(h.heatMotor);
   if(cm>c||hm>t)errors.push('HVAC '+(i+1)+': motor VA cannot exceed its equipment load.');
-  if(c>0&&h.coolMotor==='')errors.push('HVAC '+(i+1)+': enter the largest compressor/motor VA (not MCA).');
   if((c||t)&&!h.mode)errors.push('Choose the operating arrangement for HVAC '+(i+1)+'.');
   if(h.mode==='simultaneous')return [{base:c+t,motor:Math.max(cm,hm),label:'Cooling / heat pump + heating at 100%'}];
   return [{base:c,motor:cm,label:'Cooling / heat pump at 100%'},{base:t,motor:hm,label:'Heating at 100%'}];
