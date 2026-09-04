@@ -10,7 +10,7 @@ const B=[0,80,65,55,50,45,43,40,36,35,34,32,32,32,32,32,28,28,28,28,28,26,26,26,
 const C=[0,8,11,14,17,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
 function cooking(rows){
  if(rows.some(r=>number(r.qty)>0&&!Number.isInteger(Number(r.qty))))return {total:0,method:'Enter a whole-number quantity'};
- const active=rows.filter(r=>load(r)>0);
+ const indexed=rows.map((r,index)=>({...r,index})), active=indexed.filter(r=>load(r)>0), rowUsed=rows.map(()=>0);
  const nameplate=active.filter(r=>number(r.va)<=1750||number(r.va)>27000);
  const groupA=active.filter(r=>number(r.va)>1750&&number(r.va)<3500);
  const groupB=active.filter(r=>number(r.va)>=3500&&number(r.va)<=8750);
@@ -27,12 +27,17 @@ function cooking(rows){
   increase=ranges.some(r=>number(r.va)>12000)?Math.floor((average-12000)/1000+.5):0;
   demandC=columnC*(1+.05*increase);
  }
+ nameplate.forEach(r=>{rowUsed[r.index]=load(r);});
+ groupA.forEach(r=>{rowUsed[r.index]=load(r)*fa/100;});
+ groupB.forEach(r=>{rowUsed[r.index]=load(r)*fb/100;});
+ const rangesConnected=sum(ranges.map(load));
+ ranges.forEach(r=>{rowUsed[r.index]=rangesConnected?demandC*load(r)/rangesConnected:0;});
  const parts=[];
  if(nr)parts.push('Column C'+(increase?' + '+(increase*5)+'%':''));
  if(na)parts.push('Column A');
  if(nb)parts.push('Column B');
  if(full)parts.push('other cooking at 100%');
- return {total:full+demandA+demandB+demandC,method:parts.length?'Table 220.55 — '+parts.join(' + '):'Nameplate at 100%',count:na+nb+nr};
+ return {total:full+demandA+demandB+demandC,method:parts.length?'Table 220.55 — '+parts.join(' + '):'Nameplate at 100%',count:na+nb+nr,rowUsed};
 }
 function dryerFactor(n){return n<=4?1:n===5?.85:n===6?.75:n===7?.65:n===8?.60:n===9?.55:n===10?.50:n===11?.47:n<=23?(47-(n-11))/100:n<=42?(35-.5*(n-23))/100:.25;}
 function calculate(s){
@@ -51,8 +56,8 @@ function calculate(s){
  const appliances=sum(apps.map(load))-eligibleVA+eligibleVA*(eligibleCount>=4?.75:1);
  // Table 220.55 is applied once to all completed cooking-appliance entries.
  // Row values remain connected loads for an auditable worksheet; the demand is a group result.
- const cookingInputs=s.cooking||[], cookingRows=cookingInputs.map(r=>({connected:load(r)}));
- const combinedCooking=cooking(cookingInputs);
+ const cookingInputs=s.cooking||[], combinedCooking=cooking(cookingInputs);
+ const cookingRows=cookingInputs.map((r,i)=>({connected:load(r),used:combinedCooking.rowUsed?.[i]||0}));
  const cook={...combinedCooking,method:combinedCooking.method,rows:cookingRows,connected:sum(cookingRows.map(r=>r.connected))};
  const dryerCount=sum((s.dryers||[]).filter(r=>load(r)>0).map(r=>number(r.qty))), dryerConnected=sum((s.dryers||[]).filter(r=>load(r)>0).map(r=>number(r.qty)*Math.max(5000,number(r.va)))), dryers=dryerConnected*dryerFactor(dryerCount);
  const motorBase=sum((s.motors||[]).map(load));
