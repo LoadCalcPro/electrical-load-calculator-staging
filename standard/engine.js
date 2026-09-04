@@ -62,17 +62,16 @@ function calculate(s){
  const cook={...combinedCooking,method:combinedCooking.method,rows:cookingRows,connected:sum(cookingRows.map(r=>r.connected))};
  const dryerCount=sum((s.dryers||[]).filter(r=>load(r)>0).map(r=>number(r.qty))), dryerConnected=sum((s.dryers||[]).filter(r=>load(r)>0).map(r=>number(r.qty)*Math.max(5000,number(r.va)))), dryers=dryerConnected*dryerFactor(dryerCount);
  const motorBase=sum((s.motors||[]).map(load));
- // Existing appliance motor component is entered separately to avoid adding its base twice.
- check(s.applianceMotor,'Largest appliance motor VA');
- if(number(s.applianceMotor)>sum(apps.map(load)))errors.push('The appliance motor component cannot exceed the entered appliance loads.');
+ // A motor component already included in HVAC or appliance load is entered separately
+ // so its base load is not counted twice while its required 25% addition is retained.
+ check(s.applianceMotor,'Largest included motor component VA');
  const otherMotor=Math.max(number(s.applianceMotor),...(s.motors||[]).filter(r=>load(r)>0).map(r=>number(r.va)));
  const alternatives=(s.hvac||[]).map((h,i)=>{
-  ['cool','heat','coolMotor','heatMotor'].forEach(k=>check(h[k],'HVAC '+(i+1)+' '+k));
-  const c=number(h.cool),t=number(h.heat),cm=number(h.coolMotor),hm=number(h.heatMotor);
-  if(cm>c||hm>t)errors.push('HVAC '+(i+1)+': motor VA cannot exceed its equipment load.');
+  ['cool','heat'].forEach(k=>check(h[k],'HVAC '+(i+1)+' '+k));
+  const c=number(h.cool),t=number(h.heat);
   if((c||t)&&!h.mode)errors.push('Choose the operating arrangement for HVAC '+(i+1)+'.');
-  if(h.mode==='simultaneous')return [{base:c+t,motor:Math.max(cm,hm),label:'Cooling / heat pump + heating at 100%'}];
-  return [{base:c,motor:cm,label:'Cooling / heat pump at 100%'},{base:t,motor:hm,label:'Heating at 100%'}];
+  if(h.mode==='simultaneous')return [{base:c+t,motor:0,label:'Cooling / heat pump + heating at 100%'}];
+  return [{base:c,motor:0,label:'Cooling / heat pump at 100%'},{base:t,motor:0,label:'Heating at 100%'}];
  });
  const picks=alternatives.map(a=>a.reduce((best,v)=>v.base>best.base||(v.base===best.base&&v.motor>best.motor)?v:best,a[0]));
  const base=sum(picks.map(v=>v.base));let chosen=picks, combined=base+.25*Math.max(otherMotor,...picks.map(v=>v.motor));
