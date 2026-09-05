@@ -1205,24 +1205,19 @@ function calculate(){
   const largestMotor =
     largestMotorCalculation();
 
-  /* NEC 2023 Optional Method:
-     EVSE and largest-motor adder
-     are included before demand
-     is applied. */
+   /* NEC 2023 Optional Method:
+     Demand applies only to
+     General + Appliance loads. */
 
   const demandLoads =
     combinedDemandCalculation(
       generalLoad,
       {
         service:
-          applianceLoads.service +
-          continuousLoads.evService +
-          largestMotor.additionalVA,
+          applianceLoads.service,
 
         generator:
-          applianceLoads.generator +
-          continuousLoads.evGenerator +
-          largestMotor.additionalVA
+          applianceLoads.generator
       }
     );
 
@@ -1234,22 +1229,16 @@ function calculate(){
       ? window.hvacLoadCalculation()
       : hvacLoadCalculation();
 
-  /* EVSE and largest-motor adder
-     already included above. */
+/* HVAC and all Continuous Loads
+   are added after demand. */
 
-  const serviceHVACContinuous =
-    hvacLoads.service +
-    (
-      continuousLoads.service -
-      continuousLoads.evService
-    );
+const serviceHVACContinuous =
+  hvacLoads.service +
+  continuousLoads.service;
 
-  const generatorHVACContinuous =
-    hvacLoads.generator +
-    (
-      continuousLoads.generator -
-      continuousLoads.evGenerator
-    );
+const generatorHVACContinuous =
+  hvacLoads.generator +
+  continuousLoads.generator;
 
   setOutput(
     "e44",
@@ -1353,7 +1342,7 @@ function calculate(){
 function connectStaticManagedControls(){
 
   const staticRows = [
-    37,38,39,40,42,43
+    37,38,39,40,42,43,47
   ];
 
   for(const row of staticRows){
@@ -6923,31 +6912,15 @@ ${Math.ceil(
 
   function sync(){
 
-    /*
-      e35/f35 already include EVSE demand.
+   const service =
+  valueFrom('e35') +
+  valueFrom('e44') +
+  valueFrom('e45');
 
-      Add HVAC and only the non-EV
-      portion of continuous loads to
-      avoid omitting or double-counting.
-    */
-
-    const service =
-      valueFrom('e35') +
-      valueFrom('e44') +
-      Math.max(
-        valueFrom('e45') -
-        valueFrom('e43'),
-        0
-      );
-
-    const generator =
-      valueFrom('f35') +
-      valueFrom('f44') +
-      Math.max(
-        valueFrom('f45') -
-        valueFrom('f43'),
-        0
-      );
+const generator =
+  valueFrom('f35') +
+  valueFrom('f44') +
+  valueFrom('f45');
 
     const s =
       document.getElementById(
