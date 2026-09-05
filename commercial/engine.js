@@ -47,8 +47,10 @@ function calculate(s){
  const errors=[];
  const check=(v,label,integer=false)=>{if(v!==''&&v!==undefined&&(!Number.isFinite(Number(v))||Number(v)<0||(integer&&!Number.isInteger(Number(v)))))errors.push(label+' must be a nonnegative '+(integer?'whole number.':'number.'));};
  const occ=OCCUPANCIES[s.occupancy];
- if(!occ)errors.push('Select an occupancy type.');
- check(s.sqft,'Square footage');if(!number(s.sqft))errors.push('Enter the building square footage.');
+ const groups=['other','kitchen','motors','continuous'];
+ const touched=Boolean(s.occupancy)||number(s.sqft)>0||number(s.actualLighting)>0||number(s.showWindowFt)>0||number(s.trackFt)>0||number(s.signQty)>0||Boolean(s.signRequired)||number(s.receptacles)>0||number(s.cooling)>0||number(s.heating)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)));
+ if(touched&&!occ)errors.push('Select an occupancy type.');
+ check(s.sqft,'Square footage');if(touched&&!number(s.sqft))errors.push('Enter the building square footage.');
  check(s.actualLighting,'Actual lighting load');
  const minimumLighting=number(s.sqft)*(occ?.va||0), lightingBase=Math.max(minimumLighting,number(s.actualLighting));
  const ld=lightingDemand(lightingBase,occ?.demand||'other',Boolean(s.hotelAllLighting)), lighting=sum(Object.values(ld).filter(v=>typeof v==='number'));
@@ -61,7 +63,6 @@ function calculate(s){
  const receptacleOfficeVA=s.occupancy==='office'?number(s.sqft):0;
  const receptacleConnected=Math.max(receptacleCountVA,receptacleOfficeVA);
  const receptacles=Math.min(receptacleConnected,10000)+Math.max(receptacleConnected-10000,0)*.5;
- const groups=['other','kitchen','motors','continuous'];
  groups.forEach(g=>(s[g]||[]).forEach((r,i)=>{const name=r.label||g+' '+(i+1);check(r.qty,name+' quantity',true);check(r.va,name+' VA');if((number(r.qty)>0)!==(number(r.va)>0))errors.push('Complete quantity and VA for '+name+'.');}));
  const other=sum((s.other||[]).map(load));
  const kitchenRows=(s.kitchen||[]).filter(r=>load(r)>0), kitchenCount=sum(kitchenRows.map(r=>number(r.qty))), kitchenConnected=sum(kitchenRows.map(load)), kitchenFactorValue=kitchenFactor(kitchenCount), kitchen=kitchenConnected*kitchenFactorValue;
@@ -76,7 +77,7 @@ function calculate(s){
  const voltage=number(s.voltage), phase=Number(s.phase);
  if(!voltage)errors.push('Select a service voltage.');if(![1,3].includes(phase))errors.push('Select single-phase or three-phase.');
  const amps=voltage?total/(phase===3?Math.sqrt(3)*voltage:voltage):0;
- return {occupancy:occ,minimumLighting,lightingBase,lightingDemand:ld,lighting,showWindow,track,signs,lightingOther,receptacleCountVA,receptacleOfficeVA,receptacleConnected,receptacles,other,kitchenCount,kitchenConnected,kitchenFactor:kitchenFactorValue,kitchen,hvac,motorBase,largestMotor,motorAdder,continuous,total,amps,errors:[...new Set(errors)]};
+ return {touched,occupancy:occ,minimumLighting,lightingBase,lightingDemand:ld,lighting,showWindow,track,signs,lightingOther,receptacleCountVA,receptacleOfficeVA,receptacleConnected,receptacles,other,kitchenCount,kitchenConnected,kitchenFactor:kitchenFactorValue,kitchen,hvac,motorBase,largestMotor,motorAdder,continuous,total,amps,errors:[...new Set(errors)]};
 }
 const api={OCCUPANCIES,lightingDemand,kitchenFactor,calculate};if(typeof module!=='undefined')module.exports=api;else root.CommercialEngine=api;
 })(typeof window!=='undefined'?window:globalThis);
