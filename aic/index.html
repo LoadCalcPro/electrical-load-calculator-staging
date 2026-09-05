@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LoadCalcPro X | AIC Calculator</title>
+<link rel="stylesheet" href="styles.css?v=20260829-1">
+<script>
+(function(){
+  const dataKey='loadCalcProAicCalculatorExpandablePanels';
+  const migrationKey='loadCalcProAicIndependentDownstreamV1';
+  try{
+    if(localStorage.getItem(migrationKey)==='1')return;
+    const raw=localStorage.getItem(dataKey);
+    if(raw){
+      const saved=JSON.parse(raw);
+      if(saved&&saved.values&&typeof saved.values==='object'&&Object.prototype.hasOwnProperty.call(saved.values,'utilityFault2')){
+        delete saved.values.utilityFault2;
+        localStorage.setItem(dataKey,JSON.stringify(saved));
+      }
+    }
+    localStorage.setItem(migrationKey,'1');
+  }catch(e){}
+})();
+</script>
+</head>
+<body>
+<div class="shell">
+<header class="app-header">
+  <div class="header-top">
+    <div class="brand"><span class="bolt">⚡</span><span class="x">X</span></div>
+    <div class="title-block"><div class="title">Available Fault Current Calculator</div><div class="version">Version 1.0</div></div>
+  </div>
+  <div class="actions">
+    <button type="button" id="mainSiteBtn">Main Site</button>
+    <button type="button" id="calculatorsBtn">Calculators</button>
+    <div class="print-control" aria-label="Print options">
+      <select id="outerPrintType" aria-label="Print type">
+        <option value="branded" selected>Branded Report</option>
+        <option value="calculation">Calculation Only</option>
+      </select>
+      <select id="outerPrintLayout" aria-label="Print layout">
+        <option value="full" selected>Full Page</option>
+        <option value="side">Side by Side</option>
+        <option value="stacked">Stacked</option>
+        <option value="columns">Stacked Columns</option>
+      </select>
+    </div>
+    <button type="button" class="primary" id="printBtn">Print / PDF</button>
+    <button type="button" id="newCalculationBtn">New Calculation</button>
+  </div>
+</header>
+<div class="frame-wrap"><iframe id="aicFrame" src="../aic_calculator.html?v=20260828-5" title="LoadCalcPro X AIC Calculator"></iframe></div>
+</div>
+<script src="app.js?v=20260903-1"></script>
+<script src="motor-contribution.js?v=20260828-3"></script>
+<script src="aic-display.js?v=20260828-2"></script>
+<script src="drawing-output.js"></script>
+<script>
+(function(){
+  const frame=document.getElementById('aicFrame');
+  const printType=document.getElementById('outerPrintType');
+  const printButton=document.getElementById('printBtn');
+  function syncPrintBranding(){
+    let d;
+    try{d=frame.contentDocument||frame.contentWindow.document}catch(e){return}
+    if(!d)return;
+    let style=d.getElementById('aicPrintBrandingOverride');
+    if(!style){style=d.createElement('style');style.id='aicPrintBrandingOverride';d.head.appendChild(style)}
+    const brandStyle='@media print{#printPages .aic-print-heading .print-brand{font-size:15.4px!important;letter-spacing:0!important}#printPages .aic-print-heading .print-brand-accent{margin-left:0!important}}';
+    style.textContent=brandStyle+(printType.value==='calculation'
+      ? '@media print{#printPages .aic-print-heading .print-brand{display:none!important}}'
+      : '');
+  }
+  printType.addEventListener('change',syncPrintBranding);
+  printButton.addEventListener('click',syncPrintBranding,true);
+  frame.addEventListener('load',()=>{
+    syncPrintBranding();
+  });
+})();
+</script>
+</body>
+</html>
