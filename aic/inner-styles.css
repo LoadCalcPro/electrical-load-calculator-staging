@@ -1,0 +1,483 @@
+:root { --blue:#1e3a8a; --blue2:#0f172a; --accent:#0f766e; --light:#e8eefc; --grid:#c9d3dc; --text:#111827; --muted:#6b7280; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:Arial, Helvetica, sans-serif; color:var(--text); background:#f3f4f6; }
+.page { max-width:1100px; margin:24px auto; padding:22px; background:transparent; }
+.form-titlebar { display:grid; grid-template-columns:1fr auto; align-items:center; gap:14px; margin-bottom:12px; padding:2px 2px 0; color:#111827; }
+.form-title { font-size:15px; font-weight:800; color:#0f172a; letter-spacing:.1px; }
+.form-version { font-size:11px; font-weight:700; color:#6b7280; margin-top:2px; letter-spacing:.12px; }
+.title-actions { display:flex; align-items:center; gap:12px; }
+.form-brand { font-size:12px; font-weight:800; color:#1e3a8a; opacity:.78; white-space:nowrap; letter-spacing:.15px; }
+.bolt { color:#0f766e; margin-right:3px; }
+main { padding:0; }
+h2 { margin:0; font-size:20px; color:var(--blue); }
+.calc-heading-row { display:flex; align-items:center; gap:14px; margin:0 0 14px; }
+.calc-heading-row h2 { flex:0 0 auto; }
+.calc-heading-input { width:280px; max-width:42%; padding:9px 10px; border:1px solid #2f75b5; border-radius:8px; font-size:15px; background:white; }
+.calc-heading-input:focus { outline:2px solid #9cc9ee; border-color:#2f75b5; }
+.grid { display:grid; grid-template-columns: 1fr; gap:22px; align-items:start; }
+.card { border:1px solid #d1d5db; border-radius:14px; background:#fff; padding:18px; box-shadow:0 4px 18px rgba(15,23,42,.08); }
+.form-grid { display:grid; grid-template-columns: 1.6fr 1fr; gap:12px 16px; align-items:center; }
+label { font-weight:600; color:#334155; }
+input, select { width:100%; padding:9px 10px; border:1px solid #b8c6d8; border-radius:8px; font-size:15px; background:white; }
+input::placeholder { color:#9ca3af; opacity:1; }
+select.placeholder { color:#9ca3af; }
+select option { color:#111827; }
+input:focus, select:focus { outline:2px solid #9cc9ee; border-color:#2f75b5; }
+.result { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+.metric { background:var(--light); border:1px solid #cfe3f2; border-radius:12px; padding:16px; }
+.metric .label { color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.08em; }
+.metric .value { font-size:28px; font-weight:700; margin-top:5px; color:#0f3557; }
+.formula { font-family: Consolas, Monaco, monospace; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px; font-size:16px; line-height:1.7; margin-top:14px; color:#334155; }
+.formula-title { font-family:Arial, Helvetica, sans-serif; font-size:18px; margin-bottom:10px; color:#17365d; }
+.formula-line { display:grid; grid-template-columns:42px 18px auto; align-items:baseline; }
+.formula-value { font-weight:400; }
+table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+th, td { border:1px solid var(--grid); padding:7px 8px; text-align:center; }
+th { background:#d9eaf7; color:#17365d; font-weight:700; }
+td:first-child, th:first-child { text-align:left; font-weight:700; }
+.section-title { background:#1f4e78; color:white; text-align:left; font-size:15px; }
+.note { color:var(--muted); font-size:13px; margin-top:10px; }
+.button-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.panel-controls { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 0; }
+.panel-number { font-size:12px; font-weight:700; color:#64748b; margin-bottom:8px; }
+button { border:1px solid #1e3a8a; border-radius:10px; padding:9px 13px; font-weight:700; cursor:pointer; background:#1e3a8a; color:white; }
+button.secondary { background:#fff; color:#1e3a8a; }
+button:disabled { opacity:.45; cursor:not-allowed; }
+@media (max-width: 850px) { .grid { grid-template-columns:1fr; } main { padding:18px; } .result { grid-template-columns:1fr; } }
+@media print {
+  @page { size:auto; margin:.22in; }
+  html, body { background:white; }
+  body { zoom:.82; }
+  .no-print { display:none!important; }
+  .card.optional-empty { display:none!important; }
+  .page { margin:0; padding:0; max-width:none; }
+  .grid { gap:8px; }
+  .card {
+    break-inside:avoid;
+    page-break-inside:avoid;
+    box-shadow:none;
+    border-radius:7px;
+    margin-bottom:7px;
+    padding:8px 10px;
+  }
+  button { display:none!important; }
+  .form-titlebar { display:grid!important; grid-template-columns:1fr auto; margin:0 0 4px; }
+  .form-title { font-size:10px; }
+  .form-version { font-size:7.5px; margin-top:0; }
+  .form-brand { font-size:9px; }
+  h2 { font-size:13px; }
+  .calc-heading-row { gap:8px; margin-bottom:5px; }
+  .calc-heading-input { max-width:38%; }
+  .calc-heading-input, input, select { padding:3px 5px; font-size:9.5px; border-radius:3px; }
+  .form-grid { gap:3px 8px; }
+  label { font-size:9.5px; line-height:1.1; }
+  .result { gap:5px; margin-top:5px; }
+  .metric { padding:5px 7px; border-radius:4px; }
+  .metric .label { font-size:7.5px; }
+  .metric .value { font-size:14px; margin-top:1px; }
+  .formula { padding:5px 7px; margin-top:5px; font-size:9.5px; line-height:1.25; border-radius:4px; }
+  .formula-title { font-size:10.5px; margin-bottom:2px; }
+  .formula-line { grid-template-columns:34px 14px auto; }
+  .panel-number { font-size:8px; margin-bottom:2px; }
+  .button-row, .panel-controls, .note { display:none!important; }
+}
+
+/* LoadCalcPro access protection */
+body.access-locked { overflow:hidden; }
+#accessGate {
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 58%,#0f766e 100%);
+}
+#accessGate[hidden] { display:none!important; }
+.access-box {
+  width:min(430px,100%);
+  background:#fff;
+  border-radius:16px;
+  padding:28px;
+  box-shadow:0 24px 70px rgba(0,0,0,.32);
+  text-align:center;
+}
+.access-brand {
+  color:#1e3a8a;
+  font-size:24px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+.access-subtitle {
+  color:#475569;
+  font-size:14px;
+  margin-bottom:22px;
+}
+.access-box label {
+  display:block;
+  text-align:left;
+  margin-bottom:7px;
+  color:#334155;
+}
+.access-box input {
+  margin-bottom:12px;
+}
+.remember-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 14px;
+  text-align:left;
+  color:#475569;
+  font-size:13px;
+}
+.remember-row input {
+  width:auto;
+  margin:0;
+}
+.remember-row label {
+  display:inline;
+  margin:0;
+  font-weight:600;
+  cursor:pointer;
+}
+.access-box button {
+  width:100%;
+  padding:11px 14px;
+}
+#accessMessage {
+  min-height:20px;
+  margin-top:12px;
+  font-size:13px;
+  color:#b91c1c;
+}
+#accessMessage.success { color:#047857; }
+.logout-button {
+  background:#fff!important;
+  color:#1e3a8a!important;
+  margin-left:8px;
+}
+@media print {
+  #accessGate, .logout-button { display:none!important; }
+}
+
+.restore-modal {
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(15,23,42,.72);
+  backdrop-filter:blur(3px);
+}
+.restore-modal.show { display:flex; }
+.restore-dialog {
+  width:min(500px,100%);
+  overflow:hidden;
+  background:#fff;
+  border:1px solid #dbe3ec;
+  border-radius:16px;
+  box-shadow:0 28px 80px rgba(15,23,42,.34);
+}
+.restore-dialog-header {
+  padding:22px 24px 16px;
+  border-bottom:1px solid #e5eaf0;
+}
+.restore-dialog-kicker {
+  margin:0 0 7px;
+  color:#0f766e;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.restore-dialog h2 {
+  margin:0;
+  color:#0f172a;
+  font-size:22px;
+  line-height:1.25;
+}
+.restore-dialog-body {
+  padding:18px 24px 8px;
+  color:#475569;
+  font-size:15px;
+  line-height:1.55;
+}
+.restore-dialog-body p { margin:0; }
+.restore-dialog-actions {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  padding:18px 24px 24px;
+}
+.restore-dialog-actions button {
+  width:100%;
+  min-height:46px;
+  border-radius:9px;
+  font-size:14px;
+}
+.restore-dialog-actions .restore-secondary {
+  background:#fff;
+  color:#1e3a8a;
+  border:1px solid #1e3a8a;
+}
+@media (max-width:520px) {
+  .restore-modal { padding:16px; }
+  .restore-dialog-header { padding:20px 20px 15px; }
+  .restore-dialog-body { padding:16px 20px 6px; }
+  .restore-dialog-actions { padding:16px 20px 20px; }
+}
+@media print { .restore-modal { display:none!important; } }
+
+.brand-x{color:#0f766e;font-weight:900;margin-left:3px;}
+
+/* AIC_REPORT_DESIGN_V2 */
+.print-report-header{display:none}
+.formula-report{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;font-family:Consolas,Monaco,monospace}
+.formula-report-panel{background:#f8fafc;border:1px solid #d7e0e8;border-radius:10px;padding:14px 16px}
+.formula-report-title{font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:800;color:#17365d;margin-bottom:10px}
+.formula-report-line{display:grid;grid-template-columns:42px 16px 1fr;align-items:baseline;line-height:1.65;font-size:15px}
+.formula-report-line.aic-final{margin-top:4px;padding-top:6px;border-top:1px solid #cbd5e1;font-weight:800;color:#0f3557}
+@media (max-width:700px){
+  .page{width:100%;margin:0;padding:12px}
+  main{padding:0}
+  .form-titlebar{grid-template-columns:1fr;gap:10px}
+  .title-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .title-actions .form-brand{grid-column:1/-1;grid-row:1;text-align:left;font-size:14px}
+  .title-actions button{width:100%;min-height:46px;margin:0!important;font-size:15px}
+  .card{padding:15px;border-radius:12px}
+  .calc-heading-row{display:grid;grid-template-columns:1fr;gap:9px}
+  .calc-heading-input{width:100%;max-width:none;min-height:46px;font-size:16px}
+  .form-grid{grid-template-columns:1fr;gap:6px}
+  .form-grid label{margin-top:8px;font-size:15px}
+  input,select{min-height:48px;font-size:16px;padding:11px 12px}
+  .result{grid-template-columns:1fr 1fr;gap:9px}
+  .metric{padding:13px}
+  .metric .value{font-size:23px}
+  .formula-report{grid-template-columns:1fr}
+  .button-row,.panel-controls{display:grid;grid-template-columns:1fr}
+  .button-row button,.panel-controls button{width:100%;min-height:46px;font-size:15px}
+}
+@media print{
+  @page{size:letter portrait;margin:.35in}
+  html,body{width:100%;background:#fff!important}
+  body{zoom:1}
+  .page{width:100%;max-width:none;margin:0;padding:0}
+  .print-report-header{display:grid!important;grid-template-columns:1fr auto;align-items:end;gap:18px;padding:0 0 7px;margin:0 0 9px;border-bottom:2px solid #1e3a8a}
+  .print-report-brand{font-size:18px;font-weight:800;color:#1e3a8a}
+  .print-report-title{font-size:12px;font-weight:700;color:#111827;margin-top:2px}
+  .form-titlebar{display:none!important}
+  .grid{display:block}
+  .card{border:1px solid #9aa9b7;border-radius:4px;padding:8px 10px;margin:0 0 8px;box-shadow:none;break-inside:avoid;page-break-inside:avoid}
+  .panel-number{font-size:8.5px;margin-bottom:3px}
+  .calc-heading-row{display:grid;grid-template-columns:auto minmax(180px,1fr);gap:9px;margin:0 0 6px}
+  h2{font-size:12.5px}
+  .calc-heading-input,input,select{display:block!important;width:100%!important;min-height:21px;padding:3px 6px!important;margin:0!important;border:1px solid #6f8294!important;border-radius:2px!important;background:#fff!important;color:#111827!important;font-size:9px!important;line-height:1.2!important;opacity:1!important}
+  select{appearance:auto!important;-webkit-appearance:menulist!important}
+  input::placeholder{color:transparent!important}
+  .form-grid{display:grid!important;grid-template-columns:1.35fr 1fr 1.35fr 1fr;gap:4px 8px;align-items:center}
+  .form-grid label{font-size:8.6px;line-height:1.1}
+  .result{grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+  .metric{padding:4px 6px;border-radius:3px}
+  .metric .label{font-size:7px}
+  .metric .value{font-size:13px;margin-top:1px}
+  .formula{display:none!important}
+  .formula-report{grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+  .formula-report-panel{padding:6px 8px;border-radius:3px}
+  .formula-report-title{font-size:9.5px;margin-bottom:3px}
+  .formula-report-line{grid-template-columns:28px 10px 1fr;font-size:8.8px;line-height:1.35}
+  .formula-report-line.aic-final{margin-top:2px;padding-top:3px}
+  .no-print,button,.button-row,.panel-controls,.note,#accessGate,.restore-modal,.logout-button{display:none!important}
+}
+
+/* Clean AIC engineering print report */
+.clean-print-report { display:none; }
+@media print {
+  @page { size:letter; margin:.5in; }
+  html, body { background:#fff!important; }
+  body { zoom:1!important; }
+  .page { margin:0!important; padding:0!important; max-width:none!important; }
+  .form-titlebar { display:none!important; }
+  #calculationsContainer > .card {
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    padding:0!important;
+    margin:0 0 .35in 0!important;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  #calculationsContainer > .card > :not(.clean-print-report) { display:none!important; }
+  .clean-print-report {
+    display:block!important;
+    color:#111827;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  .print-report-brand { font-size:20px; font-weight:800; color:#1e3a8a; margin:0 0 3px; }
+  .print-report-brand .brand-x { color:#15803d; }
+  .print-report-title { font-size:15px; font-weight:700; margin:0 0 18px; color:#111827; }
+  .print-report-panel { font-size:12px; font-weight:700; margin:0 0 16px; }
+  .print-report-section { margin:0 0 17px; }
+  .print-report-section h3 { font-size:12px; margin:0 0 8px; color:#1e3a8a; text-transform:uppercase; letter-spacing:.04em; }
+  .print-report-row { display:grid; grid-template-columns:190px 1fr; gap:14px; font-size:11px; line-height:1.65; }
+  .print-report-label { font-weight:700; }
+  .print-report-formula { font-family:Consolas,Monaco,monospace; font-size:11px; line-height:1.8; }
+  .print-report-final { border:2px solid #1e3a8a; padding:14px 18px; margin-top:18px; text-align:center; }
+  .print-report-final-label { font-size:11px; font-weight:800; letter-spacing:.08em; color:#1e3a8a; }
+  .print-report-final-value { font-size:24px; font-weight:900; margin-top:4px; color:#0f172a; }
+}
+
+/* AIC selectable print layouts */
+.result { display:none!important; }
+.formula { background:transparent!important; border:0!important; padding:0!important; }
+.formula-report-panel { background:transparent!important; border:0!important; border-radius:0!important; padding:8px 0!important; }
+.formula-report { border-top:1px solid #d7e0e8; border-bottom:1px solid #d7e0e8; padding:8px 0; }
+.formula-report-line.aic-final { font-weight:700; }
+.print-layout-control { display:flex; align-items:center; gap:6px; color:#334155; font-size:12px; font-weight:700; white-space:nowrap; }
+.print-layout-control select { width:auto; min-width:112px; padding:7px 28px 7px 9px; border-radius:8px; font-size:13px; }
+.print-pages { display:none; }
+
+@media (max-width:700px) {
+  .print-layout-control { grid-column:1/-1; width:100%; justify-content:space-between; }
+  .print-layout-control select { flex:1; max-width:190px; min-height:42px; }
+}
+
+@media print {
+  @page { size:letter portrait; margin:.25in; }
+  html, body { background:#fff!important; }
+  body { zoom:1!important; }
+  body > :not(.print-pages) { display:none!important; }
+  .print-pages { display:block!important; }
+  .print-page {
+    height:10.5in;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr);
+    gap:.10in;
+    overflow:hidden;
+    break-after:page;
+    page-break-after:always;
+    color:#111827;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  .print-page:last-child { break-after:auto; page-break-after:auto; }
+  .print-page-header {
+    padding:0 0 .07in;
+    border-bottom:2px solid #1e3a8a;
+  }
+  .print-page-brand { font-size:18px; line-height:1.05; font-weight:800; color:#1e3a8a; }
+  .print-page-brand .brand-x { color:#0f766e; }
+  .print-page-title { margin-top:2px; font-size:11px; line-height:1.15; font-weight:700; color:#111827; }
+  .print-page-grid {
+    min-height:0;
+    display:grid;
+    gap:.10in;
+    align-items:stretch;
+  }
+  .print-page[data-layout="1"] .print-page-grid { grid-template-columns:1fr; grid-template-rows:1fr; }
+  .print-page[data-layout="2"] .print-page-grid { grid-template-columns:1fr; grid-template-rows:repeat(2,minmax(0,1fr)); }
+  .print-page[data-layout="4"] .print-page-grid { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(0,1fr)); }
+  .print-page[data-layout="8"] .print-page-grid { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:.07in; }
+  .print-report-card {
+    min-width:0;
+    min-height:0;
+    border:1px solid #64748b;
+    border-radius:3px;
+    padding:.09in .11in;
+    overflow:hidden;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  .clean-print-report {
+    display:block!important;
+    width:100%;
+    min-width:0;
+    height:100%;
+    overflow:hidden;
+  }
+  .print-report-panel {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-weight:800;
+    margin:0 0 4px;
+    padding:0 0 3px;
+    border-bottom:1px solid #cbd5e1;
+    color:#0f172a;
+  }
+  .print-report-section { margin:0; min-width:0; }
+  .print-report-section + .print-report-section { margin-top:4px; padding-top:3px; border-top:1px solid #e2e8f0; }
+  .print-report-section h3 {
+    margin:0 0 2px;
+    color:#1e3a8a;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  .print-report-row,
+  .compact-formula-row {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(72px,38%);
+    column-gap:6px;
+    align-items:baseline;
+    width:100%;
+    min-width:0;
+  }
+  .print-report-label,
+  .compact-formula-label {
+    min-width:0;
+    overflow-wrap:anywhere;
+    text-align:left;
+    font-weight:700;
+  }
+  .print-report-value,
+  .compact-formula-value {
+    min-width:0;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    text-align:right;
+    justify-self:stretch;
+    font-variant-numeric:tabular-nums;
+  }
+  .compact-formula-row { font-family:Consolas,Monaco,monospace; }
+  .compact-formula-row.aic-final { margin-top:1px; font-weight:800; }
+
+  .print-page[data-layout="1"] .print-report-card { padding:.18in .22in; }
+  .print-page[data-layout="1"] .print-report-panel { font-size:14px; margin-bottom:10px; padding-bottom:7px; }
+  .print-page[data-layout="1"] .print-report-section + .print-report-section { margin-top:12px; padding-top:9px; }
+  .print-page[data-layout="1"] .print-report-section h3 { font-size:10px; margin-bottom:6px; }
+  .print-page[data-layout="1"] .print-report-row,
+  .print-page[data-layout="1"] .compact-formula-row { font-size:10.5px; line-height:1.7; grid-template-columns:minmax(0,1fr) 190px; }
+
+  .print-page[data-layout="2"] .print-report-panel { font-size:11px; }
+  .print-page[data-layout="2"] .print-report-section h3 { font-size:8.5px; }
+  .print-page[data-layout="2"] .print-report-row,
+  .print-page[data-layout="2"] .compact-formula-row { font-size:8.7px; line-height:1.42; grid-template-columns:minmax(0,1fr) 150px; }
+
+  .print-page[data-layout="4"] .print-report-panel { font-size:9px; }
+  .print-page[data-layout="4"] .print-report-section h3 { font-size:7px; }
+  .print-page[data-layout="4"] .print-report-row,
+  .print-page[data-layout="4"] .compact-formula-row { font-size:7.25px; line-height:1.3; }
+
+  .print-page[data-layout="8"] .print-report-card { padding:.055in .075in; }
+  .print-page[data-layout="8"] .print-report-panel { font-size:7.3px; margin-bottom:2px; padding-bottom:2px; }
+  .print-page[data-layout="8"] .print-report-section + .print-report-section { margin-top:2px; padding-top:2px; }
+  .print-page[data-layout="8"] .print-report-section h3 { font-size:5.8px; margin-bottom:1px; }
+  .print-page[data-layout="8"] .print-report-row,
+  .print-page[data-layout="8"] .compact-formula-row { font-size:5.8px; line-height:1.18; grid-template-columns:minmax(0,1fr) minmax(62px,38%); column-gap:4px; }
+}
+
+/* AIC print control header fix */
+.form-titlebar { grid-template-columns:minmax(230px,1fr) auto; }
+.form-title { white-space:nowrap; }
+.title-actions { flex-wrap:wrap; justify-content:flex-end; }
+.print-layout-control { display:flex; align-items:center; gap:6px; color:#334155; font-size:12px; font-weight:700; white-space:nowrap; }
+.print-layout-control select { width:auto; min-width:112px; padding:7px 28px 7px 9px; border-radius:8px; font-size:13px; }
+@media (max-width:850px) {
+  .form-titlebar { grid-template-columns:1fr; }
+  .form-title { white-space:normal; }
+  .title-actions { justify-content:flex-start; }
+}
