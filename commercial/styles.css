@@ -10,3 +10,26 @@
 
 .field-output{display:flex;align-items:center;min-height:46px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#f8fafc;font-weight:700;color:var(--navy)}
 .check-field{display:flex!important;flex-direction:row!important;align-items:center;gap:10px;align-self:end;min-height:46px}.check-field input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--teal)}
+
+/* Match the Generator calculator's screen-header branding. */
+@media screen and (min-width:900px){
+  header{padding:16px 30px 18px;background:#071b47}
+  .brand-row{display:flex;align-items:flex-start;justify-content:flex-start;gap:28px;min-width:0}
+  .brand-row>div:first-child{min-width:0}
+  .brand-row h1.app-title{margin:0;color:#fff;font-size:22px;line-height:1.15;font-weight:700;white-space:nowrap;letter-spacing:0}
+  .brand-row .app-version{margin:5px 0 0;color:#dbeafe;font-size:12px;line-height:1.2;font-weight:600}
+  .app-brand{order:-1;display:inline-flex;align-items:center;flex:0 0 auto;margin-top:2px;padding:0;color:#fff;font-size:0;line-height:1;letter-spacing:-.02em}
+  .app-brand::before{content:"LoadCalc";order:1;color:#fff;font-size:27px;font-weight:700}
+  .app-brand .bolt{order:0;margin-right:4px;color:#ff7a45;font-size:27px;font-weight:700}
+  .app-brand .brand-x{order:2;margin-left:0;color:#5eead4;font-size:27px;font-weight:700}
+  .app-brand .brand-x::before{content:"Pro "}
+}
+@media screen and (max-width:899px){
+  .brand-row{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:0}
+  .app-brand{order:-1;align-self:flex-start;margin:0;padding:0;color:#fff;font-size:23px;line-height:1;font-weight:700}
+  .app-brand .bolt{margin-right:4px;color:#ff7a45;font-size:23px}
+  .app-brand .brand-x{margin-left:2px;color:#5eead4}
+  .brand-row>div:first-child{width:100%;min-width:0}
+  .brand-row h1.app-title{margin:10px 0 0;font-size:clamp(14px,4.6vw,18px);line-height:1.15;font-weight:700;white-space:nowrap}
+  .brand-row .app-version{margin:6px 0 0}
+}
