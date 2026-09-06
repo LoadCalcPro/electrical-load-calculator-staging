@@ -7,3 +7,26 @@
 .row-actions{display:flex;align-items:center;gap:12px}.row-actions .remove-row{margin-top:12px;background:#fff;border-color:#cbd5e1;color:#475569;font-size:13px}
 .ev-management{grid-column:1/-1;display:flex;align-items:end;gap:20px;padding:4px 0}.ev-management label{display:flex!important;align-items:center;gap:8px;font-size:13px}.ev-management label:last-child{margin-left:auto}.ev-management input[type=number]{width:150px}.ev-management input[type=checkbox]{flex:0 0 auto}
 @media(max-width:899px){.load-row[data-group="cooking"]{grid-template-columns:1fr 1fr}.load-row[data-group="cooking"] .description-cell{grid-column:1/-1}.load-row[data-group="cooking"] output{grid-row:3;font-size:14px}.load-row[data-group="cooking"] output[data-output]{grid-column:1}.load-row[data-group="cooking"] output[data-used-output]{grid-column:2}.load-row[data-group="cooking"] output::before{content:attr(data-label);display:block;color:var(--muted);font-size:12px;margin-bottom:3px}}
+
+/* Match the Generator calculator's screen-header branding. */
+@media screen and (min-width:900px){
+  header{padding:16px 30px 18px;background:#071b47}
+  .brand-row{display:flex;align-items:flex-start;justify-content:flex-start;gap:28px;min-width:0}
+  .brand-row>div:first-child{min-width:0}
+  .brand-row h1.app-title{margin:0;color:#fff;font-size:22px;line-height:1.15;font-weight:700;white-space:nowrap;letter-spacing:0}
+  .brand-row .app-version{margin:5px 0 0;color:#dbeafe;font-size:12px;line-height:1.2;font-weight:600}
+  .app-brand{order:-1;display:inline-flex;align-items:center;flex:0 0 auto;margin-top:2px;padding:0;color:#fff;font-size:0;line-height:1;letter-spacing:-.02em}
+  .app-brand::before{content:"LoadCalc";order:1;color:#fff;font-size:27px;font-weight:700}
+  .app-brand .bolt{order:0;margin-right:4px;color:#ff7a45;font-size:27px;font-weight:700}
+  .app-brand .brand-x{order:2;margin-left:0;color:#5eead4;font-size:27px;font-weight:700}
+  .app-brand .brand-x::before{content:"Pro "}
+}
+@media screen and (max-width:899px){
+  .brand-row{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:0}
+  .app-brand{order:-1;align-self:flex-start;margin:0;padding:0;color:#fff;font-size:23px;line-height:1;font-weight:700}
+  .app-brand .bolt{margin-right:4px;color:#ff7a45;font-size:23px}
+  .app-brand .brand-x{margin-left:2px;color:#5eead4}
+  .brand-row>div:first-child{width:100%;min-width:0}
+  .brand-row h1.app-title{margin:10px 0 0;font-size:clamp(14px,4.6vw,18px);line-height:1.15;font-weight:700;white-space:nowrap}
+  .brand-row .app-version{margin:6px 0 0}
+}
