@@ -28,3 +28,67 @@
   .brand-row h1.app-title{margin:10px 0 0;font-size:clamp(14px,4.6vw,18px);line-height:1.15;font-weight:700;white-space:nowrap}
   .brand-row .app-version{margin:6px 0 0}
 }
+
+/* Match the Generator calculator's compact, two-line print heading. */
+@media print{
+  .report-header{
+    padding-bottom:5px;
+    margin-bottom:8px;
+  }
+  .print-brand{
+    display:flex;
+    align-items:baseline;
+    margin:0 0 2px;
+    font-size:15.4px;
+    line-height:1.05;
+    font-weight:900;
+  }
+  .report-header .print-title h1{
+    margin:0;
+    font-size:10px;
+    line-height:1.1;
+    font-weight:800;
+  }
+}
+
+/* Phone load-row spacing: retain the Standard Method total column while
+   matching the compact rhythm of the Generator calculator. */
+@media screen and (max-width:899px){
+  .general-row{
+    grid-template-columns:minmax(0,1fr) clamp(76px,22vw,90px) clamp(78px,22vw,90px);
+    gap:8px;
+    padding:10px 0;
+  }
+  .load-row{
+    grid-template-columns:clamp(76px,22vw,90px) minmax(84px,1fr) clamp(78px,22vw,90px);
+    gap:8px;
+    padding:10px 0;
+  }
+  .general-row>input,
+  .load-row input,
+  .load-row select{
+    min-height:48px;
+  }
+  .load-row[data-group="cooking"]{
+    grid-template-columns:clamp(66px,19vw,80px) minmax(78px,1fr) clamp(62px,18vw,80px) clamp(62px,18vw,80px);
+    gap:clamp(6px,1.8vw,8px);
+  }
+  .hvac-entry{
+    grid-template-columns:minmax(0,1fr) clamp(76px,22vw,90px) clamp(78px,22vw,90px);
+    gap:8px;
+    padding:10px 0;
+  }
+  .hvac-entry>label{
+    grid-column:1;
+  }
+  .hvac-entry>input{
+    grid-column:2;
+    min-height:48px;
+  }
+  .hvac-entry>output{
+    grid-column:3;
+    align-self:center;
+    font-size:16px;
+    text-align:right;
+  }
+}
