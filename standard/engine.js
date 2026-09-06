@@ -83,10 +83,11 @@ function calculate(s){
  const activeContinuous=(s.continuous||[]).filter(r=>load(r)>0),evRows=activeContinuous.filter(r=>r.ev),unmanagedEvs=s.evManaged?[]:evRows;
  const evConnected=sum(evRows.map(r=>number(r.qty)*Math.max(7200,number(r.va)))),managedEvConnected=sum(managedEvs.map(r=>number(r.qty)*Math.max(7200,number(r.va))));
  const evLoadUsed=sum(unmanagedEvs.map(r=>number(r.qty)*Math.max(7200,number(r.va))))+(managedEvs.length?number(s.evManagedMax):0);
- const otherContinuous=sum(activeContinuous.filter(r=>!r.ev).map(r=>number(r.qty)*number(r.va)*(r.factor===1?1:1.25))),continuous=evLoadUsed+otherContinuous;
+ const continuous100=sum(activeContinuous.filter(r=>!r.ev&&r.factor===1).map(r=>number(r.qty)*number(r.va)));
+ const continuous125=sum(activeContinuous.filter(r=>!r.ev&&r.factor!==1).map(r=>number(r.qty)*number(r.va)*1.25)),continuous=evLoadUsed+continuous100+continuous125;
  const total=demand.first+demand.middle+demand.last+appliances+cook.total+dryers+motorBase+hvac+motorAdder+continuous;
  const voltage=Number(s.voltage);if(![208,240].includes(voltage))errors.push('Select 208 or 240 volts.');
- return {generalConnected,demand,appliances,eligibleCount,eligibleVA,cooking:cook,dryerCount,dryerConnected,dryers,motorBase,hvac,hvacModes:chosen,largestMotor,motorAdder,evConnected,managedEvConnected,managedEvCount:managedEvs.length,evLoadUsed,continuous,total,amps:total/voltage,errors:[...new Set(errors)],touched};
+ return {generalConnected,demand,appliances,eligibleCount,eligibleVA,cooking:cook,dryerCount,dryerConnected,dryers,motorBase,hvac,hvacModes:chosen,largestMotor,motorAdder,evConnected,managedEvConnected,managedEvCount:managedEvs.length,evLoadUsed,continuous100,continuous125,continuous,total,amps:total/voltage,errors:[...new Set(errors)],touched};
 }
 const api={general,cooking,dryerFactor,calculate};if(typeof module!=='undefined')module.exports=api;else root.StandardEngine=api;
 })(typeof window!=='undefined'?window:globalThis);
