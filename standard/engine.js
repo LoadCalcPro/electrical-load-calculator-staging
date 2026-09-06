@@ -49,7 +49,8 @@ function calculate(s){
   const name=r.label||g+' '+(i+1);check(r.qty,name+' quantity',true);check(r.va,name+' VA');
   if((number(r.qty)>0)!==(number(r.va)>0))errors.push('Complete quantity and VA for '+name+'.');
  }));
- const managedEvs=(s.continuous||[]).filter(r=>r.ev&&r.managed&&load(r)>0);
+ const evInputs=(s.continuous||[]).filter(r=>r.ev),managedEvs=s.evManaged?evInputs.filter(r=>load(r)>0):[];
+ if(s.evManaged&&!managedEvs.length)errors.push('Enter an EV charger quantity and nameplate VA before selecting EV Energy Management.');
  if(managedEvs.length){check(s.evManagedMax,'Combined EV energy management maximum VA');if(!number(s.evManagedMax))errors.push('Enter the combined EV Energy Management maximum VA.');}
  const touched=number(s.sqft)>0||number(s.small)>0||number(s.laundry)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)))||(s.hvac||[]).some(h=>number(h.cool)||number(h.heat));
  if(touched){if(!number(s.sqft))errors.push('Enter the dwelling square footage.');if(number(s.small)<2)errors.push('Enter at least two small appliance circuits.');if(number(s.laundry)<1)errors.push('Enter at least one laundry circuit.');}
@@ -79,7 +80,7 @@ function calculate(s){
  // Test each operating alternative with its motor adder before choosing the governing load.
  alternatives.forEach((options,i)=>options.forEach(v=>{const candidate=picks.slice();candidate[i]=v;const value=base-picks[i].base+v.base+.25*Math.max(otherMotor,...candidate.map(x=>x.motor));if(value>combined){combined=value;chosen=candidate;}}));
  const hvac=sum(chosen.map(v=>v.base)), largestMotor=Math.max(otherMotor,...chosen.map(v=>v.motor)), motorAdder=largestMotor*.25;
- const activeContinuous=(s.continuous||[]).filter(r=>load(r)>0),evRows=activeContinuous.filter(r=>r.ev),unmanagedEvs=evRows.filter(r=>!r.managed);
+ const activeContinuous=(s.continuous||[]).filter(r=>load(r)>0),evRows=activeContinuous.filter(r=>r.ev),unmanagedEvs=s.evManaged?[]:evRows;
  const evConnected=sum(evRows.map(r=>number(r.qty)*Math.max(7200,number(r.va)))),managedEvConnected=sum(managedEvs.map(r=>number(r.qty)*Math.max(7200,number(r.va))));
  const evLoadUsed=sum(unmanagedEvs.map(r=>number(r.qty)*Math.max(7200,number(r.va))))+(managedEvs.length?number(s.evManagedMax):0);
  const otherContinuous=sum(activeContinuous.filter(r=>!r.ev).map(r=>number(r.qty)*number(r.va)*(r.factor===1?1:1.25))),continuous=evLoadUsed+otherContinuous;
