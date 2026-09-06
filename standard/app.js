@@ -30,7 +30,7 @@ function update(save=true){
  $('continuousSummary').innerHTML=line('Continuous and Other Load',display(result.continuous),true);
  const valid=result.touched&&!result.errors.length;
  $('validation').hidden=!result.errors.length;$('validation').innerHTML='<ul>'+result.errors.map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul>';
- $('finalSummary').innerHTML=line('Total Calculated Load',valid?va(result.total):result.touched?'Incomplete':'—')+line('Calculated Service Load',valid?result.amps.toLocaleString('en-US',{maximumFractionDigits:1})+' A':result.touched?'Incomplete':'—',true);
+ $('finalSummary').innerHTML=line('Total Calculated Load',valid?va(result.total):result.touched?'Incomplete':'—',true)+line('Calculated Service Load',valid?result.amps.toLocaleString('en-US',{maximumFractionDigits:1})+' A':result.touched?'Incomplete':'—',true);
  $('floatingAmps').textContent=valid?result.amps.toLocaleString('en-US',{maximumFractionDigits:1})+' A':result.touched?'Incomplete':'—';
  if(save&&!promptOpen){try{const meaningful=result.touched||scalars.slice(0,4).some(k=>state[k]);if(meaningful){localStorage.setItem(KEY,JSON.stringify(state));$('saveStatus').textContent='Saved on this device.';}else{localStorage.removeItem(KEY);$('saveStatus').textContent='';}}catch{$('saveStatus').textContent='This browser could not save the calculation. Keep this page open or print your report.';}}
 }
