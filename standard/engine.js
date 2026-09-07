@@ -50,6 +50,7 @@ function calculate(s){
   if((number(r.qty)>0)!==(number(r.va)>0))errors.push('Complete quantity and VA for '+name+'.');
  }));
  const evInputs=(s.continuous||[]).filter(r=>r.ev),managedEvs=s.evManaged?evInputs.filter(r=>load(r)>0):[];
+ if(!s.evManaged)evInputs.filter(r=>number(r.qty)>0&&number(r.va)>0&&number(r.va)<7200).forEach(r=>errors.push((r.label||'EV Charger')+' load must be at least 7,200 VA unless EV Energy Management is selected.'));
  if(s.evManaged&&!managedEvs.length)errors.push('Enter an EV charger quantity and nameplate VA before selecting EV Energy Management.');
  if(managedEvs.length){check(s.evManagedMax,'Combined EV energy management maximum VA');if(!number(s.evManagedMax))errors.push('Enter the combined EV Energy Management maximum VA.');}
  const touched=number(s.sqft)>0||number(s.small)>0||number(s.laundry)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)))||(s.hvac||[]).some(h=>number(h.cool)||number(h.heat));
