@@ -51,3 +51,7 @@
  .load-row.has-factor .factor-field{display:grid;grid-column:1/-1;grid-row:auto}
  .load-row.has-factor output{grid-column:1/-1}
 }
+
+[hidden]{display:none!important}
+#restaurantMethodSection .validation{margin-top:12px}
+#restaurantMethodSection .summary+.summary{margin-top:14px}
