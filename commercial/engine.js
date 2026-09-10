@@ -43,13 +43,39 @@ function lightingDemand(va,type,hotelAll=false){
  return {first:va,remainder:0,method:'Table 220.45 — 100%'};
 }
 function kitchenFactor(count){return count<=2?1:count===3?.9:count===4?.8:count===5?.7:.65;}
+function restaurantDemand(va,type){
+ va=number(va);const k=1000;let demand=0,steps=[];
+ if(type==='all-electric'){
+  if(va<=200*k){demand=va*.8;steps=[{label:'First 200 kVA at 80%',va:demand}];}
+  else if(va<=325*k){demand=160*k+(va-200*k)*.1;steps=[{label:'First 200 kVA at 80%',va:160*k},{label:'Remainder through 325 kVA at 10%',va:(va-200*k)*.1}];}
+  else if(va<=800*k){demand=172.5*k+(va-325*k)*.5;steps=[{label:'Demand through 325 kVA',va:172.5*k},{label:'Remainder through 800 kVA at 50%',va:(va-325*k)*.5}];}
+  else{demand=410*k+(va-800*k)*.5;steps=[{label:'Demand through 800 kVA',va:410*k},{label:'Load over 800 kVA at 50%',va:(va-800*k)*.5}];}
+ }else if(type==='not-all-electric'){
+  if(va<=200*k){demand=va;steps=[{label:'First 200 kVA at 100%',va:demand}];}
+  else if(va<=325*k){demand=200*k+(va-200*k)*.5;steps=[{label:'First 200 kVA at 100%',va:200*k},{label:'Remainder through 325 kVA at 50%',va:(va-200*k)*.5}];}
+  else if(va<=800*k){demand=262.5*k+(va-325*k)*.45;steps=[{label:'Demand through 325 kVA',va:262.5*k},{label:'Remainder through 800 kVA at 45%',va:(va-325*k)*.45}];}
+  else{demand=476.25*k+(va-800*k)*.2;steps=[{label:'Demand through 800 kVA',va:476.25*k},{label:'Load over 800 kVA at 20%',va:(va-800*k)*.2}];}
+ }
+ return {connected:va,type,demand,steps};
+}
 function calculate(s){
  const errors=[];
  const check=(v,label,integer=false)=>{if(v!==''&&v!==undefined&&(!Number.isFinite(Number(v))||Number(v)<0||(integer&&!Number.isInteger(Number(v)))))errors.push(label+' must be a nonnegative '+(integer?'whole number.':'number.'));};
  const occ=OCCUPANCIES[s.occupancy];
  const areaInputs=[{occupancy:s.occupancy,sqft:s.sqft,actualLighting:s.actualLighting,hotelAllLighting:s.hotelAllLighting,primary:true},...(s.occupancyAreas||[])];
  const groups=['other','kitchen','motors','continuous','special'];
- const touched=Boolean(s.occupancy)||number(s.sqft)>0||number(s.actualLighting)>0||(s.occupancyAreas||[]).some(a=>a.occupancy||number(a.sqft)||number(a.actualLighting))||number(s.showWindowFt)>0||number(s.trackFt)>0||number(s.signQty)>0||Boolean(s.signRequired)||number(s.receptacles)>0||number(s.cooling)>0||number(s.heating)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)));
+ const restaurantMode=s.method==='restaurant22088';
+ const touched=restaurantMode||Boolean(s.occupancy)||number(s.sqft)>0||number(s.actualLighting)>0||(s.occupancyAreas||[]).some(a=>a.occupancy||number(a.sqft)||number(a.actualLighting))||number(s.showWindowFt)>0||number(s.trackFt)>0||number(s.signQty)>0||Boolean(s.signRequired)||number(s.receptacles)>0||number(s.cooling)>0||number(s.heating)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)));
+ if(restaurantMode){
+  check(s.restaurantConnectedVA,'Restaurant total connected load');
+  if(!number(s.restaurantConnectedVA))errors.push('Enter the restaurant total connected load.');
+  if(!['all-electric','not-all-electric'].includes(s.restaurantType))errors.push('Select whether the restaurant is all electric.');
+  const restaurant=restaurantDemand(s.restaurantConnectedVA,s.restaurantType);
+  const voltage=number(s.voltage),phase=Number(s.phase);
+  if(!voltage)errors.push('Select a service voltage.');if(![1,3].includes(phase))errors.push('Select single-phase or three-phase.');
+  const total=restaurant.demand,amps=voltage?total/(phase===3?Math.sqrt(3)*voltage:voltage):0;
+  return {touched:true,method:'restaurant22088',restaurant,total,amps,errors:[...new Set(errors)]};
+ }
  if(touched&&!occ)errors.push('Select an occupancy type for Area 1.');
  const lightingAreas=areaInputs.map((a,i)=>{const areaOcc=OCCUPANCIES[a.occupancy];const active=a.primary||a.occupancy||number(a.sqft)||number(a.actualLighting);if(active&&!areaOcc)errors.push('Select an occupancy type for Area '+(i+1)+'.');check(a.sqft,'Area '+(i+1)+' square footage');if(active&&!number(a.sqft))errors.push('Enter square footage for Area '+(i+1)+'.');check(a.actualLighting,'Area '+(i+1)+' actual lighting load');const minimum=number(a.sqft)*(areaOcc?.va||0);const base=Math.max(minimum,number(a.actualLighting));const demand=lightingDemand(base,areaOcc?.demand||'other',Boolean(a.hotelAllLighting));const used=sum(Object.values(demand).filter(v=>typeof v==='number'));return {occupancy:areaOcc,minimum,base,demand,used,sqft:number(a.sqft),actualLighting:number(a.actualLighting)};}).filter((a,i)=>i===0||a.occupancy||a.sqft||a.actualLighting);
  const minimumLighting=sum(lightingAreas.map(a=>a.minimum)),lightingBase=sum(lightingAreas.map(a=>a.base)),lighting=sum(lightingAreas.map(a=>a.used));
@@ -81,5 +107,5 @@ function calculate(s){
  const amps=voltage?total/(phase===3?Math.sqrt(3)*voltage:voltage):0;
  return {touched,occupancy:occ,lightingAreas,minimumLighting,lightingBase,lightingDemand:ld,lighting,showWindow,track,signs,lightingOther,receptacleCountVA,receptacleOfficeVA,receptacleConnected,receptacles,other,kitchenCount,kitchenConnected,kitchenFactor:kitchenFactorValue,kitchenTableDemand,kitchenTwoLargest,kitchen,hvac,motorBase,largestMotor,motorAdder,continuous,special,total,amps,errors:[...new Set(errors)]};
 }
-const api={OCCUPANCIES,lightingDemand,kitchenFactor,calculate};if(typeof module!=='undefined')module.exports=api;else root.CommercialEngine=api;
+const api={OCCUPANCIES,lightingDemand,kitchenFactor,restaurantDemand,calculate};if(typeof module!=='undefined')module.exports=api;else root.CommercialEngine=api;
 })(typeof window!=='undefined'?window:globalThis);
