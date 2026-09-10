@@ -33,3 +33,21 @@
   .brand-row h1.app-title{margin:10px 0 0;font-size:clamp(14px,4.6vw,18px);line-height:1.15;font-weight:700;white-space:nowrap}
   .brand-row .app-version{margin:6px 0 0}
 }
+
+/* Commercial mixed-occupancy and load-treatment controls */
+.subsection{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.subsection h3{margin:0 0 6px;color:var(--navy);font-size:16px}
+.occupancy-area{display:grid;grid-template-columns:minmax(190px,1.4fr) 110px 150px minmax(180px,1fr);gap:12px;align-items:end;padding:10px 0;border-bottom:1px solid #e5eaf0}
+.occupancy-area label{display:grid;gap:5px}
+.occupancy-area .check-field{display:flex;align-items:center;gap:8px;min-height:38px}
+.load-row.has-factor{grid-template-columns:minmax(190px,1fr) 82px 100px 150px 140px}
+.load-row.has-factor .factor-field{display:block}
+.load-row.has-factor .factor-field select{width:100%}
+@media(max-width:899px){
+ .occupancy-area{grid-template-columns:1fr}
+ .occupancy-area .check-field{display:flex}
+ .load-row.has-factor{grid-template-columns:1fr 1fr}
+ .load-row.has-factor .description-cell{grid-column:1/-1}
+ .load-row.has-factor .factor-field{display:grid;grid-column:1/-1;grid-row:auto}
+ .load-row.has-factor output{grid-column:1/-1}
+}
