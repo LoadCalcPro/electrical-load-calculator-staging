@@ -55,3 +55,4 @@
 [hidden]{display:none!important}
 #restaurantMethodSection .validation{margin-top:12px}
 #restaurantMethodSection .summary+.summary{margin-top:14px}
+.connected-treatment{display:flex;align-items:center;color:var(--muted);font-size:.92rem}
