@@ -40,6 +40,7 @@
   </header>
   <nav class="nav" aria-label="Calculators">
     <button class="active" data-panel="transformer">Transformer Calculations</button>
+    <button data-panel="conductor">Conductor Sizing</button>
     <button data-panel="vd">Voltage Drop</button>
     <button data-panel="convert">Length Converter</button>
     <button data-panel="breaker">Fuse / Breaker</button>
@@ -77,6 +78,29 @@
       <div class="formula" id="tFormula">Results are calculated from the selected phase, known value, conductor material, number of parallel conductors, and protection method.</div>
       <p class="note">Verify terminal temperature ratings, ambient and conductor-count corrections, transformer inrush, impedance/nameplate data, parallel-conductor eligibility, secondary-conductor installation conditions, and all project-specific NEC requirements before use.</p>
       <div class="msg" id="tMsg"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="conductor">
+    <div class="card">
+      <h2>Conductor Sizing</h2>
+      <p class="note">Sizes phase conductors from the required ampacity using the 75°C column of Table 310.16, selects the equipment grounding conductor from Table 250.122, and applies the proportional increase required when phase conductors are increased in size.</p>
+      <div class="grid">
+        <div class="field"><label for="csAmpacity">Required ampacity (A)</label><input id="csAmpacity" type="number" min="0" step="any" value="420"></div>
+        <div class="field"><label for="csOcpd">OCPD rating (A)</label><select id="csOcpd"></select></div>
+        <div class="field"><label for="csMaterial">Conductor material</label><select id="csMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
+        <div class="field"><label for="csParallel">Conductors per phase</label><input id="csParallel" type="number" min="1" step="1" value="1"></div>
+        <div class="field"><label for="csInstalled">Installed phase-conductor size</label><select id="csInstalled"></select></div>
+      </div>
+      <div class="result-grid">
+        <div class="result good"><div class="k">Minimum phase conductor</div><div class="v" id="csMinimum">—</div></div>
+        <div class="result"><div class="k">Table 250.122 EGC</div><div class="v" id="csBaseGround">—</div></div>
+        <div class="result"><div class="k">Conductor area increase</div><div class="v" id="csRatio">—</div></div>
+        <div class="result good"><div class="k">Minimum increased EGC</div><div class="v" id="csIncreasedGround">—</div></div>
+      </div>
+      <div class="formula" id="csFormula">Increased EGC area = Table 250.122 EGC area × installed phase-conductor area ÷ minimum phase-conductor area.</div>
+      <div class="msg" id="csMsg"></div>
+      <p class="note">Results are per raceway or cable. Verify 110.14(C), 240.4, 250.122, 310.10(G), conductor insulation, terminal ratings, ambient temperature, current-carrying conductor adjustment, fault-current path requirements, and local amendments. Parallel conductors are limited here to 1/0 AWG and larger.</p>
     </div>
   </section>
 
@@ -172,7 +196,7 @@
 'use strict';
 const $=id=>document.getElementById(id), n=id=>{const v=Number($(id).value);return Number.isFinite(v)?v:null}, fmt=(v,d=2)=>Number.isFinite(v)?v.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):'—';
 const wireData=[
-['14 AWG',4110,2.08],['12 AWG',6530,3.31],['10 AWG',10380,5.26],['8 AWG',16510,8.37],['6 AWG',26240,13.3],['4 AWG',41740,21.15],['3 AWG',52620,26.67],['2 AWG',66360,33.62],['1 AWG',83690,42.41],['1/0 AWG',105600,53.49],['2/0 AWG',133100,67.43],['3/0 AWG',167800,85.01],['4/0 AWG',211600,107.22],['250 kcmil',250000,126.67],['300 kcmil',300000,152.01],['350 kcmil',350000,177.34],['400 kcmil',400000,202.68],['500 kcmil',500000,253.35],['600 kcmil',600000,304.02],['700 kcmil',700000,354.69],['750 kcmil',750000,380.02],['800 kcmil',800000,405.36],['900 kcmil',900000,456.03],['1000 kcmil',1000000,506.7]
+['14 AWG',4110,2.08],['12 AWG',6530,3.31],['10 AWG',10380,5.26],['8 AWG',16510,8.37],['6 AWG',26240,13.3],['4 AWG',41740,21.15],['3 AWG',52620,26.67],['2 AWG',66360,33.62],['1 AWG',83690,42.41],['1/0 AWG',105600,53.49],['2/0 AWG',133100,67.43],['3/0 AWG',167800,85.01],['4/0 AWG',211600,107.22],['250 kcmil',250000,126.67],['300 kcmil',300000,152.01],['350 kcmil',350000,177.34],['400 kcmil',400000,202.68],['500 kcmil',500000,253.35],['600 kcmil',600000,304.02],['700 kcmil',700000,354.69],['750 kcmil',750000,380.02],['800 kcmil',800000,405.36],['900 kcmil',900000,456.03],['1000 kcmil',1000000,506.7],['1200 kcmil',1200000,608.04],['1250 kcmil',1250000,633.38],['1500 kcmil',1500000,760.05],['1750 kcmil',1750000,886.73],['2000 kcmil',2000000,1013.4]
 ];
 const standardRatings=[1,3,6,10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200,1600,2000,2500,3000,4000,5000,6000];
 const ampacity={
@@ -180,13 +204,14 @@ const ampacity={
   al:[['12 AWG',15],['10 AWG',25],['8 AWG',40],['6 AWG',50],['4 AWG',65],['3 AWG',75],['2 AWG',90],['1 AWG',100],['1/0 AWG',120],['2/0 AWG',135],['3/0 AWG',155],['4/0 AWG',180],['250 kcmil',205],['300 kcmil',230],['350 kcmil',250],['400 kcmil',270],['500 kcmil',310],['600 kcmil',340],['700 kcmil',375],['750 kcmil',385],['800 kcmil',395],['900 kcmil',425],['1000 kcmil',445]]
 };
 const groundBreakpoints=[[15,'14 AWG'],[20,'12 AWG'],[60,'10 AWG'],[100,'8 AWG'],[200,'6 AWG'],[300,'4 AWG'],[400,'3 AWG'],[500,'2 AWG'],[600,'1 AWG'],[800,'1/0 AWG'],[1000,'2/0 AWG'],[1200,'3/0 AWG'],[1600,'4/0 AWG'],[2000,'250 kcmil'],[2500,'350 kcmil'],[3000,'400 kcmil'],[4000,'500 kcmil'],[5000,'700 kcmil'],[6000,'800 kcmil']];
+const groundBreakpointsAl=[[15,'12 AWG'],[20,'10 AWG'],[60,'8 AWG'],[100,'6 AWG'],[200,'4 AWG'],[300,'2 AWG'],[400,'1 AWG'],[500,'1/0 AWG'],[600,'2/0 AWG'],[800,'3/0 AWG'],[1000,'4/0 AWG'],[1200,'250 kcmil'],[1600,'350 kcmil'],[2000,'400 kcmil'],[2500,'600 kcmil'],[3000,'600 kcmil'],[4000,'750 kcmil'],[5000,'1200 kcmil'],[6000,'1200 kcmil']];
 function nextStd(v){return standardRatings.find(x=>x>=v)??null} function prevStd(v){for(let i=standardRatings.length-1;i>=0;i--)if(standardRatings[i]<=v)return standardRatings[i];return null}
 function wireFor(requiredAmps,material,parallelCount){const count=Math.max(1,Math.floor(parallelCount)),perConductor=requiredAmps/count,table=ampacity[material]||ampacity.cu,minIndex=count>1?table.findIndex(r=>r[0]==='1/0 AWG'):0,x=table.find((r,i)=>i>=minIndex&&r[1]>=perConductor);return x?{size:x[0],ampacity:x[1],perConductor,count}:null} function cmFor(size){const x=wireData.find(r=>r[0]===size);return x?x[1]:null} function groundFor(br){const x=groundBreakpoints.find(r=>r[0]>=br);return x?x[1]:'Oversized'}
 function ratedOcpd(current,multiplier,rounding){const calculated=current*multiplier;return{calculated,rating:rounding==='up'?nextStd(calculated):prevStd(calculated)}}
 function setPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.panel===id))}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setPanel(b.dataset.panel)));
 function activePanel(){return document.querySelector('.panel.active')}
-function refreshPanel(id){const refresh={transformer,vd,convert,breaker,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
+function refreshPanel(id){const refresh={transformer,conductor,vd,convert,breaker,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
 function resetActivePanel(){
   const panel=activePanel();if(!panel)return;
   if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
@@ -203,6 +228,25 @@ $('mainSiteButton').addEventListener('click',()=>{window.location.href='index.ht
 $('calculatorsButton').addEventListener('click',()=>{window.location.href='staging-member-dashboard.html'});
 $('printPdfButton').addEventListener('click',printActivePanel);
 $('newCalculationButton').addEventListener('click',resetActivePanel);
+function groundForMaterial(ocpd,material){const table=material==='al'?groundBreakpointsAl:groundBreakpoints,x=table.find(r=>r[0]>=ocpd);return x?x[1]:null}
+function fillConductorSizes(){
+  const material=$('csMaterial').value,table=ampacity[material]||ampacity.cu,current=$('csInstalled').value;
+  $('csInstalled').innerHTML=table.map(r=>`<option value="${r[0]}">${r[0]}</option>`).join('');
+  if(table.some(r=>r[0]===current))$('csInstalled').value=current;
+}
+function conductor(){
+  const required=n('csAmpacity'),ocpd=n('csOcpd'),material=$('csMaterial').value,count=n('csParallel'),msg=$('csMsg');
+  if(required===null||required<=0||!ocpd||!Number.isInteger(count)||count<1){$('csMinimum').textContent=$('csBaseGround').textContent=$('csRatio').textContent=$('csIncreasedGround').textContent='—';msg.textContent='Enter a positive required ampacity, a listed OCPD rating, and a whole-number conductor count.';return}
+  const minimum=wireFor(required,material,count),installed=$('csInstalled').value,minimumCm=minimum?cmFor(minimum.size):null,installedCm=cmFor(installed),baseGround=groundForMaterial(ocpd,material),baseGroundCm=cmFor(baseGround),materialName=material==='cu'?'Cu':'Al';
+  $('csMinimum').textContent=minimum?`${minimum.count>1?minimum.count+' × ':''}${minimum.size} ${materialName}`:'No size in table';
+  $('csBaseGround').textContent=baseGround?`${baseGround} ${materialName}`:'OCPD exceeds table';
+  if(!minimum||!installedCm||!baseGroundCm){$('csRatio').textContent=$('csIncreasedGround').textContent='—';msg.textContent='The required result exceeds the available table range.';return}
+  const installedTable=ampacity[material]||[],installedIndex=installedTable.findIndex(r=>r[0]===installed),minimumIndex=installedTable.findIndex(r=>r[0]===minimum.size),parallelError=count>1&&(minimumIndex<9||installedIndex<9),undersized=installedCm<minimumCm,ratio=Math.max(1,installedCm/minimumCm),requiredGroundCm=baseGroundCm*ratio,groundSize=wireData.find(r=>r[1]>=requiredGroundCm)?.[0]||null;
+  $('csRatio').textContent=ratio===1?'No increase':fmt(ratio*100,1)+'% of minimum area';
+  $('csIncreasedGround').textContent=groundSize?`${groundSize} ${materialName} per raceway`:'Size exceeds table';
+  $('csFormula').textContent=`${baseGround} ${materialName} (${fmt(baseGroundCm,0)} cmil) × ${fmt(installedCm,0)} ÷ ${fmt(minimumCm,0)} = ${fmt(requiredGroundCm,0)} cmil; next listed conductor size is ${groundSize||'beyond table'}.`;
+  msg.textContent=undersized?'The installed phase conductor is smaller than the calculated minimum.':parallelError?'Parallel phase conductors must be 1/0 AWG or larger unless a specific NEC permission applies.':'';
+}
 function transformer(){
   const phase=$('tPhase').value,known=$('tKnown').value,value=n('tValue'),pv=n('tPv'),sv=n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,protection=$('tProtection').value,thermal=$('tThermal').value,impedance=$('tImpedance').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;
   if(value===null||value<=0||!pv||!sv||pv>1000||sv>1000||pl===null||pl<0||sl===null||sl<0||!Number.isInteger(pp)||pp<1||!Number.isInteger(sp)||sp<1){$('tResults').innerHTML='';$('tapMin').textContent='—';msg.textContent='Enter valid values. This calculator is limited to systems at 1,000 V or less, and parallel counts must be whole numbers.';return}
@@ -277,7 +321,9 @@ $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').a
 ['pcPhase','pcVoltage','pcLN','pcLL','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'){const map={'120/240':[120,240],'120/208':[120,208],'277/480':[277,480]};if(map[e.target.value]){[$('pcLN').value,$('pcLL').value]=map[e.target.value]}}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 if(!restorePanel())addAssembly('standard1',1);else renderPanel();
 
-fillWireSelect();transformer();vd();convert();breaker();motor();panelCalc();
+$('csOcpd').innerHTML=standardRatings.filter(x=>x>=15).map(x=>`<option value="${x}"${x===450?' selected':''}>${x} A</option>`).join('');fillConductorSizes();$('csInstalled').value='700 kcmil';
+['csAmpacity','csOcpd','csParallel','csInstalled'].forEach(id=>$(id).addEventListener('input',conductor));$('csMaterial').addEventListener('input',()=>{fillConductorSizes();conductor()});
+fillWireSelect();transformer();conductor();vd();convert();breaker();motor();panelCalc();
 })();
 </script>
 </body>
