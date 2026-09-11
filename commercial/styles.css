@@ -114,7 +114,7 @@ input,select{min-height:39px;border:1px solid #cbd6e2;border-radius:5px;padding:
 .load-row.has-factor,.load-head.has-factor{grid-template-columns:minmax(260px,2.55fr) 80px 96px 150px minmax(135px,1.08fr)}
 .load-row.has-factor .factor-field{padding-left:6px;padding-right:6px}
 .load-row .description,.fixed-load-description{font-size:13px;font-weight:600;color:#111827}
-.description-cell .description{min-height:31px;padding:4px 7px 4px 0;font-size:13px}
+.description-cell .description{min-height:31px;padding:4px 7px 4px 0;font-size:13px;text-align:left}
 .load-row input,.load-row select,.fixed-load-row input{min-height:31px;padding:4px 7px;border-radius:4px;font-size:12px;text-align:center}
 .fixed-value{min-height:31px;border:1px solid #cbd6e2;border-radius:4px;padding:4px 7px;background:#f8fafc;font-size:12px}
 .load-row output,.fixed-load-row output{padding-left:12px;padding-right:12px;font-size:13px;font-weight:600}
@@ -151,7 +151,7 @@ input,select{min-height:39px;border:1px solid #cbd6e2;border-radius:5px;padding:
  .load-head,.fixed-load-head{display:none}
  .load-row,.load-row.has-factor{grid-template-columns:80px minmax(0,1fr) 36px;gap:9px;padding:13px 0}
  .load-row>*{padding-left:0;padding-right:0}
- .load-row .description{font-size:18px}
+ .load-row .description{font-size:16px;text-align:left}
  .fixed-load-row{grid-template-columns:1fr 1fr;gap:9px;padding:13px 0}
  .fixed-load-row>*{padding-left:0;padding-right:0}
  .fixed-load-description{font-size:18px}
