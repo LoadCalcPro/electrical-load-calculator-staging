@@ -647,7 +647,8 @@
         "</p>"
       : "";
     $("printReport").className =
-      state.reportLayout === "compact" ? "compact" : "";
+      (state.reportLayout === "compact" ? "compact " : "") +
+      (state.reportType === "calculation" ? "calculation-only" : "branded-report");
     $("printReport").innerHTML =
       `<div class="report-header"><div><h1>New Restaurant Optional Method Calculation</h1><p>NEC 2023 — 220.88 | ${state.restaurantType === "all-electric" ? "All Electric" : state.restaurantType === "not-all-electric" ? "Not All Electric" : "Configuration not selected"}</p></div>${state.reportType === "branded" ? '<div class="print-brand"><span class="print-brand-main">LoadCalc</span><span class="print-brand-accent">Pro X</span></div>' : ""}</div><div class="report-meta">${["projectName", "projectNumber", "projectAddress", "projectCityState"].map((k, i) => (state[k] ? "<div><strong>" + ["Project", "Project Number", "Address", "City / State"][i] + ":</strong> " + esc(state[k]) + "</div>" : "")).join("")}</div>${warning}<table><colgroup><col style="width:61%"><col style="width:9%"><col style="width:14%"><col style="width:16%"></colgroup><thead><tr><th>Load Description / Calculation</th><th>Qty</th><th>VA Each</th><th>Load VA</th></tr></thead><tbody>${html}</tbody></table><div class="report-result">Calculated Service Load: ${r.errors.length ? "Incomplete" : r.amps.toLocaleString("en-US", { maximumFractionDigits: 1 }) + " A"} &nbsp; | &nbsp; ${esc(state.voltage)} V ${state.phase === "3" ? "3Φ" : "1Φ"}</div><p class="report-foot">NEC 2023 Section 220.88 optional method for a new restaurant whose service or feeder supplies the restaurant total load. Total connected load includes all electrical loads and both heating and cooling. Verify eligibility, adopted-code amendments, conductor ampacity, overcurrent protection and neutral calculations separately.</p>`;
   }
@@ -687,23 +688,26 @@
         printRow("Track lighting — 150 VA/2 ft × 125%", "", "", r.track) +
         printRow("Sign / outline lighting — 1,200 VA × 125%", "", "", r.signs) +
         printRow("Additional lighting load", "", "", r.lightingOther, "total");
-    html +=
-      section("Receptacle Loads") +
-      printRow(
-        "Receptacle yokes × 180 VA",
-        state.receptacles,
-        180,
-        r.receptacleCountVA,
-      ) +
-      (state.occupancy === "office"
-        ? printRow(
-            "Office minimum — 1 VA/ft²",
-            state.sqft,
-            1,
-            r.receptacleOfficeVA,
-          )
-        : "") +
-      printRow("Receptacle demand", "", "", r.receptacles, "total");
+    if (r.receptacleCountVA || r.receptacleOfficeVA)
+      html +=
+        section("Receptacle Loads") +
+        (r.receptacleCountVA
+          ? printRow(
+              "Receptacle yokes × 180 VA",
+              state.receptacles,
+              180,
+              r.receptacleCountVA,
+            )
+          : "") +
+        (r.receptacleOfficeVA
+          ? printRow(
+              "Office minimum — 1 VA/ft²",
+              state.sqft,
+              1,
+              r.receptacleOfficeVA,
+            )
+          : "") +
+        printRow("Receptacle demand", "", "", r.receptacles, "total");
     if (r.other)
       html +=
         section("Other Loads") +
@@ -788,9 +792,10 @@
         "</p>"
       : "";
     $("printReport").className =
-      state.reportLayout === "compact" ? "compact" : "";
+      (state.reportLayout === "compact" ? "compact " : "") +
+      (state.reportType === "calculation" ? "calculation-only" : "branded-report");
     $("printReport").innerHTML =
-      `<div class="report-header"><div><h1>Commercial Standard Method Load Calculation</h1><p>NEC 2023 | Development Version</p></div>${state.reportType === "branded" ? '<div class="print-brand"><span class="print-brand-main">LoadCalc</span><span class="print-brand-accent">Pro X</span></div>' : ""}</div><div class="report-meta">${["projectName", "projectNumber", "projectAddress", "projectCityState"].map((k, i) => (state[k] ? "<div><strong>" + ["Project", "Project Number", "Address", "City / State"][i] + ":</strong> " + esc(state[k]) + "</div>" : "")).join("")}</div>${warning}<table><colgroup><col style="width:61%"><col style="width:9%"><col style="width:14%"><col style="width:16%"></colgroup><thead><tr><th>Load Description / Calculation</th><th>Qty</th><th>VA Each</th><th>Load VA</th></tr></thead><tbody>${html}</tbody></table><div class="report-result">Calculated Service Load: ${r.errors.length ? "Incomplete" : r.amps.toLocaleString("en-US", { maximumFractionDigits: 1 }) + " A"} &nbsp; | &nbsp; ${esc(state.voltage)} V ${state.phase === "3" ? "3Φ" : "1Φ"}</div><p class="report-foot">Commercial Standard Method worksheet. Verify project-specific loads, adopted-code amendments, conductor ampacity, overcurrent protection and neutral calculations separately.</p>`;
+      `<div class="report-header"><div>${state.reportType === "branded" ? '<div class="print-brand"><span class="print-brand-main">LoadCalc</span><span class="print-brand-accent">Pro X</span></div>' : ""}<h1>Commercial Standard Method Load Calculation</h1><p>NEC 2023</p></div></div><div class="report-meta">${["projectName", "projectNumber", "projectAddress", "projectCityState"].map((k, i) => (state[k] ? "<div><strong>" + ["Project", "Project Number", "Address", "City / State"][i] + ":</strong> " + esc(state[k]) + "</div>" : "")).join("")}</div>${warning}<table><colgroup><col style="width:61%"><col style="width:9%"><col style="width:14%"><col style="width:16%"></colgroup><thead><tr><th>Load Description / Calculation</th><th>Qty</th><th>VA Each</th><th>Load VA</th></tr></thead><tbody>${html}</tbody></table><div class="report-result">Calculated Service Load: ${r.errors.length ? "Incomplete" : r.amps.toLocaleString("en-US", { maximumFractionDigits: 1 }) + " A"} &nbsp; | &nbsp; ${esc(state.voltage)} V ${state.phase === "3" ? "3Φ" : "1Φ"}</div><p class="report-foot">Commercial Standard Method worksheet. Verify project-specific loads, adopted-code amendments, conductor ampacity, overcurrent protection and neutral calculations separately.</p>`;
   }
   $("print").onclick = () => {
     update(false);

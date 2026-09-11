@@ -52,6 +52,34 @@
  .load-row.has-factor output{grid-column:1/-1}
 }
 
+/* Production report standard: matches the Generator calculator print sheet. */
+@media print{
+ @page{size:letter portrait;margin:.22in}
+ html,body{margin:0!important;padding:0!important;background:#fff!important;color:#222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .app,.floating,dialog{display:none!important}
+ #printReport{display:block!important;width:84%!important;margin:0 auto!important;padding:.14in!important;border:.6pt solid #cbd5e1!important;box-sizing:border-box!important;background:#fff!important;color:#222!important;font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}
+ #printReport.compact{width:58%!important;margin-left:.10in!important;margin-right:auto!important}
+ .report-header{display:block!important;margin:0 0 7px!important;padding:0 0 7px!important;border:0!important;border-bottom:1px solid #777!important}
+ .report-header .print-brand{display:block!important;margin:0 0 2px!important;font-size:15.4px!important;line-height:1.05!important;font-weight:900!important;white-space:nowrap!important}
+ .report-header h1{margin:0!important;padding:0!important;color:#222!important;font-size:10px!important;line-height:1.15!important;font-weight:700!important;letter-spacing:0!important;text-transform:none!important}
+ .report-header p{margin:2px 0 0!important;color:#475569!important;font-size:8.5px!important;line-height:1.15!important}
+ #printReport.calculation-only .print-brand{display:none!important}
+ #printReport.calculation-only .report-header h1{font-weight:900!important;text-transform:uppercase!important;letter-spacing:.02em!important}
+ .report-meta{display:grid!important;grid-template-columns:1fr 1fr!important;gap:3px 12px!important;margin:0 0 5px!important;padding:0 0 5px!important;border-bottom:1px solid #c7cdd4!important;color:#222!important;font-size:10px!important;line-height:1.3!important}
+ #printReport table{width:100%!important;margin:0!important;border-collapse:collapse!important;table-layout:fixed!important}
+ #printReport th,#printReport td{height:22px!important;padding:3px 5px!important;border-top:1px solid #cfd4da!important;border-bottom:1px solid #cfd4da!important;border-left:0!important;border-right:0!important;background:#fff!important;color:#222!important;font-size:9.4px!important;line-height:1.2!important;vertical-align:middle!important}
+ #printReport thead th{background:#e8edf3!important;color:#17365d!important;border-top:1.2px solid #6b7280!important;border-bottom:1.2px solid #6b7280!important;font-weight:700!important;text-transform:uppercase!important;text-align:center!important}
+ #printReport th:first-child,#printReport td:first-child{text-align:left!important}
+ #printReport th:not(:first-child),#printReport td:not(:first-child){text-align:right!important}
+ #printReport .section td{background:#e8edf3!important;color:#17365d!important;border-top:1px solid #cfd4da!important;font-weight:700!important;text-align:left!important;text-transform:uppercase!important}
+ #printReport .total td{background:#fff!important;color:#222!important;font-weight:700!important}
+ #printReport tr{break-inside:avoid!important;page-break-inside:avoid!important}
+ #printReport.compact th,#printReport.compact td{font-size:8.4px!important;padding:2px 3px!important}
+ #printReport.compact .report-meta{font-size:8px!important;gap:2px 8px!important}
+ #printReport .report-result{margin:8px 0 0!important;padding:7px 0 0!important;border-top:1.5px solid #4b5563!important;color:#222!important;font-size:11px!important;line-height:1.2!important;font-weight:700!important}
+ #printReport .report-foot{margin:6px 0 0!important;padding-top:5px!important;border-top:1px solid #94a3b8!important;color:#555!important;font-size:7.5px!important;line-height:1.3!important}
+}
+
 [hidden]{display:none!important}
 #restaurantMethodSection .validation{margin-top:12px}
 #restaurantMethodSection .summary+.summary{margin-top:14px}
