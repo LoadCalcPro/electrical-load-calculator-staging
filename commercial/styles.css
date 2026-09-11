@@ -76,3 +76,13 @@
  .fixed-load-row output:last-child{grid-column:1/-1;min-height:auto;font-size:14px}
  .fixed-load-row output:last-child::before{content:"Connected Load VA";margin-right:auto;color:var(--muted);font-size:12px}
 }
+.occupancy-selector{display:grid;grid-template-columns:minmax(190px,1fr) 334px;gap:var(--entry-gap);align-items:center;padding:8px 0;font-weight:600}
+.occupancy-selector select{width:100%}
+.occupancy-area{display:block;margin-top:10px;padding:10px 0;border-top:1px solid #d5dee8;border-bottom:0}
+.occupancy-area .check-field{margin-top:8px}
+.sign-minimum{margin-top:10px}
+@media(max-width:899px){
+ .occupancy-selector{grid-template-columns:1fr;gap:6px}
+ .actual-load-row>span:not(.fixed-load-description){display:none}
+ .actual-load-row label{grid-column:1/-1}
+}
