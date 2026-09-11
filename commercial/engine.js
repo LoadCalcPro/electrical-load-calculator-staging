@@ -65,7 +65,7 @@ function calculate(s){
  const areaInputs=[{occupancy:s.occupancy,sqft:s.sqft,actualLighting:s.actualLighting,hotelAllLighting:s.hotelAllLighting,primary:true},...(s.occupancyAreas||[])];
  const groups=['other','kitchen','motors','continuous','special'];
  const restaurantMode=s.method==='restaurant22088';
- const touched=restaurantMode||Boolean(s.occupancy)||number(s.sqft)>0||number(s.actualLighting)>0||(s.occupancyAreas||[]).some(a=>a.occupancy||number(a.sqft)||number(a.actualLighting))||number(s.showWindowFt)>0||number(s.trackFt)>0||number(s.signQty)>0||Boolean(s.signRequired)||number(s.receptacles)>0||number(s.cooling)>0||number(s.heating)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)));
+ const touched=restaurantMode||Boolean(s.occupancy)||number(s.sqft)>0||number(s.actualLighting)>0||(s.occupancyAreas||[]).some(a=>a.occupancy||number(a.sqft)||number(a.actualLighting))||number(s.showWindowFt)>0||number(s.trackFt)>0||number(s.signQty)>0||number(s.receptacles)>0||number(s.cooling)>0||number(s.heating)>0||groups.some(g=>(s[g]||[]).some(r=>number(r.qty)||number(r.va)));
  if(restaurantMode&&!['all-electric','not-all-electric'].includes(s.restaurantType))errors.push('Select whether the restaurant is all electric or not all electric.');
  if(restaurantMode&&!s.restaurantTotalLoadServed)errors.push('Confirm that this service or feeder supplies the total load of the new restaurant.');
  if(touched&&!occ)errors.push('Select an occupancy type for Area 1.');
@@ -74,7 +74,7 @@ function calculate(s){
  const ld=lightingAreas.length===1?lightingAreas[0].demand:{method:'Demand applied separately to each occupancy area'};
  const showWindow=number(s.showWindowFt)*200*1.25;
  const track=number(s.trackFt)>0?Math.ceil(number(s.trackFt)/2)*150*1.25:0;
- const signs=Math.max(number(s.signQty),number(s.signRequired)?1:0)*1200*1.25;
+ const signs=number(s.signQty)*1200*1.25;
  const lightingOther=showWindow+track+signs;
  check(s.receptacles,'Receptacle quantity',true);
  const receptacleCountVA=number(s.receptacles)*180;
@@ -95,7 +95,7 @@ function calculate(s){
  const continuousConnected=sum((s.continuous||[]).filter(r=>load(r)>0).map(r=>r.ev?(r.managed?number(r.managedVa):number(r.qty)*Math.max(7200,number(r.va))):load(r)));
  const continuous=sum((s.continuous||[]).filter(r=>load(r)>0).map(r=>r.ev?(r.managed?number(r.managedVa):number(r.qty)*Math.max(7200,number(r.va))*1.25):load(r)*(Number(r.factor)===1?1:1.25)));
  const special=sum((s.special||[]).map(load));
- const specialLightingConnected=number(s.showWindowFt)*200+(number(s.trackFt)>0?Math.ceil(number(s.trackFt)/2)*150:0)+Math.max(number(s.signQty),number(s.signRequired)?1:0)*1200;
+ const specialLightingConnected=number(s.showWindowFt)*200+(number(s.trackFt)>0?Math.ceil(number(s.trackFt)/2)*150:0)+number(s.signQty)*1200;
  const restaurantConnected=lightingBase+specialLightingConnected+receptacleConnected+otherConnected+kitchenConnected+number(s.cooling)+number(s.heating)+motorBase+continuousConnected+special;
  const restaurant=restaurantDemand(restaurantConnected,s.restaurantType);
  const standardTotal=lighting+lightingOther+receptacles+other+kitchen+hvac+motorBase+motorAdder+continuous+special;
