@@ -86,3 +86,83 @@
  .actual-load-row>span:not(.fixed-load-description){display:none}
  .actual-load-row label{grid-column:1/-1}
 }
+
+/* Production Generator visual standard, adapted for Commercial calculator. */
+:root{--generator-page:#eef2f6;--generator-card:#fff;--generator-ink:#111827;--generator-muted:#64748b;--generator-blue:#0d3470;--generator-navy:#071b47;--generator-teal:#0f766e;--generator-line:#d6dee8}
+html,body{background:var(--generator-page);color:var(--generator-ink)}
+.app{width:100%;max-width:1180px;padding-bottom:24px;background:#fff;box-shadow:0 0 0 1px #dbe2ea,0 12px 34px rgba(15,23,42,.10)}
+header{padding:16px 30px 18px;background:var(--generator-navy)}
+main{padding:20px 22px 24px}
+.card,.calculation-sheet>.card{margin:0 0 14px;border:1px solid var(--generator-line);border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.035);overflow:hidden}
+.calculation-sheet{border:0;border-radius:0;overflow:visible}
+.calculation-sheet>.card+.card{border-top:1px solid var(--generator-line)}
+h2,.calculation-sheet h2{padding:8px 12px 3px;border:0;background:#fff;color:#0b2f68;font-size:18px;line-height:1.2;text-align:left;text-transform:uppercase}
+.body,.calculation-sheet .body{padding:10px 12px 12px}
+.calculation-sheet .note{margin:0;padding:0 0 9px;border:0;background:#fff;color:#5f6f82;font-size:12px;line-height:1.35}
+.project-card .fields{grid-template-columns:1fr 1fr 1.45fr 1.15fr;gap:9px 10px}
+.method-card .fields{grid-template-columns:minmax(260px,560px)}
+.service-card .fields{grid-template-columns:1fr 1fr}
+.fields label{gap:4px;color:#475569;font-size:12px}
+input,select{min-height:39px;border:1px solid #cbd6e2;border-radius:5px;padding:6px 8px;font-size:14px}
+.load-head,.load-row,.fixed-load-head,.fixed-load-row{gap:0;border-bottom:1px solid #e5eaf0}
+.load-head,.fixed-load-head{padding:7px 0 6px;border-top:1px solid #edf1f5;background:#fbfcfe;color:#17365d;font-size:10px;text-transform:uppercase}
+.load-head span,.fixed-load-head span{padding:0 10px}
+.load-row,.fixed-load-row{min-height:45px;padding:0}
+.load-row>*,.fixed-load-row>*{padding-left:10px;padding-right:10px}
+.load-row{grid-template-columns:minmax(260px,2.55fr) 80px 96px minmax(135px,1.08fr)}
+.load-head,.fixed-load-head,.fixed-load-row{grid-template-columns:minmax(260px,2.55fr) 80px 96px minmax(135px,1.08fr)}
+.load-row.has-factor,.load-head.has-factor{grid-template-columns:minmax(260px,2.55fr) 80px 96px 150px minmax(135px,1.08fr)}
+.load-row.has-factor .factor-field{padding-left:6px;padding-right:6px}
+.load-row .description,.fixed-load-description{font-size:13px;font-weight:600;color:#111827}
+.description-cell .description{min-height:31px;padding:4px 7px 4px 0;font-size:13px}
+.load-row input,.load-row select,.fixed-load-row input{min-height:31px;padding:4px 7px;border-radius:4px;font-size:12px;text-align:center}
+.fixed-value{min-height:31px;border:1px solid #cbd6e2;border-radius:4px;padding:4px 7px;background:#f8fafc;font-size:12px}
+.load-row output,.fixed-load-row output{padding-left:12px;padding-right:12px;font-size:13px;font-weight:600}
+.summary{margin:0;padding:0;border:0}
+.summary>div{grid-template-columns:minmax(260px,2.55fr) 80px 96px minmax(135px,1.08fr);gap:0;min-height:38px;padding:0;border-bottom:1px solid #e5eaf0;align-items:center;font-size:13px}
+.summary>div>span{grid-column:1/4;padding:0 10px;font-weight:600}
+.summary strong{grid-column:4;padding:0 12px;font-size:13px;font-weight:700}
+.summary .total{margin:0;padding-top:0;background:#fbfcfe;border-top:0;font-weight:800}
+.occupancy-selector{grid-template-columns:minmax(260px,2.55fr) minmax(320px,1.3fr);padding:5px 10px 10px}
+.occupancy-selector select{min-height:34px}
+.subsection{margin:8px 0 0;padding:8px 0 0;border-top:1px solid var(--generator-line)}
+.subsection h3{padding:0 10px;font-size:14px}
+.subsection .note{padding:5px 10px 8px}
+.occupancy-area{margin:0 10px 8px;padding:8px 0 0;border:1px solid var(--generator-line);border-radius:5px}
+.row-actions{padding:0 10px}
+.calculation-sheet .add,.row-actions .remove-row{min-height:32px;margin-top:8px;padding:4px 7px;font-size:11px}
+.mode-label{padding:0 10px}
+.hvac-entry{grid-template-columns:minmax(260px,2.55fr) 80px 96px minmax(135px,1.08fr);gap:0;min-height:45px;padding:0}
+.hvac-entry>*{padding-left:10px;padding-right:10px}
+.motor-component{grid-template-columns:minmax(260px,2.55fr) 80px 96px minmax(135px,1.08fr);gap:0;padding:8px 10px}
+.sign-minimum{margin:0;padding:8px 10px}
+
+@media(max-width:899px){
+ .app{max-width:680px;padding-bottom:190px;box-shadow:none}
+ header{padding:15px 14px 17px;background:linear-gradient(135deg,#1e3a8a,#0f172a)}
+ main{padding:14px}
+ .card,.calculation-sheet>.card{margin-bottom:14px;border-radius:14px;box-shadow:0 4px 16px rgba(15,23,42,.08)}
+ h2,.calculation-sheet h2{padding:13px 14px;background:#1e3a8a;color:#fff;font-size:18px;text-align:center;text-transform:none}
+ .body,.calculation-sheet .body{padding:13px}
+ .calculation-sheet .note{padding:0 1px 11px;font-size:12px}
+ .project-card .fields,.method-card .fields,.service-card .fields{grid-template-columns:1fr}
+ .fields label{font-size:12px}
+ input,select{min-height:46px;border-radius:9px;font-size:16px}
+ .load-head,.fixed-load-head{display:none}
+ .load-row,.load-row.has-factor{grid-template-columns:80px minmax(0,1fr) 36px;gap:9px;padding:13px 0}
+ .load-row>*{padding-left:0;padding-right:0}
+ .load-row .description{font-size:18px}
+ .fixed-load-row{grid-template-columns:1fr 1fr;gap:9px;padding:13px 0}
+ .fixed-load-row>*{padding-left:0;padding-right:0}
+ .fixed-load-description{font-size:18px}
+ .fixed-value{min-height:46px;font-size:16px}
+ .summary>div{display:flex;min-height:0;padding:7px 0;font-size:14px}
+ .summary>div>span,.summary strong{padding:0}
+ .occupancy-selector{grid-template-columns:1fr;padding:0 0 10px}
+ .occupancy-area{margin:10px 0;padding:10px;border-radius:9px}
+ .subsection h3,.subsection .note,.row-actions{padding-left:0;padding-right:0}
+ .hvac-entry{grid-template-columns:minmax(0,1fr) 110px;gap:9px;padding:9px 0}
+ .hvac-entry>*{padding-left:0;padding-right:0}
+ .motor-component{grid-template-columns:1fr;gap:8px;padding:10px 0}
+ .sign-minimum{padding:9px 0}
+}
