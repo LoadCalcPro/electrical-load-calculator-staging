@@ -41,7 +41,6 @@
       showWindowFt: "",
       trackFt: "",
       signQty: "",
-      signRequired: false,
       receptacles: "",
       hvacMode: "",
       cooling: "",
@@ -108,7 +107,6 @@
     "showWindowFt",
     "trackFt",
     "signQty",
-    "signRequired",
     "receptacles",
     "hvacMode",
     "cooling",
@@ -280,24 +278,21 @@
           ? Math.ceil(Number(state.trackFt) / 2) * 150
           : 0
         : result.track,
-      signValue = restaurantMode
-        ? Math.max(Number(state.signQty), state.signRequired ? 1 : 0) * 1200
-        : result.signs;
+      signValue = restaurantMode ? Number(state.signQty) * 1200 : result.signs;
     $("showWindowLoad").textContent =
       Number(state.showWindowFt) > 0 ? display(showWindowValue) : "";
     $("trackLoad").textContent =
       Number(state.trackFt) > 0 ? display(trackValue) : "";
     $("signLoad").textContent =
-      Number(state.signQty) > 0 || state.signRequired ? display(signValue) : "";
+      Number(state.signQty) > 0 ? display(signValue) : "";
     const hasAdditionalLighting =
       Number(state.showWindowFt) > 0 ||
       Number(state.trackFt) > 0 ||
-      Number(state.signQty) > 0 ||
-      state.signRequired;
+      Number(state.signQty) > 0;
     $("specialLightingSummary").innerHTML = line(
       restaurantMode
         ? "Connected Additional Lighting"
-        : "Additional Lighting Load",
+        : "Total Show-Window, Track and Sign Lighting Load",
       hasAdditionalLighting
         ? display(
             restaurantMode
