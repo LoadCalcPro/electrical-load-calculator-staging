@@ -448,6 +448,7 @@
   }
   document.addEventListener("input", (event) => {
     const el = event.target;
+    if (el.type === "number" && el.value === "0") el.value = "";
     if (scalars.includes(el.id)) {
       state[el.id] = el.type === "checkbox" ? el.checked : el.value;
       if (el.id === "method") groups.forEach(renderGroup);
