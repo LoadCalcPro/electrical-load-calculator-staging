@@ -15,6 +15,7 @@
 
 .panel-setup{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.panel-actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.breaker-list{display:grid;gap:10px;margin-top:12px}.breaker-card{border:1px solid #cbd6e3;border-radius:11px;background:#fff;overflow:hidden}.breaker-head{display:grid;grid-template-columns:90px 1.2fr 1.25fr 100px auto;gap:8px;align-items:end;padding:10px;background:#f4f7fb;border-bottom:1px solid #dce4ee}.breaker-head .field input,.breaker-head .field select{min-height:38px;font-size:14px;padding:7px}.mini-grid{display:grid;gap:7px;padding:10px}.mini-row{display:grid;grid-template-columns:70px minmax(150px,1.6fr) 95px 105px 130px 85px 85px;gap:7px;align-items:end}.mini-row input,.mini-row select{width:100%;min-height:36px;border:1px solid #bdc9d7;border-radius:7px;padding:6px;font-size:13px}.mini-label{font-size:12px;font-weight:900;color:var(--navy2);padding-bottom:9px}.remove-breaker{border:1px solid #d0d8e3;background:#fff;color:#b42318;border-radius:8px;min-height:38px;padding:7px 10px;font-weight:800;cursor:pointer}.panel-warning{margin-top:10px;color:#b42318;font-size:13px;font-weight:800}.panel-output{margin-top:16px}.panel-output table{width:100%;border-collapse:collapse;min-width:920px}.panel-output th,.panel-output td{border:1px solid #9aa9ba;padding:5px 6px;font-size:12px}.panel-output th{background:#e8eef5;color:var(--navy2);font-weight:900}.panel-output td.num{text-align:right}.panel-output td.center{text-align:center}.panel-output tr.invalid{background:#fff1f0}.phase-summary{grid-template-columns:repeat(5,minmax(0,1fr))}.demand-note{font-size:12px;color:#667085;margin-top:8px}@media(max-width:900px){.panel-setup{grid-template-columns:repeat(2,minmax(0,1fr))}.breaker-head{grid-template-columns:80px 1fr 1fr}.mini-row{grid-template-columns:58px minmax(140px,1fr) 82px 95px;overflow-x:auto}.mini-row .demand-category,.mini-row .factor,.mini-row .wire-entry{grid-column:auto}}@media(max-width:560px){.panel-setup,.breaker-head{grid-template-columns:1fr}.mini-row{grid-template-columns:52px minmax(130px,1fr) 80px 88px 120px 75px 75px}.phase-summary{grid-template-columns:1fr 1fr}.breaker-card{overflow-x:auto}}@media print{#panelcalc .panel-actions,#panelcalc .remove-breaker,#panelcalc .add-controls,#panelcalc .breaker-list{display:none!important}#panelcalc .panel-output{margin-top:8px}#panelcalc .panel-output table{min-width:0}#panelcalc .card>p.note{display:none}}
 
+.motor-phase{border:0;margin:0;padding:0}.motor-phase legend{font-size:12px;font-weight:800;color:#475467;margin:0 0 5px}.motor-phase-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.motor-phase-options label{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:1px solid #b8c5d5;border-radius:9px;background:#fff;color:var(--navy2);font-size:13px;font-weight:800;cursor:pointer}.motor-phase-options label:has(input:checked){border-color:var(--teal2);background:#e7f5f3;box-shadow:0 0 0 2px rgba(13,148,136,.13)}.motor-phase-options input{width:auto;min-height:0;margin:0}@media print{.motor-phase-options label:not(:has(input:checked)){display:none}.motor-phase-options label:has(input:checked){border:0;justify-content:flex-start;box-shadow:none;background:#fff}}
 </style>
 </head>
 <body>
@@ -144,9 +145,9 @@
   </section>
 
   <section class="panel" id="motor">
-    <div class="card"><h2>Motor Full-Load Current Lookup</h2><p class="note">Lookup table from the workbook's NEC Table 430.250 reference section for three-phase AC motors.</p>
-      <div class="grid three"><div class="field"><label for="mHp">Horsepower</label><select id="mHp"></select></div><div class="field"><label for="mVolt">Voltage column</label><select id="mVolt"><option value="115">115 V</option><option value="208" selected>208 V</option><option value="230">230 V</option><option value="460">460 V</option><option value="575">575 V</option><option value="2300">2300 V</option></select></div><div class="result good"><div class="k">Table FLC</div><div class="v" id="mFlc">—</div></div></div>
-      <div class="table-wrap"><table class="ref-table" id="motorTable"><thead><tr><th>HP</th><th>115 V</th><th>208 V</th><th>230 V</th><th>460 V</th><th>575 V</th><th>2300 V</th></tr></thead><tbody></tbody></table></div>
+    <div class="card"><h2>Motor Full-Load Current Lookup</h2><p class="note" id="motorNote">NEC Table 430.250 — three-phase alternating-current motors.</p>
+      <div class="grid"><fieldset class="motor-phase"><legend>Motor phase</legend><div class="motor-phase-options"><label><input type="radio" name="mPhase" value="single">Single phase</label><label><input type="radio" name="mPhase" value="three" checked>Three phase</label></div></fieldset><div class="field"><label for="mHp">Horsepower</label><select id="mHp"></select></div><div class="field"><label for="mVolt">Voltage column</label><select id="mVolt"></select></div><div class="result good"><div class="k" id="mFlcLabel">Table 430.250 FLC</div><div class="v" id="mFlc">—</div></div></div>
+      <div class="table-wrap"><table class="ref-table" id="motorTable"><thead></thead><tbody></tbody></table></div>
     </div>
   </section>
 
@@ -277,10 +278,30 @@ function vd(){const units=$('vdUnits').value,ph=$('vdPhase').value,v=n('vdVolts'
 function convert(){const f=n('ftIn'),m=n('mIn');$('mOut').textContent=f===null?'—':fmt(f*.3048,4)+' m';$('ftOut').textContent=m===null?'—':fmt(m*3.28084,4)+' ft'}['ftIn','mIn'].forEach(id=>$(id).addEventListener('input',convert));
 function breaker(){const v=n('brTarget');if(v===null){$('brOut').textContent='—';return}const out=$('brMode').value==='up'?nextStd(v):prevStd(v);$('brOut').textContent=out?out+' A':'No listed size'}['brTarget','brMode'].forEach(id=>$(id).addEventListener('input',breaker));$('brList').textContent=standardRatings.join(', ');
 $('wireTable').querySelector('tbody').innerHTML=wireData.map(r=>`<tr><td>${r[0]}</td><td>${r[1].toLocaleString()}</td><td>${r[2]}</td></tr>`).join('');
-const motorData=[
+const threePhaseMotorData=[
 ['1/2',4.4,2.4,2.2,1.1,.9,null],['3/4',6.4,3.5,3.2,1.6,1.3,null],['1',8.4,4.6,4.2,2.1,1.7,null],['1 1/2',12,6.6,6,3,2.4,null],['2',13.6,7.5,6.8,3.4,2.7,null],['3',null,10.6,9.6,4.8,3.9,null],['5',null,16.7,15.2,7.6,6.1,null],['7.5',null,24.2,22,11,9,null],['10',null,30.8,28,14,11,null],['15',null,46.2,42,21,17,null],['20',null,59.4,54,27,22,null],['25',null,74.8,68,34,27,null],['30',null,88,80,40,32,null],['40',null,114,104,52,41,null],['50',null,143,130,65,52,null],['75',null,211,192,96,77,20],['100',null,273,248,124,99,26],['125',null,343,312,156,125,31],['150',null,402,360,180,144,37],['200',null,528,480,240,192,49]
 ];
-const voltIndex={'115':1,'208':2,'230':3,'460':4,'575':5,'2300':6};$('mHp').innerHTML=motorData.map((r,i)=>`<option value="${i}">${r[0]} HP</option>`).join('');$('motorTable').querySelector('tbody').innerHTML=motorData.map(r=>`<tr>${r.map((x,i)=>`<td>${x===null?'—':x}</td>`).join('')}</tr>`).join('');function motor(){const r=motorData[Number($('mHp').value)],v=r[voltIndex[$('mVolt').value]];$('mFlc').textContent=Number.isFinite(v)?v+' A':'—'}['mHp','mVolt'].forEach(id=>$(id).addEventListener('input',motor));
+const singlePhaseMotorData=[
+['1/6',4.4,2.5,2.4,2.2],['1/4',5.8,3.3,3.2,2.9],['1/3',7.2,4.1,4,3.6],['1/2',9.8,5.6,5.4,4.9],['3/4',13.8,7.9,7.6,6.9],['1',16,9.2,8.8,8],['1 1/2',20,11.5,11,10],['2',24,13.8,13.2,12],['3',34,19.6,18.7,17],['5',56,32.2,30.8,28],['7.5',80,46,44,40],['10',100,57.5,55,50]
+];
+const motorConfigs={
+ single:{table:'430.248',note:'NEC Table 430.248 — single-phase alternating-current motors.',voltages:['115','200','208','230'],data:singlePhaseMotorData},
+ three:{table:'430.250',note:'NEC Table 430.250 — three-phase alternating-current motors.',voltages:['115','208','230','460','575','2300'],data:threePhaseMotorData}
+};
+function selectedMotorPhase(){return document.querySelector('input[name="mPhase"]:checked')?.value||'three'}
+function renderMotor(){
+ const config=motorConfigs[selectedMotorPhase()],previousHp=$('mHp').selectedOptions[0]?.textContent.replace(' HP',''),previousVolt=$('mVolt').value;
+ $('motorNote').textContent=config.note;$('mFlcLabel').textContent=`Table ${config.table} FLC`;
+ $('mHp').innerHTML=config.data.map((r,i)=>`<option value="${i}">${r[0]} HP</option>`).join('');
+ const hpIndex=config.data.findIndex(r=>r[0]===previousHp);if(hpIndex>=0)$('mHp').value=String(hpIndex);
+ $('mVolt').innerHTML=config.voltages.map(v=>`<option value="${v}">${v} V</option>`).join('');
+ $('mVolt').value=config.voltages.includes(previousVolt)?previousVolt:(config.voltages.includes('208')?'208':config.voltages[0]);
+ $('motorTable').querySelector('thead').innerHTML=`<tr><th>HP</th>${config.voltages.map(v=>`<th>${v} V</th>`).join('')}</tr>`;
+ $('motorTable').querySelector('tbody').innerHTML=config.data.map(r=>`<tr>${r.map(x=>`<td>${x===null?'—':x}</td>`).join('')}</tr>`).join('');
+ motor();
+}
+function motor(){const config=motorConfigs[selectedMotorPhase()],r=config.data[Number($('mHp').value)],index=config.voltages.indexOf($('mVolt').value)+1,v=r?.[index];$('mFlc').textContent=Number.isFinite(v)?v+' A':'—'}
+document.querySelectorAll('input[name="mPhase"]').forEach(input=>input.addEventListener('change',renderMotor));['mHp','mVolt'].forEach(id=>$(id).addEventListener('input',motor));renderMotor();
 
 const demandDefaults={lighting:1,receptacle:1,appliance:1,hvac:1,motor:1,continuous:1.25,other:1};
 let pcAssemblies=[],pcNextId=1;
