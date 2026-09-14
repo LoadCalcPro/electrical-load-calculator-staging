@@ -44,7 +44,6 @@
     <button data-panel="conductor">Conductor Sizing</button>
     <button data-panel="vd">Voltage Drop</button>
     <button data-panel="convert">Length Converter</button>
-    <button data-panel="breaker">Fuse / Breaker</button>
     <button data-panel="wire">Wire Reference</button>
     <button data-panel="motor">Motor FLC</button>
     <button data-panel="panelcalc">Panel Loads</button>
@@ -84,24 +83,38 @@
 
   <section class="panel" id="conductor">
     <div class="card">
-      <h2>Conductor Sizing</h2>
-      <p class="note">Sizes phase conductors from the required ampacity using the 75°C column of Table 310.16, selects the equipment grounding conductor from Table 250.122, and applies the proportional increase required when phase conductors are increased in size.</p>
+      <h2>OCPD &amp; Conductor Sizing</h2>
+      <p class="note">Automatically selects the standard OCPD, establishes the minimum 75°C phase conductor, coordinates an engineer-selected larger conductor with the equipment grounding conductor, and calculates voltage drop.</p>
+      <h3>1. Circuit Information</h3>
       <div class="grid">
-        <div class="field"><label for="csAmpacity">Required ampacity (A)</label><input id="csAmpacity" type="number" min="0" step="any" value="420"></div>
-        <div class="field"><label for="csOcpd">OCPD rating (A)</label><select id="csOcpd"></select></div>
+        <div class="field"><label for="csCurrent">Calculated circuit current (A)</label><input id="csCurrent" type="number" min="0" step="any" value="420"></div>
+        <div class="field"><label for="csVoltage">System voltage (V)</label><input id="csVoltage" type="number" min="1" step="any" value="480"></div>
+        <div class="field"><label for="csPhase">Phase</label><select id="csPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
+        <div class="field"><label for="csLength">One-way length (ft)</label><input id="csLength" type="number" min="0" step="any" value="100"></div>
         <div class="field"><label for="csMaterial">Conductor material</label><select id="csMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
         <div class="field"><label for="csParallel">Conductors per phase</label><input id="csParallel" type="number" min="1" step="1" value="1"></div>
-        <div class="field"><label for="csInstalled">Installed phase-conductor size</label><select id="csInstalled"></select></div>
       </div>
+      <h3>2. Automatic Minimums</h3>
       <div class="result-grid">
+        <div class="result good"><div class="k">Standard OCPD</div><div class="v" id="csOcpd">—</div></div>
         <div class="result good"><div class="k">Minimum phase conductor</div><div class="v" id="csMinimum">—</div></div>
         <div class="result"><div class="k">Table 250.122 EGC</div><div class="v" id="csBaseGround">—</div></div>
-        <div class="result"><div class="k">Conductor area increase</div><div class="v" id="csRatio">—</div></div>
-        <div class="result good"><div class="k">Minimum increased EGC</div><div class="v" id="csIncreasedGround">—</div></div>
       </div>
-      <div class="formula" id="csFormula">Increased EGC area = Table 250.122 EGC area × installed phase-conductor area ÷ minimum phase-conductor area.</div>
+      <div class="msg" id="csOcpdMsg"></div>
+      <h3>3. Engineer Selection</h3>
+      <div class="grid two"><div class="field"><label for="csSelected">Selected phase-conductor size</label><select id="csSelected"></select></div><div class="result"><div class="k">Conductor area increase</div><div class="v" id="csRatio">—</div></div></div>
+      <h3>4. Final Design</h3>
+      <div class="result-grid design-results">
+        <div class="result good"><div class="k">OCPD</div><div class="v" id="csFinalOcpd">—</div></div>
+        <div class="result good"><div class="k">Phase conductors</div><div class="v" id="csFinalPhase">—</div></div>
+        <div class="result good"><div class="k">EGC per raceway</div><div class="v" id="csIncreasedGround">—</div></div>
+        <div class="result"><div class="k">Voltage drop</div><div class="v" id="csVdVolts">—</div></div>
+        <div class="result"><div class="k">Voltage-drop percentage</div><div class="v" id="csVdPercent">—</div></div>
+      </div>
+      <h3>Calculation Details</h3>
+      <div class="formula" id="csFormula">Results update from the circuit information and selected conductor.</div>
       <div class="msg" id="csMsg"></div>
-      <p class="note">Results are per raceway or cable. Verify 110.14(C), 240.4, 250.122, 310.10(G), conductor insulation, terminal ratings, ambient temperature, current-carrying conductor adjustment, fault-current path requirements, and local amendments. Parallel conductors are limited here to 1/0 AWG and larger.</p>
+      <p class="note">Results are per raceway or cable. The next-higher conductor-protection allowance is not applied above 800 A. Verify 110.14(C), 240.4, 250.122, 310.10(G), conductor insulation, terminal ratings, ambient temperature, current-carrying conductor adjustment, voltage-drop design criteria, fault-current path requirements, and local amendments. Parallel conductors are limited here to 1/0 AWG and larger.</p>
     </div>
   </section>
 
@@ -128,13 +141,6 @@
     <div class="card"><h2>Feet ↔ Meters Converter</h2><p class="note">The same two conversions shown in the workbook.</p>
       <div class="grid two"><div class="field"><label for="ftIn">Feet</label><input id="ftIn" type="number" step="any" value="65"></div><div class="result"><div class="k">Meters</div><div class="v" id="mOut">—</div></div><div class="field"><label for="mIn">Meters</label><input id="mIn" type="number" step="any" value="25"></div><div class="result"><div class="k">Feet</div><div class="v" id="ftOut">—</div></div></div>
       <div class="formula">Meters = feet × 0.3048 &nbsp; | &nbsp; Feet = meters × 3.28084</div>
-    </div>
-  </section>
-
-  <section class="panel" id="breaker">
-    <div class="card"><h2>Standard Fuse / Inverse-Time Breaker Rating</h2><p class="note">Uses the standard ampere ratings listed in the workbook's NEC 240.6(A) reference block.</p>
-      <div class="grid three"><div class="field"><label for="brTarget">Calculated / target amperes</label><input id="brTarget" type="number" min="0" value="47"></div><div class="field"><label for="brMode">Selection</label><select id="brMode"><option value="up">Next standard size at or above</option><option value="down">Largest standard size at or below</option></select></div><div class="result good"><div class="k">Standard rating</div><div class="v" id="brOut">—</div></div></div>
-      <div class="table-wrap"><table class="ref-table"><thead><tr><th>Standard ratings (A)</th></tr></thead><tbody><tr><td id="brList" style="text-align:left"></td></tr></tbody></table></div>
     </div>
   </section>
 
@@ -212,7 +218,7 @@ function ratedOcpd(current,multiplier,rounding){const calculated=current*multipl
 function setPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.panel===id))}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setPanel(b.dataset.panel)));
 function activePanel(){return document.querySelector('.panel.active')}
-function refreshPanel(id){const refresh={transformer,conductor,vd,convert,breaker,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
+function refreshPanel(id){const refresh={transformer,conductor,vd,convert,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
 function resetActivePanel(){
   const panel=activePanel();if(!panel)return;
   if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
@@ -230,23 +236,29 @@ $('calculatorsButton').addEventListener('click',()=>{window.location.href='stagi
 $('printPdfButton').addEventListener('click',printActivePanel);
 $('newCalculationButton').addEventListener('click',resetActivePanel);
 function groundForMaterial(ocpd,material){const table=material==='al'?groundBreakpointsAl:groundBreakpoints,x=table.find(r=>r[0]>=ocpd);return x?x[1]:null}
-function fillConductorSizes(){
-  const material=$('csMaterial').value,table=ampacity[material]||ampacity.cu,current=$('csInstalled').value;
-  $('csInstalled').innerHTML=table.map(r=>`<option value="${r[0]}">${r[0]}</option>`).join('');
-  if(table.some(r=>r[0]===current))$('csInstalled').value=current;
+function fillConductorSizes(minimum){
+  const material=$('csMaterial').value,table=ampacity[material]||ampacity.cu,current=$('csSelected').value,minIndex=minimum?table.findIndex(r=>r[0]===minimum.size):0,start=Math.max(0,minIndex);
+  $('csSelected').innerHTML=table.slice(start).map(r=>`<option value="${r[0]}">${r[0]} — ${r[1]} A</option>`).join('');
+  if(table.slice(start).some(r=>r[0]===current))$('csSelected').value=current;
 }
 function conductor(){
-  const required=n('csAmpacity'),ocpd=n('csOcpd'),material=$('csMaterial').value,count=n('csParallel'),msg=$('csMsg');
-  if(required===null||required<=0||!ocpd||!Number.isInteger(count)||count<1){$('csMinimum').textContent=$('csBaseGround').textContent=$('csRatio').textContent=$('csIncreasedGround').textContent='—';msg.textContent='Enter a positive required ampacity, a listed OCPD rating, and a whole-number conductor count.';return}
-  const minimum=wireFor(required,material,count),installed=$('csInstalled').value,minimumCm=minimum?cmFor(minimum.size):null,installedCm=cmFor(installed),baseGround=groundForMaterial(ocpd,material),baseGroundCm=cmFor(baseGround),materialName=material==='cu'?'Cu':'Al';
+  const current=n('csCurrent'),voltage=n('csVoltage'),length=n('csLength'),phase=$('csPhase').value,material=$('csMaterial').value,count=n('csParallel'),msg=$('csMsg'),ocpdMsg=$('csOcpdMsg');
+  if(current===null||current<=0||voltage===null||voltage<=0||length===null||length<0||!Number.isInteger(count)||count<1){['csOcpd','csMinimum','csBaseGround','csRatio','csFinalOcpd','csFinalPhase','csIncreasedGround','csVdVolts','csVdPercent'].forEach(id=>$(id).textContent='—');msg.textContent='Enter a positive circuit current and voltage, a nonnegative one-way length, and a whole-number conductor count.';ocpdMsg.textContent='';return}
+  const ocpd=nextStd(current),minimum=ocpd?wireFor(ocpd,material,count):null,materialName=material==='cu'?'Cu':'Al';
+  $('csOcpd').textContent=ocpd?ocpd+' A':'No listed size';$('csFinalOcpd').textContent=ocpd?ocpd+' A':'—';
   $('csMinimum').textContent=minimum?`${minimum.count>1?minimum.count+' × ':''}${minimum.size} ${materialName}`:'No size in table';
+  ocpdMsg.textContent=ocpd&&ocpd>800?'Above 800 A: the 240.4(B) next-higher conductor-protection allowance is not applied. The minimum conductor ampacity is sized at or above the selected OCPD.':'';
+  fillConductorSizes(minimum);
+  const selected=$('csSelected').value,minimumCm=minimum?cmFor(minimum.size):null,selectedCm=cmFor(selected),baseGround=ocpd?groundForMaterial(ocpd,material):null,baseGroundCm=cmFor(baseGround);
   $('csBaseGround').textContent=baseGround?`${baseGround} ${materialName}`:'OCPD exceeds table';
-  if(!minimum||!installedCm||!baseGroundCm){$('csRatio').textContent=$('csIncreasedGround').textContent='—';msg.textContent='The required result exceeds the available table range.';return}
-  const installedTable=ampacity[material]||[],installedIndex=installedTable.findIndex(r=>r[0]===installed),minimumIndex=installedTable.findIndex(r=>r[0]===minimum.size),parallelError=count>1&&(minimumIndex<9||installedIndex<9),undersized=installedCm<minimumCm,ratio=Math.max(1,installedCm/minimumCm),requiredGroundCm=baseGroundCm*ratio,groundSize=wireData.find(r=>r[1]>=requiredGroundCm)?.[0]||null;
+  if(!ocpd||!minimum||!selectedCm||!baseGroundCm){$('csRatio').textContent=$('csFinalPhase').textContent=$('csIncreasedGround').textContent=$('csVdVolts').textContent=$('csVdPercent').textContent='—';msg.textContent='The required result exceeds the available conductor or OCPD table range. Increase the number of parallel conductors where permitted.';return}
+  const selectedTable=ampacity[material]||[],selectedIndex=selectedTable.findIndex(r=>r[0]===selected),minimumIndex=selectedTable.findIndex(r=>r[0]===minimum.size),parallelError=count>1&&(minimumIndex<9||selectedIndex<9),ratio=Math.max(1,selectedCm/minimumCm),requiredGroundCm=baseGroundCm*ratio,groundSize=wireData.find(r=>r[1]>=requiredGroundCm)?.[0]||null,k=material==='cu'?12.9:21.2,phaseFactor=phase==='3'?Math.sqrt(3):2,drop=phaseFactor*k*current*length/(selectedCm*count),dropPct=drop/voltage*100;
   $('csRatio').textContent=ratio===1?'No increase':fmt(ratio*100,1)+'% of minimum area';
   $('csIncreasedGround').textContent=groundSize?`${groundSize} ${materialName} per raceway`:'Size exceeds table';
-  $('csFormula').textContent=`${baseGround} ${materialName} (${fmt(baseGroundCm,0)} cmil) × ${fmt(installedCm,0)} ÷ ${fmt(minimumCm,0)} = ${fmt(requiredGroundCm,0)} cmil; next listed conductor size is ${groundSize||'beyond table'}.`;
-  msg.textContent=undersized?'The installed phase conductor is smaller than the calculated minimum.':parallelError?'Parallel phase conductors must be 1/0 AWG or larger unless a specific NEC permission applies.':'';
+  $('csFinalPhase').textContent=`${count>1?count+' × ':''}${selected} ${materialName}${count>1?' per phase':''}`;
+  $('csVdVolts').textContent=fmt(drop,2)+' V';$('csVdPercent').textContent=fmt(dropPct,2)+'%';
+  $('csFormula').textContent=`Automatic standard OCPD: ${ocpd} A. Minimum conductor: ${minimum.size} ${materialName} per run. EGC: ${baseGround} ${materialName} (${fmt(baseGroundCm,0)} cmil) × ${fmt(selectedCm,0)} ÷ ${fmt(minimumCm,0)} = ${fmt(requiredGroundCm,0)} cmil; next listed size is ${groundSize||'beyond table'}. Voltage drop = ${phase==='3'?'√3':'2'} × ${k} × ${fmt(current,2)} A × ${fmt(length,2)} ft ÷ (${fmt(selectedCm,0)} cmil × ${count}) = ${fmt(drop,2)} V (${fmt(dropPct,2)}%).`;
+  msg.textContent=parallelError?'Parallel phase conductors must be 1/0 AWG or larger unless a specific NEC permission applies.':groundSize?'':'The increased grounding-conductor size exceeds the available table.';
 }
 function transformer(){
   const phase=$('tPhase').value,known=$('tKnown').value,value=n('tValue'),pv=n('tPv'),sv=n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,protection=$('tProtection').value,thermal=$('tThermal').value,impedance=$('tImpedance').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;
@@ -276,7 +288,6 @@ function fillWireSelect(){const s=$('vdWire');s.innerHTML=wireData.map(r=>`<opti
 function vd(){const units=$('vdUnits').value,ph=$('vdPhase').value,v=n('vdVolts'),a=n('vdAmps'),par=n('vdParallel'),len=n('vdLength'),size=$('vdWire').value,mat=$('vdMat').value,row=wireData.find(r=>r[0]===size),msg=$('vdMsg');if(!v||a===null||!par||len===null||!row){msg.textContent='Enter valid values.';return}msg.textContent='';const pf=ph==='3'?1.732:2;const area=units==='imperial'?row[1]:row[2];const k=units==='imperial'?(mat==='cu'?12.9:21.2):(mat==='cu'?0.0215:0.0344);const drop=pf*k*a*len/(area*par),pct=drop/v*100;$('vdVoltsOut').textContent=fmt(drop,3)+' V';$('vdPctOut').textContent=fmt(pct,3)+'%';$('vdAreaOut').textContent=units==='imperial'?fmt(area,0)+' CM':fmt(area,2)+' mm²';$('vdKOut').textContent=String(k);$('vdLengthLabel').textContent=units==='imperial'?'Length (ft)':'Length (m)';$('vdFormula').textContent=`VD = ${pf} × K × I × Length ÷ (Area × conductors/phase)`}
 ['vdUnits','vdPhase','vdVolts','vdAmps','vdWire','vdMat','vdParallel','vdLength'].forEach(id=>$(id).addEventListener('input',vd));
 function convert(){const f=n('ftIn'),m=n('mIn');$('mOut').textContent=f===null?'—':fmt(f*.3048,4)+' m';$('ftOut').textContent=m===null?'—':fmt(m*3.28084,4)+' ft'}['ftIn','mIn'].forEach(id=>$(id).addEventListener('input',convert));
-function breaker(){const v=n('brTarget');if(v===null){$('brOut').textContent='—';return}const out=$('brMode').value==='up'?nextStd(v):prevStd(v);$('brOut').textContent=out?out+' A':'No listed size'}['brTarget','brMode'].forEach(id=>$(id).addEventListener('input',breaker));$('brList').textContent=standardRatings.join(', ');
 $('wireTable').querySelector('tbody').innerHTML=wireData.map(r=>`<tr><td>${r[0]}</td><td>${r[1].toLocaleString()}</td><td>${r[2]}</td></tr>`).join('');
 const threePhaseMotorData=[
 ['1/2',4.4,2.4,2.2,1.1,.9,null],['3/4',6.4,3.5,3.2,1.6,1.3,null],['1',8.4,4.6,4.2,2.1,1.7,null],['1 1/2',12,6.6,6,3,2.4,null],['2',13.6,7.5,6.8,3.4,2.7,null],['3',null,10.6,9.6,4.8,3.9,null],['5',null,16.7,15.2,7.6,6.1,null],['7.5',null,24.2,22,11,9,null],['10',null,30.8,28,14,11,null],['15',null,46.2,42,21,17,null],['20',null,59.4,54,27,22,null],['25',null,74.8,68,34,27,null],['30',null,88,80,40,32,null],['40',null,114,104,52,41,null],['50',null,143,130,65,52,null],['75',null,211,192,96,77,20],['100',null,273,248,124,99,26],['125',null,343,312,156,125,31],['150',null,402,360,180,144,37],['200',null,528,480,240,192,49]
@@ -342,9 +353,8 @@ $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').a
 ['pcPhase','pcVoltage','pcLN','pcLL','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'){const map={'120/240':[120,240],'120/208':[120,208],'277/480':[277,480]};if(map[e.target.value]){[$('pcLN').value,$('pcLL').value]=map[e.target.value]}}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 if(!restorePanel())addAssembly('standard1',1);else renderPanel();
 
-$('csOcpd').innerHTML=standardRatings.filter(x=>x>=15).map(x=>`<option value="${x}"${x===450?' selected':''}>${x} A</option>`).join('');fillConductorSizes();$('csInstalled').value='700 kcmil';
-['csAmpacity','csOcpd','csParallel','csInstalled'].forEach(id=>$(id).addEventListener('input',conductor));$('csMaterial').addEventListener('input',()=>{fillConductorSizes();conductor()});
-fillWireSelect();transformer();conductor();vd();convert();breaker();motor();panelCalc();
+['csCurrent','csVoltage','csPhase','csLength','csParallel','csSelected','csMaterial'].forEach(id=>$(id).addEventListener('input',conductor));
+fillWireSelect();transformer();conductor();vd();convert();motor();panelCalc();
 })();
 </script>
 </body>
