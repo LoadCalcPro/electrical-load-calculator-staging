@@ -87,7 +87,7 @@
       <p class="note">Automatically selects the standard OCPD, establishes the minimum 75°C phase conductor, coordinates an engineer-selected larger conductor with the equipment grounding conductor, and calculates voltage drop.</p>
       <h3>1. Circuit Information</h3>
       <div class="grid">
-        <div class="field"><label for="csCurrent">Calculated circuit current (A)</label><input id="csCurrent" type="number" min="0" step="any" value="420"></div>
+        <div class="field"><label for="csCurrent">Calculated / target OCPD (A)</label><input id="csCurrent" type="number" min="0" step="any" value="420"></div>
         <div class="field"><label for="csVoltage">System voltage (V)</label><input id="csVoltage" type="number" min="1" step="any" value="480"></div>
         <div class="field"><label for="csPhase">Phase</label><select id="csPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
         <div class="field"><label for="csLength">One-way length (ft)</label><input id="csLength" type="number" min="0" step="any" value="100"></div>
@@ -214,6 +214,7 @@ const groundBreakpoints=[[15,'14 AWG'],[20,'12 AWG'],[60,'10 AWG'],[100,'8 AWG']
 const groundBreakpointsAl=[[15,'12 AWG'],[20,'10 AWG'],[60,'8 AWG'],[100,'6 AWG'],[200,'4 AWG'],[300,'2 AWG'],[400,'1 AWG'],[500,'1/0 AWG'],[600,'2/0 AWG'],[800,'3/0 AWG'],[1000,'4/0 AWG'],[1200,'250 kcmil'],[1600,'350 kcmil'],[2000,'400 kcmil'],[2500,'600 kcmil'],[3000,'600 kcmil'],[4000,'750 kcmil'],[5000,'1200 kcmil'],[6000,'1200 kcmil']];
 function nextStd(v){return standardRatings.find(x=>x>=v)??null} function prevStd(v){for(let i=standardRatings.length-1;i>=0;i--)if(standardRatings[i]<=v)return standardRatings[i];return null}
 function wireFor(requiredAmps,material,parallelCount){const count=Math.max(1,Math.floor(parallelCount)),perConductor=requiredAmps/count,table=ampacity[material]||ampacity.cu,minIndex=count>1?table.findIndex(r=>r[0]==='1/0 AWG'):0,x=table.find((r,i)=>i>=minIndex&&r[1]>=perConductor);return x?{size:x[0],ampacity:x[1],perConductor,count}:null} function cmFor(size){const x=wireData.find(r=>r[0]===size);return x?x[1]:null} function groundFor(br){const x=groundBreakpoints.find(r=>r[0]>=br);return x?x[1]:'Oversized'}
+function wireForOcpd(ocpd,material,parallelCount){const count=Math.max(1,Math.floor(parallelCount)),table=ampacity[material]||ampacity.cu,minIndex=count>1?table.findIndex(r=>r[0]==='1/0 AWG'):0,x=table.find((r,i)=>{if(i<minIndex)return false;const total=r[1]*count;return total>=ocpd||(ocpd<=800&&nextStd(total)===ocpd)});return x?{size:x[0],ampacity:x[1],totalAmpacity:x[1]*count,count}:null}
 function ratedOcpd(current,multiplier,rounding){const calculated=current*multiplier;return{calculated,rating:rounding==='up'?nextStd(calculated):prevStd(calculated)}}
 function setPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.panel===id))}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setPanel(b.dataset.panel)));
@@ -236,19 +237,19 @@ $('calculatorsButton').addEventListener('click',()=>{window.location.href='stagi
 $('printPdfButton').addEventListener('click',printActivePanel);
 $('newCalculationButton').addEventListener('click',resetActivePanel);
 function groundForMaterial(ocpd,material){const table=material==='al'?groundBreakpointsAl:groundBreakpoints,x=table.find(r=>r[0]>=ocpd);return x?x[1]:null}
-function fillConductorSizes(minimum){
+function fillConductorSizes(minimum,preserveSelection){
   const material=$('csMaterial').value,table=ampacity[material]||ampacity.cu,current=$('csSelected').value,minIndex=minimum?table.findIndex(r=>r[0]===minimum.size):0,start=Math.max(0,minIndex);
   $('csSelected').innerHTML=table.slice(start).map(r=>`<option value="${r[0]}">${r[0]} — ${r[1]} A</option>`).join('');
-  if(table.slice(start).some(r=>r[0]===current))$('csSelected').value=current;
+  if(preserveSelection&&table.slice(start).some(r=>r[0]===current))$('csSelected').value=current;
 }
-function conductor(){
+function conductor(resetSelection=false){
   const current=n('csCurrent'),voltage=n('csVoltage'),length=n('csLength'),phase=$('csPhase').value,material=$('csMaterial').value,count=n('csParallel'),msg=$('csMsg'),ocpdMsg=$('csOcpdMsg');
   if(current===null||current<=0||voltage===null||voltage<=0||length===null||length<0||!Number.isInteger(count)||count<1){['csOcpd','csMinimum','csBaseGround','csRatio','csFinalOcpd','csFinalPhase','csIncreasedGround','csVdVolts','csVdPercent'].forEach(id=>$(id).textContent='—');msg.textContent='Enter a positive circuit current and voltage, a nonnegative one-way length, and a whole-number conductor count.';ocpdMsg.textContent='';return}
-  const ocpd=nextStd(current),minimum=ocpd?wireFor(ocpd,material,count):null,materialName=material==='cu'?'Cu':'Al';
+  const ocpd=nextStd(current),minimum=ocpd?wireForOcpd(ocpd,material,count):null,materialName=material==='cu'?'Cu':'Al';
   $('csOcpd').textContent=ocpd?ocpd+' A':'No listed size';$('csFinalOcpd').textContent=ocpd?ocpd+' A':'—';
   $('csMinimum').textContent=minimum?`${minimum.count>1?minimum.count+' × ':''}${minimum.size} ${materialName}`:'No size in table';
   ocpdMsg.textContent=ocpd&&ocpd>800?'Above 800 A: the 240.4(B) next-higher conductor-protection allowance is not applied. The minimum conductor ampacity is sized at or above the selected OCPD.':'';
-  fillConductorSizes(minimum);
+  fillConductorSizes(minimum,!resetSelection);
   const selected=$('csSelected').value,minimumCm=minimum?cmFor(minimum.size):null,selectedCm=cmFor(selected),baseGround=ocpd?groundForMaterial(ocpd,material):null,baseGroundCm=cmFor(baseGround);
   $('csBaseGround').textContent=baseGround?`${baseGround} ${materialName}`:'OCPD exceeds table';
   if(!ocpd||!minimum||!selectedCm||!baseGroundCm){$('csRatio').textContent=$('csFinalPhase').textContent=$('csIncreasedGround').textContent=$('csVdVolts').textContent=$('csVdPercent').textContent='—';msg.textContent='The required result exceeds the available conductor or OCPD table range. Increase the number of parallel conductors where permitted.';return}
@@ -257,7 +258,8 @@ function conductor(){
   $('csIncreasedGround').textContent=groundSize?`${groundSize} ${materialName} per raceway`:'Size exceeds table';
   $('csFinalPhase').textContent=`${count>1?count+' × ':''}${selected} ${materialName}${count>1?' per phase':''}`;
   $('csVdVolts').textContent=fmt(drop,2)+' V';$('csVdPercent').textContent=fmt(dropPct,2)+'%';
-  $('csFormula').textContent=`Automatic standard OCPD: ${ocpd} A. Minimum conductor: ${minimum.size} ${materialName} per run. EGC: ${baseGround} ${materialName} (${fmt(baseGroundCm,0)} cmil) × ${fmt(selectedCm,0)} ÷ ${fmt(minimumCm,0)} = ${fmt(requiredGroundCm,0)} cmil; next listed size is ${groundSize||'beyond table'}. Voltage drop = ${phase==='3'?'√3':'2'} × ${k} × ${fmt(current,2)} A × ${fmt(length,2)} ft ÷ (${fmt(selectedCm,0)} cmil × ${count}) = ${fmt(drop,2)} V (${fmt(dropPct,2)}%).`;
+  const protectionBasis=minimum.totalAmpacity<ocpd?`240.4(B) next standard rating applied to ${fmt(minimum.totalAmpacity,0)} A conductor ampacity.`:`Conductor ampacity equals or exceeds the OCPD.`;
+  $('csFormula').textContent=`Automatic standard OCPD: ${ocpd} A. Minimum conductor: ${minimum.size} ${materialName} per run; ${fmt(minimum.totalAmpacity,0)} A total ampacity. ${protectionBasis} EGC: ${baseGround} ${materialName} (${fmt(baseGroundCm,0)} cmil) × ${fmt(selectedCm,0)} ÷ ${fmt(minimumCm,0)} = ${fmt(requiredGroundCm,0)} cmil; next listed size is ${groundSize||'beyond table'}. Voltage drop = ${phase==='3'?'√3':'2'} × ${k} × ${fmt(current,2)} A × ${fmt(length,2)} ft ÷ (${fmt(selectedCm,0)} cmil × ${count}) = ${fmt(drop,2)} V (${fmt(dropPct,2)}%).`;
   msg.textContent=parallelError?'Parallel phase conductors must be 1/0 AWG or larger unless a specific NEC permission applies.':groundSize?'':'The increased grounding-conductor size exceeds the available table.';
 }
 function transformer(){
@@ -353,8 +355,8 @@ $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').a
 ['pcPhase','pcVoltage','pcLN','pcLL','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'){const map={'120/240':[120,240],'120/208':[120,208],'277/480':[277,480]};if(map[e.target.value]){[$('pcLN').value,$('pcLL').value]=map[e.target.value]}}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 if(!restorePanel())addAssembly('standard1',1);else renderPanel();
 
-['csCurrent','csVoltage','csPhase','csLength','csParallel','csSelected','csMaterial'].forEach(id=>$(id).addEventListener('input',conductor));
-fillWireSelect();transformer();conductor();vd();convert();motor();panelCalc();
+['csCurrent','csParallel','csMaterial'].forEach(id=>$(id).addEventListener('input',()=>conductor(true)));['csVoltage','csPhase','csLength','csSelected'].forEach(id=>$(id).addEventListener('input',()=>conductor(false)));
+fillWireSelect();transformer();conductor(true);vd();convert();motor();panelCalc();
 })();
 </script>
 </body>
