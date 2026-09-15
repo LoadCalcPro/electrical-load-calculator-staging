@@ -222,6 +222,12 @@ function activePanel(){return document.querySelector('.panel.active')}
 function refreshPanel(id){const refresh={transformer,conductor,vd,convert,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
 function resetActivePanel(){
   const panel=activePanel();if(!panel)return;
+  if(panel.id==='conductor'){
+    panel.querySelectorAll('input').forEach(input=>{input.value=''});
+    panel.querySelectorAll('select').forEach(select=>{select.selectedIndex=-1});
+    panel.querySelectorAll('.result .v,.msg,.formula').forEach(output=>{output.textContent=''});
+    return;
+  }
   if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
   panel.querySelectorAll('input').forEach(input=>{if(input.type==='checkbox'||input.type==='radio')input.checked=input.defaultChecked;else input.value=input.defaultValue});
   panel.querySelectorAll('select').forEach(select=>{const original=Array.from(select.options).findIndex(option=>option.defaultSelected);select.selectedIndex=original>=0?original:0});
