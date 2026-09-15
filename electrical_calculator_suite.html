@@ -52,13 +52,13 @@
   <section class="panel active" id="transformer">
     <div class="card">
       <h2>Transformer Calculations</h2>
-      <p class="note">Systems at 1,000 V or less. Select phase and transformer kVA. Conductors use the 75°C column before installation-specific correction and adjustment factors. kVA choices are common manufacturer ratings; use Other for a different nameplate rating.</p>
+      <p class="note">Systems at 1,000 V or less. Select phase, transformer kVA, and primary/secondary voltage. Three-phase calculations use line-to-line voltage. Conductors use the 75°C column before installation-specific correction and adjustment factors. Use Other for a different nameplate kVA or voltage.</p>
       <div class="grid two"><div class="field"><label for="tPhase">Transformer phase</label><select id="tPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div></div>
       <h3>1. Transformer Information</h3>
       <div class="grid three">
         <div class="field"><label for="tValue">Transformer kVA</label><select id="tValue"></select><div id="tCustomField" hidden><label for="tCustomKva">Nameplate kVA</label><input id="tCustomKva" type="number" min="0" step="any" placeholder="Enter nameplate kVA"></div></div>
-        <div class="field"><label for="tPv">Primary voltage (V)</label><input id="tPv" type="number" min="1" value="480"></div>
-        <div class="field"><label for="tSv">Secondary voltage (V)</label><input id="tSv" type="number" min="1" value="208"></div>
+        <div class="field"><label for="tPv">Primary voltage (V)</label><select id="tPv"><option value="">Select primary voltage</option><option value="120">120 V</option><option value="208">208 V</option><option value="240">240 V</option><option value="277">277 V</option><option value="480" selected>480 V</option><option value="600">600 V</option><option value="other">Other nameplate voltage</option></select><div id="tCustomPvField" hidden><label for="tCustomPv">Other primary voltage (V)</label><input id="tCustomPv" type="number" min="1" max="1000" step="any" placeholder="Enter primary voltage"></div></div>
+        <div class="field"><label for="tSv">Secondary voltage (V)</label><select id="tSv"><option value="">Select secondary voltage</option><option value="120">120 V</option><option value="208" selected>208 V</option><option value="240">240 V</option><option value="277">277 V</option><option value="480">480 V</option><option value="600">600 V</option><option value="other">Other nameplate voltage</option></select><div id="tCustomSvField" hidden><label for="tCustomSv">Other secondary voltage (V)</label><input id="tCustomSv" type="number" min="1" max="1000" step="any" placeholder="Enter secondary voltage"></div></div>
       </div>
       <div class="grid two" style="margin-top:12px">
         <div class="field"><label for="tMaterial">Conductor material</label><select id="tMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
@@ -299,8 +299,9 @@ function supplyBondFor(size,material){
 }
 function transformer(){
   $('tCustomField').hidden=$('tValue').value!=='other';
-  const phase=$('tPhase').value,value=$('tValue').value==='other'?n('tCustomKva'):n('tValue'),pv=n('tPv'),sv=n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,protection=$('tProtection').value,thermal=$('tThermal').value,impedance=$('tImpedance').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;
-  if(!['1','3'].includes(phase)||value===null||value<=0||!pv||!sv||pv>1000||sv>1000||!mat||!protection||!Number.isInteger(pp)||pp<1||!Number.isInteger(sp)||sp<1){['tPrimaryResults','tSecondaryResults','tVoltageResults'].forEach(id=>$(id).innerHTML='');$('tapMin').textContent='';$('tFormula').textContent='';msg.textContent='';return}
+  $('tCustomPvField').hidden=$('tPv').value!=='other';$('tCustomSvField').hidden=$('tSv').value!=='other';
+  const phase=$('tPhase').value,value=$('tValue').value==='other'?n('tCustomKva'):n('tValue'),pv=$('tPv').value==='other'?n('tCustomPv'):n('tPv'),sv=$('tSv').value==='other'?n('tCustomSv'):n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,protection=$('tProtection').value,thermal=$('tThermal').value,impedance=$('tImpedance').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;
+  if(!['1','3'].includes(phase)||value===null||value<=0||!pv||!sv||pv<=0||sv<=0||pv>1000||sv>1000||!mat||!protection||!Number.isInteger(pp)||pp<1||!Number.isInteger(sp)||sp<1){['tPrimaryResults','tSecondaryResults','tVoltageResults'].forEach(id=>$(id).innerHTML='');$('tapMin').textContent='';$('tFormula').textContent='';msg.textContent='';return}
   const kva=value;
   const pi=kva*1000/(factor*pv),si=kva*1000/(factor*sv),primaryDesign=ratedOcpd(pi,1.25,'up'),secondaryDesign=ratedOcpd(si,1.25,'up');
   let primaryMaximum,primaryRule,secondaryMaximum=null,secondaryRule='Not selected';
@@ -325,7 +326,7 @@ function transformer(){
   msg.textContent=[(pp>1||sp>1)?'Parallel runs assume separate raceways or cables with a 1/0 AWG minimum.':'',(!pw||!sw)?'Increase parallel counts if the required conductor exceeds the available table.':'',protection==='primary'?'Primary-only transformer protection does not automatically protect secondary conductors; verify 240.4(F) and 240.21(C).':'',primaryOcpd>primaryMaximum.rating?'The primary design OCPD exceeds the transformer maximum; review the protection design.':''].filter(Boolean).join(' ');
 }
 $('tPhase').addEventListener('input',()=>{fillTransformerKva();transformer()});
-['tValue','tCustomKva','tPv','tSv','tMaterial','tPlen','tSlen','tParP','tParS','tProtection','tThermal','tImpedance','tapPriOcpd','tapFactor'].forEach(id=>$(id).addEventListener('input',transformer));
+['tValue','tCustomKva','tPv','tSv','tCustomPv','tCustomSv','tMaterial','tPlen','tSlen','tParP','tParS','tProtection','tThermal','tImpedance','tapPriOcpd','tapFactor'].forEach(id=>$(id).addEventListener('input',transformer));
 fillTransformerKva(false);
 function fillWireSelect(){const s=$('vdWire');s.innerHTML=wireData.map(r=>`<option value="${r[0]}"${r[0]==='3/0 AWG'?' selected':''}>${r[0]}</option>`).join('')}
 function vd(){const units=$('vdUnits').value,ph=$('vdPhase').value,v=n('vdVolts'),a=n('vdAmps'),par=n('vdParallel'),len=n('vdLength'),size=$('vdWire').value,mat=$('vdMat').value,row=wireData.find(r=>r[0]===size),msg=$('vdMsg');if(!v||a===null||!par||len===null||!row){msg.textContent='Enter valid values.';return}msg.textContent='';const pf=ph==='3'?1.732:2;const area=units==='imperial'?row[1]:row[2];const k=units==='imperial'?(mat==='cu'?12.9:21.2):(mat==='cu'?0.0215:0.0344);const drop=pf*k*a*len/(area*par),pct=drop/v*100;$('vdVoltsOut').textContent=fmt(drop,3)+' V';$('vdPctOut').textContent=fmt(pct,3)+'%';$('vdAreaOut').textContent=units==='imperial'?fmt(area,0)+' CM':fmt(area,2)+' mm²';$('vdKOut').textContent=String(k);$('vdLengthLabel').textContent=units==='imperial'?'Length (ft)':'Length (m)';$('vdFormula').textContent=`VD = ${pf} × K × I × Length ÷ (Area × conductors/phase)`}
