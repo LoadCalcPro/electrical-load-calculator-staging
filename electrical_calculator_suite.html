@@ -17,6 +17,8 @@
 
 .tap-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.tap-check{display:flex;align-items:flex-start;gap:8px;border:1px solid #cad6e3;border-radius:9px;padding:10px;background:#f8fafc;color:#344054;font-size:13px;font-weight:700}.tap-check input{margin-top:2px;accent-color:var(--teal)}.tap-status{border-width:2px}.tap-status.good{border-color:#75c69d;background:#ecfdf3}.tap-status.warn{border-color:#f0b4ae;background:#fff1f0}.tap-detail{margin-top:10px;padding-left:20px;color:#475467;font-size:13px}.tap-detail li{margin:4px 0}@media(max-width:560px){.tap-checks{grid-template-columns:1fr}}
 
+#transformer .result{display:flex;min-height:112px;flex-direction:column}#transformer .result .k{min-height:46px;line-height:1.3}#transformer .result .v{display:flex;align-items:flex-end;min-height:48px;margin-top:auto;line-height:1.15}#transformer .design-result-grid{grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch}#transformer .result-contents{display:contents}#transformer #tFinalResults{grid-template-columns:repeat(6,minmax(0,1fr));align-items:stretch}#transformer .selection-grid{align-items:stretch}#transformer .selection-grid>.field{display:flex;flex-direction:column}#transformer .selection-grid>.field select{margin-top:auto}#transformer .tap-result-grid{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:1000px){#transformer .design-result-grid,#transformer #tFinalResults{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:850px){#transformer .design-result-grid,#transformer #tFinalResults,#transformer .tap-result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){#transformer .design-result-grid,#transformer #tFinalResults,#transformer .tap-result-grid{grid-template-columns:1fr}#transformer .result{min-height:0}#transformer .result .k{min-height:0}#transformer .result .v{min-height:0;margin-top:6px}}
+
 .motor-phase{border:0;margin:0;padding:0}.motor-phase legend{font-size:12px;font-weight:800;color:#475467;margin:0 0 5px}.motor-phase-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.motor-phase-options label{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:1px solid #b8c5d5;border-radius:9px;background:#fff;color:var(--navy2);font-size:13px;font-weight:800;cursor:pointer}.motor-phase-options label:has(input:checked){border-color:var(--teal2);background:#e7f5f3;box-shadow:0 0 0 2px rgba(13,148,136,.13)}.motor-phase-options input{width:auto;min-height:0;margin:0}@media print{.motor-phase-options label:not(:has(input:checked)){display:none}.motor-phase-options label:has(input:checked){border:0;justify-content:flex-start;box-shadow:none;background:#fff}}
 </style>
 </head>
@@ -76,21 +78,7 @@
         <div class="field"><label for="tImpedance">Transformer impedance</label><select id="tImpedance"><option value="le6" selected>6% or less</option><option value="gt6">More than 6% and less than 10%</option></select></div>
       </div>
       <div class="grid two" style="margin-top:12px"><div class="field"><label for="tThermal">Coordinated transformer thermal overload protection — 450.3(B), Note 3</label><select id="tThermal"><option value="no" selected>No</option><option value="yes">Yes — nameplate coordination verified</option></select></div></div>
-      <h3>2. Primary Design</h3><div class="result-grid" id="tPrimaryResults"></div><div class="result-grid" id="tPrimaryOcpdResults"></div>
-      <div class="grid three" style="margin-top:12px">
-        <div class="field"><label for="tPrimarySelectedOcpd">Engineer-selected primary OCPD</label><select id="tPrimarySelectedOcpd"></select></div>
-        <div class="field"><label for="tPrimarySelectedWire">Engineer-selected primary conductor</label><select id="tPrimarySelectedWire"></select></div>
-        <div class="result"><div class="k">Primary selection status</div><div class="v" id="tPrimarySelectionStatus"></div></div>
-      </div>
-      <h3>3. Secondary Design</h3><div class="result-grid" id="tSecondaryResults"></div><div class="result-grid" id="tSecondaryOcpdResults"></div>
-      <div class="grid three" style="margin-top:12px">
-        <div class="field"><label for="tSecondarySelectedOcpd">Engineer-selected secondary OCPD</label><select id="tSecondarySelectedOcpd"></select></div>
-        <div class="field"><label for="tSecondarySelectedWire">Engineer-selected secondary conductor</label><select id="tSecondarySelectedWire"></select></div>
-        <div class="result"><div class="k">Secondary selection status</div><div class="v" id="tSecondarySelectionStatus"></div></div>
-      </div>
-      <h3>4. Final Transformer Design</h3><div class="result-grid" id="tFinalResults"></div>
-      <h3>5. Voltage Drop at Transformer Full-Load Current</h3><div class="result-grid" id="tVoltageResults"></div>
-      <h3>6. Transformer Secondary-Conductor Rule — NEC 240.21(C)</h3>
+      <h3>2. Transformer Secondary-Conductor Rule — NEC 240.21(C)</h3>
       <p class="note">Select the installation path being used. The calculator verifies the entered length, conductor ampacity, voltage-ratio requirement where applicable, load, and terminating OCPD. Check the installation conditions only after confirming them in the field or design.</p>
       <div class="grid">
         <div class="field"><label for="tapRule">Secondary-conductor rule</label><select id="tapRule"><option value="none">No 240.21(C) rule selected</option><option value="10ft">Not over 10 ft — 240.21(C)(2)</option><option value="25ft">Not over 25 ft — 240.21(C)(6)</option><option value="outdoor">Outdoor secondary conductors — 240.21(C)(4)</option></select></div>
@@ -103,12 +91,28 @@
         <label class="tap-check"><input id="tapSingleDevice" type="checkbox"><span id="tapTerminationText">Conductors terminate in the equipment or protective device permitted by the selected rule.</span></label>
         <label class="tap-check" id="tapOutdoorRow"><input id="tapOutdoor" type="checkbox">Conductors are outdoors except at the point of load termination, with the OCPD integral to or immediately adjacent to the disconnecting means.</label>
       </div>
-      <div class="result-grid">
+      <div class="result-grid tap-result-grid">
         <div class="result"><div class="k">Selected conductor ampacity</div><div class="v" id="tapActualAmpacity">—</div></div>
         <div class="result"><div class="k">Minimum required ampacity</div><div class="v" id="tapMin">—</div></div>
         <div class="result tap-status" id="tapStatusCard"><div class="k">240.21(C) status</div><div class="v" id="tapStatus">Select a rule</div></div>
       </div>
       <ul class="tap-detail" id="tapDetail"></ul>
+      <h3>3. Primary Design</h3>
+      <div class="result-grid design-result-grid"><div class="result-contents" id="tPrimaryResults"></div><div class="result-contents" id="tPrimaryOcpdResults"></div></div>
+      <div class="grid three selection-grid" style="margin-top:12px">
+        <div class="field"><label for="tPrimarySelectedOcpd">Engineer-selected primary OCPD</label><select id="tPrimarySelectedOcpd"></select></div>
+        <div class="field"><label for="tPrimarySelectedWire">Engineer-selected primary conductor</label><select id="tPrimarySelectedWire"></select></div>
+        <div class="result"><div class="k">Primary selection status</div><div class="v" id="tPrimarySelectionStatus"></div></div>
+      </div>
+      <h3>4. Secondary Design</h3>
+      <div class="result-grid design-result-grid"><div class="result-contents" id="tSecondaryResults"></div><div class="result-contents" id="tSecondaryOcpdResults"></div></div>
+      <div class="grid three selection-grid" style="margin-top:12px">
+        <div class="field"><label for="tSecondarySelectedOcpd">Engineer-selected secondary OCPD</label><select id="tSecondarySelectedOcpd"></select></div>
+        <div class="field"><label for="tSecondarySelectedWire">Engineer-selected secondary conductor</label><select id="tSecondarySelectedWire"></select></div>
+        <div class="result"><div class="k">Secondary selection status</div><div class="v" id="tSecondarySelectionStatus"></div></div>
+      </div>
+      <h3>5. Final Transformer Design</h3><div class="result-grid" id="tFinalResults"></div>
+      <h3>6. Voltage Drop at Transformer Full-Load Current</h3><div class="result-grid" id="tVoltageResults"></div>
       <div class="formula" id="tFormula"></div>
       <p class="note">Supply-side bonding jumper assumes a separately derived system with each parallel secondary run in its own raceway or cable, sized under 250.102(C)(1) and (2). It is not the system bonding jumper or grounding electrode conductor. The 240.21(C) result depends on the entered design and confirmations and remains subject to AHJ review. Table 450.3(B) maxima protect the transformer, not automatically its conductors. Verify inrush, terminal ratings, thermal coordination, adjustment factors, transformer connection, equipment ratings, and all installation-specific NEC requirements. Voltage drop uses the approximate K-factor method.</p>
       <div class="msg" id="tMsg"></div>
