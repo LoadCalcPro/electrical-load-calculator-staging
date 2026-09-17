@@ -15,9 +15,7 @@
 
 .panel-setup{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.panel-actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.breaker-list{display:grid;gap:10px;margin-top:12px}.breaker-card{border:1px solid #cbd6e3;border-radius:11px;background:#fff;overflow:hidden}.breaker-head{display:grid;grid-template-columns:90px 1.2fr 1.25fr 100px auto;gap:8px;align-items:end;padding:10px;background:#f4f7fb;border-bottom:1px solid #dce4ee}.breaker-head .field input,.breaker-head .field select{min-height:38px;font-size:14px;padding:7px}.mini-grid{display:grid;gap:7px;padding:10px}.mini-row{display:grid;grid-template-columns:70px minmax(150px,1.6fr) 95px 105px 130px 85px 85px;gap:7px;align-items:end}.mini-row input,.mini-row select{width:100%;min-height:36px;border:1px solid #bdc9d7;border-radius:7px;padding:6px;font-size:13px}.mini-label{font-size:12px;font-weight:900;color:var(--navy2);padding-bottom:9px}.remove-breaker{border:1px solid #d0d8e3;background:#fff;color:#b42318;border-radius:8px;min-height:38px;padding:7px 10px;font-weight:800;cursor:pointer}.panel-warning{margin-top:10px;color:#b42318;font-size:13px;font-weight:800}.panel-output{margin-top:16px}.panel-output table{width:100%;border-collapse:collapse;min-width:920px}.panel-output th,.panel-output td{border:1px solid #9aa9ba;padding:5px 6px;font-size:12px}.panel-output th{background:#e8eef5;color:var(--navy2);font-weight:900}.panel-output td.num{text-align:right}.panel-output td.center{text-align:center}.panel-output tr.invalid{background:#fff1f0}.phase-summary{grid-template-columns:repeat(5,minmax(0,1fr))}.demand-note{font-size:12px;color:#667085;margin-top:8px}@media(max-width:900px){.panel-setup{grid-template-columns:repeat(2,minmax(0,1fr))}.breaker-head{grid-template-columns:80px 1fr 1fr}.mini-row{grid-template-columns:58px minmax(140px,1fr) 82px 95px;overflow-x:auto}.mini-row .demand-category,.mini-row .factor,.mini-row .wire-entry{grid-column:auto}}@media(max-width:560px){.panel-setup,.breaker-head{grid-template-columns:1fr}.mini-row{grid-template-columns:52px minmax(130px,1fr) 80px 88px 120px 75px 75px}.phase-summary{grid-template-columns:1fr 1fr}.breaker-card{overflow-x:auto}}@media print{#panelcalc .panel-actions,#panelcalc .remove-breaker,#panelcalc .add-controls,#panelcalc .breaker-list{display:none!important}#panelcalc .panel-output{margin-top:8px}#panelcalc .panel-output table{min-width:0}#panelcalc .card>p.note{display:none}}
 
-.tap-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.tap-check{display:flex;align-items:flex-start;gap:8px;border:1px solid #cad6e3;border-radius:9px;padding:10px;background:#f8fafc;color:#344054;font-size:13px;font-weight:700}.tap-check input{margin-top:2px;accent-color:var(--teal)}.tap-status{border-width:2px}.tap-status.good{border-color:#75c69d;background:#ecfdf3}.tap-status.warn{border-color:#f0b4ae;background:#fff1f0}.tap-detail{margin-top:10px;padding-left:20px;color:#475467;font-size:13px}.tap-detail li{margin:4px 0}@media(max-width:560px){.tap-checks{grid-template-columns:1fr}}
-
-#transformer .result{display:flex;min-height:112px;flex-direction:column}#transformer .result .k{min-height:46px;line-height:1.3}#transformer .result .v{display:flex;align-items:flex-end;min-height:48px;margin-top:auto;line-height:1.15}#transformer .design-result-grid{grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch}#transformer .result-contents{display:contents}#transformer #tFinalResults{grid-template-columns:repeat(6,minmax(0,1fr));align-items:stretch}#transformer .selection-grid{align-items:stretch}#transformer .selection-grid>.field{display:flex;flex-direction:column}#transformer .selection-grid>.field select{margin-top:auto}#transformer .tap-result-grid{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:1000px){#transformer .design-result-grid,#transformer #tFinalResults{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:850px){#transformer .design-result-grid,#transformer #tFinalResults,#transformer .tap-result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){#transformer .design-result-grid,#transformer #tFinalResults,#transformer .tap-result-grid{grid-template-columns:1fr}#transformer .result{min-height:0}#transformer .result .k{min-height:0}#transformer .result .v{min-height:0;margin-top:6px}}
+.transformer-table-wrap{margin-top:10px}.transformer-summary{width:100%;border-collapse:collapse;background:#fff}.transformer-summary th,.transformer-summary td{border-bottom:1px solid #dfe6ee;padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}.transformer-summary thead th{background:#edf3f9;color:var(--navy2);font-size:11px;text-transform:uppercase;letter-spacing:.035em}.transformer-summary tbody th{width:24%;color:#475467;font-size:12px}.transformer-summary td strong{color:var(--navy2);font-size:14px}.transformer-summary tr:last-child th,.transformer-summary tr:last-child td{border-bottom:0}.transformer-summary .ok{color:var(--ok);font-weight:800}.transformer-summary .caution{color:var(--warn);font-weight:800}.transformer-summary .fail{color:var(--danger);font-weight:800}.transformer-summary ul{margin:0;padding-left:18px}.transformer-summary li+li{margin-top:3px}.transformer-selection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:10px;padding:12px;border:1px solid #d8e1ec;border-radius:10px;background:#f8fafc}@media(max-width:700px){.transformer-selection{grid-template-columns:1fr}.transformer-summary{min-width:680px}.transformer-table-wrap{overflow-x:auto}}
 
 .motor-phase{border:0;margin:0;padding:0}.motor-phase legend{font-size:12px;font-weight:800;color:#475467;margin:0 0 5px}.motor-phase-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.motor-phase-options label{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:1px solid #b8c5d5;border-radius:9px;background:#fff;color:var(--navy2);font-size:13px;font-weight:800;cursor:pointer}.motor-phase-options label:has(input:checked){border-color:var(--teal2);background:#e7f5f3;box-shadow:0 0 0 2px rgba(13,148,136,.13)}.motor-phase-options input{width:auto;min-height:0;margin:0}@media print{.motor-phase-options label:not(:has(input:checked)){display:none}.motor-phase-options label:has(input:checked){border:0;justify-content:flex-start;box-shadow:none;background:#fff}}
 </style>
@@ -68,10 +66,12 @@
         <div class="field"><label for="tMaterial">Conductor material</label><select id="tMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
         <div class="field"><label for="tProtection">Protection method</label><select id="tProtection"><option value="primary">Primary protection only</option><option value="both" selected>Primary and secondary protection</option></select></div>
       </div>
-      <div class="grid" style="margin-top:12px">
+      <div class="grid three" style="margin-top:12px">
         <div class="field"><label for="tParP">Primary conductors per phase</label><input id="tParP" type="number" min="1" step="1" value="1"></div>
-        <div class="field"><label for="tParS">Secondary conductors per phase</label><input id="tParS" type="number" min="1" step="1" value="1"></div>
+        <div class="field"><label for="tRaceP">Primary raceways</label><input id="tRaceP" type="number" min="1" step="1" value="1"></div>
         <div class="field"><label for="tPlen">Primary one-way length (ft)</label><input id="tPlen" type="number" min="0" value="0"></div>
+        <div class="field"><label for="tParS">Secondary conductors per phase</label><input id="tParS" type="number" min="1" step="1" value="1"></div>
+        <div class="field"><label for="tRaceS">Secondary raceways</label><input id="tRaceS" type="number" min="1" step="1" value="1"></div>
         <div class="field"><label for="tSlen">Secondary one-way length (ft)</label><input id="tSlen" type="number" min="0" value="0"></div>
       </div>
       <div class="grid two" style="margin-top:12px">
@@ -79,40 +79,37 @@
       </div>
       <div class="grid two" style="margin-top:12px"><div class="field"><label for="tThermal">Coordinated transformer thermal overload protection — 450.3(B), Note 3</label><select id="tThermal"><option value="no" selected>No</option><option value="yes">Yes — nameplate coordination verified</option></select></div></div>
       <h3>2. Transformer Secondary-Conductor Rule — NEC 240.21(C)</h3>
-      <p class="note">Select the installation path being used. The calculator verifies the entered length, conductor ampacity, voltage-ratio requirement where applicable, load, and terminating OCPD. Check the installation conditions only after confirming them in the field or design.</p>
-      <div class="grid">
-        <div class="field"><label for="tapRule">Secondary-conductor rule</label><select id="tapRule"><option value="none">No 240.21(C) rule selected</option><option value="10ft">Not over 10 ft — 240.21(C)(2)</option><option value="25ft">Not over 25 ft — 240.21(C)(6)</option><option value="outdoor">Outdoor secondary conductors — 240.21(C)(4)</option></select></div>
+      <p class="note">The calculator identifies a potentially applicable rule from the entered secondary length and location. It does not select a rule or confirm compliance.</p>
+      <div class="grid three">
+        <div class="field"><label for="tapLocation">Secondary conductor location</label><select id="tapLocation"><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></div>
         <div class="field"><label for="tapLoad">Calculated load served (A)</label><input id="tapLoad" type="number" min="0" step="any" placeholder="Enter secondary load"></div>
         <div class="field"><label for="tapTermOcpd">Terminating OCPD / equipment rating (A)</label><select id="tapTermOcpd"></select></div>
-        <div class="field"><label for="tapPriOcpd">Primary OCPD override (A)</label><input id="tapPriOcpd" type="number" min="0" step="any" placeholder="Uses final primary OCPD"></div>
       </div>
-      <div class="tap-checks" id="tapChecks">
-        <label class="tap-check"><input id="tapProtected" type="checkbox">Conductors are protected from physical damage in an approved manner.</label>
-        <label class="tap-check"><input id="tapSingleDevice" type="checkbox"><span id="tapTerminationText">Conductors terminate in the equipment or protective device permitted by the selected rule.</span></label>
-        <label class="tap-check" id="tapOutdoorRow"><input id="tapOutdoor" type="checkbox">Conductors are outdoors except at the point of load termination, with the OCPD integral to or immediately adjacent to the disconnecting means.</label>
+      <div class="table-wrap transformer-table-wrap">
+        <table class="transformer-summary"><tbody>
+          <tr><th>Potentially applicable rule</th><td id="tapStatus">Enter secondary length</td></tr>
+          <tr><th>Length and location basis</th><td id="tapBasis">—</td></tr>
+          <tr><th>Selected conductor ampacity</th><td id="tapActualAmpacity">—</td></tr>
+          <tr><th>Minimum indicated ampacity</th><td id="tapMin">—</td></tr>
+          <tr><th>Conditions still to verify</th><td><ul id="tapDetail"></ul></td></tr>
+        </tbody></table>
       </div>
-      <div class="result-grid tap-result-grid">
-        <div class="result"><div class="k">Selected conductor ampacity</div><div class="v" id="tapActualAmpacity">—</div></div>
-        <div class="result"><div class="k">Minimum required ampacity</div><div class="v" id="tapMin">—</div></div>
-        <div class="result tap-status" id="tapStatusCard"><div class="k">240.21(C) status</div><div class="v" id="tapStatus">Select a rule</div></div>
-      </div>
-      <ul class="tap-detail" id="tapDetail"></ul>
       <h3>3. Primary Design</h3>
-      <div class="result-grid design-result-grid"><div class="result-contents" id="tPrimaryResults"></div><div class="result-contents" id="tPrimaryOcpdResults"></div></div>
-      <div class="grid three selection-grid" style="margin-top:12px">
+      <div class="transformer-selection">
         <div class="field"><label for="tPrimarySelectedOcpd">Engineer-selected primary OCPD</label><select id="tPrimarySelectedOcpd"></select></div>
         <div class="field"><label for="tPrimarySelectedWire">Engineer-selected primary conductor</label><select id="tPrimarySelectedWire"></select></div>
-        <div class="result"><div class="k">Primary selection status</div><div class="v" id="tPrimarySelectionStatus"></div></div>
       </div>
+      <div class="table-wrap transformer-table-wrap"><table class="transformer-summary"><thead><tr><th>Item</th><th>Full-capacity design</th><th>Engineer selection / final</th><th>Basis</th></tr></thead><tbody id="tPrimaryTable"></tbody></table></div>
       <h3>4. Secondary Design</h3>
-      <div class="result-grid design-result-grid"><div class="result-contents" id="tSecondaryResults"></div><div class="result-contents" id="tSecondaryOcpdResults"></div></div>
-      <div class="grid three selection-grid" style="margin-top:12px">
+      <div class="transformer-selection">
         <div class="field"><label for="tSecondarySelectedOcpd">Engineer-selected secondary OCPD</label><select id="tSecondarySelectedOcpd"></select></div>
         <div class="field"><label for="tSecondarySelectedWire">Engineer-selected secondary conductor</label><select id="tSecondarySelectedWire"></select></div>
-        <div class="result"><div class="k">Secondary selection status</div><div class="v" id="tSecondarySelectionStatus"></div></div>
       </div>
-      <h3>5. Final Transformer Design</h3><div class="result-grid" id="tFinalResults"></div>
-      <h3>6. Voltage Drop at Transformer Full-Load Current</h3><div class="result-grid" id="tVoltageResults"></div>
+      <div class="table-wrap transformer-table-wrap"><table class="transformer-summary"><thead><tr><th>Item</th><th>Full-capacity design</th><th>Engineer selection / final</th><th>Basis</th></tr></thead><tbody id="tSecondaryTable"></tbody></table></div>
+      <h3>5. Final Grounding and Bonding Summary</h3>
+      <div class="table-wrap transformer-table-wrap"><table class="transformer-summary"><thead><tr><th>Item</th><th>Quantity</th><th>Required size</th><th>Calculation basis</th></tr></thead><tbody id="tGroundingTable"></tbody></table></div>
+      <h3>6. Voltage Drop at Transformer Full-Load Current</h3>
+      <div class="table-wrap transformer-table-wrap"><table class="transformer-summary"><thead><tr><th>Side</th><th>One-way length</th><th>Voltage drop</th><th>Percent</th></tr></thead><tbody id="tVoltageTable"></tbody></table></div>
       <div class="formula" id="tFormula"></div>
       <p class="note">Supply-side bonding jumper assumes a separately derived system with each parallel secondary run in its own raceway or cable, sized under 250.102(C)(1) and (2). It is not the system bonding jumper or grounding electrode conductor. The 240.21(C) result depends on the entered design and confirmations and remains subject to AHJ review. Table 450.3(B) maxima protect the transformer, not automatically its conductors. Verify inrush, terminal ratings, thermal coordination, adjustment factors, transformer connection, equipment ratings, and all installation-specific NEC requirements. Voltage drop uses the approximate K-factor method.</p>
       <div class="msg" id="tMsg"></div>
@@ -266,7 +263,7 @@ function activePanel(){return document.querySelector('.panel.active')}
 function refreshPanel(id){const refresh={transformer,conductor,vd,convert,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
 function resetActivePanel(){
   const panel=activePanel();if(!panel)return;
-  if(panel.id==='transformer'){panel.querySelectorAll('input,select').forEach(field=>{if(field.type==='checkbox')field.checked=false;else field.value=''});$('tPlen').value='0';$('tSlen').value='0';$('tapRule').value='none';fillTransformerKva(false);transformer();return}
+  if(panel.id==='transformer'){panel.querySelectorAll('input,select').forEach(field=>{if(field.type==='checkbox')field.checked=false;else field.value=''});$('tPlen').value='0';$('tSlen').value='0';$('tapLocation').value='indoor';fillTransformerKva(false);transformer();return}
   if(panel.id==='conductor'){panel.querySelectorAll('input,select').forEach(field=>field.value='');conductor(true);return}
   if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
   panel.querySelectorAll('input').forEach(input=>{if(input.type==='checkbox'||input.type==='radio')input.checked=input.defaultChecked;else input.value=input.defaultValue});
@@ -322,14 +319,15 @@ const transformerRatings={
   '3':[3,6,9,15,30,45,75,112.5,150,225,300,500,750,1000,1500,2000,2500,3000]
 };
 function fillTransformerKva(preserve=true){const previous=$('tValue').value,ratings=transformerRatings[$('tPhase').value]||[];$('tValue').innerHTML='<option value="">Select transformer kVA</option>'+ratings.map(k=>`<option value="${k}">${k} kVA</option>`).join('')+'<option value="other">Other nameplate rating</option>';if(preserve&&(previous==='other'||ratings.includes(Number(previous))))$('tValue').value=previous;$('tCustomField').hidden=$('tValue').value!=='other'}
-function supplyBondFor(size,material){
-  const area=cmFor(size);if(!area)return null;
+function supplyBondForArea(area,material){
+  if(!area)return null;
   const limits=material==='cu'?[66360,105600,167800,350000,600000,1100000]:[105600,167800,250000,500000,900000,1750000];
   const sizes=material==='cu'?['8 AWG','6 AWG','4 AWG','2 AWG','1/0 AWG','2/0 AWG']:['6 AWG','4 AWG','2 AWG','1/0 AWG','3/0 AWG','4/0 AWG'];
   const index=limits.findIndex(limit=>area<=limit);return index>=0?sizes[index]:wireData.find(row=>row[1]>=area*.125)?.[0]||null;
 }
+function supplyBondFor(size,material){return supplyBondForArea(cmFor(size),material)}
 function transformerOcpdOptions(id,design,maximum,enabled=true,prompt='Use calculated design OCPD'){
-  const select=$(id),previous=select.value,ratings=enabled&&design&&maximum?standardRatings.filter(r=>r>=design&&r<=maximum):[];
+  const select=$(id),previous=select.value,ratings=enabled&&design&&maximum?standardRatings.filter(r=>r<=maximum):[];
   select.innerHTML=`<option value="">${prompt}</option>`+ratings.map(r=>`<option value="${r}">${r} A</option>`).join('');
   select.disabled=!enabled||!ratings.length;if(ratings.includes(Number(previous)))select.value=previous;
 }
@@ -338,35 +336,41 @@ function transformerWireOptions(id,minimum,material){
   select.innerHTML='<option value="">Use coordinated minimum conductor</option>'+rows.map(r=>`<option value="${r[0]}">${r[0]} — ${r[1]} A</option>`).join('');
   select.disabled=!minimum;if(rows.some(r=>r[0]===previous))select.value=previous;
 }
-function transformerTapRule({pv,sv,sl,sp,mat,finalSecondarySize,selectedPrimaryOcpd,selectedSecondaryOcpd}){
-  const rule=$('tapRule').value,load=n('tapLoad'),terminatingOcpd=n('tapTermOcpd'),overrideRaw=$('tapPriOcpd').value.trim(),primaryOcpd=overrideRaw===''?selectedPrimaryOcpd:Number(overrideRaw);
+function transformerTapRule({pv,sv,sl,sp,mat,finalSecondarySize,selectedPrimaryOcpd}){
+  const location=$('tapLocation').value,load=n('tapLoad'),terminatingOcpd=n('tapTermOcpd');
   const conductorRow=(ampacity[mat]||[]).find(row=>row[0]===finalSecondarySize),actual=conductorRow?conductorRow[1]*sp:null;
-  const protectedConfirmed=$('tapProtected').checked,singleDeviceConfirmed=$('tapSingleDevice').checked,outdoorConfirmed=$('tapOutdoor').checked;
-  $('tapOutdoorRow').classList.toggle('hidden',rule!=='outdoor');
-  $('tapTerminationText').textContent=rule==='10ft'?'Conductors terminate in equipment containing the permitted OCPD(s), or at one circuit breaker or one set of fuses.':'Conductors terminate in one circuit breaker or one set of fuses that limits the load.';
-  $('tapActualAmpacity').textContent=actual?`${fmt(actual,0)} A total (${sp} × ${fmt(conductorRow[1],0)} A)`:'—';
-  const statusCard=$('tapStatusCard'),status=$('tapStatus'),detail=$('tapDetail');statusCard.classList.remove('good','warn');detail.innerHTML='';
-  if(rule==='none'){$('tapMin').textContent='—';status.textContent='Select a rule';return}
-  const maxLength=rule==='10ft'?10:rule==='25ft'?25:null,ratioMinimum=rule==='25ft'&&primaryOcpd>0&&pv>0&&sv>0?(pv/sv)*primaryOcpd/3:0;
+  let rule='none',reference='No rule identified',basis='Enter a secondary one-way length greater than 0 ft.';
+  if(location==='outdoor'){rule='outdoor';reference='NEC 240.21(C)(4) may be applicable';basis=`Outdoor secondary conductors; entered length ${fmt(sl,1)} ft.`}
+  else if(sl>0&&sl<=10){rule='10ft';reference='NEC 240.21(C)(2) may be applicable';basis=`Indoor secondary conductors not over 10 ft; entered length ${fmt(sl,1)} ft.`}
+  else if(sl>10&&sl<=25){rule='25ft';reference='NEC 240.21(C)(6) may be applicable';basis=`Indoor secondary conductors over 10 ft and not over 25 ft; entered length ${fmt(sl,1)} ft.`}
+  else if(sl>25){reference='No standard indoor length allowance identified';basis=`Entered indoor secondary length ${fmt(sl,1)} ft exceeds 25 ft.`}
+  const ratioMinimum=rule==='25ft'&&selectedPrimaryOcpd>0&&pv>0&&sv>0?(pv/sv)*selectedPrimaryOcpd/3:0;
   const requiredValues=[load,terminatingOcpd,ratioMinimum].filter(value=>Number.isFinite(value)&&value>0),minimum=requiredValues.length?Math.max(...requiredValues):null;
-  $('tapMin').textContent=minimum?fmt(minimum,1)+' A':rule==='25ft'?'Enter primary and secondary information':'Enter load and terminating OCPD';
-  const checks=[];
-  checks.push({pass:Number.isFinite(sl)&&sl>=0&&(maxLength===null||sl<=maxLength),text:maxLength===null?`Entered secondary length: ${fmt(sl,1)} ft (no numeric limit for the selected outdoor path).`:`Secondary length ${fmt(sl,1)} ft is ${sl<=maxLength?'within':'over'} the ${maxLength}-ft limit.`});
-  checks.push({pass:Number.isFinite(load)&&load>0,text:Number.isFinite(load)&&load>0?`Calculated load entered: ${fmt(load,1)} A.`:'Enter the calculated load served.'});
-  checks.push({pass:Number.isFinite(terminatingOcpd)&&terminatingOcpd>0,text:Number.isFinite(terminatingOcpd)&&terminatingOcpd>0?`Terminating OCPD/equipment rating entered: ${fmt(terminatingOcpd,0)} A.`:'Select the terminating OCPD or equipment rating.'});
-  if(rule==='25ft')checks.push({pass:Number.isFinite(ratioMinimum)&&ratioMinimum>0,text:ratioMinimum>0?`One-third voltage-ratio minimum: (${fmt(pv,0)} ÷ ${fmt(sv,0)}) × ${fmt(primaryOcpd,0)} A ÷ 3 = ${fmt(ratioMinimum,1)} A.`:'Complete the transformer voltages and primary OCPD.'});
-  checks.push({pass:Number.isFinite(actual)&&Number.isFinite(minimum)&&actual>=minimum,text:Number.isFinite(actual)&&Number.isFinite(minimum)?`Selected secondary conductor ampacity ${fmt(actual,0)} A ${actual>=minimum?'meets':'does not meet'} the ${fmt(minimum,1)} A minimum.`:'Complete the conductor and required-ampacity inputs.'});
-  checks.push({pass:protectedConfirmed,text:protectedConfirmed?'Physical-damage protection confirmed.':'Confirm protection from physical damage.'});
-  checks.push({pass:singleDeviceConfirmed,text:singleDeviceConfirmed?(rule==='10ft'?'Qualifying equipment/OCPD termination confirmed.':'Termination in one qualifying OCPD confirmed.'):(rule==='10ft'?'Confirm the qualifying equipment or OCPD termination.':'Confirm termination in one circuit breaker or one set of fuses.')});
-  if(rule==='outdoor')checks.push({pass:outdoorConfirmed,text:outdoorConfirmed?'Outdoor routing and disconnect/OCPD location confirmed.':'Confirm the outdoor-routing and disconnect/OCPD-location conditions.'});
-  detail.innerHTML=checks.map(check=>`<li>${check.pass?'✓':'✕'} ${check.text}</li>`).join('');
-  const complete=checks.every(check=>check.pass);status.textContent=complete?'Entered requirements pass':'Does not pass / incomplete';statusCard.classList.add(complete?'good':'warn');
+  $('tapStatus').innerHTML=`<strong>${reference}</strong>`;$('tapBasis').textContent=basis;
+  $('tapActualAmpacity').textContent=actual?`${fmt(actual,0)} A total (${sp} × ${fmt(conductorRow[1],0)} A)`:'—';
+  $('tapMin').textContent=minimum?`${fmt(minimum,1)} A${ratioMinimum?`; includes ${fmt(ratioMinimum,1)} A one-third voltage-ratio minimum`:''}`:'Enter calculated load and terminating OCPD/equipment rating.';
+  const conditions=rule==='10ft'?[
+    'Verify calculated load, equipment rating or terminating OCPD, physical protection, and all 240.21(C)(2) conditions.',
+    'Verify the conductors do not extend beyond the permitted switchboard, switchgear, panelboard, or control-device enclosure.'
+  ]:rule==='25ft'?[
+    `Verify the one-third voltage-ratio requirement using the selected ${fmt(selectedPrimaryOcpd,0)} A primary OCPD.`,
+    'Verify physical protection and termination in one circuit breaker or one set of fuses that limits the load.'
+  ]:rule==='outdoor'?[
+    'Verify the conductors are outdoors except at the point of load termination.',
+    'Verify physical protection and that the terminating OCPD is integral to or immediately adjacent to the disconnecting means.'
+  ]:[
+    sl>25?'Provide secondary overcurrent protection at the required location or verify another specific NEC permission.':'Enter the secondary conductor length to identify a potentially applicable rule.'
+  ];
+  if(Number.isFinite(actual)&&Number.isFinite(minimum))conditions.unshift(`${fmt(actual,0)} A selected conductor ampacity ${actual>=minimum?'meets':'does not meet'} the ${fmt(minimum,1)} A indicated numeric minimum.`);
+  conditions.push('This identifies a potentially applicable rule only; verify every condition and obtain AHJ approval.');
+  $('tapDetail').innerHTML=conditions.map(text=>`<li>${text}</li>`).join('');
 }
 function transformer(){
   $('tCustomField').hidden=$('tValue').value!=='other';
   $('tCustomPvField').hidden=$('tPv').value!=='other';$('tCustomSvField').hidden=$('tSv').value!=='other';
-  const phase=$('tPhase').value,value=$('tValue').value==='other'?n('tCustomKva'):n('tValue'),pv=$('tPv').value==='other'?n('tCustomPv'):n('tPv'),sv=$('tSv').value==='other'?n('tCustomSv'):n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),mat=$('tMaterial').value,protection=$('tProtection').value,thermal=$('tThermal').value,impedance=$('tImpedance').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;
-  if(!['1','3'].includes(phase)||value===null||value<=0||!pv||!sv||pv<=0||sv<=0||pv>1000||sv>1000||!mat||!protection||!Number.isInteger(pp)||pp<1||!Number.isInteger(sp)||sp<1){['tPrimaryResults','tPrimaryOcpdResults','tSecondaryResults','tSecondaryOcpdResults','tFinalResults','tVoltageResults'].forEach(id=>$(id).innerHTML='');['tPrimarySelectionStatus','tSecondarySelectionStatus','tapMin','tapActualAmpacity','tapDetail','tFormula'].forEach(id=>$(id).textContent='');$('tapStatus').textContent=$('tapRule').value==='none'?'Select a rule':'Complete transformer information';$('tapStatusCard').classList.remove('good');$('tapStatusCard').classList.add('warn');transformerOcpdOptions('tPrimarySelectedOcpd',null,null,false);transformerOcpdOptions('tSecondarySelectedOcpd',null,null,false);transformerWireOptions('tPrimarySelectedWire',null,mat);transformerWireOptions('tSecondarySelectedWire',null,mat);msg.textContent='';return}
+  const phase=$('tPhase').value,value=$('tValue').value==='other'?n('tCustomKva'):n('tValue'),pv=$('tPv').value==='other'?n('tCustomPv'):n('tPv'),sv=$('tSv').value==='other'?n('tCustomSv'):n('tSv'),pl=n('tPlen'),sl=n('tSlen'),pp=n('tParP'),sp=n('tParS'),pr=n('tRaceP'),sr=n('tRaceS'),mat=$('tMaterial').value,protection=$('tProtection').value,thermal=$('tThermal').value,impedance=$('tImpedance').value,msg=$('tMsg'),factor=phase==='3'?Math.sqrt(3):1;
+  const racewaysValid=Number.isInteger(pr)&&pr>=1&&Number.isInteger(sr)&&sr>=1&&Number.isInteger(pp)&&pp>=1&&Number.isInteger(sp)&&sp>=1&&pr<=pp&&sr<=sp&&pp%pr===0&&sp%sr===0;
+  if(!['1','3'].includes(phase)||value===null||value<=0||!pv||!sv||pv<=0||sv<=0||pv>1000||sv>1000||!mat||!protection||!racewaysValid){['tPrimaryTable','tSecondaryTable','tGroundingTable','tVoltageTable'].forEach(id=>$(id).innerHTML='');['tapMin','tapActualAmpacity','tapDetail','tapBasis','tFormula'].forEach(id=>$(id).textContent='');$('tapStatus').textContent='Complete transformer and raceway information';transformerOcpdOptions('tPrimarySelectedOcpd',null,null,false);transformerOcpdOptions('tSecondarySelectedOcpd',null,null,false);transformerWireOptions('tPrimarySelectedWire',null,mat);transformerWireOptions('tSecondarySelectedWire',null,mat);msg.textContent=!racewaysValid?'Each conductor count must divide evenly among the selected raceways, with at least one conductor per phase in every raceway.':'';return}
   const kva=value;
   const pi=kva*1000/(factor*pv),si=kva*1000/(factor*sv),primaryDesign=ratedOcpd(pi,1.25,'up'),secondaryDesign=ratedOcpd(si,1.25,'up');
   let primaryMaximum,primaryRule,secondaryMaximum=null,secondaryRule='Not selected';
@@ -383,35 +387,43 @@ function transformer(){
   }
   const primaryOcpd=primaryDesign.rating,secondaryOcpd=protection==='both'?secondaryDesign.rating:null,primaryMax=primaryMaximum.rating,secondaryMax=secondaryMaximum?.rating||null;
   transformerOcpdOptions('tPrimarySelectedOcpd',primaryOcpd,primaryMax,true);
-  const selectedPrimaryOcpd=n('tPrimarySelectedOcpd')||primaryOcpd;
+  const explicitPrimaryOcpd=n('tPrimarySelectedOcpd'),selectedPrimaryOcpd=explicitPrimaryOcpd||primaryOcpd;
   const secondaryRequired=protection==='both'&&selectedPrimaryOcpd>primaryOnlyMaximum.rating;
   transformerOcpdOptions('tSecondarySelectedOcpd',secondaryOcpd,secondaryMax,protection==='both',secondaryRequired?'Use calculated design OCPD':'No secondary transformer OCPD required');
   const explicitSecondaryOcpd=protection==='both'?n('tSecondarySelectedOcpd'):null;
   const selectedSecondaryOcpd=protection==='both'?(explicitSecondaryOcpd||(secondaryRequired?secondaryOcpd:null)):null;
-  const largerWire=(a,b)=>a&&b?(cmFor(a.size)>=cmFor(b.size)?a:b):null;
+  const largerWire=(a,b)=>a&&b?(cmFor(a.size)>=cmFor(b.size)?a:b):(a||b);
   const loadPrimary=wireFor(pi*1.25,mat,pp),automaticProtectionPrimary=primaryOcpd?wireForOcpd(primaryOcpd,mat,pp):null,pw=largerWire(loadPrimary,automaticProtectionPrimary);
-  const selectedProtectionPrimary=selectedPrimaryOcpd?wireForOcpd(selectedPrimaryOcpd,mat,pp):null,selectedPrimaryMinimum=largerWire(loadPrimary,selectedProtectionPrimary);
-  const sw=wireFor(Math.max(si*1.25,secondaryOcpd||0),mat,sp),selectedSecondaryMinimum=wireFor(Math.max(si*1.25,selectedSecondaryOcpd||0),mat,sp);
+  const selectedProtectionPrimary=selectedPrimaryOcpd?wireForOcpd(selectedPrimaryOcpd,mat,pp):null,selectedPrimaryMinimum=explicitPrimaryOcpd?selectedProtectionPrimary:pw;
+  const sw=wireFor(Math.max(si*1.25,secondaryOcpd||0),mat,sp),selectedSecondaryMinimum=explicitSecondaryOcpd?wireFor(selectedSecondaryOcpd,mat,sp):sw;
   transformerWireOptions('tPrimarySelectedWire',selectedPrimaryMinimum,mat);transformerWireOptions('tSecondarySelectedWire',selectedSecondaryMinimum,mat);
   const primaryWireOverride=$('tPrimarySelectedWire').value,secondaryWireOverride=$('tSecondarySelectedWire').value,finalPrimarySize=primaryWireOverride||selectedPrimaryMinimum?.size,finalSecondarySize=secondaryWireOverride||selectedSecondaryMinimum?.size;
-  const materialName=mat==='cu'?'Cu':'Al',wireText=w=>w?`${w.count>1?w.count+' × ':''}${w.size} ${materialName} per phase`:'No size in table',finalWireText=(size,count)=>size?`${count>1?count+' × ':''}${size} ${materialName} per phase`:'No size in table';
+  const materialName=mat==='cu'?'Cu':'Al',wireText=w=>w?`${w.count>1?w.count+' × ':''}${w.size} ${materialName} per phase`:'No size in table',finalWireText=(size,count,raceways)=>size?`${count>1?count+' × ':''}${size} ${materialName} per phase; ${count/raceways} conductor${count/raceways===1?'':'s'}/phase in each of ${raceways} raceway${raceways===1?'':'s'}`:'No size in table';
   const g=primaryOcpd?groundForMaterial(primaryOcpd,mat):null,selectedBaseGround=selectedPrimaryOcpd?groundForMaterial(selectedPrimaryOcpd,mat):null,baseGroundCm=cmFor(selectedBaseGround),selectedPrimaryMinimumCm=selectedPrimaryMinimum?cmFor(selectedPrimaryMinimum.size):null,finalPrimaryCm=cmFor(finalPrimarySize),groundRatio=selectedPrimaryMinimumCm&&finalPrimaryCm?Math.max(1,finalPrimaryCm/selectedPrimaryMinimumCm):1,finalGround=baseGroundCm?wireData.find(row=>row[1]>=baseGroundCm*groundRatio)?.[0]:null;
-  const bond=sw?supplyBondFor(sw.size,mat):null,finalBond=finalSecondarySize?supplyBondFor(finalSecondarySize,mat):null,k=mat==='cu'?12.9:21.2,pcm=cmFor(finalPrimarySize),scm=cmFor(finalSecondarySize),dropFactor=phase==='3'?Math.sqrt(3):2,pvd=pcm&&pl!==null&&pl>=0?dropFactor*k*pi*pl/(pcm*pp):null,svd=scm&&sl!==null&&sl>=0?dropFactor*k*si*sl/(scm*sp):null;
-  const render=(id,items)=>{$(id).innerHTML=items.map(([label,value,green])=>`<div class="result${green?' good':''}"><div class="k">${label}</div><div class="v">${value}</div></div>`).join('')};
-  render('tPrimaryResults',[['Primary full-load current',fmt(pi,2)+' A'],['Minimum primary phase conductors',wireText(pw)],['Base primary EGC — 250.122',g?g+' '+materialName+' per raceway':'No size in table',true]]);
-  render('tPrimaryOcpdResults',[['Primary design OCPD — 125%',primaryOcpd?primaryOcpd+' A':'No listed rating'],[`Maximum transformer primary OCPD — ${primaryRule}`,primaryMaximum.rating?primaryMaximum.rating+' A':'No listed rating']]);
-  render('tSecondaryResults',[['Secondary full-load current',fmt(si,2)+' A'],['Minimum secondary phase conductors',wireText(sw)],['Base supply-side bonding jumper — 250.102(C)',bond?bond+' '+materialName+' per raceway':'No size in table',true]]);
-  render('tSecondaryOcpdResults',[['Secondary transformer OCPD requirement',secondaryRequired?secondaryOcpd+' A — required for selected primary OCPD':'Not required by Table 450.3(B)'],['Maximum secondary OCPD — 125% basis',secondaryMaximum?.rating?secondaryMaximum.rating+' A if secondary protection is used':'Not applicable']]);
-  $('tPrimarySelectionStatus').textContent=(n('tPrimarySelectedOcpd')||primaryWireOverride)?'Engineer selection applied':'Calculated design used';
-  $('tSecondarySelectionStatus').textContent=(explicitSecondaryOcpd||secondaryWireOverride)?'Engineer selection applied':secondaryRequired?'Calculated secondary protection applied':'Secondary transformer OCPD not required';
-  render('tFinalResults',[['Primary OCPD',selectedPrimaryOcpd?selectedPrimaryOcpd+' A':'—'],['Primary phase conductors',finalWireText(finalPrimarySize,pp)],['Primary EGC',finalGround?finalGround+' '+materialName+' per raceway':'No size in table',true],['Secondary OCPD',selectedSecondaryOcpd?selectedSecondaryOcpd+' A':protection==='both'?'Not required by 450.3(B)':'Not selected'],['Secondary phase conductors',finalWireText(finalSecondarySize,sp)],['Supply-side bonding jumper',finalBond?finalBond+' '+materialName+' per raceway':'No size in table',true]]);
-  render('tVoltageResults',[['Primary voltage drop',Number.isFinite(pvd)?fmt(pvd,2)+' V':'—'],['Primary voltage-drop percentage',Number.isFinite(pvd)?fmt(pvd/pv*100,2)+'%':'—'],['Secondary voltage drop',Number.isFinite(svd)?fmt(svd,2)+' V':'—'],['Secondary voltage-drop percentage',Number.isFinite(svd)?fmt(svd/sv*100,2)+'%':'—']]);
-  transformerTapRule({pv,sv,sl,sp,mat,finalSecondarySize,selectedPrimaryOcpd,selectedSecondaryOcpd});
-  $('tFormula').textContent=`${fmt(kva,2)} kVA, ${phase==='3'?'three':'single'} phase. Amps = kVA × 1000 ÷ (${phase==='3'?'√3 × voltage':'voltage'}). Automatic conductors use 125% full-load current; secondary conductors also meet any selected or required secondary OCPD without a next-size-up allowance. Table 450.3(B): ${primaryRule}${protection==='both'?'; '+secondaryRule+'. The selected '+selectedPrimaryOcpd+' A primary OCPD '+(secondaryRequired?'exceeds':'does not exceed')+' the '+primaryOnlyMaximum.rating+' A primary-only limit, so secondary transformer protection is '+(secondaryRequired?'required':'not required'):''}. Final primary EGC follows the selected primary OCPD and proportional conductor upsizing. Supply-side bonding is based on ${finalSecondarySize?finalSecondarySize+' '+materialName:'the final secondary conductor'} in each raceway, not on OCPD rating. Voltage drop uses the final conductor selections. The 240.21(C) section evaluates the selected rule from the entered design and confirmed installation conditions.`;
-  msg.textContent=[(pp>1||sp>1)?'Parallel runs assume separate raceways or cables with a 1/0 AWG minimum.':'',(!selectedPrimaryMinimum||!selectedSecondaryMinimum)?'Increase parallel counts if the required conductor exceeds the available table.':'',protection==='primary'||!secondaryRequired?'Primary-only transformer protection does not automatically protect secondary conductors; verify 240.4(F) and 240.21(C).':'',primaryOcpd>primaryMax?'The primary design OCPD exceeds the transformer maximum; review the protection design.':''].filter(Boolean).join(' ');
+  const autoBond=sw?supplyBondForArea(cmFor(sw.size)*(sp/sr),mat):null,finalBond=finalSecondarySize?supplyBondForArea(cmFor(finalSecondarySize)*(sp/sr),mat):null,k=mat==='cu'?12.9:21.2,pcm=cmFor(finalPrimarySize),scm=cmFor(finalSecondarySize),dropFactor=phase==='3'?Math.sqrt(3):2,pvd=pcm&&pl!==null&&pl>=0?dropFactor*k*pi*pl/(pcm*pp):null,svd=scm&&sl!==null&&sl>=0?dropFactor*k*si*sl/(scm*sp):null;
+  const row=(label,automatic,final,basis)=>`<tr><th>${label}</th><td>${automatic}</td><td><strong>${final}</strong></td><td>${basis}</td></tr>`;
+  const primaryChoice=explicitPrimaryOcpd?(selectedPrimaryOcpd<pi?`<span class="caution">${selectedPrimaryOcpd} A — below ${fmt(pi,2)} A full-load current</span>`:selectedPrimaryOcpd<primaryOcpd?`<span class="caution">${selectedPrimaryOcpd} A — below full-capacity recommendation</span>`:`${selectedPrimaryOcpd} A`):`${primaryOcpd} A — automatic`;
+  const secondaryChoice=selectedSecondaryOcpd?(explicitSecondaryOcpd&&selectedSecondaryOcpd<si?`<span class="caution">${selectedSecondaryOcpd} A — below ${fmt(si,2)} A full-load current</span>`:`${selectedSecondaryOcpd} A${explicitSecondaryOcpd?'':' — automatic'}`):'No secondary transformer OCPD selected';
+  $('tPrimaryTable').innerHTML=[
+    row('Full-load current',`${fmt(pi,2)} A`,`${fmt(pi,2)} A`,'Transformer nameplate kVA and primary voltage'),
+    row('Primary OCPD',`${primaryOcpd} A recommendation; ${primaryMaximum.rating} A maximum`,primaryChoice,primaryRule),
+    row('Phase conductors',wireText(pw),finalWireText(finalPrimarySize,pp,pr),explicitPrimaryOcpd?'Sized from engineer-selected OCPD':'125% full-load design and OCPD coordination'),
+    row('Equipment grounding conductor',`${g||'—'} ${materialName} in each raceway`,`${pr} × ${finalGround||'—'} ${materialName}`,`Table 250.122 using ${selectedPrimaryOcpd} A OCPD${groundRatio>1?`; increased ${fmt(groundRatio*100,1)}% for phase-conductor upsizing`:''}`)
+  ].join('');
+  $('tSecondaryTable').innerHTML=[
+    row('Full-load current',`${fmt(si,2)} A`,`${fmt(si,2)} A`,'Transformer nameplate kVA and secondary voltage'),
+    row('Secondary OCPD',secondaryOcpd?`${secondaryOcpd} A full-capacity design`:'Not selected',secondaryChoice,secondaryRequired?`Required for the selected primary OCPD; ${secondaryRule}`:'Not required by Table 450.3(B) for the selected primary OCPD; conductor protection still required'),
+    row('Phase conductors',wireText(sw),finalWireText(finalSecondarySize,sp,sr),explicitSecondaryOcpd?'Sized from engineer-selected secondary OCPD without next-size-up allowance':'125% full-load design'),
+    row('Supply-side bonding jumper',`${sr} × ${autoBond||'—'} ${materialName}`,`${sr} × ${finalBond||'—'} ${materialName}`,`250.102(C); based on ${sp/sr} selected phase conductor${sp/sr===1?'':'s'} in each raceway`)
+  ].join('');
+  $('tGroundingTable').innerHTML=`<tr><th>Primary equipment grounding conductor</th><td>${pr}</td><td><strong>${finalGround||'No size in table'} ${materialName} each</strong></td><td>One in each primary raceway; Table 250.122 based on the selected primary OCPD and proportional increase where required.</td></tr><tr><th>Secondary supply-side bonding jumper</th><td>${sr}</td><td><strong>${finalBond||'No size in table'} ${materialName} each</strong></td><td>One in each secondary raceway; 250.102(C) based on the derived ungrounded conductor area installed in that raceway. A qualifying metal raceway may be permitted as the bonding method; verify the wiring method.</td></tr>`;
+  $('tVoltageTable').innerHTML=`<tr><th>Primary</th><td>${fmt(pl,1)} ft</td><td><strong>${Number.isFinite(pvd)?fmt(pvd,2)+' V':'—'}</strong></td><td>${Number.isFinite(pvd)?fmt(pvd/pv*100,2)+'%':'—'}</td></tr><tr><th>Secondary</th><td>${fmt(sl,1)} ft</td><td><strong>${Number.isFinite(svd)?fmt(svd,2)+' V':'—'}</strong></td><td>${Number.isFinite(svd)?fmt(svd/sv*100,2)+'%':'—'}</td></tr>`;
+  transformerTapRule({pv,sv,sl,sp,mat,finalSecondarySize,selectedPrimaryOcpd});
+  $('tFormula').textContent=`${fmt(kva,2)} kVA, ${phase==='3'?'three':'single'} phase. Amps = kVA × 1000 ÷ (${phase==='3'?'√3 × voltage':'voltage'}). Table 450.3(B): ${primaryRule}${protection==='both'?'; '+secondaryRule:''}. The engineer may select a lower OCPD; the conductor, equipment grounding conductor, bonding jumper, and voltage-drop results then coordinate with that selection. Each EGC is sized from the full selected primary OCPD, not the OCPD divided by raceway count. Each supply-side bonding jumper is based on the derived phase-conductor area installed in its individual secondary raceway.`;
+  msg.textContent=[(pp>1||sp>1)?'Parallel phase conductors must be 1/0 AWG or larger unless a specific NEC permission applies.':'',(!selectedPrimaryMinimum||!selectedSecondaryMinimum)?'Increase parallel counts if the required conductor exceeds the available table.':'',explicitPrimaryOcpd&&selectedPrimaryOcpd<pi?'The selected primary OCPD is below transformer full-load current and limits use of the transformer’s full rated output.':'',explicitSecondaryOcpd&&selectedSecondaryOcpd<si?'The selected secondary OCPD is below transformer full-load current and limits use of the transformer’s full rated output.':'',protection==='primary'||!secondaryRequired?'Primary transformer protection does not automatically protect most secondary conductor configurations; verify 240.4(F) and 240.21(C).':''].filter(Boolean).join(' ');
 }
 $('tPhase').addEventListener('input',()=>{fillTransformerKva();transformer()});
-['tValue','tCustomKva','tPv','tSv','tCustomPv','tCustomSv','tMaterial','tPlen','tSlen','tParP','tParS','tProtection','tThermal','tImpedance','tPrimarySelectedOcpd','tPrimarySelectedWire','tSecondarySelectedOcpd','tSecondarySelectedWire','tapRule','tapLoad','tapTermOcpd','tapPriOcpd','tapProtected','tapSingleDevice','tapOutdoor'].forEach(id=>$(id).addEventListener('input',transformer));
+['tValue','tCustomKva','tPv','tSv','tCustomPv','tCustomSv','tMaterial','tPlen','tSlen','tParP','tParS','tRaceP','tRaceS','tProtection','tThermal','tImpedance','tPrimarySelectedOcpd','tPrimarySelectedWire','tSecondarySelectedOcpd','tSecondarySelectedWire','tapLocation','tapLoad','tapTermOcpd'].forEach(id=>$(id).addEventListener('input',transformer));
 fillTransformerKva(false);
 function fillWireSelect(){const s=$('vdWire');s.innerHTML=wireData.map(r=>`<option value="${r[0]}"${r[0]==='3/0 AWG'?' selected':''}>${r[0]}</option>`).join('')}
 function vd(){const units=$('vdUnits').value,ph=$('vdPhase').value,v=n('vdVolts'),a=n('vdAmps'),par=n('vdParallel'),len=n('vdLength'),size=$('vdWire').value,mat=$('vdMat').value,row=wireData.find(r=>r[0]===size),msg=$('vdMsg');if(!v||a===null||!par||len===null||!row){msg.textContent='Enter valid values.';return}msg.textContent='';const pf=ph==='3'?1.732:2;const area=units==='imperial'?row[1]:row[2];const k=units==='imperial'?(mat==='cu'?12.9:21.2):(mat==='cu'?0.0215:0.0344);const drop=pf*k*a*len/(area*par),pct=drop/v*100;$('vdVoltsOut').textContent=fmt(drop,3)+' V';$('vdPctOut').textContent=fmt(pct,3)+'%';$('vdAreaOut').textContent=units==='imperial'?fmt(area,0)+' CM':fmt(area,2)+' mm²';$('vdKOut').textContent=String(k);$('vdLengthLabel').textContent=units==='imperial'?'Length (ft)':'Length (m)';$('vdFormula').textContent=`VD = ${pf} × K × I × Length ÷ (Area × conductors/phase)`}
