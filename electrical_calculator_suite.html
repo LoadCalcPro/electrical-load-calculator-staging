@@ -81,7 +81,7 @@
             <div class="field"><label for="tPrimaryGroundMaterial">Primary equipment-grounding-conductor material</label><select id="tPrimaryGroundMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
             <div class="field"><label for="tParP">Primary conductors per phase in each conduit</label><input id="tParP" type="number" min="1" step="1" value="1"></div>
             <div class="field"><label for="tRaceP">Number of primary conduits</label><input id="tRaceP" type="number" min="1" step="1" value="1"></div>
-            <div class="field"><label for="tPlen">Primary one-way length (ft)</label><input id="tPlen" type="number" min="0" value="0"></div>
+            <div class="field"><label for="tPlen">Primary one-way length (ft)</label><input id="tPlen" type="number" min="0" placeholder="Enter length"></div>
           </div>
         </section>
         <section class="transformer-input-panel"><h3>Secondary Selection</h3>
@@ -90,7 +90,7 @@
             <div class="field"><label for="tSecondaryBondMaterial">Secondary grounding and bonding conductor material</label><select id="tSecondaryBondMaterial"><option value="cu">Copper</option><option value="al">Aluminum</option></select></div>
             <div class="field"><label for="tParS">Secondary conductors per phase in each conduit</label><input id="tParS" type="number" min="1" step="1" value="1"></div>
             <div class="field"><label for="tRaceS">Number of secondary conduits</label><input id="tRaceS" type="number" min="1" step="1" value="1"></div>
-            <div class="field"><label for="tSlen">Secondary one-way length (ft)</label><input id="tSlen" type="number" min="0" value="0"></div>
+            <div class="field"><label for="tSlen">Secondary one-way length (ft)</label><input id="tSlen" type="number" min="0" placeholder="Enter length"></div>
           </div>
         </section>
       </div>
@@ -281,7 +281,7 @@ function activePanel(){return document.querySelector('.panel.active')}
 function refreshPanel(id){const refresh={transformer,conductor,vd,convert,wire:()=>{},motor,panelcalc};if(refresh[id])refresh[id]()}
 function resetActivePanel(){
   const panel=activePanel();if(!panel)return;
-  if(panel.id==='transformer'){panel.querySelectorAll('input,select').forEach(field=>{if(field.type==='checkbox')field.checked=false;else field.value=''});$('tPlen').value='0';$('tSlen').value='0';$('tapLocation').value='indoor';fillTransformerKva(false);transformer();return}
+  if(panel.id==='transformer'){panel.querySelectorAll('input,select').forEach(field=>{if(field.type==='checkbox')field.checked=false;else field.value=''});$('tapLocation').value='indoor';fillTransformerKva(false);transformer();return}
   if(panel.id==='conductor'){panel.querySelectorAll('input,select').forEach(field=>field.value='');conductor(true);return}
   if(!window.confirm('Start a new calculation in '+(panel.querySelector('h2')?.textContent||'this calculator')+'?'))return;
   panel.querySelectorAll('input').forEach(input=>{if(input.type==='checkbox'||input.type==='radio')input.checked=input.defaultChecked;else input.value=input.defaultValue});
@@ -360,7 +360,7 @@ function transformerWireOptions(id,minimum,material){
   select.innerHTML='<option value="">Use coordinated minimum conductor</option>'+rows.map(r=>`<option value="${r[0]}">${r[0]} — ${r[1]} A</option>`).join('');
   select.disabled=!minimum;if(rows.some(r=>r[0]===previous))select.value=previous;
 }
-function transformerTapRule({pv,sv,sl,sp,sr,mat:sMat,finalSecondarySize,selectedPrimaryOcpd,selectedSecondaryOcpd,secondaryFullLoadCurrent}){
+function transformerTapRule({pv,sv,sl,sp,sr,mat,finalSecondarySize,selectedPrimaryOcpd,selectedSecondaryOcpd,secondaryFullLoadCurrent}){
   const location=$('tapLocation').value,load=secondaryFullLoadCurrent,terminatingOcpd=selectedSecondaryOcpd;
   const totalSecondaryCount=sp*sr,conductorRow=(ampacity[mat]||[]).find(row=>row[0]===finalSecondarySize),actual=conductorRow?conductorRow[1]*totalSecondaryCount:null;
   let rule='none',reference='No rule identified',basis='Enter a secondary one-way length greater than 0 ft.';
