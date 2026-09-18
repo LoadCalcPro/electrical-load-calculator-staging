@@ -351,7 +351,7 @@ function transformerOcpdOptions(id,design,maximum,enabled=true,prompt='Use calcu
 }
 function transformerWireOptions(id,minimum,material){
   const select=$(id),previous=select.value,table=ampacity[material]||[],start=minimum?table.findIndex(r=>r[0]===minimum.size):-1,rows=start>=0?table.slice(start):[];
-  select.innerHTML='<option value="">Use coordinated minimum conductor</option>'+rows.map(r=>`<option value="${r[0]}">${r[0]} — ${r[1]} A</option>`).join('');
+  select.innerHTML='<option value="">Use calculated minimum conductor</option>'+rows.map(r=>`<option value="${r[0]}">${r[0]} — ${r[1]} A</option>`).join('');
   select.disabled=!minimum;if(rows.some(r=>r[0]===previous))select.value=previous;
 }
 function transformerTapRule({pv,sv,sl,sp,sr,mat:sMat,finalSecondarySize,selectedPrimaryOcpd,selectedSecondaryOcpd,secondaryFullLoadCurrent}){
@@ -417,7 +417,9 @@ function transformer(){
   const largerWire=(a,b)=>a&&b?(cmFor(a.size)>=cmFor(b.size)?a:b):(a||b);
   const loadPrimary=wireFor(pi*1.25,pMat,totalPrimaryCount),automaticProtectionPrimary=primaryOcpd?wireForOcpd(primaryOcpd,pMat,totalPrimaryCount):null,pw=largerWire(loadPrimary,automaticProtectionPrimary);
   const selectedProtectionPrimary=selectedPrimaryOcpd?wireForOcpd(selectedPrimaryOcpd,pMat,totalPrimaryCount):null,selectedPrimaryMinimum=explicitPrimaryOcpd?selectedProtectionPrimary:pw;
-  const sw=wireFor(Math.max(si*1.25,secondaryOcpd||0),sMat,totalSecondaryCount),selectedSecondaryMinimum=explicitSecondaryOcpd?wireFor(selectedSecondaryOcpd,sMat,totalSecondaryCount):sw;
+  const sw=wireFor(si*1.25,sMat,totalSecondaryCount);
+  const secondaryOcpdMinimum=explicitSecondaryOcpd?wireForOcpd(explicitSecondaryOcpd,sMat,totalSecondaryCount):null;
+  const selectedSecondaryMinimum=secondaryOcpdMinimum||sw;
   transformerWireOptions('tPrimarySelectedWire',selectedPrimaryMinimum,pMat);transformerWireOptions('tSecondarySelectedWire',selectedSecondaryMinimum,sMat);
   const primaryWireOverride=$('tPrimarySelectedWire').value,secondaryWireOverride=$('tSecondarySelectedWire').value,finalPrimarySize=primaryWireOverride||selectedPrimaryMinimum?.size,finalSecondarySize=secondaryWireOverride||selectedSecondaryMinimum?.size;
   const primaryMaterialName=pMat==='cu'?'Cu':'Al',primaryGroundMaterialName=pGroundMat==='cu'?'Cu':'Al',secondaryMaterialName=sMat==='cu'?'Cu':'Al',secondaryBondMaterialName=sBondMat==='cu'?'Cu':'Al',wireLayout=(size,materialName,perConduit,conduits)=>size?`${perConduit} × ${size} ${materialName} per phase in each of ${conduits} conduit${conduits===1?'':'s'}`:'No size in table';
