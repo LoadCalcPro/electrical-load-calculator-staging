@@ -22,14 +22,31 @@
 
 .transformer-top-options{margin-top:12px}.transformer-input-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.transformer-input-panel{min-width:0;border:1px solid #d8e1ec;border-radius:12px;background:#f8fafc;padding:13px}.transformer-input-panel>h3{margin:0 0 10px;color:var(--navy2);font-size:15px;text-transform:uppercase;letter-spacing:.035em}.transformer-input-panel .grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){.transformer-input-columns{grid-template-columns:1fr}}@media(max-width:560px){.transformer-input-panel .grid{grid-template-columns:1fr}}@media print{.transformer-input-columns{grid-template-columns:1fr 1fr;gap:10px}.transformer-input-panel{padding:8px}}
  @media(min-width:561px){.transformer-top-options .field>label{min-height:2.7em;display:flex;align-items:flex-end}.transformer-input-panel .field>label{min-height:4.1em;display:flex;align-items:flex-end}.transformer-input-panel .field>input,.transformer-input-panel .field>select{align-self:start}}
+
+/* Match production generator calculator header; scoped to suite header only. */
+.hero{display:block;background:linear-gradient(135deg,#1e3a8a,#0f172a);border-radius:0;padding:18px;box-shadow:none}
+.suite-brand-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.suite-title{margin:0;color:#fff;font-size:22px;line-height:1.2;font-weight:900}
+.suite-logo{flex:0 0 auto;padding-top:2px;color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
+.suite-logo .bolt{color:#5eead4;margin-right:3px}.suite-logo .brand-x{color:#5eead4;margin-left:2px}
+.hero .sub{margin-top:5px;color:#dbeafe;font-size:12px;font-weight:700}
+.hero .header-controls{display:flex;justify-content:flex-start;align-items:end;gap:9px;margin-top:16px}
+.hero .header-button,.hero .print-layout-select{min-height:50px;height:50px;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:9px 10px;background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:800}
+.hero .header-button.primary{background:#0f766e;border-color:#0f766e}
+.hero .print-layout-control label{color:#dbeafe}.hero .print-layout-select{background:#fff;color:#0f172a}
+@media(max-width:760px){.hero{flex-direction:initial;align-items:initial}.hero .header-controls{width:100%;justify-content:flex-start}}
+@media(max-width:560px){.hero{padding:18px}.suite-brand-row{gap:8px}.suite-title{font-size:20px}.suite-logo{font-size:12px}.hero .header-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.hero .header-button,.hero .print-layout-control,.hero .print-layout-select{width:100%}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <header class="hero">
-    <div class="brand-block">
-      <div class="brand">LoadCalcPro <span class="accent">X</span></div>
-      <div class="sub">Version 1</div>
+    <div class="suite-brand-row">
+      <div class="brand-block">
+        <h1 class="suite-title">Electrical Calculator Suite</h1>
+        <div class="sub">Version 1</div>
+      </div>
+      <div class="suite-logo"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div>
     </div>
     <div class="header-controls" aria-label="Calculator controls">
       <button class="header-button" id="mainSiteButton" type="button">Main Site</button>
