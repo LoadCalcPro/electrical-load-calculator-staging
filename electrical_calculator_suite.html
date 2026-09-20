@@ -23,36 +23,40 @@
 .transformer-top-options{margin-top:12px}.transformer-input-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.transformer-input-panel{min-width:0;border:1px solid #d8e1ec;border-radius:12px;background:#f8fafc;padding:13px}.transformer-input-panel>h3{margin:0 0 10px;color:var(--navy2);font-size:15px;text-transform:uppercase;letter-spacing:.035em}.transformer-input-panel .grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){.transformer-input-columns{grid-template-columns:1fr}}@media(max-width:560px){.transformer-input-panel .grid{grid-template-columns:1fr}}@media print{.transformer-input-columns{grid-template-columns:1fr 1fr;gap:10px}.transformer-input-panel{padding:8px}}
  @media(min-width:561px){.transformer-top-options .field>label{min-height:2.7em;display:flex;align-items:flex-end}.transformer-input-panel .field>label{min-height:4.1em;display:flex;align-items:flex-end}.transformer-input-panel .field>input,.transformer-input-panel .field>select{align-self:start}}
 
-/* Header copied from the Standard/Commercial calculator layout, scoped to suite only. */
-.hero{display:block;padding:15px 20px;background:linear-gradient(105deg,#0a2b69,#071b47);color:#fff;border-radius:0;box-shadow:none}
-.hero .brand-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
-.hero .app-title{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.02em;color:#fff}
-.hero .app-version{font-size:12px;color:#dbeafe;margin:6px 0 0;font-weight:700}
-.hero .app-brand{flex:0 0 auto;padding-top:2px;color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
-.hero .app-brand .bolt{color:#5eead4;margin-right:3px}
-.hero .app-brand .brand-x{color:#5eead4;margin-left:2px}
-.hero .header-controls{display:flex;align-items:stretch;justify-content:stretch;gap:10px;margin-top:16px;flex-wrap:nowrap}
-.hero .header-button{flex:1;min-width:0;min-height:44px;height:auto;border:1px solid #ffffff6b;border-radius:7px;padding:8px 12px;background:#ffffff1a;color:#fff;font-size:13px;font-weight:700;white-space:nowrap}
-.hero .header-button.primary{background:#0f766e;border-color:#2dd4bf;color:#fff}
-.hero .print-options{display:flex;gap:7px;padding:5px 8px;border:1px solid #ffffff59;border-radius:9px}
-.hero .print-layout-control{display:flex;align-items:center;gap:7px}
-.hero .print-layout-control span{font-size:11px;color:#dbeafe;font-weight:700;white-space:nowrap}
-.hero .print-layout-select{min-width:90px;width:auto;min-height:30px;height:30px;padding:4px 7px;border:0;border-radius:4px;background:#fff;color:#17365d;font-size:12px;font-weight:700}
-@media(max-width:900px){.hero .header-controls{flex-wrap:wrap}.hero .header-button{flex:1 1 145px}.hero .print-options{flex:1 1 160px}.hero .print-layout-control{width:100%}.hero .print-layout-select{flex:1}}
-@media(max-width:560px){.hero{padding:15px 14px}.hero .app-title{font-size:20px}.hero .app-brand{font-size:12px}.hero .header-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.hero .header-button,.hero .print-options{width:100%}.hero .print-options{padding:5px}.hero .print-layout-control{gap:4px}.hero .print-layout-control span{font-size:10px}.hero .print-layout-select{min-width:0;width:100%}}
+/* Suite header: reference screenshot — logo LEFT, title RIGHT, equal-size action groups. */
+.app{max-width:none;margin:0 auto;padding:0 0 18px}
+.hero{display:block;padding:32px 2.9% 25px;background:#0e2146;color:#fff;border-radius:0;box-shadow:none}
+.hero .brand-row{display:flex;align-items:flex-start;justify-content:flex-start;gap:48px}
+.hero .app-brand{display:flex;align-items:center;flex:0 0 auto;padding:0;color:#fff;font-size:46px;line-height:1.1;font-weight:800;white-space:nowrap;letter-spacing:-.03em}
+.hero .app-brand .bolt{color:#ff8548;font-size:42px;margin-right:23px;letter-spacing:0}
+.hero .app-brand .brand-main{color:#fff}
+.hero .app-brand .brand-accent{color:#5eead4}
+.hero .header-title-block{min-width:0}
+.hero .app-title{margin:0;color:#fff;font-size:38px;line-height:1.15;font-weight:800;letter-spacing:-.025em}
+.hero .app-version{margin:7px 0 0;color:#fff;font-size:20px;font-weight:600}
+.hero .header-controls{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;gap:18px;margin-top:27px}
+.hero .header-button{width:100%;min-width:0;min-height:77px;height:77px;padding:10px 12px;border:1px solid #74829b;border-radius:16px;background:#223659;color:#fff;font-size:21px;font-weight:800;white-space:nowrap}
+.hero .header-button.primary{background:#11786f;border-color:#43c3b8;color:#fff}
+.hero .print-options{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid #74829b;border-radius:16px;background:#0e2146;min-width:0}
+.hero .print-options select,.hero .print-layout-select{flex:1 1 0;min-width:0;width:0;height:51px;min-height:51px;padding:6px 13px;border:0;border-radius:12px;background:#fff;color:#101e37;font-size:19px;font-weight:800}
+@media(max-width:1350px){.hero .app-brand{font-size:31px}.hero .app-brand .bolt{font-size:31px;margin-right:12px}.hero .app-title{font-size:30px}.hero .app-version{font-size:15px}.hero .brand-row{gap:30px}.hero .header-controls{gap:10px}.hero .header-button{font-size:15px;min-height:58px;height:58px;border-radius:10px}.hero .print-options{gap:6px;padding:6px;border-radius:10px}.hero .print-options select,.hero .print-layout-select{font-size:12px;min-height:44px;height:44px;padding:5px}}
+@media(max-width:760px){.hero{padding:16px 14px}.hero .brand-row{flex-wrap:wrap;gap:12px}.hero .app-brand{font-size:25px}.hero .app-brand .bolt{font-size:25px}.hero .app-title{font-size:23px}.hero .header-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.hero .header-button{min-height:48px;height:48px;font-size:13px}.hero .print-options{grid-column:1/-1;grid-row:2}.hero .print-options select,.hero .print-layout-select{width:0;min-height:38px;height:38px}.hero #printPdfButton{grid-column:1}.hero #newCalculationButton{grid-column:2}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <header class="hero">
     <div class="brand-row">
-      <div><h1 class="app-title">Electrical Calculator Suite</h1><p class="version app-version">Version 1</p></div>
-      <div class="brand app-brand"><span class="bolt">⚡</span>LoadCalcPro<span class="brand-x">X</span></div>
+      <div class="brand app-brand"><span class="bolt">⚡</span><span class="brand-main">LoadCalc</span><span class="brand-accent">Pro X</span></div>
+      <div class="header-title-block"><h1 class="app-title">Electrical Calculator Suite</h1><p class="version app-version">Version 1.0</p></div>
     </div>
     <div class="header-controls" aria-label="Calculator controls">
       <button class="header-button" id="mainSiteButton" type="button">Main Site</button>
       <button class="header-button" id="calculatorsButton" type="button">Calculators</button>
-      <div class="print-options"><label class="print-layout-control" for="printLayout"><span>Print option</span><select class="print-layout-select" id="printLayout"><option value="full">Full</option><option value="compact">Compact</option></select></label></div>
+      <div class="print-options">
+        <select id="reportType" aria-label="Report type"><option value="branded">Branded Report</option><option value="calculation">Calculation Only</option></select>
+        <select class="print-layout-select" id="printLayout" aria-label="Report layout"><option value="full">Full Width</option><option value="compact">Compact Left</option></select>
+      </div>
       <button class="header-button primary" id="printPdfButton" type="button">Print / PDF</button>
       <button class="header-button" id="newCalculationButton" type="button">New Calculation</button>
     </div>
