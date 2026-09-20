@@ -40,6 +40,20 @@
 .hero .print-options{display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid #ffffff59;border-radius:9px;background:#0e2146;min-width:0}
 .hero .print-options select,.hero .print-layout-select{flex:1 1 0;min-width:0;width:0;height:30px;min-height:30px;padding:4px 7px;border:0;border-radius:5px;background:#fff;color:#101e37;font-size:12px;font-weight:700}
 @media(max-width:760px){.hero{padding:16px 14px}.hero .brand-row{flex-wrap:wrap;gap:12px}.hero .app-brand{font-size:25px}.hero .app-brand .bolt{font-size:25px}.hero .app-title{font-size:23px}.hero .header-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.hero .header-button{min-height:48px;height:48px;font-size:13px}.hero .print-options{grid-column:1/-1;grid-row:2}.hero .print-options select,.hero .print-layout-select{width:0;min-height:38px;height:38px}.hero #printPdfButton{grid-column:1}.hero #newCalculationButton{grid-column:2}}
+
+/* Live drawing-style panel schedule; the breaker editor remains the source of truth. */
+.pc-live-table{width:100%;border-collapse:collapse;min-width:850px;table-layout:fixed;font-size:12px;background:#fff}
+.pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
+.pc-live-table th{background:#17365d;color:#fff;font-size:12px}
+.pc-live-table .pc-description{text-align:left;width:21%}
+.pc-live-table .pc-circuit{font-weight:800;background:#edf3f9}
+.pc-live-table .pc-breaker{font-size:11px}
+.pc-live-table .pc-phase-active{background:#f0fdfa}
+.pc-live-table tbody tr{cursor:pointer}
+.pc-live-table tbody tr:hover td{background:#dceef5}
+.pc-live-table tfoot td{background:#eaf0f7;font-weight:800}
+.breaker-card.pc-selected{outline:3px solid #0d9488;outline-offset:2px}
+@media print{.pc-live-table{min-width:0;font-size:9px}.pc-live-table th,.pc-live-table td{padding:3px 2px}}
 </style>
 </head>
 <body>
@@ -236,6 +250,7 @@
         <button class="btn secondary" id="pcExample" type="button">Load example</button>
         <button class="btn secondary" id="pcClear" type="button">Clear panel</button>
       </div>
+      <div class="panel-schedule-wrap"><h3>Live Panel Schedule</h3><p class="note">Select a circuit in the schedule to edit its breaker and load below. Phase values update as you enter loads.</p><div class="table-wrap"><table class="pc-live-table" aria-label="Live panel schedule"><thead id="pcLiveHead"></thead><tbody id="pcLiveBody"></tbody><tfoot id="pcLiveFoot"></tfoot></table></div></div>
       <div class="breaker-list" id="pcBreakers"></div>
       <div class="panel-warning" id="pcWarning"></div>
       <div class="panel-output">
@@ -485,9 +500,33 @@ function renderBreakers(){const box=$('pcBreakers');box.innerHTML=pcAssemblies.m
 function analyzePanel(){const max=Number($('pcSpaces').value)||42,seq=phaseSequence(),occupancy={},rows=[],phaseConn=Object.fromEntries(seq.map(p=>[p,0])),phaseDem=Object.fromEntries(seq.map(p=>[p,0])),warnings=[];pcAssemblies.sort((a,b)=>a.start-b.start);
  pcAssemblies.forEach(a=>{const cfg=assemblyConfigs[a.type]||assemblyConfigs.custom,spaces=a.type==='custom'?a.spaces:cfg.spaces;if(a.start+spaces-1>max)warnings.push(`Breaker at space ${a.start} exceeds the ${max}-space panel.`);for(let s=a.start;s<a.start+spaces;s++){if(occupancy[s])warnings.push(`Panel space ${s} is used by more than one breaker assembly.`);occupancy[s]=a.id}
  a.parts.forEach((p,i)=>{if(p.poles===3&&$('pcPhase').value!=='3')warnings.push(`Three-pole breaker at space ${a.start} is not permitted in a single-phase panel.`);if(p.poles>seq.length)warnings.push(`${p.poles}-pole circuit at space ${a.start} is incompatible with this panel.`);let partStart=a.start;if(a.type==='tandem')partStart=a.start;if(a.type==='quad22')partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+1;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));const conn=Math.max(0,Number(p.load)||0),factor=$('pcDemandMode').value==='category'?(demandDefaults[p.category]??1):Math.max(0,Number(p.factor)||0),dem=conn*factor,share=phases.length?conn/phases.length:0,dshare=phases.length?dem/phases.length:0;phases.forEach(ph=>{phaseConn[ph]+=share;phaseDem[ph]+=dshare});rows.push({space:a.start,spaces,type:cfg.label,part:p,phases,conn,dem,factor})})});return{rows,phaseConn,phaseDem,warnings}}
+function renderLiveSchedule(r){
+ const count=Math.max(1,Number($('pcSpaces').value)||42),three=$('pcPhase').value==='3',seq=phaseSequence();
+ const headers=['Circuit','Description','Breaker','A (VA)','B (VA)',...(three?['C (VA)']:[]),'Circuit','Description','Breaker'];
+ $('pcLiveHead').innerHTML='<tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr>';
+ const bySpace={};pcAssemblies.forEach(a=>{const config=assemblyConfigs[a.type]||assemblyConfigs.custom,used=a.type==='custom'?a.spaces:config.spaces;for(let s=a.start;s<a.start+used;s++){(bySpace[s]??=[]).push(a)}});
+ function side(space){const assemblies=bySpace[space]||[];if(!assemblies.length)return{description:'',breaker:'',loads:Object.fromEntries(seq.map(p=>[p,0])),id:null};
+ const loads=Object.fromEntries(seq.map(p=>[p,0])),desc=[],breaker=[];
+ assemblies.forEach(a=>a.parts.forEach((p,i)=>{let partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+1;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));if(!phases.includes(seq[(space-1)%seq.length]))return;const share=Math.max(0,Number(p.load)||0)/Math.max(1,phases.length);loads[seq[(space-1)%seq.length]]+=share;desc.push(p.description||p.label);breaker.push(p.breaker+'A / '+p.poles+'P')}));
+ return{description:desc.join(' / ')||configOptionsLabel(assemblies[0].type),breaker:breaker.join(' / '),loads,id:assemblies[0].id};
+ }
+ const cell=(v,cls='')=>'<td class="'+cls+'">'+v+'</td>';
+ const total=Object.fromEntries(seq.map(p=>[p,0]));
+ let html='';
+ for(let left=1;left<=count;left+=2){const right=left+1,L=side(left),R=right<=count?side(right):null,phase=seq[(left-1)%seq.length];
+ const vals=seq.map(p=>{const value=(L.loads[p]||0)+(R?.loads[p]||0);total[p]+=value;return cell(value?fmt(value,0):'—','pc-phase '+(p===phase?'pc-phase-active':''))}).join('');
+ const sideCells=(x,num)=>cell(num,'pc-circuit')+cell(esc(x.description),'pc-description')+cell(esc(x.breaker),'pc-breaker');
+ html+='<tr data-left="'+(L.id??'')+'" data-right="'+(R?.id??'')+'">'+sideCells(L,left)+vals+(R?sideCells(R,right):cell('')+cell('')+cell(''))+'</tr>';
+ }
+ $('pcLiveBody').innerHTML=html;
+ $('pcLiveFoot').innerHTML='<tr>'+cell('Connected VA','pc-total-label')+cell('')+cell('')+seq.map(p=>cell(fmt(total[p],0),'pc-phase')).join('')+cell('')+cell('')+cell('')+'</tr>';
+ $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const right=e.target.cellIndex>=3+seq.length;const id=Number(tr.dataset[right?'right':'left']);if(!id)return;const card=$('pcBreakers').querySelector('.breaker-card[data-id="'+id+'"]');if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('pc-selected');setTimeout(()=>card.classList.remove('pc-selected'),1600)}}));
+}
+function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
 function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=Math.max(1,Number($('pcLN').value)||120),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  $('pcOutputHead').innerHTML=`<tr><th>Space</th><th>Assembly</th><th>Poles / phases</th><th>Trip</th><th>Wire</th><th>Description</th><th>Connected VA</th><th>Demand factor</th><th>Demand VA</th></tr>`;
  $('pcOutputBody').innerHTML=r.rows.map(x=>`<tr><td class="center">${x.space}${x.spaces>1?'-'+(x.space+x.spaces-1):''}</td><td>${esc(x.type)}</td><td class="center">${x.part.poles}P / ${x.phases.join('-')}</td><td class="center">${x.part.breaker} A</td><td class="center">${esc(x.part.wire)}</td><td>${esc(x.part.description)}</td><td class="num">${fmt(x.conn,0)}</td><td class="num">${fmt(x.factor*100,0)}%</td><td class="num">${fmt(x.dem,0)}</td></tr>`).join('');
+ renderLiveSchedule(r);
  $('pcPhaseSummary').innerHTML=seq.map(p=>`<div class="result"><div class="k">Phase ${p}</div><div class="v">${fmt(r.phaseDem[p],0)} VA<br><span style="font-size:14px">${fmt(r.phaseDem[p]/ln,1)} A demand</span></div></div>`).join('')+`<div class="result"><div class="k">Spaces used</div><div class="v">${Object.keys(r.rows.length?pcAssemblies.reduce((o,a)=>{for(let s=a.start;s<a.start+a.spaces;s++)o[s]=1;return o},{}):{}).length} / ${$('pcSpaces').value}</div></div>`;
  $('pcConnected').textContent=fmt(totalConn/1000,2)+' kVA';$('pcDemand').textContent=fmt(totalDem/1000,2)+' kVA';$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function renderPanel(){renderBreakers();panelCalc()}
