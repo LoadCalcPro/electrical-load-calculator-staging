@@ -36,6 +36,25 @@
 .hero .print-layout-control label{color:#dbeafe}.hero .print-layout-select{background:#fff;color:#0f172a}
 @media(max-width:760px){.hero{flex-direction:initial;align-items:initial}.hero .header-controls{width:100%;justify-content:flex-start}}
 @media(max-width:560px){.hero{padding:18px}.suite-brand-row{gap:8px}.suite-title{font-size:20px}.suite-logo{font-size:12px}.hero .header-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.hero .header-button,.hero .print-layout-control,.hero .print-layout-select{width:100%}}
+
+/* Production calculator desktop header parity. Phone retains the compact dark header. */
+@media(min-width:900px){
+ .app{max-width:1320px;margin:18px auto;padding:0 0 18px;background:#fff;box-shadow:0 8px 30px rgba(15,23,42,.10)}
+ .hero{padding:15px 22px;background:#fff;color:#111827;border-bottom:3px solid #1f4e78;border-radius:0;box-shadow:none}
+ .suite-brand-row{align-items:end}
+ .suite-title{font-size:22px;color:#17365d}
+ .suite-logo{font-size:16px;color:#1f4e78}
+ .suite-logo .bolt,.suite-logo .brand-x{color:#15803d}
+ .hero .sub{color:#64748b;font-size:11px}
+ .hero .header-controls{margin-top:10px;gap:8px;align-items:end}
+ .hero .header-button,.hero .print-layout-select{min-width:118px;min-height:34px;height:34px;padding:6px 11px;border:1px solid #9fb1c5;border-radius:4px;background:#fff;color:#17365d;font-size:12px}
+ .hero .header-button.primary{background:#1f4e78;border-color:#1f4e78;color:#fff}
+ .hero .print-layout-control label{color:#64748b;font-size:10px}
+ .hero .print-layout-select{min-width:104px}
+ .nav{padding-left:18px;padding-right:18px}
+ .app>.panel{padding:0 18px}
+ .footer{margin-left:18px;margin-right:18px}
+}
 </style>
 </head>
 <body>
