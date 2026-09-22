@@ -42,17 +42,17 @@
 @media(max-width:760px){.hero{padding:16px 14px}.hero .brand-row{flex-wrap:wrap;gap:12px}.hero .app-brand{font-size:25px}.hero .app-brand .bolt{font-size:25px}.hero .app-title{font-size:23px}.hero .header-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.hero .header-button{min-height:48px;height:48px;font-size:13px}.hero .print-options{grid-column:1/-1;grid-row:2}.hero .print-options select,.hero .print-layout-select{width:0;min-height:38px;height:38px}.hero #printPdfButton{grid-column:1}.hero #newCalculationButton{grid-column:2}}
 
 /* Live drawing-style panel schedule; the breaker editor remains the source of truth. */
-.pc-live-table{width:100%;border-collapse:collapse;min-width:850px;table-layout:fixed;font-size:12px;background:#fff}
+.pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
 .pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
 .pc-live-table th{background:#17365d;color:#fff;font-size:12px}
 .pc-live-table .pc-description{text-align:left}
 .pc-live-table .pc-circuit{width:4%}
-.pc-live-table .pc-breaker{width:8%}
-.pc-live-table .pc-phase{font-variant-numeric:tabular-nums;padding:0}.pc-live-table .pc-phase-halves{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}.pc-live-table .pc-phase-half{min-width:0;padding:8px 2px;overflow-wrap:anywhere}.pc-live-table .pc-phase-half+.pc-phase-half{border-left:1px solid #cbd5e1}
+.pc-live-table .pc-breaker{width:6%}.pc-live-table .pc-wire{width:8%;font-size:11px}
+.pc-live-table .pc-phase{font-variant-numeric:tabular-nums;padding:0}.pc-live-table .pc-phase-halves{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}.pc-live-table .pc-phase-half{min-width:0;padding:8px 2px;white-space:nowrap;font-size:11px}.pc-live-table .pc-phase-half+.pc-phase-half{border-left:1px solid #cbd5e1}
 .pc-live-table .pc-total-label{text-align:left}
-.pc-live-table th.pc-description{width:22%}
-.pc-live-table th.pc-phase{width:5.33%}.pc-live-table .pc-phase-pair-start{border-left:2px solid #64748b}.pc-live-table .pc-phase-pair-end{border-right:2px solid #64748b}
-.pc-live-table th.pc-breaker{width:8%}
+.pc-live-table th.pc-description{width:18%}
+.pc-live-table th.pc-phase{width:8%}.pc-live-table .pc-phase-pair-start{border-left:2px solid #64748b}.pc-live-table .pc-phase-pair-end{border-right:2px solid #64748b}
+.pc-live-table th.pc-breaker{width:6%}.pc-live-table th.pc-wire{width:8%}
 .pc-live-table th.pc-circuit{width:4%}
 .pc-live-table .pc-circuit{font-weight:800;background:#edf3f9}
 .pc-live-table .pc-breaker{font-size:11px}
@@ -523,25 +523,25 @@ function analyzePanel(){const max=Number($('pcSpaces').value)||42,seq=phaseSeque
  a.parts.forEach((p,i)=>{if(p.poles===3&&$('pcPhase').value!=='3')warnings.push(`Three-pole breaker at space ${a.start} is not permitted in a single-phase panel.`);if(p.poles>seq.length)warnings.push(`${p.poles}-pole circuit at space ${a.start} is incompatible with this panel.`);let partStart=a.start;if(a.type==='tandem')partStart=a.start;if(a.type==='quad22')partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+2;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));const conn=Math.max(0,Number(p.load)||0),factor=$('pcDemandMode').value==='category'?(demandDefaults[p.category]??1):Math.max(0,Number(p.factor)||0),dem=conn*factor,share=phases.length?conn/phases.length:0,dshare=phases.length?dem/phases.length:0;phases.forEach(ph=>{phaseConn[ph]+=share;phaseDem[ph]+=dshare});rows.push({space:a.start,spaces,type:cfg.label,part:p,phases,conn,dem,factor})})});return{rows,phaseConn,phaseDem,warnings}}
 function renderLiveSchedule(r){
  const count=Math.max(1,Number($('pcSpaces').value)||42),three=$('pcPhase').value==='3',seq=phaseSequence();
- $('pcLiveHead').innerHTML='<tr><th class="pc-circuit">Circuit</th><th class="pc-description">Description</th><th class="pc-breaker">Breaker</th>'+seq.map(p=>'<th class="pc-phase">'+p+' ('+pcLoadUnit()+')</th>').join('')+'<th class="pc-breaker">Breaker</th><th class="pc-description">Description</th><th class="pc-circuit">Circuit</th></tr>';
+ $('pcLiveHead').innerHTML='<tr><th class="pc-circuit">Circuit</th><th class="pc-description">Description</th><th class="pc-breaker">Breaker</th>'+seq.map(p=>'<th class="pc-phase">'+p+' ('+pcLoadUnit()+')</th>').join('')+'<th class="pc-wire">Wire</th><th class="pc-breaker">Breaker</th><th class="pc-description">Description</th><th class="pc-circuit">Circuit</th></tr>';
  const bySpace={};pcAssemblies.forEach(a=>{for(const s of assemblyPositions(a)){(bySpace[s]??=[]).push(a)}});
- function side(space){const assemblies=bySpace[space]||[];if(!assemblies.length)return{description:'',breaker:'',loads:Object.fromEntries(seq.map(p=>[p,0])),id:null};
- const loads=Object.fromEntries(seq.map(p=>[p,0])),desc=[],breaker=[];
- assemblies.forEach(a=>a.parts.forEach((p,i)=>{let partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+2;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));if(!phases.includes(seq[Math.floor((space-1)/2)%seq.length]))return;const share=Math.max(0,Number(p.load)||0)/Math.max(1,phases.length);loads[seq[Math.floor((space-1)/2)%seq.length]]+=share;desc.push(p.description||p.label);breaker.push(p.breaker+'A / '+p.poles+'P')}));
- return{description:desc.join(' / ')||configOptionsLabel(assemblies[0].type),breaker:breaker.join(' / '),loads,id:assemblies[0].id};
+ function side(space){const assemblies=bySpace[space]||[];if(!assemblies.length)return{description:'',breaker:'',wire:'',loads:Object.fromEntries(seq.map(p=>[p,0])),id:null};
+ const loads=Object.fromEntries(seq.map(p=>[p,0])),desc=[],breaker=[],wire=[];
+ assemblies.forEach(a=>a.parts.forEach((p,i)=>{let partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+2;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));if(!phases.includes(seq[Math.floor((space-1)/2)%seq.length]))return;const share=Math.max(0,Number(p.load)||0)/Math.max(1,phases.length);loads[seq[Math.floor((space-1)/2)%seq.length]]+=share;desc.push(p.description||p.label);breaker.push(p.breaker+'A / '+p.poles+'P');if(p.wire)wire.push(p.wire)}));
+ return{description:desc.join(' / ')||configOptionsLabel(assemblies[0].type),breaker:breaker.join(' / '),wire:[...new Set(wire)].join(' / '),loads,id:assemblies[0].id};
  }
  const cell=(v,cls='')=>'<td class="'+cls+'">'+v+'</td>';
  const total=Object.fromEntries(seq.map(p=>[p,0]));
  let html='';
  for(let left=1;left<=count;left+=2){const right=left+1,L=side(left),R=right<=count?side(right):null,phase=seq[Math.floor((left-1)/2)%seq.length];
  const phaseCells=()=>seq.map(p=>{const lv=L.loads[p]||0,rv=R?.loads[p]||0;total[p]+=lv+rv;const active=p===phase?' pc-phase-active':'';return '<td class="pc-phase pc-phase-pair-start pc-phase-pair-end'+active+'"><div class="pc-phase-halves"><span class="pc-phase-half" data-side="left">'+(lv?pcDisplayNumber(lv):'')+'</span><span class="pc-phase-half" data-side="right">'+(rv?pcDisplayNumber(rv):'')+'</span></div></td>'}).join('');
- const leftCells=cell(left,'pc-circuit')+cell(esc(L.description),'pc-description')+cell(esc(L.breaker),'pc-breaker');
- const rightCells=cell(esc(R?.breaker||''),'pc-breaker')+cell(esc(R?.description||''),'pc-description')+cell(R?right:'','pc-circuit');
+ const leftCells=cell(left,'pc-circuit')+cell(esc(L.description),'pc-description')+cell(esc(L.breaker),'pc-breaker')+cell(esc(L.wire),'pc-wire');
+ const rightCells=cell(esc(R?.wire||''),'pc-wire')+cell(esc(R?.breaker||''),'pc-breaker')+cell(esc(R?.description||''),'pc-description')+cell(R?right:'','pc-circuit');
  html+='<tr data-left="'+(L.id??'')+'" data-right="'+(R?.id??'')+'">'+leftCells+phaseCells()+rightCells+'</tr>';
  }
  $('pcLiveBody').innerHTML=html;
- $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end">'+(total[p]>0?pcDisplayNumber(total[p]):'')+'</td>').join('')+cell('')+cell('')+cell('')+'</tr>';
- $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const cellIndex=e.target.closest('td')?.cellIndex??-1;const right=cellIndex>=3+seq.length || (cellIndex>=3 && e.target.closest('[data-side]')?.dataset.side==='right');const id=Number(tr.dataset[right?'right':'left']);if(!id)return;selectPanelAssembly(id)}));
+ $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end">'+(total[p]>0?pcDisplayNumber(total[p]):'')+'</td>').join('')+cell('')+cell('')+cell('')+cell('')+'</tr>';
+ $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const cellIndex=e.target.closest('td')?.cellIndex??-1;const right=cellIndex>=4+seq.length || (cellIndex>=4 && e.target.closest('[data-side]')?.dataset.side==='right');const id=Number(tr.dataset[right?'right':'left']);if(!id)return;selectPanelAssembly(id)}));
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
 function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
