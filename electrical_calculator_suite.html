@@ -83,16 +83,17 @@
     </div>
   </header>
   <nav class="nav" aria-label="Calculators">
-    <button class="active" data-panel="transformer">Transformer Calculations</button>
+    <button class="active" data-panel="panelcalc">Panel Loads</button>
+    <button data-panel="transformer">Transformer Calculations</button>
     <button data-panel="conductor">Conductor Sizing</button>
     <button data-panel="vd">Voltage Drop</button>
     <button data-panel="convert">Length Converter</button>
     <button data-panel="wire">Wire Reference</button>
     <button data-panel="motor">Motor FLC</button>
-    <button data-panel="panelcalc">Panel Loads</button>
+    
   </nav>
 
-  <section class="panel active" id="transformer">
+  <section class="panel" id="transformer">
     <div class="card">
       <h2>Transformer Calculations</h2>
       <p class="note">Systems at 1,000 V or less. Select phase, transformer kVA, and primary/secondary voltage. Three-phase calculations use line-to-line voltage. Conductors use the 75°C column before installation-specific correction and adjustment factors. Use Other for a different nameplate kVA or voltage.</p>
@@ -237,7 +238,7 @@
   </section>
 
 
-  <section class="panel" id="panelcalc">
+  <section class="panel active" id="panelcalc">
     <div class="card">
       <h2>Panel Schedule</h2>
       <p class="note">Build a new panel or reproduce an existing panel. Physical panel spaces and the circuits contained in each breaker assembly are tracked separately.</p>
