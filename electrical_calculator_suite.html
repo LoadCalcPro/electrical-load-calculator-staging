@@ -45,7 +45,7 @@
 .pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
 .pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
 .pc-live-table th{background:#17365d;color:#fff;font-size:12px}
-.pc-live-table .pc-description{text-align:left}
+.pc-live-table .pc-description{text-align:left;vertical-align:middle}.pc-live-table td[rowspan]{vertical-align:middle}
 .pc-live-table .pc-circuit{width:4%}
 .pc-live-table .pc-breaker{width:6%}.pc-live-table .pc-wire{width:4%;font-size:11px;white-space:nowrap;padding-left:2px;padding-right:2px}
 .pc-live-table .pc-phase{font-variant-numeric:tabular-nums;padding:0}.pc-live-table .pc-phase-halves{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}.pc-live-table .pc-phase-half{min-width:0;padding:8px 2px;white-space:nowrap;font-size:11px}.pc-live-table .pc-phase-half+.pc-phase-half{border-left:1px solid #cbd5e1}
@@ -525,26 +525,31 @@ function analyzePanel(){const max=Number($('pcSpaces').value)||42,seq=phaseSeque
  pcAssemblies.forEach(a=>{const cfg=assemblyConfigs[a.type]||assemblyConfigs.custom,spaces=a.type==='custom'?a.spaces:cfg.spaces;if(a.start+2*(spaces-1)>max)warnings.push(`Breaker at circuit ${a.start} exceeds the ${max}-circuit panel.`);for(const s of assemblyPositions(a)){if(occupancy[s])warnings.push(`Panel space ${s} is used by more than one breaker assembly.`);occupancy[s]=a.id}
  a.parts.forEach((p,i)=>{if(p.poles===3&&$('pcPhase').value!=='3')warnings.push(`Three-pole breaker at space ${a.start} is not permitted in a single-phase panel.`);if(p.poles>seq.length)warnings.push(`${p.poles}-pole circuit at space ${a.start} is incompatible with this panel.`);let partStart=a.start;if(a.type==='tandem')partStart=a.start;if(a.type==='quad22')partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+2;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));const conn=Math.max(0,Number(p.load)||0),factor=$('pcDemandMode').value==='category'?(demandDefaults[p.category]??1):Math.max(0,Number(p.factor)||0),dem=conn*factor,share=phases.length?conn/phases.length:0,dshare=phases.length?dem/phases.length:0;phases.forEach(ph=>{phaseConn[ph]+=share;phaseDem[ph]+=dshare});rows.push({space:a.start,spaces,type:cfg.label,part:p,phases,conn,dem,factor})})});return{rows,phaseConn,phaseDem,warnings}}
 function renderLiveSchedule(r){
- const count=Math.max(1,Number($('pcSpaces').value)||42),three=$('pcPhase').value==='3',seq=phaseSequence();
+ const count=Math.max(1,Number($('pcSpaces').value)||42),seq=phaseSequence();
  $('pcLiveHead').innerHTML='<tr><th class="pc-circuit">Circuit</th><th class="pc-description">Description</th><th class="pc-breaker">Breaker</th><th class="pc-wire">Wire</th>'+seq.map(p=>'<th class="pc-phase">'+p+' ('+pcLoadUnit()+')</th>').join('')+'<th class="pc-wire">Wire</th><th class="pc-breaker">Breaker</th><th class="pc-description">Description</th><th class="pc-circuit">Circuit</th></tr>';
- const bySpace={};pcAssemblies.forEach(a=>{for(const s of assemblyPositions(a)){(bySpace[s]??=[]).push(a)}});
- function side(space){const assemblies=bySpace[space]||[];if(!assemblies.length)return{description:'',breaker:'',wire:'',loads:Object.fromEntries(seq.map(p=>[p,0])),id:null};
- const loads=Object.fromEntries(seq.map(p=>[p,0])),desc=[],breaker=[],wire=[];
- assemblies.forEach(a=>a.parts.forEach((p,i)=>{let partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+2;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));if(!phases.includes(seq[Math.floor((space-1)/2)%seq.length]))return;const share=Math.max(0,Number(p.load)||0)/Math.max(1,phases.length);loads[seq[Math.floor((space-1)/2)%seq.length]]+=share;desc.push(p.description||p.label);breaker.push(p.breaker+'A / '+p.poles+'P');if(p.wire)wire.push(p.wire)}));
- return{description:desc.join(' / ')||configOptionsLabel(assemblies[0].type),breaker:breaker.join(' / '),wire:[...new Set(wire)].join(' / '),loads,id:assemblies[0].id};
+ const bySpace={};pcAssemblies.forEach(a=>{for(const space of assemblyPositions(a)){(bySpace[space]??=[]).push(a)}});
+ function side(space){const assemblies=bySpace[space]||[],loads=Object.fromEntries(seq.map(p=>[p,0]));
+ if(!assemblies.length)return{description:'',breaker:'',wire:'',loads,id:null,mergeKey:null};
+ const desc=[],breaker=[],wire=[],phase=seq[Math.floor((space-1)/2)%seq.length];
+ assemblies.forEach(a=>a.parts.forEach((p,i)=>{let partStart=a.start;if(a.type==='quad121'&&i===2)partStart=a.start+2;const phases=phasesFor(partStart,Math.min(p.poles,seq.length));if(!phases.includes(phase))return;loads[phase]+=Math.max(0,Number(p.load)||0)/Math.max(1,phases.length);desc.push(p.description||p.label);breaker.push(p.breaker+'A / '+p.poles+'P');if(p.wire)wire.push(p.wire)}));
+ return{description:desc.join(' / ')||configOptionsLabel(assemblies[0].type),breaker:breaker.join(' / '),wire:[...new Set(wire)].join(' / '),loads,id:assemblies[0].id,mergeKey:assemblies.length===1&&assemblies[0].parts.length===1&&assemblies[0].parts[0].poles>1?assemblies[0].id:null};
  }
- const cell=(v,cls='')=>'<td class="'+cls+'">'+v+'</td>';
- const total=Object.fromEntries(seq.map(p=>[p,0]));
+ const cell=(v,cls='',span=1)=>'<td class="'+cls+'"'+(span>1?' rowspan="'+span+'"':'')+'>'+v+'</td>';
+ const total=Object.fromEntries(seq.map(p=>[p,0])),entries=[];
+ for(let left=1;left<=count;left+=2){const right=left+1;entries.push({left,right,L:side(left),R:right<=count?side(right):null,phase:seq[Math.floor((left-1)/2)%seq.length]})}
+ // Merge only the description, breaker and wire cells for a single multi-pole circuit.
+ // Circuit numbers and individual phase-load cells must remain on their own rows.
+ function spanFor(index,key){const current=entries[index][key];if(!current?.mergeKey)return 1;let span=1;while(index+span<entries.length&&entries[index+span][key]?.mergeKey===current.mergeKey)span++;return span}
+ function startsHere(index,key){return index===0||!entries[index][key]?.mergeKey||entries[index-1][key]?.mergeKey!==entries[index][key].mergeKey}
+ function sideCells(index,key){const x=entries[index][key];if(!x||!startsHere(index,key))return '';const span=spanFor(index,key);return key==='L'?cell(esc(x.description),'pc-description',span)+cell(esc(x.breaker),'pc-breaker',span)+cell(esc(x.wire),'pc-wire',span):cell(esc(x.wire),'pc-wire',span)+cell(esc(x.breaker),'pc-breaker',span)+cell(esc(x.description),'pc-description',span)}
  let html='';
- for(let left=1;left<=count;left+=2){const right=left+1,L=side(left),R=right<=count?side(right):null,phase=seq[Math.floor((left-1)/2)%seq.length];
- const phaseCells=()=>seq.map(p=>{const lv=L.loads[p]||0,rv=R?.loads[p]||0;total[p]+=lv+rv;const active=p===phase?' pc-phase-active':'';return '<td class="pc-phase pc-phase-pair-start pc-phase-pair-end'+active+'"><div class="pc-phase-halves"><span class="pc-phase-half" data-side="left">'+(lv?pcDisplayNumber(lv):'')+'</span><span class="pc-phase-half" data-side="right">'+(rv?pcDisplayNumber(rv):'')+'</span></div></td>'}).join('');
- const leftCells=cell(left,'pc-circuit')+cell(esc(L.description),'pc-description')+cell(esc(L.breaker),'pc-breaker')+cell(esc(L.wire),'pc-wire');
- const rightCells=cell(esc(R?.wire||''),'pc-wire')+cell(esc(R?.breaker||''),'pc-breaker')+cell(esc(R?.description||''),'pc-description')+cell(R?right:'','pc-circuit');
- html+='<tr data-left="'+(L.id??'')+'" data-right="'+(R?.id??'')+'">'+leftCells+phaseCells()+rightCells+'</tr>';
- }
+ entries.forEach(({left,right,L,R,phase},index)=>{
+ const phaseCells=seq.map(p=>{const lv=L.loads[p]||0,rv=R?.loads[p]||0;total[p]+=lv+rv;const active=p===phase?' pc-phase-active':'';return '<td class="pc-phase pc-phase-pair-start pc-phase-pair-end'+active+'"><div class="pc-phase-halves"><span class="pc-phase-half" data-side="left">'+(lv?pcDisplayNumber(lv):'')+'</span><span class="pc-phase-half" data-side="right">'+(rv?pcDisplayNumber(rv):'')+'</span></div></td>'}).join('');
+ html+='<tr data-left="'+(L.id??'')+'" data-right="'+(R?.id??'')+'">'+cell(left,'pc-circuit')+sideCells(index,'L')+phaseCells+sideCells(index,'R')+cell(R?right:'','pc-circuit')+'</tr>';
+ });
  $('pcLiveBody').innerHTML=html;
  $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end">'+(total[p]>0?pcDisplayNumber(total[p]):'')+'</td>').join('')+cell('')+cell('')+cell('')+cell('')+'</tr>';
- $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const cellIndex=e.target.closest('td')?.cellIndex??-1;const right=cellIndex>=4+seq.length || (cellIndex>=4 && e.target.closest('[data-side]')?.dataset.side==='right');const id=Number(tr.dataset[right?'right':'left']);if(!id)return;selectPanelAssembly(id)}));
+ $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const td=e.target.closest('td');if(!td)return;const side=e.target.closest('[data-side]')?.dataset.side;const right=side?side==='right':td.classList.contains('pc-wire')||td.classList.contains('pc-breaker')||td.classList.contains('pc-description')?td.cellIndex>=(4+seq.length):td.classList.contains('pc-circuit')&&td===tr.lastElementChild;const id=Number(tr.dataset[right?'right':'left']);if(id)selectPanelAssembly(id)}));
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
 function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
