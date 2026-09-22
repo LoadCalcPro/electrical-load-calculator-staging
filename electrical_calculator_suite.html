@@ -43,7 +43,7 @@
 
 /* Live drawing-style panel schedule; the breaker editor remains the source of truth. */
 .pc-load-summary{width:100%;border-collapse:collapse;margin:10px 0 14px;min-width:540px;font-size:13px}.pc-load-summary th,.pc-load-summary td{border:1px solid #cbd5e1;padding:10px;text-align:right;font-variant-numeric:tabular-nums}.pc-load-summary th:first-child,.pc-load-summary td:first-child{text-align:left}.pc-load-summary thead th{background:#17365d;color:white}.pc-load-summary tbody tr:last-child{font-weight:800;background:#eaf0f7}
-.pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
+.pc-supply [hidden]{display:none!important}.pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
 .pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
 .pc-live-table th{background:#17365d;color:#fff;font-size:12px}
 .pc-live-table .pc-description{text-align:left;vertical-align:middle}.pc-live-table td[rowspan]{vertical-align:middle}
@@ -248,11 +248,22 @@
         <div class="field"><label for="pcVoltage">System voltage</label><select id="pcVoltage"><option value="120/240">120/240 V</option><option value="120/208" selected>120/208 V</option><option value="277/480">277/480 V</option></select></div>
         <div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div>
         <div class="field"><label for="pcSpaces">Panel spaces</label><input id="pcSpaces" type="number" min="2" max="120" step="2" value="42"></div>
-        <div class="field"><label for="pcMain">Panel main rating (A)</label><input id="pcMain" type="number" min="0" value="200"></div>
+
         <div class="field"><label for="pcName">Panel name</label><input id="pcName" value="Panel A"></div>
         <div class="field"><label for="pcLocation">Location</label><input id="pcLocation" placeholder="Optional"></div>
         <div class="field"><label for="pcMode">Panel condition</label><select id="pcMode"><option value="new">New panel</option><option value="existing">Existing panel</option></select></div>
         <div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div>
+      </div>
+      <h3>Panel Supply Information</h3>
+      <div class="panel-setup pc-supply">
+        <div class="field"><label for="pcFedFrom">Fed from (panel / equipment)</label><input id="pcFedFrom" placeholder="e.g., MDP, Panel A, T-1"></div>
+        <div class="field"><label for="pcMainType">Panel main type</label><select id="pcMainType"><option value="mlo">Main Lugs Only (MLO)</option><option value="mcb">Main Breaker (MCB)</option></select></div>
+        <div class="field"><label for="pcUpstream">Upstream feeder OCPD (A)</label><input id="pcUpstream" type="number" min="0" placeholder="Amperes"></div>
+        <div class="field" id="pcMainField" hidden><label for="pcMain">Panel main breaker (A)</label><input id="pcMain" type="number" min="0" placeholder="Amperes"></div>
+        <div class="field"><label for="pcFeederMaterial">Feeder conductor material</label><select id="pcFeederMaterial"><option value="">Select</option><option value="Copper">Copper</option><option value="Aluminum">Aluminum</option></select></div>
+        <div class="field"><label for="pcFeederWire">Feeder conductor size</label><input id="pcFeederWire" placeholder="e.g., 3/0 AWG"></div>
+        <div class="field"><label for="pcFeederSets">Parallel feeder sets</label><input id="pcFeederSets" type="number" min="1" step="1" placeholder="1"></div>
+        <div class="field"><label for="pcFeederEGC">Feeder EGC size</label><input id="pcFeederEGC" placeholder="e.g., #6 Cu"></div>
       </div>
       <div class="panel-actions add-controls">
         <button class="btn" id="pcAdd" type="button">Add breaker assembly</button>
@@ -554,7 +565,7 @@ function renderLiveSchedule(r){
  $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const td=e.target.closest('td');if(!td)return;const side=e.target.closest('[data-side]')?.dataset.side;const right=side?side==='right':td.classList.contains('pc-wire')||td.classList.contains('pc-breaker')||td.classList.contains('pc-description')?td.cellIndex>=(4+seq.length):td.classList.contains('pc-circuit')&&td===tr.lastElementChild;const id=Number(tr.dataset[right?'right':'left']);if(id)selectPanelAssembly(id)}));
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
-function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
+function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
  $('pcLoadSummaryHead').innerHTML='<tr><th>Load</th>'+seq.map(p=>'<th>Phase '+p+' ('+pcLoadUnit()+')</th>').join('')+'<th>Panel total ('+pcLoadUnit()+')</th></tr>';
  const summaryValue=v=>v>0?pcDisplayNumber(v):'';
@@ -564,13 +575,13 @@ function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phase
  $('pcConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();$('pcDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function selectPanelAssembly(id){pcSelectedId=id;renderPanel();$('pcBreakers').scrollIntoView({behavior:'smooth',block:'center'})}
 function renderPanel(){renderBreakers();panelCalc()}
-function savePanel(){try{localStorage.setItem('loadcalcpro-panel-v2',JSON.stringify({assemblies:pcAssemblies,next:pcNextId,settings:{phase:$('pcPhase').value,voltage:$('pcVoltage').value,unit:$('pcUnit').value,spaces:$('pcSpaces').value,main:$('pcMain').value,name:$('pcName').value,location:$('pcLocation').value,mode:$('pcMode').value,demand:$('pcDemandMode').value}}))}catch{}}
-function restorePanel(){try{const x=JSON.parse(localStorage.getItem('loadcalcpro-panel-v2'));if(!x)return false;pcAssemblies=x.assemblies||[];pcNextId=x.next||1;const s=x.settings||{};[['pcPhase','phase'],['pcVoltage','voltage'],['pcUnit','unit'],['pcSpaces','spaces'],['pcMain','main'],['pcName','name'],['pcLocation','location'],['pcMode','mode'],['pcDemandMode','demand']].forEach(([id,k])=>{if(s[k]!=null)$(id).value=s[k]});return true}catch{return false}}
+function savePanel(){try{localStorage.setItem('loadcalcpro-panel-v2',JSON.stringify({assemblies:pcAssemblies,next:pcNextId,settings:{fedFrom:$('pcFedFrom').value,mainType:$('pcMainType').value,upstream:$('pcUpstream').value,feederMaterial:$('pcFeederMaterial').value,feederWire:$('pcFeederWire').value,feederSets:$('pcFeederSets').value,feederEGC:$('pcFeederEGC').value,phase:$('pcPhase').value,voltage:$('pcVoltage').value,unit:$('pcUnit').value,spaces:$('pcSpaces').value,main:$('pcMain').value,name:$('pcName').value,location:$('pcLocation').value,mode:$('pcMode').value,demand:$('pcDemandMode').value}}))}catch{}}
+function restorePanel(){try{const x=JSON.parse(localStorage.getItem('loadcalcpro-panel-v2'));if(!x)return false;pcAssemblies=x.assemblies||[];pcNextId=x.next||1;const s=x.settings||{};[['pcFedFrom','fedFrom'],['pcMainType','mainType'],['pcUpstream','upstream'],['pcFeederMaterial','feederMaterial'],['pcFeederWire','feederWire'],['pcFeederSets','feederSets'],['pcFeederEGC','feederEGC'],['pcPhase','phase'],['pcVoltage','voltage'],['pcUnit','unit'],['pcSpaces','spaces'],['pcMain','main'],['pcName','name'],['pcLocation','location'],['pcMode','mode'],['pcDemandMode','demand']].forEach(([id,k])=>{if(s[k]!=null)$(id).value=s[k]});return true}catch{return false}}
 function clearPanel(){if(!confirm('Clear the entire panel schedule?'))return;pcAssemblies=[];pcNextId=1;pcSelectedId=null;renderPanel()}
 function loadExample(){pcAssemblies=[];pcNextId=1;pcSelectedId=null;addAssembly('standard2',1,{parts:[{poles:2,label:'2P',description:'Air conditioning',breaker:30,wire:'#10',load:4800,category:'hvac',factor:1}]});addAssembly('tandem',5,{parts:[{poles:1,label:'Mini A',description:'Lighting',breaker:20,wire:'#12',load:1200,category:'lighting',factor:1},{poles:1,label:'Mini B',description:'Receptacles',breaker:20,wire:'#12',load:1500,category:'receptacle',factor:1}]});addAssembly('quad121',2,{parts:[{poles:1,label:'Outer 1P A',description:'Appliance',breaker:20,wire:'#12',load:1200,category:'appliance',factor:1},{poles:2,label:'Center 2P',description:'Water heater',breaker:30,wire:'#10',load:4500,category:'appliance',factor:1},{poles:1,label:'Outer 1P B',description:'Continuous load',breaker:20,wire:'#12',load:800,category:'continuous',factor:1.25}]});renderPanel()}
 $('pcUnit').addEventListener('change',()=>renderPanel());
 $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').addEventListener('click',clearPanel);$('pcExample').addEventListener('click',loadExample);
-['pcPhase','pcVoltage','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'&&e.target.value==='custom')$('pcVoltage').value='120/208';if(id==='pcPhase'&&e.target.value==='1'&&pcAssemblies.some(a=>a.parts.some(p=>p.poles===3))){e.target.value='3';$('pcWarning').textContent='Remove or change existing three-pole breakers before selecting a single-phase panel.';return}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
+['pcFedFrom','pcMainType','pcUpstream','pcFeederMaterial','pcFeederWire','pcFeederSets','pcFeederEGC','pcPhase','pcVoltage','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'&&e.target.value==='custom')$('pcVoltage').value='120/208';if(id==='pcPhase'&&e.target.value==='1'&&pcAssemblies.some(a=>a.parts.some(p=>p.poles===3))){e.target.value='3';$('pcWarning').textContent='Remove or change existing three-pole breakers before selecting a single-phase panel.';return}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 restorePanel();pcSelectedId=null;renderPanel();
 
 ['csCurrent','csFuse','csParallel','csMaterial'].forEach(id=>$(id).addEventListener('input',()=>conductor(true)));['csVoltage','csPhase','csLength','csSelected'].forEach(id=>$(id).addEventListener('input',()=>conductor(false)));
