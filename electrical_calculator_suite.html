@@ -261,10 +261,6 @@
       <div class="breaker-list" id="pcBreakers"></div>
       <div class="panel-schedule-wrap"><h3>Live Panel Schedule</h3><p class="note">Select a circuit in the schedule to open only that breaker for editing or removal below Add Breaker Assembly. Phase values update as you enter loads.</p><div class="table-wrap"><table class="pc-live-table" aria-label="Live panel schedule"><thead id="pcLiveHead"></thead><tbody id="pcLiveBody"></tbody><tfoot id="pcLiveFoot"></tfoot></table></div></div>
       <div class="panel-warning" id="pcWarning"></div>
-      <div class="panel-output">
-        <h3>Panel Schedule Output</h3>
-        <div class="table-wrap"><table><thead id="pcOutputHead"></thead><tbody id="pcOutputBody"></tbody></table></div>
-      </div>
       <div class="summary phase-summary" id="pcPhaseSummary"></div>
       <div class="summary">
         <div class="result"><div class="k">Connected panel load</div><div class="v" id="pcConnected">—</div></div>
@@ -545,8 +541,6 @@ function renderLiveSchedule(r){
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
 function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
- $('pcOutputHead').innerHTML=`<tr><th>Space</th><th>Assembly</th><th>Poles / phases</th><th>Trip</th><th>Wire</th><th>Description</th><th>Connected ${pcLoadUnit()}</th><th>Demand factor</th><th>Demand ${pcLoadUnit()}</th></tr>`;
- $('pcOutputBody').innerHTML=r.rows.map(x=>`<tr><td class="center">${x.space}${x.spaces>1?'-'+(x.space+x.spaces-1):''}</td><td>${esc(x.type)}</td><td class="center">${x.part.poles}P / ${x.phases.join('-')}</td><td class="center">${x.part.breaker} A</td><td class="center">${esc(x.part.wire)}</td><td>${esc(x.part.description)}</td><td class="num">${pcDisplayNumber(x.conn)}</td><td class="num">${fmt(x.factor*100,0)}%</td><td class="num">${pcDisplayNumber(x.dem)}</td></tr>`).join('');
  renderLiveSchedule(r);
  $('pcPhaseSummary').innerHTML=seq.map(p=>`<div class="result"><div class="k">Phase ${p}</div><div class="v">${pcDisplayNumber(r.phaseDem[p])} ${pcLoadUnit()}<br><span style="font-size:14px">${fmt(r.phaseDem[p]/ln,1)} A demand</span></div></div>`).join('')+`<div class="result"><div class="k">Spaces used</div><div class="v">${Object.keys(r.rows.length?pcAssemblies.reduce((o,a)=>{for(const s of assemblyPositions(a))o[s]=1;return o},{}):{}).length} / ${$('pcSpaces').value}</div></div>`;
  $('pcConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();$('pcDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
