@@ -42,6 +42,7 @@
 @media(max-width:760px){.hero{padding:16px 14px}.hero .brand-row{flex-wrap:wrap;gap:12px}.hero .app-brand{font-size:25px}.hero .app-brand .bolt{font-size:25px}.hero .app-title{font-size:23px}.hero .header-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.hero .header-button{min-height:48px;height:48px;font-size:13px}.hero .print-options{grid-column:1/-1;grid-row:2}.hero .print-options select,.hero .print-layout-select{width:0;min-height:38px;height:38px}.hero #printPdfButton{grid-column:1}.hero #newCalculationButton{grid-column:2}}
 
 /* Live drawing-style panel schedule; the breaker editor remains the source of truth. */
+.pc-load-summary{width:100%;border-collapse:collapse;margin:10px 0 14px;min-width:540px;font-size:13px}.pc-load-summary th,.pc-load-summary td{border:1px solid #cbd5e1;padding:10px;text-align:right;font-variant-numeric:tabular-nums}.pc-load-summary th:first-child,.pc-load-summary td:first-child{text-align:left}.pc-load-summary thead th{background:#17365d;color:white}.pc-load-summary tbody tr:last-child{font-weight:800;background:#eaf0f7}
 .pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
 .pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
 .pc-live-table th{background:#17365d;color:#fff;font-size:12px}
@@ -262,14 +263,16 @@
       <div class="breaker-list" id="pcBreakers"></div>
       <div class="panel-schedule-wrap"><h3>Live Panel Schedule</h3><p class="note">Select a circuit in the schedule to open only that breaker for editing or removal below Add Breaker Assembly. Phase values update as you enter loads.</p><div class="table-wrap"><table class="pc-live-table" aria-label="Live panel schedule"><thead id="pcLiveHead"></thead><tbody id="pcLiveBody"></tbody><tfoot id="pcLiveFoot"></tfoot></table></div></div>
       <div class="panel-warning" id="pcWarning"></div>
+      <h3>Panel Load Summary</h3>
+      <div class="table-wrap"><table class="pc-load-summary" aria-label="Connected and calculated demand by phase"><thead id="pcLoadSummaryHead"></thead><tbody id="pcLoadSummaryBody"></tbody></table></div>
       <div class="summary phase-summary" id="pcPhaseSummary"></div>
       <div class="summary">
         <div class="result"><div class="k">Connected panel load</div><div class="v" id="pcConnected">—</div></div>
-        <div class="result good"><div class="k">Calculated demand</div><div class="v" id="pcDemand">—</div></div>
+        <div class="result good"><div class="k">Calculated load (current demand factors)</div><div class="v" id="pcDemand">—</div></div>
         <div class="result"><div class="k">Maximum phase current</div><div class="v" id="pcMaxAmps">—</div></div>
         <div class="result"><div class="k">Phase imbalance</div><div class="v" id="pcImbalance">—</div></div>
       </div>
-      <div class="demand-note">Connected load is counted once at the panel total. Multi-pole load is distributed across its connected phases for phase balancing. Demand factors are editable and must be verified for the occupancy and load calculation method.</div>
+      <div class="demand-note">Connected load is counted once in the panel total. Calculated load uses the currently selected category or manually entered factors, including the 125% continuous-load factor where applicable. Selecting Dwelling Standard, Dwelling Optional, or Commercial changes the available categories but does not yet run the full NEC service/feeder demand calculation. Verify applicability before using calculated values for design.</div>
     </div>
   </section>
 
@@ -554,6 +557,9 @@ function renderLiveSchedule(r){
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
 function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
+ $('pcLoadSummaryHead').innerHTML='<tr><th>Load</th>'+seq.map(p=>'<th>Phase '+p+' ('+pcLoadUnit()+')</th>').join('')+'<th>Panel total ('+pcLoadUnit()+')</th></tr>';
+ const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+pcDisplayNumber(values[p])+'</td>').join('')+'<td>'+pcDisplayNumber(total)+'</td></tr>';
+ $('pcLoadSummaryBody').innerHTML=summaryRow('Connected load',r.phaseConn,totalConn)+summaryRow('Calculated load / demand factors',r.phaseDem,totalDem);
  $('pcPhaseSummary').innerHTML=seq.map(p=>`<div class="result"><div class="k">Phase ${p}</div><div class="v">${pcDisplayNumber(r.phaseDem[p])} ${pcLoadUnit()}<br><span style="font-size:14px">${fmt(r.phaseDem[p]/ln,1)} A demand</span></div></div>`).join('')+`<div class="result"><div class="k">Spaces used</div><div class="v">${Object.keys(r.rows.length?pcAssemblies.reduce((o,a)=>{for(const s of assemblyPositions(a))o[s]=1;return o},{}):{}).length} / ${$('pcSpaces').value}</div></div>`;
  $('pcConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();$('pcDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function selectPanelAssembly(id){pcSelectedId=id;renderPanel();$('pcBreakers').scrollIntoView({behavior:'smooth',block:'center'})}
