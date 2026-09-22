@@ -43,7 +43,7 @@
 
 /* Live drawing-style panel schedule; the breaker editor remains the source of truth. */
 .pc-load-summary{width:100%;border-collapse:collapse;margin:10px 0 14px;min-width:540px;font-size:13px}.pc-load-summary th,.pc-load-summary td{border:1px solid #cbd5e1;padding:10px;text-align:right;font-variant-numeric:tabular-nums}.pc-load-summary th:first-child,.pc-load-summary td:first-child{text-align:left}.pc-load-summary thead th{background:#17365d;color:white}.pc-load-summary tbody tr:last-child{font-weight:800;background:#eaf0f7}
-.pc-supply [hidden]{display:none!important}.pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
+.pc-supply [hidden]{display:none!important}.pc-feeder-details{margin:12px 0 18px;border:1px solid #d8e1ec;border-radius:10px;padding:11px 14px}.pc-feeder-details summary{cursor:pointer;font-weight:700;color:var(--navy2)}.pc-feeder-details .panel-setup{margin-top:14px}.pc-breaker-toolbar{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap;margin-top:18px}.pc-breaker-toolbar h3{margin:0}.pc-entry-unit{min-width:150px}.pc-primary{grid-template-columns:repeat(3,minmax(0,1fr))}.pc-supply-primary{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:700px){.pc-primary,.pc-supply-primary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.pc-primary,.pc-supply-primary{grid-template-columns:1fr}}.pc-live-table{width:100%;border-collapse:collapse;min-width:1120px;table-layout:fixed;font-size:12px;background:#fff}
 .pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
 .pc-live-table th{background:#17365d;color:#fff;font-size:12px}
 .pc-live-table .pc-description{text-align:left;vertical-align:middle}.pc-live-table td[rowspan]{vertical-align:middle}
@@ -243,33 +243,39 @@
     <div class="card">
       <h2>Panel Schedule</h2>
       <p class="note">Build a new panel or reproduce an existing panel. Physical panel spaces and the circuits contained in each breaker assembly are tracked separately.</p>
-      <div class="panel-setup">
-        <div class="field"><label for="pcPhase">Panel phase</label><select id="pcPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
-        <div class="field"><label for="pcVoltage">System voltage</label><select id="pcVoltage"><option value="120/240">120/240 V</option><option value="120/208" selected>120/208 V</option><option value="277/480">277/480 V</option></select></div>
-        <div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div>
-        <div class="field"><label for="pcSpaces">Panel spaces</label><input id="pcSpaces" type="number" min="2" max="120" step="2" value="42"></div>
-
+      <div class="panel-setup pc-primary">
         <div class="field"><label for="pcName">Panel name</label><input id="pcName" value="Panel A"></div>
         <div class="field"><label for="pcLocation">Location</label><input id="pcLocation" placeholder="Optional"></div>
+        <div class="field"><label for="pcPhase">Panel phase</label><select id="pcPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
+        <div class="field"><label for="pcVoltage">System voltage</label><select id="pcVoltage"><option value="120/240">120/240 V</option><option value="120/208" selected>120/208 V</option><option value="277/480">277/480 V</option></select></div>
+        <div class="field"><label for="pcSpaces">Panel spaces</label><input id="pcSpaces" type="number" min="2" max="120" step="2" value="42"></div>
         <div class="field"><label for="pcMode">Panel condition</label><select id="pcMode"><option value="new">New panel</option><option value="existing">Existing panel</option></select></div>
-        <div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div>
       </div>
-      <h3>Panel Supply Information</h3>
-      <div class="panel-setup pc-supply">
+      <h3>Panel Supply</h3>
+      <div class="panel-setup pc-supply pc-supply-primary">
         <div class="field"><label for="pcFedFrom">Fed from (panel / equipment)</label><input id="pcFedFrom" placeholder="e.g., MDP, Panel A, T-1"></div>
         <div class="field"><label for="pcMainType">Panel main type</label><select id="pcMainType"><option value="mlo">Main Lugs Only (MLO)</option><option value="mcb">Main Breaker (MCB)</option></select></div>
         <div class="field"><label for="pcUpstream">Upstream feeder OCPD (A)</label><input id="pcUpstream" type="number" min="0" placeholder="Amperes"></div>
         <div class="field" id="pcMainField" hidden><label for="pcMain">Panel main breaker (A)</label><input id="pcMain" type="number" min="0" placeholder="Amperes"></div>
         <div class="field"><label for="pcFeederMaterial">Feeder conductor material</label><select id="pcFeederMaterial"><option value="">Select</option><option value="Copper">Copper</option><option value="Aluminum">Aluminum</option></select></div>
         <div class="field"><label for="pcFeederWire">Feeder conductor size</label><select id="pcFeederWire"><option value="">Select size</option><option value="#14">#14</option><option value="#12">#12</option><option value="#10">#10</option><option value="#8">#8</option><option value="#6">#6</option><option value="#4">#4</option><option value="#3">#3</option><option value="#2">#2</option><option value="#1">#1</option><option value="1/0">1/0</option><option value="2/0">2/0</option><option value="3/0">3/0</option><option value="4/0">4/0</option><option value="250 kcmil">250 kcmil</option><option value="300 kcmil">300 kcmil</option><option value="350 kcmil">350 kcmil</option><option value="400 kcmil">400 kcmil</option><option value="500 kcmil">500 kcmil</option><option value="600 kcmil">600 kcmil</option><option value="700 kcmil">700 kcmil</option><option value="750 kcmil">750 kcmil</option><option value="800 kcmil">800 kcmil</option><option value="900 kcmil">900 kcmil</option><option value="1000 kcmil">1000 kcmil</option><option value="1250 kcmil">1250 kcmil</option><option value="1500 kcmil">1500 kcmil</option><option value="1750 kcmil">1750 kcmil</option><option value="2000 kcmil">2000 kcmil</option></select></div>
-        <div class="field"><label for="pcFeederSets">Parallel feeder sets</label><input id="pcFeederSets" type="number" min="1" step="1" placeholder="1"></div>
-        <div class="field"><label for="pcFeederEGC">Feeder EGC size</label><select id="pcFeederEGC"><option value="">Select size</option><option value="#14">#14</option><option value="#12">#12</option><option value="#10">#10</option><option value="#8">#8</option><option value="#6">#6</option><option value="#4">#4</option><option value="#3">#3</option><option value="#2">#2</option><option value="#1">#1</option><option value="1/0">1/0</option><option value="2/0">2/0</option><option value="3/0">3/0</option><option value="4/0">4/0</option><option value="250 kcmil">250 kcmil</option><option value="300 kcmil">300 kcmil</option><option value="350 kcmil">350 kcmil</option><option value="400 kcmil">400 kcmil</option><option value="500 kcmil">500 kcmil</option><option value="600 kcmil">600 kcmil</option><option value="700 kcmil">700 kcmil</option><option value="750 kcmil">750 kcmil</option><option value="800 kcmil">800 kcmil</option><option value="900 kcmil">900 kcmil</option><option value="1000 kcmil">1000 kcmil</option><option value="1250 kcmil">1250 kcmil</option><option value="1500 kcmil">1500 kcmil</option><option value="1750 kcmil">1750 kcmil</option><option value="2000 kcmil">2000 kcmil</option></select></div>
+      </div>
+      <details class="pc-feeder-details"><summary>Additional feeder details</summary>
+        <div class="panel-setup pc-supply pc-supply-extra">
+          <div class="field"><label for="pcFeederSets">Parallel feeder sets</label><input id="pcFeederSets" type="number" min="1" step="1" placeholder="1"></div>
+          <div class="field"><label for="pcFeederEGC">Feeder EGC size</label><select id="pcFeederEGC"><option value="">Select size</option><option value="#14">#14</option><option value="#12">#12</option><option value="#10">#10</option><option value="#8">#8</option><option value="#6">#6</option><option value="#4">#4</option><option value="#3">#3</option><option value="#2">#2</option><option value="#1">#1</option><option value="1/0">1/0</option><option value="2/0">2/0</option><option value="3/0">3/0</option><option value="4/0">4/0</option><option value="250 kcmil">250 kcmil</option><option value="300 kcmil">300 kcmil</option><option value="350 kcmil">350 kcmil</option><option value="400 kcmil">400 kcmil</option><option value="500 kcmil">500 kcmil</option><option value="600 kcmil">600 kcmil</option><option value="700 kcmil">700 kcmil</option><option value="750 kcmil">750 kcmil</option><option value="800 kcmil">800 kcmil</option><option value="900 kcmil">900 kcmil</option><option value="1000 kcmil">1000 kcmil</option><option value="1250 kcmil">1250 kcmil</option><option value="1500 kcmil">1500 kcmil</option><option value="1750 kcmil">1750 kcmil</option><option value="2000 kcmil">2000 kcmil</option></select></div>
+        </div>
+      </details>
+      <div class="pc-breaker-toolbar">
+        <h3>Breaker Assemblies</h3>
+        <div class="pc-entry-unit"><div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div></div>
       </div>
       <div class="panel-actions add-controls">
         <button class="btn" id="pcAdd" type="button">Add breaker assembly</button>
         <button class="btn secondary" id="pcExample" type="button">Load example</button>
         <button class="btn secondary" id="pcClear" type="button">Clear panel</button>
       </div>
+      <div class="pc-legacy-demand" hidden><div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div></div>
       <div class="breaker-list" id="pcBreakers"></div>
       <div class="panel-schedule-wrap"><h3>Live Panel Schedule</h3><p class="note">Select a circuit in the schedule to open only that breaker for editing or removal below Add Breaker Assembly. Phase values update as you enter loads.</p><div class="table-wrap"><table class="pc-live-table" aria-label="Live panel schedule"><thead id="pcLiveHead"></thead><tbody id="pcLiveBody"></tbody><tfoot id="pcLiveFoot"></tfoot></table></div></div>
       <div class="panel-warning" id="pcWarning"></div>
@@ -282,7 +288,7 @@
         <div class="result"><div class="k">Maximum phase current</div><div class="v" id="pcMaxAmps">—</div></div>
         <div class="result"><div class="k">Phase imbalance</div><div class="v" id="pcImbalance">—</div></div>
       </div>
-      <div class="demand-note">Connected load is counted once in the panel total. Calculated load uses the currently selected category or manually entered factors, including the 125% continuous-load factor where applicable. Selecting Dwelling Standard, Dwelling Optional, or Commercial changes the available categories but does not yet run the full NEC service/feeder demand calculation. Verify applicability before using calculated values for design.</div>
+      <div class="demand-note">Connected load is counted once in the panel total. Calculated load uses the currently selected category or manually entered factors, including the 125% continuous-load factor where applicable. This panel schedule does not perform a complete NEC service or feeder demand calculation. Verify applicability before using calculated values for design.</div>
     </div>
   </section>
 
