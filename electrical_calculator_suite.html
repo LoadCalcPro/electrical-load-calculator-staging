@@ -539,7 +539,7 @@ function renderLiveSchedule(r){
  html+='<tr data-left="'+(L.id??'')+'" data-right="'+(R?.id??'')+'">'+leftCells+phaseCells()+rightCells+'</tr>';
  }
  $('pcLiveBody').innerHTML=html;
- $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end" colspan="2">'+pcDisplayNumber(total[p])+'</td>').join('')+cell('')+cell('')+cell('')+'</tr>';
+ $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end" colspan="2">'+(total[p]>0?pcDisplayNumber(total[p]):'')+'</td>').join('')+cell('')+cell('')+cell('')+'</tr>';
  $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const right=e.target.cellIndex>=3+seq.length*2 || (e.target.cellIndex>=3 && e.target.cellIndex<3+seq.length*2 && (e.target.cellIndex-3)%2===1);const id=Number(tr.dataset[right?'right':'left']);if(!id)return;selectPanelAssembly(id)}));
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
