@@ -558,7 +558,8 @@ function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs
 function panelCalc(){if(!$('pcBreakers'))return;const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
  $('pcLoadSummaryHead').innerHTML='<tr><th>Load</th>'+seq.map(p=>'<th>Phase '+p+' ('+pcLoadUnit()+')</th>').join('')+'<th>Panel total ('+pcLoadUnit()+')</th></tr>';
- const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+pcDisplayNumber(values[p])+'</td>').join('')+'<td>'+pcDisplayNumber(total)+'</td></tr>';
+ const summaryValue=v=>v>0?pcDisplayNumber(v):'';
+ const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+summaryValue(values[p])+'</td>').join('')+'<td>'+summaryValue(total)+'</td></tr>';
  $('pcLoadSummaryBody').innerHTML=summaryRow('Connected load',r.phaseConn,totalConn)+summaryRow('Calculated load / demand factors',r.phaseDem,totalDem);
  $('pcPhaseSummary').innerHTML=seq.map(p=>`<div class="result"><div class="k">Phase ${p}</div><div class="v">${pcDisplayNumber(r.phaseDem[p])} ${pcLoadUnit()}<br><span style="font-size:14px">${fmt(r.phaseDem[p]/ln,1)} A demand</span></div></div>`).join('')+`<div class="result"><div class="k">Spaces used</div><div class="v">${Object.keys(r.rows.length?pcAssemblies.reduce((o,a)=>{for(const s of assemblyPositions(a))o[s]=1;return o},{}):{}).length} / ${$('pcSpaces').value}</div></div>`;
  $('pcConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();$('pcDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
