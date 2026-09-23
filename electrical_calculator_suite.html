@@ -519,9 +519,10 @@ function pcMinimumWire(p){const amps=Math.max(Number(p.breaker)||0,0);if(amps===
 function pcWireOptions(p){const min=pcMinimumWire(p),start=pcWireSizes.indexOf(min),chosen=pcWireSizes.indexOf(p.wire)>=start?p.wire:min;p.wire=chosen;return pcWireSizes.slice(start).map(w=>'<option value="'+w+'"'+(w===chosen?' selected':'')+'>'+w+'</option>').join('')}
 function pcBreakerOptions(p){const ratings=pcBreakerRatings.includes(Number(p.breaker))?pcBreakerRatings:[...pcBreakerRatings,Number(p.breaker)].sort((a,b)=>a-b);return ratings.map(a=>'<option value="'+a+'"'+(a===Number(p.breaker)?' selected':'')+'>'+a+' A</option>').join('')}
 const demandDefaults={lighting:1,receptacle:1,appliance:1,hvac:1,motor:1,continuous:1.25,other:1};
+const pcDwellingCategories=[['lighting','General lighting'],['small-appliance','Small-appliance circuits'],['laundry','Laundry'],['appliance','Appliances'],['cooking','Cooking'],['dryer','Clothes dryer'],['water-heater','Water heater'],['hvac','Heating / air conditioning'],['ev','EV charging'],['motor','Motor'],['continuous','Other continuous load'],['other','Other']];
 const pcCategorySets={
- 'dwelling-standard':[['lighting','General lighting'],['small-appliance','Small-appliance circuits'],['laundry','Laundry'],['cooking','Cooking'],['dryer','Clothes dryer'],['water-heater','Water heater'],['hvac','Heating / air conditioning'],['ev','EV charging'],['appliance','Appliances'],['motor','Motor'],['continuous','Other continuous load'],['other','Other']],
- 'dwelling-optional':[['lighting','General lighting'],['small-appliance','Small-appliance circuits'],['laundry','Laundry'],['cooking','Cooking'],['dryer','Clothes dryer'],['water-heater','Water heater'],['hvac','Heating / air conditioning'],['ev','EV charging'],['appliance','Appliances'],['motor','Motor'],['continuous','Other continuous load'],['other','Other']],
+ 'dwelling-standard':pcDwellingCategories,
+ 'dwelling-optional':pcDwellingCategories,
  commercial:[['lighting','Lighting'],['receptacle','General receptacles'],['continuous','Continuous load'],['motor','Motor'],['hvac','Heating / air conditioning'],['kitchen','Kitchen equipment'],['sign','Sign / outline lighting'],['ev','EV charging'],['appliance','Other equipment'],['other','Other']]
 };
 const pcCategoryLabel=k=>Object.values(pcCategorySets).flat().find(x=>x[0]===k)?.[1]||k.replace(/-/g,' ').replace(/^./,c=>c.toUpperCase());
