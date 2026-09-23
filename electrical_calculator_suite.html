@@ -545,7 +545,12 @@ function addAssembly(type='standard1',start=null,data={}){if($('pcPhase').value!
 function phaseSequence(){return $('pcPhase').value==='3'?['A','B','C']:['A','B']}
 function phasesFor(start,poles){const seq=phaseSequence(),out=[];for(let i=0;i<poles;i++)out.push(seq[(Math.floor((start-1)/2)+i)%seq.length]);return out}
 function configOptions(selected){return Object.entries(assemblyConfigs).filter(([k])=>$('pcPhase').value==='3'||k!=='standard3').map(([k,v])=>`<option value="${k}"${k===selected?' selected':''}>${v.label}</option>`).join('')}
-function categoryOptions(selected){const options=[...new Map(Object.values(pcCategorySets).flat().map(([k,label])=>[k,[k,label]])).values()];const available=options.some(([k])=>k===selected)?options:[[selected,pcCategoryLabel(selected)],...options];return available.map(([k,label])=>`<option value="${k}"${k===selected?' selected':''}>${esc(label)}${!options.some(([v])=>v===k)?' (existing)':''}</option>`).join('')}
+function categoryOptions(selected){
+ const key=$('pcOccupancy').value==='dwelling'?($('pcMethod').value==='optional'?'dwelling-optional':'dwelling-standard'):'commercial';
+ const options=pcCategorySets[key];
+ const available=options.some(([k])=>k===selected)?options:[[selected,pcCategoryLabel(selected)+' (existing — review category)'],...options];
+ return available.map(([k,label])=>`<option value="${esc(k)}"${k===selected?' selected':''}>${esc(label)}</option>`).join('');
+}
 function rebuildParts(a,type){const old=a.parts;a.type=type;const cfg=assemblyConfigs[type];a.spaces=cfg.spaces;a.parts=cfg.parts.map((p,i)=>newPart({...p,...(old[i]||{}) ,poles:p.poles,label:p.label}));renderPanel()}
 const pcDescriptionChoices=[['Lighting','lighting'],['Receptacles','receptacle'],['HVAC','hvac'],['Water heater','water-heater'],['EV charger','ev'],['Laundry','laundry'],['Cooking','cooking'],['Clothes dryer','dryer'],['Appliance','appliance'],['Motor','motor'],['Continuous load','continuous'],['Small-appliance circuits','small-appliance']];
 const pcDwellingDescriptions=[['Dishwasher','appliance'],['Disposal','appliance'],['Refrigerator','appliance'],['Microwave','appliance'],['Hood fan','appliance'],['Freezer','appliance'],['Range','cooking'],['Wall oven','cooking'],['Garage door opener','appliance'],['Water heater','water-heater'],['Dryer','dryer'],['Air handling unit','hvac'],['HVAC','hvac'],['EV charger','ev'],['Lighting','lighting'],['Receptacles','receptacle'],['Continuous load','continuous'],['Self / Custom','other']];
