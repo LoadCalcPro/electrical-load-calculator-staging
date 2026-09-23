@@ -597,14 +597,37 @@ function renderLiveSchedule(r){
  $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const td=e.target.closest('td');if(!td)return;const side=e.target.closest('[data-side]')?.dataset.side;const right=side?side==='right':td.classList.contains('pc-wire')||td.classList.contains('pc-breaker')||td.classList.contains('pc-description')?td.cellIndex>=(4+seq.length):td.classList.contains('pc-circuit')&&td===tr.lastElementChild;const id=Number(tr.dataset[right?'right':'left']);if(id){selectPanelAssembly(id);return}const space=Number(right?tr.lastElementChild.textContent:tr.firstElementChild.textContent);if(!space||space>(Number($('pcSpaces').value)||42))return;const occupied=new Set(pcAssemblies.flatMap(assemblyPositions));if(occupied.has(space))return;addAssembly('standard1',space);const description=$('pcBreakers').querySelector('.breaker-card .pc-desc');if(description)description.focus({preventScroll:true})}));
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
+function dwellingMethodFromEntries(){
+ const method=$('pcMethod').value,area=Number($('pcArea').value),issues=[];
+ if(!Number.isFinite(area)||area<=0)issues.push('Enter dwelling floor area (ft²).');
+ if($('pcPhase').value!=='1'||$('pcVoltage').value!=='120/240')issues.push('This preliminary dwelling method calculation currently supports 120/240 V single-phase only.');
+ const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
+ const group={};for(const p of parts)(group[p.category]??=[]).push(p);
+ const sum=k=>(group[k]||[]).reduce((n,p)=>n+Number(p.load),0);
+ const unknown=['general','other','receptacle','motor','continuous','ev'].filter(k=>sum(k)>0);
+ if(unknown.length)issues.push('Loads require further classification or dedicated NEC treatment: '+unknown.join(', ')+'.');
+ if((group.hvac||[]).length)issues.push('HVAC entries require separate heating/cooling classification and applicable demand treatment.');
+ if((group.cooking||[]).length)issues.push('Cooking equipment requires Table 220.55 treatment (Standard Method).');
+ if((group.appliance||[]).length>=4&&method==='standard')issues.push('Confirm that four or more appliances qualify for the 75% fixed-appliance demand factor.');
+ if((group['small-appliance']||[]).length<2)issues.push('Confirm at least two 1,500 VA small-appliance circuit allowances.');
+ if(!(group.laundry||[]).length)issues.push('Confirm the required 1,500 VA laundry circuit allowance.');
+ if(!parts.length)issues.push('Enter the dwelling loads.');
+ if(issues.length)return{issues};
+ const general=area*3+Math.max(3000,sum('small-appliance'))+Math.max(1500,sum('laundry'))+sum('lighting');
+ const appliance=sum('appliance')+sum('water-heater'),dryer=(group.dryer||[]).reduce((n,p)=>n+Math.max(5000,Number(p.load)),0);
+ const standardGeneral=Math.min(3000,general)+Math.min(117000,Math.max(0,general-3000))*.35+Math.max(0,general-120000)*.25;
+ const va=method==='standard'?standardGeneral+appliance+dryer:Math.min(10000,general+appliance+dryer)+Math.max(0,general+appliance+dryer-10000)*.4;
+ return{va,amps:va/240,issues:[],general,appliance,dryer};
+}
 function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
  const dwelling=$('pcOccupancy').value==='dwelling',method=$('pcMethod').value==='optional'?'Optional':'Standard';
  $('pcDwellingMethodResults').hidden=!dwelling;
  $('pcDwellingMethodTitle').textContent='Dwelling — '+method+' Method Results';
- $('pcDwellingMethodVA').textContent='Not available';
- $('pcDwellingMethodAmps').textContent='Not available';
- $('pcDwellingMethodNote').textContent='The complete NEC '+method+' Method demand calculation has not been implemented. The preliminary panel values above are not a dwelling service calculation; do not use them for service sizing.';
+ const dwellingResult=dwelling?dwellingMethodFromEntries():null;
+ $('pcDwellingMethodVA').textContent=dwellingResult&&!dwellingResult.issues.length?fmt(dwellingResult.va,0)+' VA':'Not available';
+ $('pcDwellingMethodAmps').textContent=dwellingResult&&!dwellingResult.issues.length?fmt(dwellingResult.amps,1)+' A':'Not available';
+ $('pcDwellingMethodNote').textContent=dwellingResult&&dwellingResult.issues.length?'Calculation needs review: '+dwellingResult.issues.join(' '):'Limited preliminary NEC '+method+' Method estimate from individual breaker entries and floor area. Verify all required loads, classifications, adopted code, and service/feeder applicability before design use.';
  $('pcLoadSummaryHead').innerHTML='<tr><th>Load</th>'+seq.map(p=>'<th>Phase '+p+' ('+pcLoadUnit()+')</th>').join('')+'<th>Panel total ('+pcLoadUnit()+')</th></tr>';
  const summaryValue=v=>v>0?pcDisplayNumber(v):'';
  const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+summaryValue(values[p])+'</td>').join('')+'<td>'+summaryValue(total)+'</td></tr>';
@@ -627,7 +650,7 @@ function restorePanel(){try{const x=JSON.parse(localStorage.getItem('loadcalcpro
 function clearPanel(){if(!confirm('Clear the entire panel schedule?'))return;pcAssemblies=[];pcNextId=1;pcSelectedId=null;renderPanel()}
 function loadExample(){pcAssemblies=[];pcNextId=1;pcSelectedId=null;addAssembly('standard2',1,{parts:[{poles:2,label:'2P',description:'Air conditioning',breaker:30,wire:'#10',load:4800,category:'hvac',factor:1}]});addAssembly('tandem',5,{parts:[{poles:1,label:'Mini A',description:'Lighting',breaker:20,wire:'#12',load:1200,category:'lighting',factor:1},{poles:1,label:'Mini B',description:'Receptacles',breaker:20,wire:'#12',load:1500,category:'receptacle',factor:1}]});addAssembly('quad121',2,{parts:[{poles:1,label:'Outer 1P A',description:'Appliance',breaker:20,wire:'#12',load:1200,category:'appliance',factor:1},{poles:2,label:'Center 2P',description:'Water heater',breaker:30,wire:'#10',load:4500,category:'appliance',factor:1},{poles:1,label:'Outer 1P B',description:'Continuous load',breaker:20,wire:'#12',load:800,category:'continuous',factor:1.25}]});renderPanel()}
 $('pcUnit').addEventListener('change',()=>renderPanel());
-syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();$('pcOccupancy').addEventListener('change',()=>{syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();renderPanel()});$('pcMethod').addEventListener('change',()=>renderPanel());$('pcOccupancyType').addEventListener('change',()=>savePanel());$('pcArea').addEventListener('input',()=>savePanel());
+syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();$('pcOccupancy').addEventListener('change',()=>{syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();renderPanel()});$('pcMethod').addEventListener('change',()=>renderPanel());$('pcOccupancyType').addEventListener('change',()=>savePanel());$('pcArea').addEventListener('input',()=>panelCalc());
 $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').addEventListener('click',clearPanel);$('pcExample').addEventListener('click',loadExample);
 ['pcFedFrom','pcMainType','pcUpstream','pcFeederMaterial','pcFeederWire','pcFeederSets','pcFeederEGC','pcPhase','pcVoltage','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'&&e.target.value==='custom')$('pcVoltage').value='120/208';if(id==='pcPhase'&&e.target.value==='1'&&pcAssemblies.some(a=>a.parts.some(p=>p.poles===3))){e.target.value='3';$('pcWarning').textContent='Remove or change existing three-pole breakers before selecting a single-phase panel.';return}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 restorePanel();pcSelectedId=null;renderPanel();
