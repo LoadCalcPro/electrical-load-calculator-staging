@@ -63,6 +63,8 @@
 .pc-live-table tfoot td{background:#eaf0f7;font-weight:800}
 .breaker-card.pc-selected{outline:3px solid #0d9488;outline-offset:2px}
 @media print{.pc-live-table{min-width:0;font-size:9px}.pc-live-table th,.pc-live-table td{padding:3px 2px}}
+
+.pc-final-results{margin-top:22px;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}.pc-final-results .summary{margin:12px 0}.pc-final-results .pc-load-summary{width:100%;border-collapse:collapse}.pc-final-results .pc-load-summary th,.pc-final-results .pc-load-summary td{padding:9px;border:1px solid var(--line);text-align:left}.pc-final-results .pc-load-summary th{background:var(--navy2);color:white}@media print{.pc-report-actions{display:none!important}.pc-final-results{break-inside:avoid}.panel-schedule-wrap,.pc-final-results{display:block!important}}
 </style>
 </head>
 <body>
@@ -289,6 +291,21 @@
         <div class="result"><div class="k">Maximum phase current</div><div class="v" id="pcMaxAmps">—</div></div>
         <div class="result"><div class="k">Phase imbalance</div><div class="v" id="pcImbalance">—</div></div>
       </div>
+      <section id="pcFinalResults" class="pc-final-results" aria-label="Final panel calculation results">
+        <h3>Final Calculation Results</h3>
+        <p class="note"><strong id="pcResultStatus">Connected-load / preliminary demand summary — not a completed NEC service or feeder calculation.</strong></p>
+        <div class="summary">
+          <div class="result"><div class="k">Connected load</div><div class="v" id="pcFinalConnected">—</div></div>
+          <div class="result good"><div class="k">Current-factor calculated load</div><div class="v" id="pcFinalDemand">—</div></div>
+          <div class="result"><div class="k">Maximum phase current</div><div class="v" id="pcFinalMax">—</div></div>
+          <div class="result"><div class="k">Phase imbalance</div><div class="v" id="pcFinalImbalance">—</div></div>
+        </div>
+        <div class="table-wrap"><table class="pc-load-summary"><thead><tr><th>Phase</th><th>Connected load</th><th>Calculated load (current factors)</th><th>Calculated current</th></tr></thead><tbody id="pcFinalPhases"></tbody></table></div>
+        <p class="note" id="pcFinalBasis">Calculation basis: —</p>
+        <p class="demand-note">NEC reference: Article 220 (load calculations), subject to the adopted code edition and applicable occupancy provisions. This is a general reference, not a claim that a complete NEC demand calculation has been performed. Verify load classifications, applicable demand factors, and continuous loads before design use.</p>
+        <div class="panel-actions pc-report-actions"><button type="button" id="pcPrintResults" onclick="window.print()">Print panel report</button><button type="button" id="pcPdfResults" onclick="window.print()">Save as PDF</button></div>
+        <p class="note">For PDF, choose “Save as PDF” in your browser's print destination.</p>
+      </section>
       <div class="demand-note">Panel occupancy is recorded but occupancy-specific NEC demand calculations are not yet implemented. Connected load is counted once in the panel total. Calculated load uses the currently selected category or manually entered factors, including the 125% continuous-load factor where applicable. This panel schedule does not perform a complete NEC service or feeder demand calculation. Verify applicability before using calculated values for design.</div>
     </div>
   </section>
@@ -582,6 +599,12 @@ function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMai
  const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+summaryValue(values[p])+'</td>').join('')+'<td>'+summaryValue(total)+'</td></tr>';
  $('pcLoadSummaryBody').innerHTML=summaryRow('Connected load',r.phaseConn,totalConn)+summaryRow('Calculated load / demand factors',r.phaseDem,totalDem);
  $('pcPhaseSummary').innerHTML=seq.map(p=>`<div class="result"><div class="k">Phase ${p}</div><div class="v">${pcDisplayNumber(r.phaseDem[p])} ${pcLoadUnit()}<br><span style="font-size:14px">${fmt(r.phaseDem[p]/ln,1)} A demand</span></div></div>`).join('')+`<div class="result"><div class="k">Spaces used</div><div class="v">${Object.keys(r.rows.length?pcAssemblies.reduce((o,a)=>{for(const s of assemblyPositions(a))o[s]=1;return o},{}):{}).length} / ${$('pcSpaces').value}</div></div>`;
+ $('pcFinalConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();
+ $('pcFinalDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();
+ $('pcFinalMax').textContent=fmt(maxA,1)+' A';
+ $('pcFinalImbalance').textContent=fmt(imb,1)+'%';
+ $('pcFinalPhases').innerHTML=seq.map(p=>'<tr><td>Phase '+p+'</td><td>'+pcDisplayNumber(r.phaseConn[p])+' '+pcLoadUnit()+'</td><td>'+pcDisplayNumber(r.phaseDem[p])+' '+pcLoadUnit()+'</td><td>'+fmt(r.phaseDem[p]/ln,1)+' A</td></tr>').join('');
+ $('pcFinalBasis').textContent='Basis: '+$('pcPhase').selectedOptions[0].text+'; '+$('pcVoltage').value+' V; '+$('pcOccupancy').selectedOptions[0].text+' occupancy; '+$('pcDemandMode').selectedOptions[0].text+'. Values reflect entered loads and selected factors, not a complete NEC occupancy-specific demand calculation.';
  $('pcConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();$('pcDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function selectPanelAssembly(id){pcSelectedId=id;renderPanel();$('pcBreakers').scrollIntoView({behavior:'smooth',block:'center'})}
 function renderPanel(){renderBreakers();panelCalc()}
