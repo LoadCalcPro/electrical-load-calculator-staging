@@ -288,13 +288,13 @@
         <h3>Panel Load Results</h3>
         <div class="pc-compact-metrics">
           <div><span>Connected load</span><strong id="pcConnected">—</strong></div>
-          <div><span>Calculated load (current factors)</span><strong id="pcDemand">—</strong></div>
-          <div><span>Maximum phase current</span><strong id="pcMaxAmps">—</strong></div>
+          <div><span>Preliminary calculated load (VA)</span><strong id="pcDemand">—</strong></div>
+          <div><span>Preliminary calculated current (A, max phase)</span><strong id="pcMaxAmps">—</strong></div>
           <div><span>Phase imbalance</span><strong id="pcImbalance">—</strong></div>
         </div>
         <div class="table-wrap"><table class="pc-load-summary" aria-label="Panel loads and phase currents"><thead><tr><th>Phase</th><th>Connected</th><th>Calculated</th><th>Current</th></tr></thead><tbody id="pcFinalPhases"></tbody></table></div>
         <p class="note pc-compact-basis" id="pcFinalBasis">Calculation basis: —</p>
-        <p class="demand-note">Preliminary panel results only. NEC Article 220 occupancy-specific service/feeder demand calculations are not implemented; verify applicable factors and adopted code before design use.</p>
+        <p class="demand-note">Preliminary estimate based on entered panel loads and current category/custom factors. This is NOT a completed NEC Standard or Optional Method dwelling service/feeder calculation. Required minimum loads, floor-area allowances, appliance and cooking demand, HVAC selection, and other applicable NEC rules may change the result. Confirm all house loads are included and verify the applicable adopted code before design use.</p>
         <div class="panel-actions pc-report-actions"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>
         <div hidden aria-hidden="true"><table><thead id="pcLoadSummaryHead"></thead><tbody id="pcLoadSummaryBody"></tbody></table><div id="pcPhaseSummary"></div><span id="pcFinalConnected"></span><span id="pcFinalDemand"></span><span id="pcFinalMax"></span><span id="pcFinalImbalance"></span></div>
       </section>
@@ -602,7 +602,7 @@ function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMai
  $('pcFinalImbalance').textContent=fmt(imb,1)+'%';
  $('pcFinalPhases').innerHTML=seq.map(p=>'<tr><td>Phase '+p+'</td><td>'+pcDisplayNumber(r.phaseConn[p])+' '+pcLoadUnit()+'</td><td>'+pcDisplayNumber(r.phaseDem[p])+' '+pcLoadUnit()+'</td><td>'+fmt(r.phaseDem[p]/ln,1)+' A</td></tr>').join('')+'<tr class="pc-total-row"><td>Panel total</td><td>'+pcDisplayNumber(totalConn)+' '+pcLoadUnit()+'</td><td>'+pcDisplayNumber(totalDem)+' '+pcLoadUnit()+'</td><td>Max '+fmt(maxA,1)+' A</td></tr>';
  $('pcFinalBasis').textContent='Basis: '+$('pcPhase').selectedOptions[0].text+'; '+$('pcVoltage').value+' V; '+$('pcOccupancy').selectedOptions[0].text+' occupancy; '+$('pcDemandMode').selectedOptions[0].text+'. Values reflect entered loads and selected factors, not a complete NEC occupancy-specific demand calculation.';
- $('pcConnected').textContent=pcDisplayNumber(totalConn)+' '+pcLoadUnit();$('pcDemand').textContent=pcDisplayNumber(totalDem)+' '+pcLoadUnit();$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
+ $('pcConnected').textContent=fmt(totalConn,0)+' VA';$('pcDemand').textContent=fmt(totalDem,0)+' VA';$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function selectPanelAssembly(id){pcSelectedId=id;renderPanel();$('pcBreakers').scrollIntoView({behavior:'smooth',block:'center'})}
 function renderPanel(){renderBreakers();panelCalc()}
 function savePanel(){try{localStorage.setItem('loadcalcpro-panel-v2',JSON.stringify({assemblies:pcAssemblies,next:pcNextId,settings:{fedFrom:$('pcFedFrom').value,mainType:$('pcMainType').value,upstream:$('pcUpstream').value,feederMaterial:$('pcFeederMaterial').value,feederWire:$('pcFeederWire').value,feederSets:$('pcFeederSets').value,feederEGC:$('pcFeederEGC').value,phase:$('pcPhase').value,voltage:$('pcVoltage').value,unit:$('pcUnit').value,occupancy:$('pcOccupancy').value,occupancyType:$('pcOccupancyType').value,area:$('pcArea').value,method:$('pcMethod').value,spaces:$('pcSpaces').value,main:$('pcMain').value,name:$('pcName').value,location:$('pcLocation').value,mode:$('pcMode').value,demand:$('pcDemandMode').value}}))}catch{}}
