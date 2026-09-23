@@ -293,6 +293,14 @@
           <div><span>Phase imbalance</span><strong id="pcImbalance">—</strong></div>
         </div>
         <div class="table-wrap"><table class="pc-load-summary" aria-label="Panel loads and phase currents"><thead><tr><th>Phase</th><th>Connected</th><th>Calculated</th><th>Current</th></tr></thead><tbody id="pcFinalPhases"></tbody></table></div>
+        <section id="pcDwellingMethodResults" class="pc-compact-results" aria-label="Dwelling method results" hidden>
+          <h3 id="pcDwellingMethodTitle">Dwelling — Standard Method Results</h3>
+          <div class="pc-compact-metrics">
+            <div><span>Calculated dwelling load (VA)</span><strong id="pcDwellingMethodVA">—</strong></div>
+            <div><span>Calculated dwelling current (A)</span><strong id="pcDwellingMethodAmps">—</strong></div>
+          </div>
+          <p class="demand-note" id="pcDwellingMethodNote">Not yet available. The complete NEC dwelling demand calculation has not been implemented. Preliminary panel figures above must not be used as Standard or Optional Method service calculations.</p>
+        </section>
         <p class="note pc-compact-basis" id="pcFinalBasis">Calculation basis: —</p>
         <p class="demand-note">Preliminary estimate based on entered panel loads and current category/custom factors. This is NOT a completed NEC Standard or Optional Method dwelling service/feeder calculation. Required minimum loads, floor-area allowances, appliance and cooking demand, HVAC selection, and other applicable NEC rules may change the result. Confirm all house loads are included and verify the applicable adopted code before design use.</p>
         <div class="panel-actions pc-report-actions"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>
@@ -591,6 +599,12 @@ function renderLiveSchedule(r){
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
 function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
+ const dwelling=$('pcOccupancy').value==='dwelling',method=$('pcMethod').value==='optional'?'Optional':'Standard';
+ $('pcDwellingMethodResults').hidden=!dwelling;
+ $('pcDwellingMethodTitle').textContent='Dwelling — '+method+' Method Results';
+ $('pcDwellingMethodVA').textContent='Not available';
+ $('pcDwellingMethodAmps').textContent='Not available';
+ $('pcDwellingMethodNote').textContent='The complete NEC '+method+' Method demand calculation has not been implemented. The preliminary panel values above are not a dwelling service calculation; do not use them for service sizing.';
  $('pcLoadSummaryHead').innerHTML='<tr><th>Load</th>'+seq.map(p=>'<th>Phase '+p+' ('+pcLoadUnit()+')</th>').join('')+'<th>Panel total ('+pcLoadUnit()+')</th></tr>';
  const summaryValue=v=>v>0?pcDisplayNumber(v):'';
  const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+summaryValue(values[p])+'</td>').join('')+'<td>'+summaryValue(total)+'</td></tr>';
