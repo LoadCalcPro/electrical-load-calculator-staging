@@ -750,28 +750,11 @@ const pc22055B=[0,80,65,55,50,45,43,40,36,35,34,32,32,32,32,32,28,28,28,28,28,26
 const pc22055C=[0,8,11,14,17,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
 function pc22055ColumnC(n){if(n<=25)return pc22055C[n]??null;if(n<=30)return 15+n;if(n<=40)return null;if(n<=50)return 25+.75*n;return null}
 function pcCooking22055(){
- const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcNormalizeCategory(p.category,'dwelling-standard')==='cooking');
- const groups={A:[],B:[],C:[],low:[]};
- parts.forEach(p=>{const kw=Number(p.load)/1000;if(kw>1.75&&kw<3.5)groups.A.push(kw);else if(kw>=3.5&&kw<=8.75)groups.B.push(kw);else if(kw>8.75)groups.C.push(kw);else groups.low.push(kw)});
- let demandKW=groups.low.reduce((s,v)=>s+v,0),used=[];
- for(const col of ['A','B']){
-  const a=groups[col],n=a.length;if(!n)continue;
-  const table=col==='A'?pc22055A:pc22055B;
-  if(n>25)return{connected:parts.reduce((s,p)=>s+Number(p.load),0),demand:null,treatment:'Table 220.55 Column '+col+' — count exceeds supported panel range'};
-  demandKW+=a.reduce((s,v)=>s+v,0)*(table[n]/100);used.push('Column '+col+' '+table[n]+'%');
- }
- if(groups.C.length){
-  const a=groups.C,n=a.length;if(n>25)return{connected:parts.reduce((s,p)=>s+Number(p.load),0),demand:null,treatment:'Table 220.55 Column C — count exceeds supported panel range'};
-  let ckw=pc22055C[n];
-  // Note 1 / Note 2 adjustment: Column C base is increased 5% for each kW
-  // or major fraction by which the applicable rating/average exceeds 12 kW.
-  const avg=a.reduce((s,v)=>s+Math.max(12,v),0)/n;
-  if(avg>12){const excess=Math.ceil((avg-12)-1e-9);ckw*=1+0.05*excess;used.push('Column C + Note 1/2 ('+(5*excess)+'% increase)')}
-  else used.push('Column C');
-  demandKW+=ckw;
- }
- if(groups.low.length)used.push('≤1.75 kW at 100%');
- return{connected:parts.reduce((s,p)=>s+Number(p.load),0),demand:Math.round(demandKW*1000),treatment:'Table 220.55 — '+(used.join('; ')||'—')};
+ const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcNormalizeCategory(p.category,'dwelling-standard')==='cooking'),connected=parts.reduce((s,p)=>s+Number(p.load),0);
+ if(!parts.length)return{connected:0,demand:0,treatment:'—'};
+ const kw=parts.map(p=>Number(p.load)/1000),low=kw.filter(v=>v<=1.75),eligible=kw.filter(v=>v>1.75);if(eligible.some(v=>v>27))return{connected,demand:null,treatment:'Table 220.55 — verify appliance over 27 kW'};
+ let demand=low.reduce((s,v)=>s+v,0),used=[];
+ if(eligible.length){let base=pc22055ColumnC(eligible.length);if(base===null)return{connected,demand:null,treatment:'Table 220.55 — Column C requires individual review for this appliance count'};const unequal=eligible.some(v=>Math.abs(v-eligible[0])>.001);let basis=unequal?eligible.reduce((s,v)=>s+Math.max(12,v),0)/eligible.length:eligible[0];if(basis>12){const x=Math.ceil(basis-12-1e-9);base*=1+.05*x;used.push('Column C + Note '+(unequal?'2':'1')+' ('+(x*5)+'% increase)')}else used.push('Column C');if(eligible.every(v=>v<=8.75)){const A=eligible.filter(v=>v<3.5),B=eligible.filter(v=>v>=3.5),af=A.length?(A.length<=25?pc22055A[A.length]:30)/100:0,bf=B.length?(B.length<=25?pc22055B[B.length]:B.length<=30?24:B.length<=40?22:B.length<=50?20:B.length<=60?18:16)/100:0,alt=A.reduce((s,v)=>s+v,0)*af+B.reduce((s,v)=>s+v,0)*bf;if(alt<base){base=alt;used=['Note 3 alternative — Column '+(A.length&&B.length?'A + B':A.length?'A':'B')]}}demand+=base}if(low.length)used.push('≤1.75 kW at 100%');return{connected,demand:Math.round(demand*1000),treatment:'Table 220.55 — '+used.join('; ')};
 }
 function pcDryer22054Factor(n){if(n<=4)return 1;if(n===5)return .85;if(n===6)return .75;if(n===7)return .65;if(n===8)return .60;if(n===9)return .55;if(n===10)return .50;if(n===11)return .47;if(n<=23)return (.47-.01*(n-11));if(n<=42)return (.35-.005*(n-23));return .25}
 function pcAppliance22053_54(){
