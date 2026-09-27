@@ -871,14 +871,17 @@ function pcOptional22082(){
  return{generalConnected,applianceConnected,pool,demandB,hvacConnected:hv.connected,hvacDemand:hv.demand,hvacTreatment:hv.treatment,evConnected};
 }
 function pcOptionalHvac22082C(parts){
- const hv=parts.filter(p=>pcSemanticCategory(p)==='hvac'),connected=hv.reduce((s,p)=>s+(Number(p.load)||0),0);let best=0,label='220.82(C) — no HVAC load';
- hv.forEach(p=>{const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;let candidates=[];
-  if(p.hvacType==='heat-pump'){const comp=Math.max(base,cool);if(aux>0)candidates.push([p.hvacAuxWithCompressor==='yes'?comp+.65*aux:.65*aux,'220.82(C) — heat pump / supplemental heat']);else candidates.push([comp,'220.82(C) — heat pump at 100%'])}
-  else if(p.hvacType==='heat')candidates.push([.65*Math.max(base,heat),'220.82(C) — electric space heat at 65% (fewer than 4 separately controlled units)']);
-  else if(p.hvacType==='air-handler')candidates.push([base,'220.82(C) — air handler entered load']);
-  else {if(cool||base)candidates.push([Math.max(base,cool),'220.82(C) — A/C at 100%']);if(heat)candidates.push([.65*heat,'220.82(C) — electric heat at 65%'])}
-  candidates.forEach(([v,t])=>{if(v>best){best=v;label=t}});
- });return{connected,demand:Math.round(best),treatment:label};
+ const hv=parts.filter(p=>pcSemanticCategory(p)==='hvac'),connected=hv.reduce((s,p)=>s+(Number(p.load)||0),0);
+ let cooling=0,heatPump=0,hpSupplemental=0,spaceHeat=0,heatUnits=0;
+ hv.forEach(p=>{
+  const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
+  if(p.hvacType==='heat-pump'){const comp=Math.max(base,cool);if(aux>0)hpSupplemental+=(p.hvacAuxWithCompressor==='yes'?comp:0)+.65*aux;else heatPump+=comp}
+  else if(p.hvacType==='heat'){spaceHeat+=Math.max(base,heat);heatUnits++}
+  else {cooling+=Math.max(base,cool);if(heat>0){spaceHeat+=heat;heatUnits++}}
+ });
+ const factor=heatUnits>=4?.40:.65,choices=[[cooling,'220.82(C) — cooling at 100%'],[heatPump,'220.82(C) — heat pump at 100%'],[hpSupplemental,'220.82(C) — compressor when simultaneous + 65% supplemental heat'],[spaceHeat*factor,'220.82(C) — electric space heat at '+Math.round(factor*100)+'%']];
+ const best=choices.reduce((a,b)=>b[0]>a[0]?b:a,[0,'220.82(C) — no HVAC load']);
+ return{connected,demand:Math.round(best[0]),treatment:best[1]};
 }
 function renderClassificationSummary(){
  const dwelling=$('pcOccupancy').value==='dwelling',area=Number($('pcArea').value),show=!dwelling||(Number.isFinite(area)&&area>0);
