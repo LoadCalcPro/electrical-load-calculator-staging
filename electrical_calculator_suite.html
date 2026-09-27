@@ -937,7 +937,7 @@ function renderClassificationSummary(){
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
  $('pcClassificationTitle').textContent='Load Classification — '+methodLabel;
- $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>'+esc(treatments[k]||'—')+'</td><td>'+(demands[k]===null?'Pending method logic':fmt(demands[k]||0,0)+' VA')+'</td></tr>').join('');
+ $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>'+esc(treatments[k]||'—')+'</td><td>'+(key==='dwelling-optional'&&k==='appliance'?'Included in combined demand':demands[k]===null?'Pending method logic':fmt(demands[k]||0,0)+' VA')+'</td></tr>').join('');
  const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0)+(key==='dwelling-standard'?.25*largestMotorAc:0):null;
  let finalResult=demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA';
  if(demandTotal!==null){
