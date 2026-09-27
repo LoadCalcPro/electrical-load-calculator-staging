@@ -905,11 +905,11 @@ function renderClassificationSummary(){
  if(key==='dwelling-optional'){
   const o=pcOptional22082();
   totals.general=o.generalConnected; totals.appliance=o.applianceConnected; totals.hvac=o.hvacConnected; totals.ev=o.evConnected;
-  demands.general=o.demandB; demands.appliance=0; demands.hvac=o.hvacDemand; demands.ev=o.evConnected?null:0;
+  demands.general=o.demandB; demands.appliance=0; demands.hvac=o.hvacDemand; demands.ev=o.evDemand;
   treatments.general='Included in the 220.82(B) combined demand pool below';
   treatments.appliance='Included in the 220.82(B) combined demand pool below';
   treatments.hvac=o.hvacTreatment;
-  if(o.evConnected){treatments.ev='2023 Optional Method — EVSE shown separately for verification; not included in the 220.82(B) pool'}
+  if(o.evConnected){treatments.ev='220.57 — 7,200 VA or nameplate, whichever is larger; added separately at 100%'}
   totals.continuous=0;demands.continuous=0;
  }
  // Populate treatments that are already explicit in the classification itself.
