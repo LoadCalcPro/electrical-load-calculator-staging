@@ -868,8 +868,8 @@ function pcOptional22082(){
  const excluded=new Set(['general','lighting','small-appliance','laundry','hvac','ev','ev-managed']);
  const applianceParts=parts.filter(p=>!excluded.has(pcSemanticCategory(p))),applianceConnected=applianceParts.reduce((s,p)=>s+(Number(p.load)||0),0)+washers.slice(1).reduce((s,p)=>s+(Number(p.load)||0),0);
  const pool=generalConnected+applianceConnected,demandB=Math.min(10000,pool)+Math.max(0,pool-10000)*.4,hv=pcOptionalHvac22082C(parts);
- const evParts=parts.filter(p=>['ev','ev-managed'].includes(pcSemanticCategory(p))),evConnected=evParts.reduce((s,p)=>s+(Number(p.load)||0),0);
- return{generalConnected,applianceConnected,pool,demandB,hvacConnected:hv.connected,hvacDemand:hv.demand,hvacTreatment:hv.treatment,evConnected};
+ const evParts=parts.filter(p=>['ev','ev-managed'].includes(pcSemanticCategory(p))),evConnected=evParts.reduce((s,p)=>s+(Number(p.load)||0),0),evDemand=evParts.reduce((s,p)=>s+Math.max(7200,Number(p.load)||0),0);
+ return{generalConnected,applianceConnected,pool,demandB,hvacConnected:hv.connected,hvacDemand:hv.demand,hvacTreatment:hv.treatment,evConnected,evDemand};
 }
 function pcOptionalHvac22082C(parts){
  const hv=parts.filter(p=>pcSemanticCategory(p)==='hvac'),connected=hv.reduce((s,p)=>s+(Number(p.load)||0),0);
