@@ -767,6 +767,34 @@ function pcCooking22055(){
  if(groups.low.length)used.push('≤1.75 kW at 100%');
  return{connected:parts.reduce((s,p)=>s+Number(p.load),0),demand:Math.round(demandKW*1000),treatment:'Table 220.55 — '+(used.join('; ')||'—')};
 }
+const pc22054DryerFactors={1:100,2:85,3:75,4:65,5:60,6:55,7:50,8:47,9:44,10:42,11:40,12:39,13:37,14:35,15:34,16:33,17:32,18:31,19:30,20:29,21:28,22:27,23:26,24:25,25:24,26:23,27:22,28:21,29:20,30:19,31:18,32:17,33:16,34:15,35:14,36:13,37:12,38:11,39:10,40:9,41:8,42:7,43:6,44:5,45:4,46:3,47:2,48:1};
+function pcAppliance22053_54(){
+ const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
+ const dryers=parts.filter(p=>/^((electric )?clothes )?dryer$/i.test((p.description||'').trim())||p.category==='dryer');
+ const excluded=new Set(['cooking','hvac','motor','ev','continuous-100','continuous-125']);
+ const fixed=parts.filter(p=>{
+  if(dryers.includes(p))return false;
+  const k=pcNormalizeCategory(p.category,'dwelling-standard');
+  return k==='appliance'&&!excluded.has(k)&&(Number(p.load)||0)>=500;
+ });
+ const fixedConnected=fixed.reduce((s,p)=>s+Number(p.load),0);
+ const fixedFactor=fixed.length>=4?.75:1;
+ const fixedDemand=fixedConnected*fixedFactor;
+ const dryerConnected=dryers.reduce((s,p)=>s+Math.max(5000,Number(p.load)||0),0);
+ const n=dryers.length;
+ let dryerFactor=1;
+ if(n){
+  if(n<=48)dryerFactor=(pc22054DryerFactors[n]??100)/100;
+  else if(n>=51)dryerFactor=.25;
+  else dryerFactor=.01; // 49–50: table expression bottoms at 1% for this supported range.
+ }
+ const dryerDemand=dryerConnected*dryerFactor;
+ const connected=fixedConnected+dryers.reduce((s,p)=>s+Number(p.load),0);
+ const treatments=[];
+ if(fixed.length)treatments.push('220.53 — '+(fixed.length>=4?'75% ('+fixed.length+' qualifying appliances)':'100% ('+fixed.length+' qualifying appliance'+(fixed.length===1?'':'s')+')'));
+ if(n)treatments.push('220.54 — '+n+' dryer'+(n===1?'':'s')+', '+Math.round(dryerFactor*100)+'%; 5,000 VA/nameplate minimum each');
+ return{connected,demand:Math.round(fixedDemand+dryerDemand),treatment:treatments.join('; ')||'—'};
+}
 function renderClassificationSummary(){
  const dwelling=$('pcOccupancy').value==='dwelling',area=Number($('pcArea').value),show=!dwelling||(Number.isFinite(area)&&area>0);
  $('pcClassificationSummary').hidden=!show;
@@ -796,8 +824,14 @@ function renderClassificationSummary(){
    treatments.cooking=cook.treatment;
    demands.cooking=cook.demand;
   }
+  if((totals.appliance||0)>0){
+   const app=pcAppliance22053_54();
+   totals.appliance=app.connected;
+   treatments.appliance=app.treatment;
+   demands.appliance=app.demand;
+  }
   // Remaining classifications will be connected to their own Standard Method rules.
-  ['appliance','hvac','motor','ev'].forEach(k=>{if((totals[k]||0)>0){treatments[k]='Method-specific';demands[k]=null}});
+  ['hvac','motor','ev'].forEach(k=>{if((totals[k]||0)>0){treatments[k]='Method-specific';demands[k]=null}});
  }
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
