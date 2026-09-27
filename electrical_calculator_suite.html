@@ -47,6 +47,7 @@
 .pc-live-table th,.pc-live-table td{border:1px solid #cbd5e1;padding:8px 5px;text-align:center;overflow-wrap:anywhere}
 .pc-live-table th{background:#17365d;color:#fff;font-size:12px}
 .pc-live-table .pc-description{text-align:left;vertical-align:middle}.pc-live-table td[rowspan]{vertical-align:middle}
+.pc-classification-summary{margin-top:12px}.pc-classification-summary h3{margin:0 0 6px}.pc-classification-table{width:100%;border-collapse:collapse;background:#fff}.pc-classification-table th,.pc-classification-table td{border:1px solid #9aa9ba;padding:6px 8px;font-size:11px}.pc-classification-table th{background:#e8eef5;color:var(--navy2);font-weight:900;text-align:left}.pc-classification-table th:not(:first-child),.pc-classification-table td:not(:first-child){text-align:right}.pc-classification-table tfoot td{font-weight:900;background:#f8fafc}
 .pc-live-table .pc-circuit{width:4%}
 .pc-live-table .pc-breaker{width:6%}.pc-live-table .pc-wire{width:4%;font-size:11px;white-space:nowrap;padding-left:2px;padding-right:2px}
 .pc-live-table .pc-phase{font-variant-numeric:tabular-nums;padding:0}.pc-live-table .pc-phase-halves{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}.pc-live-table .pc-phase-half{min-width:0;padding:8px 2px;white-space:nowrap;font-size:11px}.pc-live-table .pc-phase-half+.pc-phase-half{border-left:1px solid #cbd5e1}
@@ -90,7 +91,12 @@
   body.pc-print-no-phase #panelcalc .pc-live-table .pc-phase{display:none!important}
   body.pc-print-no-wire #panelcalc .pc-live-table .pc-wire{display:none!important}
   body.pc-print-no-totals #panelcalc .pc-live-table tfoot{display:none!important}
-  body.pc-print-no-summary #panelcalc #pcFinalResults{display:none!important}
+  body.pc-print-no-summary #panelcalc #pcFinalResults,body.pc-print-no-summary #panelcalc #pcClassificationSummary{display:none!important}
+  body.pc-print-summary #panelcalc #pcClassificationSummary{display:block!important;margin:6px 0 0}
+  body.pc-print-summary #panelcalc #pcClassificationSummary h3{font-size:10px;margin:0 0 3px}
+  body.pc-print-summary #panelcalc #pcClassificationSummary .table-wrap{margin-top:0;border-radius:0}
+  body.pc-print-summary #panelcalc .pc-classification-table th,body.pc-print-summary #panelcalc .pc-classification-table td{font-size:7.5px;padding:2px 4px}
+  body.pc-print-summary #panelcalc #pcClassificationSummary .demand-note{font-size:6.5px;margin:2px 0 0}
   body.pc-print-summary #panelcalc #pcFinalResults{display:block!important;margin:5px 0 0;padding:0;border:0}
   body.pc-print-summary #panelcalc #pcFinalResults>h3{display:none!important}
   body.pc-print-summary #panelcalc .pc-compact-metrics{grid-template-columns:repeat(4,1fr);gap:3px;margin:0 0 3px}
@@ -338,6 +344,11 @@
         <div class="pc-print-header-grid" id="pcPrintHeaderGrid"></div>
       </section>
       <div class="panel-schedule-wrap"><h3>Live Panel Schedule</h3><p class="note">Select a circuit in the schedule to open only that breaker for editing or removal below Add Breaker Assembly. Phase values update as you enter loads.</p><div class="table-wrap"><table class="pc-live-table" aria-label="Live panel schedule"><thead id="pcLiveHead"></thead><tbody id="pcLiveBody"></tbody><tfoot id="pcLiveFoot"></tfoot></table></div></div>
+      <section class="pc-classification-summary" id="pcClassificationSummary" aria-label="Load classification summary">
+        <h3 id="pcClassificationTitle">Load Classification</h3>
+        <div class="table-wrap"><table class="pc-classification-table"><thead><tr><th>Load Classification</th><th>Connected Load</th><th>Demand Factor / Treatment</th><th>Calculated Demand</th></tr></thead><tbody id="pcClassificationBody"></tbody><tfoot id="pcClassificationFoot"></tfoot></table></div>
+        <p class="demand-note">Connected loads are grouped from the panel entries. Calculated demand will be populated as each classification is connected to the applicable method calculation.</p>
+      </section>
       <div class="panel-warning" id="pcWarning"></div>
       <section id="pcFinalResults" class="pc-compact-results" aria-label="Panel load results">
         <h3>Panel Load Results</h3>
@@ -610,11 +621,34 @@ function pcMinimumWire(p){const amps=Math.max(Number(p.breaker)||0,0);if(amps===
 function pcWireOptions(p){const min=pcMinimumWire(p),start=pcWireSizes.indexOf(min),chosen=pcWireSizes.indexOf(p.wire)>=start?p.wire:min;p.wire=chosen;return pcWireSizes.slice(start).map(w=>'<option value="'+w+'"'+(w===chosen?' selected':'')+'>'+w+'</option>').join('')}
 function pcBreakerOptions(p){const ratings=pcBreakerRatings.includes(Number(p.breaker))?pcBreakerRatings:[...pcBreakerRatings,Number(p.breaker)].sort((a,b)=>a-b);return ratings.map(a=>'<option value="'+a+'"'+(a===Number(p.breaker)?' selected':'')+'>'+a+' A</option>').join('')}
 const demandDefaults={lighting:1,receptacle:1,appliance:1,hvac:1,motor:1,continuous:1.25,other:1};
-const pcDwellingCategories=[['general','General Loads'],['lighting','General lighting'],['small-appliance','Small-appliance circuits'],['laundry','Laundry'],['appliance','Appliances'],['cooking','Cooking'],['dryer','Clothes dryer'],['water-heater','Water heater'],['hvac','Heating / air conditioning'],['ev','EV charging'],['motor','Motor'],['continuous','Other continuous load'],['other','Other']];
 const pcCategorySets={
- 'dwelling-standard':pcDwellingCategories,
- 'dwelling-optional':pcDwellingCategories,
- commercial:[['lighting','Lighting'],['receptacle','General receptacles'],['continuous','Continuous load'],['motor','Motor'],['hvac','Heating / air conditioning'],['kitchen','Kitchen equipment'],['sign','Sign / outline lighting'],['ev','EV charging'],['appliance','Other equipment'],['other','Other']]
+ 'dwelling-optional':[
+  ['general','General Loads'],
+  ['appliance','Appliance Loads'],
+  ['hvac','HVAC Loads'],
+  ['continuous','Continuous Loads']
+ ],
+ 'dwelling-standard':[
+  ['general','General Loads'],
+  ['cooking','Cooking Appliances'],
+  ['dryer','Electric Dryer'],
+  ['appliance','Appliance Loads'],
+  ['hvac','HVAC Loads'],
+  ['motor','Motors'],
+  ['ev','EV Chargers'],
+  ['continuous-100','Continuous Loads — 100%'],
+  ['continuous-125','Continuous Loads — 125%']
+ ],
+ commercial:[
+  ['lighting','General Lighting Loads'],
+  ['show-window-track','Show Window / Track & Specialty Lighting'],
+  ['receptacle','Receptacle Loads'],
+  ['other-commercial','Other Loads'],
+  ['kitchen','Commercial Kitchen Equipment'],
+  ['hvac','HVAC Loads'],
+  ['motor','Motors'],
+  ['continuous-other','Continuous and Other Loads']
+ ]
 };
 const pcCategoryLabel=k=>Object.values(pcCategorySets).flat().find(x=>x[0]===k)?.[1]||k.replace(/-/g,' ').replace(/^./,c=>c.toUpperCase());
 let pcAssemblies=[],pcNextId=1,pcSelectedId=null;
@@ -636,18 +670,37 @@ function addAssembly(type='standard1',start=null,data={}){if($('pcPhase').value!
 function phaseSequence(){return $('pcPhase').value==='3'?['A','B','C']:['A','B']}
 function phasesFor(start,poles){const seq=phaseSequence(),out=[];for(let i=0;i<poles;i++)out.push(seq[(Math.floor((start-1)/2)+i)%seq.length]);return out}
 function configOptions(selected){return Object.entries(assemblyConfigs).filter(([k])=>$('pcPhase').value==='3'||k!=='standard3').map(([k,v])=>`<option value="${k}"${k===selected?' selected':''}>${v.label}</option>`).join('')}
+function pcCategoryKey(){return $('pcOccupancy').value==='dwelling'?($('pcMethod').value==='optional'?'dwelling-optional':'dwelling-standard'):'commercial'}
+function pcNormalizeCategory(category,key=pcCategoryKey()){
+ const allowed=new Set(pcCategorySets[key].map(([k])=>k));
+ if(allowed.has(category))return category;
+ if(key==='dwelling-optional'){
+  if(['general','lighting','small-appliance','laundry'].includes(category))return 'general';
+  if(['hvac'].includes(category))return 'hvac';
+  if(['continuous','continuous-100','continuous-125'].includes(category))return 'continuous';
+  return 'appliance';
+ }
+ if(key==='dwelling-standard'){
+  if(['general','lighting','small-appliance','laundry'].includes(category))return 'general';
+  if(category==='continuous')return 'continuous-125';
+  if(category==='water-heater')return 'appliance';
+  return allowed.has(category)?category:'appliance';
+ }
+ if(category==='sign')return 'show-window-track';
+ if(category==='continuous')return 'continuous-other';
+ if(['lighting','receptacle','kitchen','hvac','motor'].includes(category))return category;
+ return 'other-commercial';
+}
 function categoryOptions(selected){
- const key=$('pcOccupancy').value==='dwelling'?($('pcMethod').value==='optional'?'dwelling-optional':'dwelling-standard'):'commercial';
- const options=pcCategorySets[key];
- const available=options.some(([k])=>k===selected)?options:[[selected,pcCategoryLabel(selected)+' (existing — review category)'],...options];
- return available.map(([k,label])=>`<option value="${esc(k)}"${k===selected?' selected':''}>${esc(label)}</option>`).join('');
+ const key=pcCategoryKey(),options=pcCategorySets[key],normalized=pcNormalizeCategory(selected,key);
+ return options.map(([k,label])=>`<option value="${esc(k)}"${k===normalized?' selected':''}>${esc(label)}</option>`).join('');
 }
 function rebuildParts(a,type){const old=a.parts;a.type=type;const cfg=assemblyConfigs[type];a.spaces=cfg.spaces;a.parts=cfg.parts.map((p,i)=>newPart({...p,...(old[i]||{}) ,poles:p.poles,label:p.label}));renderPanel()}
 const pcDescriptionChoices=[['Lighting','lighting'],['Receptacles','receptacle'],['HVAC','hvac'],['Water heater','water-heater'],['EV charger','ev'],['Laundry','laundry'],['Cooking','cooking'],['Clothes dryer','dryer'],['Appliance','appliance'],['Motor','motor'],['Continuous load','continuous'],['Small-appliance circuits','small-appliance']];
 const pcDwellingDescriptions=[['General Loads','general'],['Small-appliance circuits','small-appliance'],['Washer','laundry'],['Dishwasher','appliance'],['Disposal','appliance'],['Refrigerator','appliance'],['Microwave','appliance'],['Hood fan','appliance'],['Freezer','appliance'],['Range','cooking'],['Wall oven','cooking'],['Garage door opener','appliance'],['Water heater','water-heater'],['Dryer','dryer'],['Air handling unit','hvac'],['HVAC','hvac'],['EV charger','ev'],['Lighting','lighting'],['Receptacles','receptacle'],['Continuous load','continuous'],['Self / Custom','other']];
 function syncPcDescriptionChoices(){const choices=$('pcOccupancy').value==='dwelling'?pcDwellingDescriptions:pcDescriptionChoices;$('pcDescriptionChoices').replaceChildren(...choices.map(([label])=>new Option(label,label)));}
 function breakerInput(a,p,i){return `<div class="mini-row" data-part="${i}"><div class="mini-label">${esc(p.label)}</div><input class="pc-desc" list="pcDescriptionChoices" value="${esc(p.description)}" placeholder="Select or type description" title="Choose a common load or enter a custom description"><select class="pc-trip" title="Breaker rating (A)">${pcBreakerOptions(p)}</select><input class="pc-load" type="number" min="0" step="any" value="${p.load?pcDisplayLoad(p.load):''}" placeholder="${pcLoadUnit()}" title="Connected ${pcLoadUnit()}"><select class="pc-cat demand-category">${categoryOptions(p.category)}</select><input class="pc-factor factor" type="number" min="0" step=".01" value="${p.factor}" title="Demand factor"><select class="pc-wire wire-entry" title="Copper conductor, 75°C ampacity; verify installation conditions">${pcWireOptions(p)}</select></div>`}
-function renderBreakers(){const box=$('pcBreakers');box.innerHTML=pcAssemblies.filter(a=>a.id===pcSelectedId).map(a=>`<div class="breaker-card" data-id="${a.id}"><div class="breaker-head"><div class="field"><label>Start circuit</label><input class="pc-start" type="number" min="1" value="${a.start}"></div><div class="field"><label>Breaker assembly</label><select class="pc-type">${configOptions(a.type)}</select></div><div class="field"><label>Physical spaces used</label><input class="pc-space-count" type="number" min="1" max="6" value="${a.spaces}" ${a.type==='custom'?'':'disabled'}></div><div class="field"><label>Contained circuits</label><input value="${a.parts.length}" disabled></div><button class="remove-breaker" type="button">Remove</button></div><div class="mini-grid"><div class="mini-row pc-input-headings"><div class="mini-label">Circuit</div><div class="mini-label">Load description</div><div class="mini-label">Breaker (A)</div><div class="mini-label">Load (${pcLoadUnit()})</div><div class="mini-label">Load category</div><div class="mini-label">Demand factor</div><div class="mini-label">Wire (Cu)</div></div>${a.parts.map((p,i)=>breakerInput(a,p,i)).join('')}</div></div>`).join('');
+function renderBreakers(){const key=pcCategoryKey();pcAssemblies.forEach(a=>a.parts.forEach(p=>p.category=pcNormalizeCategory(p.category,key)));const box=$('pcBreakers');box.innerHTML=pcAssemblies.filter(a=>a.id===pcSelectedId).map(a=>`<div class="breaker-card" data-id="${a.id}"><div class="breaker-head"><div class="field"><label>Start circuit</label><input class="pc-start" type="number" min="1" value="${a.start}"></div><div class="field"><label>Breaker assembly</label><select class="pc-type">${configOptions(a.type)}</select></div><div class="field"><label>Physical spaces used</label><input class="pc-space-count" type="number" min="1" max="6" value="${a.spaces}" ${a.type==='custom'?'':'disabled'}></div><div class="field"><label>Contained circuits</label><input value="${a.parts.length}" disabled></div><button class="remove-breaker" type="button">Remove</button></div><div class="mini-grid"><div class="mini-row pc-input-headings"><div class="mini-label">Circuit</div><div class="mini-label">Load description</div><div class="mini-label">Breaker (A)</div><div class="mini-label">Load (${pcLoadUnit()})</div><div class="mini-label">Load category</div><div class="mini-label">Demand factor</div><div class="mini-label">Wire (Cu)</div></div>${a.parts.map((p,i)=>breakerInput(a,p,i)).join('')}</div></div>`).join('');
  box.querySelectorAll('.breaker-card').forEach(card=>{const a=pcAssemblies.find(x=>x.id===Number(card.dataset.id));card.querySelector('.pc-start').addEventListener('change',e=>{const next=Math.max(1,Number(e.target.value)||1),max=Number($('pcSpaces').value)||42,occupied=new Set(pcAssemblies.filter(x=>x.id!==a.id).flatMap(assemblyPositions)),positions=Array.from({length:assemblySpaceCount(a)},(_,i)=>next+2*i);if(positions.some(p=>p>max||occupied.has(p))){e.target.value=a.start;$('pcWarning').textContent='That position is occupied or outside the panel. Select another starting circuit.';return}a.start=next;renderPanel()});card.querySelector('.pc-type').addEventListener('change',e=>{if($('pcPhase').value!=='3'&&e.target.value==='standard3'){e.target.value=a.type;return}const next=assemblyConfigs[e.target.value],occupied=new Set(pcAssemblies.filter(x=>x.id!==a.id).flatMap(assemblyPositions)),max=Number($('pcSpaces').value)||42;if(Array.from({length:next.spaces},(_,i)=>a.start+2*i).some(p=>p>max||occupied.has(p))){e.target.value=a.type;$('pcWarning').textContent='Not enough free panel positions for that breaker type.';return}rebuildParts(a,e.target.value)});card.querySelector('.pc-space-count').addEventListener('input',e=>{a.spaces=Math.max(1,Number(e.target.value)||1);panelCalc()});card.querySelector('.remove-breaker').addEventListener('click',()=>{pcAssemblies=pcAssemblies.filter(x=>x.id!==a.id);pcSelectedId=null;renderPanel()});card.querySelectorAll('.mini-row[data-part]').forEach(row=>{const p=a.parts[Number(row.dataset.part)];[['.pc-desc','description'],['.pc-trip','breaker'],['.pc-load','load'],['.pc-cat','category'],['.pc-factor','factor'],['.pc-wire','wire']].forEach(([sel,key])=>row.querySelector(sel).addEventListener('input',e=>{const previousMinimum=key==='breaker'?pcMinimumWire(p):null;const previousCategory=key==='category'?p.category:null;p[key]=key==='load'?(Number(e.target.value)||0)*(pcLoadUnit()==='kVA'?1000:1):['breaker','factor'].includes(key)?Number(e.target.value)||0:e.target.value;if(key==='description'){const choice=($('pcOccupancy').value==='dwelling'?pcDwellingDescriptions:pcDescriptionChoices).find(([label])=>label.toLowerCase()===p.description.trim().toLowerCase());if(choice){if(choice[0]==='Self / Custom'){p.description='';row.querySelector('.pc-desc').value='';row.querySelector('.pc-desc').focus()}p.category=choice[1];row.querySelector('.pc-cat').value=p.category;if($('pcDemandMode').value==='category'){p.factor=demandDefaults[p.category]??1;row.querySelector('.pc-factor').value=p.factor}}} if(key==='breaker'){const minimum=pcMinimumWire(p);if(p.wire===previousMinimum||pcWireSizes.indexOf(p.wire)<pcWireSizes.indexOf(minimum))p.wire=minimum;renderPanel();return}if(key==='category'){const previousLabel=pcCategoryLabel(previousCategory),description=row.querySelector('.pc-desc');if(!p.description.trim()||p.description===previousLabel){p.description=pcCategoryLabel(p.category);description.value=p.description}if($('pcDemandMode').value==='category')p.factor=demandDefaults[p.category]}panelCalc()}))})})}
 function analyzePanel(){const max=Number($('pcSpaces').value)||42,seq=phaseSequence(),occupancy={},rows=[],phaseConn=Object.fromEntries(seq.map(p=>[p,0])),phaseDem=Object.fromEntries(seq.map(p=>[p,0])),warnings=[];pcAssemblies.sort((a,b)=>a.start-b.start);
  pcAssemblies.forEach(a=>{const cfg=assemblyConfigs[a.type]||assemblyConfigs.custom,spaces=a.type==='custom'?a.spaces:cfg.spaces;if(a.start+2*(spaces-1)>max)warnings.push(`Breaker at circuit ${a.start} exceeds the ${max}-circuit panel.`);for(const s of assemblyPositions(a)){if(occupancy[s])warnings.push(`Panel space ${s} is used by more than one breaker assembly.`);occupancy[s]=a.id}
@@ -696,8 +749,19 @@ function dwellingMethodFromEntries(){
  const volts=Number(voltage.split('/').pop()),denominator=phase==='3'?Math.sqrt(3)*volts:volts;
  return{area,lighting,smallVA,laundryVA,additionalWashers,general,demanded,amps:denominator>0?demanded/denominator:null,missingArea:!Number.isFinite(area)||area<=0,missingWashers:!washers.length,smallCount:small.length,phase,voltage};
 }
+function renderClassificationSummary(){
+ const key=pcCategoryKey(),categories=pcCategorySets[key],totals=Object.fromEntries(categories.map(([k])=>[k,0]));
+ pcAssemblies.forEach(a=>a.parts.forEach(p=>{const k=pcNormalizeCategory(p.category,key);totals[k]=(totals[k]||0)+(Number(p.load)||0)}));
+ const rows=categories.filter(([k])=>totals[k]>0);
+ const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
+ $('pcClassificationTitle').textContent='Load Classification — '+methodLabel;
+ $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>—</td><td>—</td></tr>').join('');
+ const total=Object.values(totals).reduce((s,v)=>s+v,0);
+ $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>—</td></tr>';
+}
 function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
+ renderClassificationSummary();
  const dwelling=$('pcOccupancy').value==='dwelling',method=$('pcMethod').value==='optional'?'Optional':'Standard';
  $('pcDwellingMethodResults').hidden=!dwelling;
  $('pcDwellingMethodTitle').textContent='Dwelling — '+method+' Method General Loads';
@@ -716,7 +780,7 @@ function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMai
  $('pcFinalImbalance').textContent=fmt(imb,1)+'%';
  $('pcFinalPhases').innerHTML=seq.map(p=>'<tr><td>Phase '+p+'</td><td>'+pcDisplayNumber(r.phaseConn[p])+' '+pcLoadUnit()+'</td><td>'+pcDisplayNumber(r.phaseDem[p])+' '+pcLoadUnit()+'</td><td>'+fmt(r.phaseDem[p]/ln,1)+' A</td></tr>').join('')+'<tr class="pc-total-row"><td>Panel total</td><td>'+pcDisplayNumber(totalConn)+' '+pcLoadUnit()+'</td><td>'+pcDisplayNumber(totalDem)+' '+pcLoadUnit()+'</td><td>Max '+fmt(maxA,1)+' A</td></tr>';
  $('pcFinalBasis').textContent='Basis: '+$('pcPhase').selectedOptions[0].text+'; '+$('pcVoltage').value+' V; '+$('pcOccupancy').selectedOptions[0].text+' occupancy; '+$('pcDemandMode').selectedOptions[0].text+'. Values reflect entered loads and selected factors, not a complete NEC occupancy-specific demand calculation.';
- $('pcConnected').textContent=fmt(totalConn,0)+' VA';$('pcDemand').textContent=fmt(totalDem,0)+' VA';$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcImbalance').textContent=fmt(imb,1)+'%';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
+ $('pcConnected').textContent=fmt(totalConn,0)+' VA';$('pcDemand').textContent=fmt(totalDem,0)+' VA';$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function selectPanelAssembly(id){pcSelectedId=id;renderPanel();$('pcBreakers').scrollIntoView({behavior:'smooth',block:'center'})}
 function renderPanel(){renderBreakers();panelCalc()}
 function savePanel(){try{localStorage.setItem('loadcalcpro-panel-v2',JSON.stringify({assemblies:pcAssemblies,next:pcNextId,settings:{fedFrom:$('pcFedFrom').value,mainType:$('pcMainType').value,upstream:$('pcUpstream').value,feederMaterial:$('pcFeederMaterial').value,feederWire:$('pcFeederWire').value,feederSets:$('pcFeederSets').value,feederEGC:$('pcFeederEGC').value,phase:$('pcPhase').value,voltage:$('pcVoltage').value,unit:$('pcUnit').value,occupancy:$('pcOccupancy').value,occupancyType:$('pcOccupancyType').value,area:$('pcArea').value,method:$('pcMethod').value,spaces:$('pcSpaces').value,main:$('pcMain').value,name:$('pcName').value,location:$('pcLocation').value,faultCurrent:$('pcFaultCurrent').value,mode:$('pcMode').value,demand:$('pcDemandMode').value}}))}catch{}}
