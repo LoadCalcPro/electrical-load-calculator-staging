@@ -323,7 +323,7 @@
       <div class="pc-method-row" id="pcMethodRow" hidden><div class="field"><label for="pcMethod">Dwelling calculation method</label><select id="pcMethod"><option value="standard">Standard Method</option><option value="optional">Optional Method</option></select></div></div>
       <div class="panel-actions add-controls">
         <button class="btn" id="pcAdd" type="button">Add Breaker</button>
-        <button class="btn secondary" id="pcExample" type="button">Load example</button>
+        
         <button class="btn secondary" id="pcClear" type="button">Clear panel</button>
       </div>
       <div class="pc-legacy-demand" hidden><div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div></div>
@@ -983,7 +983,7 @@ function clearPanel(){if(!confirm('Clear the entire panel schedule?'))return;pcA
 function loadExample(){pcAssemblies=[];pcNextId=1;pcSelectedId=null;addAssembly('standard2',1,{parts:[{poles:2,label:'2P',description:'Air conditioning',breaker:30,wire:'#10',load:4800,category:'hvac',factor:1}]});addAssembly('tandem',5,{parts:[{poles:1,label:'Mini A',description:'Lighting',breaker:20,wire:'#12',load:1200,category:'lighting',factor:1},{poles:1,label:'Mini B',description:'Receptacles',breaker:20,wire:'#12',load:1500,category:'receptacle',factor:1}]});addAssembly('quad121',2,{parts:[{poles:1,label:'Outer 1P A',description:'Appliance',breaker:20,wire:'#12',load:1200,category:'appliance',factor:1},{poles:2,label:'Center 2P',description:'Water heater',breaker:30,wire:'#10',load:4500,category:'appliance',factor:1},{poles:1,label:'Outer 1P B',description:'Continuous load',breaker:20,wire:'#12',load:800,category:'continuous',factor:1.25}]});renderPanel()}
 $('pcUnit').addEventListener('change',()=>renderPanel());
 syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();$('pcOccupancy').addEventListener('change',()=>{syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();renderPanel()});$('pcMethod').addEventListener('change',()=>renderPanel());$('pcOccupancyType').addEventListener('change',()=>savePanel());$('pcArea').addEventListener('input',()=>panelCalc());
-$('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').addEventListener('click',clearPanel);$('pcExample').addEventListener('click',loadExample);
+$('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').addEventListener('click',clearPanel);
 ['pcFedFrom','pcMainType','pcUpstream','pcFeederMaterial','pcFeederWire','pcFeederSets','pcFeederEGC','pcPhase','pcVoltage','pcSpaces','pcMain','pcName','pcLocation','pcFaultCurrent','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'&&e.target.value==='custom')$('pcVoltage').value='120/208';if(id==='pcPhase'&&e.target.value==='1'&&pcAssemblies.some(a=>a.parts.some(p=>p.poles===3))){e.target.value='3';$('pcWarning').textContent='Remove or change existing three-pole breakers before selecting a single-phase panel.';return}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 $('pcPrintScheduleOnly').addEventListener('click',()=>setPanelPrintPreset('schedule'));
 $('pcPrintScheduleHeader').addEventListener('click',()=>setPanelPrintPreset('header'));
