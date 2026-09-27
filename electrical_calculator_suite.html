@@ -849,7 +849,7 @@ function pcHvac22060(){
    }else{
     const compressor=Math.max(base,cool),heating=Math.max(heat,aux);
     d=Math.max(heating,compressor);
-    treatments.add('220.60 — heat pump noncoincident; larger of heat or compressor load');
+    treatments.add('220.60 — heat pump noncoincident; larger entered heat or compressor component');
    }
   }else if(cool>0||heat>0){
    if(p.hvacSimultaneous==='yes'){
