@@ -749,6 +749,9 @@ function dwellingMethodFromEntries(){
  return{area,lighting,smallVA,laundryVA,additionalWashers,general,demanded,amps:denominator>0?demanded/denominator:null,missingArea:!Number.isFinite(area)||area<=0,missingWashers:!washers.length,smallCount:small.length,phase,voltage};
 }
 function renderClassificationSummary(){
+ const dwelling=$('pcOccupancy').value==='dwelling',area=Number($('pcArea').value),show=!dwelling||(Number.isFinite(area)&&area>0);
+ $('pcClassificationSummary').hidden=!show;
+ if(!show)return;
  const key=pcCategoryKey(),categories=pcCategorySets[key],totals=Object.fromEntries(categories.map(([k])=>[k,0]));
  pcAssemblies.forEach(a=>a.parts.forEach(p=>{const k=pcNormalizeCategory(p.category,key);totals[k]=(totals[k]||0)+(Number(p.load)||0)}));
  const rows=categories.filter(([k])=>totals[k]>0);
