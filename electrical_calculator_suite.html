@@ -848,14 +848,14 @@ function pcHvac22060(){
  return{connected,demand:Math.round(demand),largestMotorAc,treatment:[...treatments].join('; ')||'—'};
 }
 function pcOptional22082(){
- const area=Number($('pcArea').value),parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0),washers=parts.filter(p=>/^washer$/i.test((p.description||'').trim())),small=parts.filter(p=>p.category==='small-appliance'||/^small.appliance circuits?$/i.test((p.description||'').trim()));
- const lighting=Number.isFinite(area)&&area>0?area*3:0,smallVA=Math.max(3000,small.length*1500),laundryVA=1500;
+ const area=Number($('pcArea').value),parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
+ const washers=parts.filter(p=>/^washer$/i.test((p.description||'').trim())),small=parts.filter(p=>p.category==='small-appliance'||/^small.appliance circuits?$/i.test((p.description||'').trim()));
+ const lighting=Number.isFinite(area)&&area>0?area*3:0,smallVA=Math.max(3000,small.length*1500),laundryVA=1500,generalConnected=lighting+smallVA+laundryVA;
  const excluded=new Set(['general','lighting','small-appliance','laundry','hvac','ev','ev-managed']);
- const appliances=parts.filter(p=>excluded.has(p.category)===false).reduce((s,p)=>s+(Number(p.load)||0),0)+washers.slice(1).reduce((s,p)=>s+(Number(p.load)||0),0);
- const pool=lighting+smallVA+laundryVA+appliances,demandB=Math.min(10000,pool)+Math.max(0,pool-10000)*.4;
- const hv=pcOptionalHvac22082C(parts);
+ const applianceParts=parts.filter(p=>!excluded.has(p.category)),applianceConnected=applianceParts.reduce((s,p)=>s+(Number(p.load)||0),0)+washers.slice(1).reduce((s,p)=>s+(Number(p.load)||0),0);
+ const pool=generalConnected+applianceConnected,demandB=Math.min(10000,pool)+Math.max(0,pool-10000)*.4,hv=pcOptionalHvac22082C(parts);
  const evParts=parts.filter(p=>p.category==='ev'||p.category==='ev-managed'),evConnected=evParts.reduce((s,p)=>s+(Number(p.load)||0),0);
- return{generalConnected:lighting+smallVA+laundryVA,applianceConnected:appliances,pool,demandB,hvacConnected:hv.connected,hvacDemand:hv.demand,hvacTreatment:hv.treatment,evConnected,evDemand:evConnected?null:0};
+ return{generalConnected,applianceConnected,pool,demandB,hvacConnected:hv.connected,hvacDemand:hv.demand,hvacTreatment:hv.treatment,evConnected};
 }
 function pcOptionalHvac22082C(parts){
  const hv=parts.filter(p=>p.category==='hvac'),connected=hv.reduce((s,p)=>s+(Number(p.load)||0),0);let best=0,label='220.82(C) — no HVAC load';
@@ -889,10 +889,10 @@ function renderClassificationSummary(){
   const o=pcOptional22082();
   totals.general=o.generalConnected; totals.appliance=o.applianceConnected; totals.hvac=o.hvacConnected;
   demands.general=o.demandB; demands.appliance=0; demands.hvac=o.hvacDemand;
-  treatments.general='220.82(B) — combined General + Appliance pool: first 10 kVA at 100%, remainder at 40%';
-  treatments.appliance='Included in 220.82(B) combined pool at nameplate';
+  treatments.general='220.82(B) combined pool ('+fmt(o.pool,0)+' VA): first 10,000 VA at 100%; remainder at 40%';
+  treatments.appliance='Included in the 220.82(B) combined pool above — do not add again';
   treatments.hvac=o.hvacTreatment;
-  if(o.evConnected){totals.appliance+=o.evConnected;demands.appliance=null;treatments.appliance='220.82(B) pool excludes unresolved 2023 EVSE treatment — verify EVSE separately'}
+  if(o.evConnected){totals.appliance+=o.evConnected;demands.appliance=null;treatments.appliance='2023 Optional Method: EVSE requires separate verification; not included in the 40% pool'}
   totals.continuous=0;demands.continuous=0;
  }
  // Populate treatments that are already explicit in the classification itself.
