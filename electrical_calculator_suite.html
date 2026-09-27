@@ -889,7 +889,13 @@ function renderClassificationSummary(){
  $('pcClassificationTitle').textContent='Load Classification — '+methodLabel;
  $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>'+esc(treatments[k]||'—')+'</td><td>'+(demands[k]===null?'Pending method logic':fmt(demands[k]||0,0)+' VA')+'</td></tr>').join('');
  const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0):null;
- $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>'+(demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA')+'</td></tr>';
+ let finalResult=demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA';
+ if(demandTotal!==null){
+  const voltage=Number($('pcVoltage').value)||0,phase=$('pcPhase').value;
+  const calcAmps=voltage>0?(phase==='3'?demandTotal/(Math.sqrt(3)*voltage):demandTotal/voltage):null;
+  finalResult=fmt(demandTotal,0)+' VA'+(calcAmps===null?'':'<br><strong>Calculated Amperage: '+fmt(calcAmps,1)+' A</strong>');
+ }
+ $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>'+finalResult+'</td></tr>';
 }
 function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
