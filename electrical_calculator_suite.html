@@ -631,7 +631,6 @@ const pcCategorySets={
  'dwelling-standard':[
   ['general','General Loads'],
   ['cooking','Cooking Appliances'],
-  ['dryer','Electric Dryer'],
   ['appliance','Appliance Loads'],
   ['hvac','HVAC Loads'],
   ['motor','Motors'],
@@ -683,7 +682,7 @@ function pcNormalizeCategory(category,key=pcCategoryKey()){
  if(key==='dwelling-standard'){
   if(['general','lighting','small-appliance','laundry'].includes(category))return 'general';
   if(category==='continuous')return 'continuous-125';
-  if(category==='water-heater')return 'appliance';
+  if(['water-heater','dryer'].includes(category))return 'appliance';
   return allowed.has(category)?category:'appliance';
  }
  if(category==='sign')return 'show-window-track';
