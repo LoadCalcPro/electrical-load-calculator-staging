@@ -943,7 +943,7 @@ function renderClassificationSummary(){
  const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0)+(key==='dwelling-standard'?.25*largestMotorAc:0):null;
  let finalResult=demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA';
  if(demandTotal!==null){
-  const voltage=Number($('pcVoltage').value)||0,phase=$('pcPhase').value;
+  const voltage=Number(($('pcVoltage').value||'').split('/').pop())||0,phase=$('pcPhase').value;
   const calcAmps=voltage>0?(phase==='3'?demandTotal/(Math.sqrt(3)*voltage):demandTotal/voltage):null;
   finalResult=fmt(demandTotal,0)+' VA'+(key==='dwelling-standard'&&largestMotorAc>0?'<br><span style="font-size:11px">Includes 25% largest motor/A-C component: '+fmt(.25*largestMotorAc,0)+' VA</span>':'')+(calcAmps===null?'':'<br><strong>Calculated Amperage: '+fmt(calcAmps,1)+' A</strong>');
  }
