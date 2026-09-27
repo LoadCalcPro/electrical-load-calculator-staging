@@ -945,9 +945,9 @@ function renderClassificationSummary(){
  if(demandTotal!==null){
   const voltage=Number(($('pcVoltage').value||'').split('/').pop())||0,phase=$('pcPhase').value;
   const calcAmps=voltage>0?(phase==='3'?demandTotal/(Math.sqrt(3)*voltage):demandTotal/voltage):null;
-  finalResult=fmt(demandTotal,0)+' VA'+(key==='dwelling-standard'&&largestMotorAc>0?'<br><span style="font-size:11px">Includes 25% largest motor/A-C component: '+fmt(.25*largestMotorAc,0)+' VA</span>':'')+(calcAmps===null?'':'<br><strong>Calculated Amperage: '+fmt(calcAmps,1)+' A</strong>');
+  finalResult='<strong>Total: '+pcDisplayNumber(demandTotal)+' '+pcLoadUnit()+' / '+(calcAmps===null?'—':fmt(calcAmps,1)+' A')+'</strong>'+(key==='dwelling-standard'&&largestMotorAc>0?'<br><span style="font-size:11px">Includes 25% largest motor/A-C component: '+pcDisplayNumber(.25*largestMotorAc)+' '+pcLoadUnit()+'</span>':'');
  }
- $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>'+finalResult+'</td></tr>';
+ $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+pcDisplayNumber(total)+' '+pcLoadUnit()+'</td><td></td><td>'+finalResult+'</td></tr>';
 }
 function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
