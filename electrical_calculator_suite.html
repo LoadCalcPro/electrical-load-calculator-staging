@@ -67,6 +67,42 @@
 .pc-final-results{margin-top:22px;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}.pc-final-results .summary{margin:12px 0}.pc-final-results .pc-load-summary{width:100%;border-collapse:collapse}.pc-final-results .pc-load-summary th,.pc-final-results .pc-load-summary td{padding:9px;border:1px solid var(--line);text-align:left}.pc-final-results .pc-load-summary th{background:var(--navy2);color:white}@media print{.pc-report-actions{display:none!important}.pc-final-results{break-inside:avoid}.panel-schedule-wrap,.pc-final-results{display:block!important}}
 
 .pc-compact-results{margin-top:14px}.pc-compact-results h3{margin:0 0 10px}.pc-compact-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.pc-compact-metrics>div{padding:9px 11px;border:1px solid var(--line);border-radius:8px}.pc-compact-metrics span{display:block;font-size:11px;font-weight:700;color:var(--muted)}.pc-compact-metrics strong{display:block;font-size:19px;color:var(--navy2);margin-top:3px}.pc-compact-results .pc-load-summary{width:100%;border-collapse:collapse;min-width:0}.pc-compact-results .pc-load-summary th,.pc-compact-results .pc-load-summary td{padding:7px 9px;border:1px solid var(--line);text-align:left}.pc-compact-results .pc-load-summary th{background:var(--navy2);color:#fff}.pc-total-row{font-weight:800;background:var(--soft)}.pc-compact-results .pc-compact-basis,.pc-compact-results .demand-note{margin:7px 0;font-size:12px}.pc-compact-results .pc-report-actions{margin:8px 0 0}@media(max-width:650px){.pc-compact-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media print{.pc-report-actions{display:none!important}}
+
+/* Panel Loads print controls: print-only presentation; live calculator is unchanged. */
+.pc-print-options{margin:14px 0 4px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f8fafc}
+.pc-print-options h3{margin:0 0 8px}.pc-print-presets{display:flex;gap:8px;flex-wrap:wrap}.pc-print-checks{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px}.pc-print-checks label{display:flex;gap:6px;align-items:center;font-weight:700;color:#475467}
+.pc-print-header{display:none}
+@media print{
+  #panelcalc .pc-print-options{display:none!important}
+  #panelcalc .card>h2,#panelcalc .card>p.note,#panelcalc .pc-primary,#panelcalc .card>h3,#panelcalc .pc-supply,#panelcalc .pc-feeder-details,#panelcalc .pc-method-row,#panelcalc .pc-legacy-demand,#panelcalc .panel-warning{display:none!important}
+  #panelcalc .panel-schedule-wrap>h3,#panelcalc .panel-schedule-wrap>p.note{display:none!important}
+  #panelcalc .pc-print-header{display:block;margin:0 0 5px;padding:0 0 5px;border-bottom:1.5px solid #111}
+  #panelcalc .pc-print-header h2{display:block!important;margin:0 0 3px;color:#111;font-size:16px;text-align:center}
+  #panelcalc .pc-print-header-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px 10px;font-size:8px;line-height:1.2}
+  #panelcalc .pc-print-header-grid strong{font-weight:700}
+  #panelcalc .panel-schedule-wrap{margin:0}
+  #panelcalc .table-wrap{border:0;border-radius:0;margin:0}
+  #panelcalc .pc-live-table{width:100%;font-size:8px}
+  #panelcalc .pc-live-table th,#panelcalc .pc-live-table td{padding:2px 2px;border-color:#555}
+  #panelcalc .pc-live-table th{background:#eee!important;color:#000!important}
+  #panelcalc .pc-live-table .pc-circuit{background:#f7f7f7!important}
+  body.pc-print-no-header #panelcalc .pc-print-header{display:none!important}
+  body.pc-print-no-phase #panelcalc .pc-live-table .pc-phase{display:none!important}
+  body.pc-print-no-wire #panelcalc .pc-live-table .pc-wire{display:none!important}
+  body.pc-print-no-totals #panelcalc .pc-live-table tfoot{display:none!important}
+  body.pc-print-no-summary #panelcalc #pcFinalResults{display:none!important}
+  body.pc-print-summary #panelcalc #pcFinalResults{display:block!important;margin:5px 0 0;padding:0;border:0}
+  body.pc-print-summary #panelcalc #pcFinalResults>h3{display:none!important}
+  body.pc-print-summary #panelcalc .pc-compact-metrics{grid-template-columns:repeat(4,1fr);gap:3px;margin:0 0 3px}
+  body.pc-print-summary #panelcalc .pc-compact-metrics>div{padding:3px 4px;border-radius:0}
+  body.pc-print-summary #panelcalc .pc-compact-metrics span{font-size:7px}
+  body.pc-print-summary #panelcalc .pc-compact-metrics strong{font-size:10px;margin-top:1px}
+  body.pc-print-summary #panelcalc #pcFinalResults>.table-wrap{display:none!important}
+  body.pc-print-summary #panelcalc #pcDwellingMethodResults{display:none!important}
+  body.pc-print-summary #panelcalc #pcFinalBasis,body.pc-print-summary #panelcalc #pcFinalResults>.demand-note{display:none!important}
+  body.pc-print-basic #panelcalc .pc-live-table th.pc-description{width:34%}
+  body.pc-print-basic #panelcalc .pc-live-table .pc-description{font-size:9px}
+}
 </style>
 </head>
 <body>
@@ -282,6 +318,25 @@
       </div>
       <div class="pc-legacy-demand" hidden><div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div></div>
       <div class="breaker-list" id="pcBreakers"></div><datalist id="pcDescriptionChoices"></datalist>
+      <section class="pc-print-options" aria-label="Panel schedule print options">
+        <h3>Print Options</h3>
+        <div class="pc-print-presets">
+          <button class="btn secondary" type="button" id="pcPrintScheduleOnly">Schedule Only</button>
+          <button class="btn secondary" type="button" id="pcPrintScheduleHeader">Schedule + Header</button>
+          <button class="btn secondary" type="button" id="pcPrintFull">Full Calculation</button>
+        </div>
+        <div class="pc-print-checks">
+          <label><input type="checkbox" id="pcPrintHeader" checked> Panel header</label>
+          <label><input type="checkbox" id="pcPrintPhase" checked> Phase/load columns</label>
+          <label><input type="checkbox" id="pcPrintWire" checked> Wire columns</label>
+          <label><input type="checkbox" id="pcPrintTotals" checked> Phase totals</label>
+          <label><input type="checkbox" id="pcPrintSummary" checked> Final load summary</label>
+        </div>
+      </section>
+      <section class="pc-print-header" id="pcPrintHeaderBlock" aria-label="Printed panel identification">
+        <h2 id="pcPrintPanelTitle">PANEL SCHEDULE</h2>
+        <div class="pc-print-header-grid" id="pcPrintHeaderGrid"></div>
+      </section>
       <div class="panel-schedule-wrap"><h3>Live Panel Schedule</h3><p class="note">Select a circuit in the schedule to open only that breaker for editing or removal below Add Breaker Assembly. Phase values update as you enter loads.</p><div class="table-wrap"><table class="pc-live-table" aria-label="Live panel schedule"><thead id="pcLiveHead"></thead><tbody id="pcLiveBody"></tbody><tfoot id="pcLiveFoot"></tfoot></table></div></div>
       <div class="panel-warning" id="pcWarning"></div>
       <section id="pcFinalResults" class="pc-compact-results" aria-label="Panel load results">
@@ -344,9 +399,37 @@ function resetActivePanel(){
   panel.querySelectorAll('select').forEach(select=>{const original=Array.from(select.options).findIndex(option=>option.defaultSelected);select.selectedIndex=original>=0?original:0});
   refreshPanel(panel.id);
 }
+function applyPanelPrintOptions(){
+  const body=document.body;
+  ['pc-print-no-header','pc-print-no-phase','pc-print-no-wire','pc-print-no-totals','pc-print-no-summary','pc-print-summary','pc-print-basic'].forEach(x=>body.classList.remove(x));
+  if(!$('pcPrintHeader')?.checked)body.classList.add('pc-print-no-header');
+  if(!$('pcPrintPhase')?.checked)body.classList.add('pc-print-no-phase','pc-print-basic');
+  if(!$('pcPrintWire')?.checked)body.classList.add('pc-print-no-wire','pc-print-basic');
+  if(!$('pcPrintTotals')?.checked)body.classList.add('pc-print-no-totals');
+  if($('pcPrintSummary')?.checked)body.classList.add('pc-print-summary');else body.classList.add('pc-print-no-summary');
+  const name=$('pcName')?.value?.trim()||'Panel';
+  $('pcPrintPanelTitle').textContent=name.toUpperCase()+' — PANEL SCHEDULE';
+  const main=$('pcMainType').value==='mcb'?(($('pcMain').value||'—')+' A MCB'):'MLO';
+  $('pcPrintHeaderGrid').innerHTML=
+    '<div><strong>Location:</strong> '+esc($('pcLocation').value||'—')+'</div>'+
+    '<div><strong>Volts:</strong> '+esc($('pcVoltage').value)+' V</div>'+
+    '<div><strong>Phase:</strong> '+esc($('pcPhase').value)+'</div>'+
+    '<div><strong>Spaces:</strong> '+esc($('pcSpaces').value)+'</div>'+
+    '<div><strong>Main:</strong> '+esc(main)+'</div>'+
+    '<div><strong>Fed from:</strong> '+esc($('pcFedFrom').value||'—')+'</div>'+
+    '<div><strong>Condition:</strong> '+esc($('pcMode').selectedOptions[0]?.text||'—')+'</div>'+
+    '<div><strong>Occupancy:</strong> '+esc($('pcOccupancyType').selectedOptions[0]?.text||$('pcOccupancy').selectedOptions[0]?.text||'—')+'</div>';
+}
+function setPanelPrintPreset(preset){
+  const values=preset==='schedule'?{header:false,phase:false,wire:false,totals:false,summary:false}:
+    preset==='header'?{header:true,phase:false,wire:false,totals:false,summary:false}:
+    {header:true,phase:true,wire:true,totals:true,summary:true};
+  $('pcPrintHeader').checked=values.header;$('pcPrintPhase').checked=values.phase;$('pcPrintWire').checked=values.wire;$('pcPrintTotals').checked=values.totals;$('pcPrintSummary').checked=values.summary;
+}
 function printActivePanel(){
   document.body.classList.remove('print-full','print-compact');
   document.body.classList.add($('printLayout').value==='compact'?'print-compact':'print-full');
+  if(activePanel()?.id==='panelcalc')applyPanelPrintOptions();
   window.print();
 }
 $('mainSiteButton').addEventListener('click',()=>{window.location.href='index.html'});
@@ -647,6 +730,9 @@ $('pcUnit').addEventListener('change',()=>renderPanel());
 syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();$('pcOccupancy').addEventListener('change',()=>{syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();renderPanel()});$('pcMethod').addEventListener('change',()=>renderPanel());$('pcOccupancyType').addEventListener('change',()=>savePanel());$('pcArea').addEventListener('input',()=>panelCalc());
 $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').addEventListener('click',clearPanel);$('pcExample').addEventListener('click',loadExample);
 ['pcFedFrom','pcMainType','pcUpstream','pcFeederMaterial','pcFeederWire','pcFeederSets','pcFeederEGC','pcPhase','pcVoltage','pcSpaces','pcMain','pcName','pcLocation','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'&&e.target.value==='custom')$('pcVoltage').value='120/208';if(id==='pcPhase'&&e.target.value==='1'&&pcAssemblies.some(a=>a.parts.some(p=>p.poles===3))){e.target.value='3';$('pcWarning').textContent='Remove or change existing three-pole breakers before selecting a single-phase panel.';return}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
+$('pcPrintScheduleOnly').addEventListener('click',()=>setPanelPrintPreset('schedule'));
+$('pcPrintScheduleHeader').addEventListener('click',()=>setPanelPrintPreset('header'));
+$('pcPrintFull').addEventListener('click',()=>setPanelPrintPreset('full'));
 restorePanel();pcSelectedId=null;renderPanel();
 
 ['csCurrent','csFuse','csParallel','csMaterial'].forEach(id=>$(id).addEventListener('input',()=>conductor(true)));['csVoltage','csPhase','csLength','csSelected'].forEach(id=>$(id).addEventListener('input',()=>conductor(false)));
