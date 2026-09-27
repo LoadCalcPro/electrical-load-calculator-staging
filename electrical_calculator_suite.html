@@ -858,7 +858,7 @@ function pcHvac22060(){
    }else{
     const ac=Math.max(base,cool),other=heat;
     d=Math.max(other,ac);
-    treatments.add('220.60 — noncoincident; larger of heating or cooling load');
+    treatments.add('220.60 — noncoincident; larger entered heating or cooling component');
    }
   }else if(p.hvacType==='air-handler'){
    d=base;
