@@ -803,14 +803,14 @@ function pcMotor43024(){
  let connected=0;const items=[];let incomplete=false;
  parts.forEach(p=>{connected+=Number(p.load)||0;const t=pcMotorTableFLC(p);if(!t){incomplete=true;return}const va=t.phase==='3'?Math.sqrt(3)*t.rated*t.flc:t.rated*t.flc;items.push({va,flc:t.flc,hp:p.motorHp,rated:t.rated,phase:t.phase})});
  if(!items.length)return{connected,demand:null,treatment:'Enter supported motor HP and voltage for NEC table FLC'};
- const largest=items.reduce((a,b)=>b.va>a.va?b:a,items[0]),base=items.reduce((s,x)=>s+x.va,0),demand=base+.25*largest.va;
- return{connected,demand:incomplete?null:Math.round(demand),treatment:'430.24 — NEC table FLC; 125% largest motor + 100% other motors'};
+ const largest=items.reduce((a,b)=>b.va>a.va?b:a,items[0]),base=items.reduce((s,x)=>s+x.va,0);
+ return{connected,demand:incomplete?null:Math.round(base),largestVA:largest.va,treatment:'NEC table FLC — 100% motor load; final 25% largest motor/A-C component applied in panel total'};
 }
 function pcHvac22060(){
  const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcNormalizeCategory(p.category,'dwelling-standard')==='hvac');
- let connected=0,demand=0;const treatments=new Set();
+ let connected=0,demand=0,largestMotorAc=0;const treatments=new Set();
  parts.forEach(p=>{
-  const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
+  const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0; largestMotorAc=Math.max(largestMotorAc,base,cool);
   // Connected load remains the actual entered/nameplate load. HVAC detail values are
   // calculation components and are not added again to the connected panel total.
   connected+=base;
@@ -821,8 +821,8 @@ function pcHvac22060(){
     treatments.add('Heat pump — compressor + auxiliary heat can operate together');
    }else{
     const compressor=Math.max(base,cool),heating=Math.max(heat,aux);
-    d=Math.max(heating,1.25*compressor);
-    treatments.add('220.60 — heat pump noncoincident; larger of heat or 125% compressor load where applicable');
+    d=Math.max(heating,compressor);
+    treatments.add('220.60 — heat pump noncoincident; larger of heat or compressor load');
    }
   }else if(cool>0||heat>0){
    if(p.hvacSimultaneous==='yes'){
@@ -830,8 +830,8 @@ function pcHvac22060(){
     treatments.add('Coincident — heating + cooling');
    }else{
     const ac=Math.max(base,cool),other=heat;
-    d=Math.max(other,1.25*ac);
-    treatments.add('220.60 — noncoincident; larger of heating or 125% A/C load where applicable');
+    d=Math.max(other,ac);
+    treatments.add('220.60 — noncoincident; larger of heating or cooling load');
    }
   }else if(p.hvacType==='air-handler'){
    d=base;
@@ -845,7 +845,7 @@ function pcHvac22060(){
   }
   demand+=d;
  });
- return{connected,demand:Math.round(demand),treatment:[...treatments].join('; ')||'—'};
+ return{connected,demand:Math.round(demand),largestMotorAc,treatment:[...treatments].join('; ')||'—'};
 }
 function renderClassificationSummary(){
  const dwelling=$('pcOccupancy').value==='dwelling',area=Number($('pcArea').value),show=!dwelling||(Number.isFinite(area)&&area>0);
@@ -866,6 +866,7 @@ function renderClassificationSummary(){
   if(key==='dwelling-standard')totals.appliance=(totals.appliance||0)+d.additionalWashers;
  }
  // Populate treatments that are already explicit in the classification itself.
+ let largestMotorAc=0;
  if(key==='dwelling-standard'){
   treatments['continuous-100']='100%';
   treatments['continuous-125']='125%';
@@ -883,19 +884,19 @@ function renderClassificationSummary(){
    demands.appliance=app.demand;
   }
   if((totals.ev||0)>0){const ev=pcEv22057();totals.ev=ev.connected;treatments.ev=ev.treatment;demands.ev=ev.demand}
-  if((totals.hvac||0)>0){const hv=pcHvac22060();totals.hvac=hv.connected;treatments.hvac=hv.treatment;demands.hvac=hv.demand}
-  if((totals.motor||0)>0){const m=pcMotor43024();totals.motor=m.connected;treatments.motor=m.treatment;demands.motor=m.demand}
+  if((totals.hvac||0)>0){const hv=pcHvac22060();totals.hvac=hv.connected;treatments.hvac=hv.treatment;demands.hvac=hv.demand;largestMotorAc=Math.max(largestMotorAc,hv.largestMotorAc||0)}
+  if((totals.motor||0)>0){const m=pcMotor43024();totals.motor=m.connected;treatments.motor=m.treatment;demands.motor=m.demand;largestMotorAc=Math.max(largestMotorAc,m.largestVA||0)}
  }
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
  $('pcClassificationTitle').textContent='Load Classification — '+methodLabel;
  $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>'+esc(treatments[k]||'—')+'</td><td>'+(demands[k]===null?'Pending method logic':fmt(demands[k]||0,0)+' VA')+'</td></tr>').join('');
- const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0):null;
+ const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0)+(key==='dwelling-standard'?.25*largestMotorAc:0):null;
  let finalResult=demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA';
  if(demandTotal!==null){
   const voltage=Number($('pcVoltage').value)||0,phase=$('pcPhase').value;
   const calcAmps=voltage>0?(phase==='3'?demandTotal/(Math.sqrt(3)*voltage):demandTotal/voltage):null;
-  finalResult=fmt(demandTotal,0)+' VA'+(calcAmps===null?'':'<br><strong>Calculated Amperage: '+fmt(calcAmps,1)+' A</strong>');
+  finalResult=fmt(demandTotal,0)+' VA'+(key==='dwelling-standard'&&largestMotorAc>0?'<br><span style="font-size:11px">Includes 25% largest motor/A-C component: '+fmt(.25*largestMotorAc,0)+' VA</span>':'')+(calcAmps===null?'':'<br><strong>Calculated Amperage: '+fmt(calcAmps,1)+' A</strong>');
  }
  $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>'+finalResult+'</td></tr>';
 }
