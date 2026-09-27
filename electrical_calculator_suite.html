@@ -745,19 +745,32 @@ function renderClassificationSummary(){
  if(!show)return;
  const key=pcCategoryKey(),categories=pcCategorySets[key],totals=Object.fromEntries(categories.map(([k])=>[k,0]));
  pcAssemblies.forEach(a=>a.parts.forEach(p=>{const k=pcNormalizeCategory(p.category,key);totals[k]=(totals[k]||0)+(Number(p.load)||0)}));
- // Dwelling General Loads is a method allowance, not a raw sum of panel entries.
- // Reuse the established dwelling calculation: 3 VA/ft² + small-appliance allowance + first laundry allowance.
+ let treatments=Object.fromEntries(categories.map(([k])=>[k,'100%']));
+ let demands={...totals};
+ // Dwelling General Loads must use the established method allowance/calculation,
+ // not a raw sum of panel entries.
  if(dwelling){
   const d=dwellingMethodFromEntries();
   totals.general=d.general;
+  demands.general=d.demanded;
+  treatments.general=key==='dwelling-standard'?'NEC 220.42 — 100% first 3,000 VA; 35% next 117,000 VA; 25% remainder':'Optional method — 100% first 10,000 VA; 40% remainder';
   if(key==='dwelling-standard')totals.appliance=(totals.appliance||0)+d.additionalWashers;
+ }
+ // Populate treatments that are already explicit in the classification itself.
+ if(key==='dwelling-standard'){
+  treatments['continuous-100']='100%';
+  treatments['continuous-125']='125%';
+  demands['continuous-125']=(totals['continuous-125']||0)*1.25;
+  // Cooking, appliance, HVAC, motor and EV require their method-specific logic;
+  // do not invent a generic percentage while those rules are being connected.
+  ['cooking','appliance','hvac','motor','ev'].forEach(k=>{if((totals[k]||0)>0){treatments[k]='Method-specific';demands[k]=null}});
  }
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
  $('pcClassificationTitle').textContent='Load Classification — '+methodLabel;
- $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>—</td><td>—</td></tr>').join('');
- const total=Object.values(totals).reduce((s,v)=>s+v,0);
- $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>—</td></tr>';
+ $('pcClassificationBody').innerHTML=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+fmt(totals[k]||0,0)+' VA</td><td>'+esc(treatments[k]||'—')+'</td><td>'+(demands[k]===null?'Pending method logic':fmt(demands[k]||0,0)+' VA')+'</td></tr>').join('');
+ const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0):null;
+ $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+fmt(total,0)+' VA</td><td></td><td>'+(demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA')+'</td></tr>';
 }
 function panelCalc(){if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
