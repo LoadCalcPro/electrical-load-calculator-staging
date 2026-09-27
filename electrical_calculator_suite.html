@@ -807,6 +807,25 @@ function pcEv22057(){
  const bits=[];if(unmanaged)bits.push('220.57 — 7,200 VA or nameplate minimum each');if(managed)bits.push('625.42(A) — EMS managed maximum');
  return{connected,demand:managed&&parts.some(p=>/load managed/i.test(p.description||'')&&!(Number(p.evManagedMax)>0))?null:Math.round(demand),treatment:bits.join('; ')||'—'};
 }
+const pcMotorFLC1={
+ '0.1667':{115:4.4,200:2.5,208:2.4,230:2.2},'0.25':{115:5.8,200:3.3,208:3.2,230:2.9},'0.3333':{115:7.2,200:4.1,208:4,230:3.6},'0.5':{115:9.8,200:5.6,208:5.4,230:4.9},'0.75':{115:13.8,200:7.9,208:7.6,230:6.9},'1':{115:16,200:9.2,208:8.8,230:8},'1.5':{115:20,200:11.5,208:11,230:10},'2':{115:24,200:13.8,208:13.2,230:12},'3':{115:34,200:19.6,208:18.7,230:17},'5':{115:56,200:32.2,208:30.8,230:28},'7.5':{115:80,200:46,208:44,230:40},'10':{115:100,200:57.5,208:55,230:50}
+};
+const pcMotorFLC3={
+ '0.5':{115:4.4,200:2.5,208:2.4,230:2.2,460:1.1,575:.9},'0.75':{115:6.4,200:3.7,208:3.5,230:3.2,460:1.6,575:1.3},'1':{115:8.4,200:4.8,208:4.6,230:4.2,460:2.1,575:1.7},'1.5':{115:12,200:6.9,208:6.6,230:6,460:3,575:2.4},'2':{115:13.6,200:7.8,208:7.5,230:6.8,460:3.4,575:2.7},'3':{200:11,208:10.6,230:9.6,460:4.8,575:3.9},'5':{200:17.5,208:16.7,230:15.2,460:7.6,575:6.1},'7.5':{200:25.3,208:24.2,230:22,460:11,575:9},'10':{200:32.2,208:30.8,230:28,460:14,575:11},'15':{200:48.3,208:46.2,230:42,460:21,575:17},'20':{200:62.1,208:59.4,230:54,460:27,575:22},'25':{200:78.2,208:74.8,230:68,460:34,575:27},'30':{200:92,208:88,230:80,460:40,575:32},'40':{200:120,208:114,230:104,460:52,575:41},'50':{200:150,208:143,230:130,460:65,575:52},'60':{200:177,208:169,230:154,460:77,575:62},'75':{200:221,208:211,230:192,460:96,575:77},'100':{200:285,208:273,230:248,460:124,575:99},'125':{200:359,208:343,230:312,460:156,575:125},'150':{200:414,208:396,230:360,460:180,575:144},'200':{200:552,208:528,230:480,460:240,575:192}
+};
+function pcMotorTableFLC(p){
+ const hp=Number(p.motorHp),phase=$('pcPhase').value==='3'?(p.motorPhase||'1'):'1',v=Number(p.motorVoltage)||0,table=phase==='3'?pcMotorFLC3:pcMotorFLC1,row=table[String(hp)];
+ if(!row)return null;const volts=Object.keys(row).map(Number),rated=volts.reduce((best,x)=>Math.abs(x-v)<Math.abs(best-v)?x:best,volts[0]);
+ if(!v||Math.abs(rated-v)>20)return null;return{flc:row[rated],rated,phase};
+}
+function pcMotor43024(){
+ const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcNormalizeCategory(p.category,'dwelling-standard')==='motor');
+ let connected=0;const items=[];let incomplete=false;
+ parts.forEach(p=>{connected+=Number(p.load)||0;const t=pcMotorTableFLC(p);if(!t){incomplete=true;return}const va=t.phase==='3'?Math.sqrt(3)*t.rated*t.flc:t.rated*t.flc;items.push({va,flc:t.flc,hp:p.motorHp,rated:t.rated,phase:t.phase})});
+ if(!items.length)return{connected,demand:null,treatment:'Enter supported motor HP and voltage for NEC table FLC'};
+ const largest=items.reduce((a,b)=>b.va>a.va?b:a,items[0]),base=items.reduce((s,x)=>s+x.va,0),demand=base+.25*largest.va;
+ return{connected,demand:incomplete?null:Math.round(demand),treatment:'430.24 — NEC table FLC; 125% largest motor + 100% other motors'};
+}
 function pcHvac22060(){
  const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcNormalizeCategory(p.category,'dwelling-standard')==='hvac');
  let connected=0,demand=0;const treatments=new Set();
@@ -884,8 +903,7 @@ function renderClassificationSummary(){
   }
   if((totals.ev||0)>0){const ev=pcEv22057();totals.ev=ev.connected;treatments.ev=ev.treatment;demands.ev=ev.demand}
   if((totals.hvac||0)>0){const hv=pcHvac22060();totals.hvac=hv.connected;treatments.hvac=hv.treatment;demands.hvac=hv.demand}
-  // Remaining classifications will be connected to their own Standard Method rules.
-  ['motor'].forEach(k=>{if((totals[k]||0)>0){treatments[k]='Method-specific';demands[k]=null}});
+  if((totals.motor||0)>0){const m=pcMotor43024();totals.motor=m.connected;treatments.motor=m.treatment;demands.motor=m.demand}
  }
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
