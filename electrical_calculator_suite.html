@@ -815,11 +815,23 @@ function pcMotorTableFLC(p){
 }
 function pcMotor43024(){
  const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcPartCategory(p,'dwelling-standard')==='motor');
- let connected=0;const items=[];let incomplete=false;
- parts.forEach(p=>{connected+=Number(p.load)||0;const t=pcMotorTableFLC(p);if(!t){incomplete=true;return}const va=t.phase==='3'?Math.sqrt(3)*t.rated*t.flc:t.rated*t.flc;items.push({va,flc:t.flc,hp:p.motorHp,rated:t.rated,phase:t.phase})});
- if(!items.length)return{connected,demand:null,treatment:'Enter supported motor HP and voltage for NEC table FLC'};
+ let connected=0;const items=[];let usedEntered=false;
+ parts.forEach(p=>{
+  const entered=Number(p.load)||0;connected+=entered;
+  const t=pcMotorTableFLC(p);
+  if(t){
+   const va=t.phase==='3'?Math.sqrt(3)*t.rated*t.flc:t.rated*t.flc;
+   items.push({va,flc:t.flc,hp:p.motorHp,rated:t.rated,phase:t.phase,source:'table'});
+  }else{
+   // A panel load calculation can still use the entered motor load when HP/table-FLC
+   // details are not supplied. The 25% largest motor/A-C adder is applied once below
+   // in the final Standard Method total.
+   items.push({va:entered,source:'entered'});usedEntered=true;
+  }
+ });
+ if(!items.length)return{connected,demand:0,largestVA:0,treatment:'No motor load'};
  const largest=items.reduce((a,b)=>b.va>a.va?b:a,items[0]),base=items.reduce((s,x)=>s+x.va,0);
- return{connected,demand:incomplete?null:Math.round(base),largestVA:largest.va,treatment:'NEC table FLC — 100% motor load; final 25% largest motor/A-C component applied in panel total'};
+ return{connected,demand:Math.round(base),largestVA:largest.va,treatment:usedEntered?'220.50 / 430.24 — entered motor load used; final 25% largest motor/A-C component applied in panel total':'NEC table FLC — 100% motor load; final 25% largest motor/A-C component applied in panel total'};
 }
 function pcHvac22060(){
  const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcPartCategory(p,'dwelling-standard')==='hvac');
