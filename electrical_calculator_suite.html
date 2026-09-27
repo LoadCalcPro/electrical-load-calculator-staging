@@ -745,6 +745,13 @@ function renderClassificationSummary(){
  if(!show)return;
  const key=pcCategoryKey(),categories=pcCategorySets[key],totals=Object.fromEntries(categories.map(([k])=>[k,0]));
  pcAssemblies.forEach(a=>a.parts.forEach(p=>{const k=pcNormalizeCategory(p.category,key);totals[k]=(totals[k]||0)+(Number(p.load)||0)}));
+ // Dwelling General Loads is a method allowance, not a raw sum of panel entries.
+ // Reuse the established dwelling calculation: 3 VA/ft² + small-appliance allowance + first laundry allowance.
+ if(dwelling){
+  const d=dwellingMethodFromEntries();
+  totals.general=d.general;
+  if(key==='dwelling-standard')totals.appliance=(totals.appliance||0)+d.additionalWashers;
+ }
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
  $('pcClassificationTitle').textContent='Load Classification — '+methodLabel;
