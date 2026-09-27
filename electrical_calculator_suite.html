@@ -804,6 +804,46 @@ function pcEv22057(){
  const bits=[];if(unmanaged)bits.push('220.57 — 7,200 VA or nameplate minimum each');if(managed)bits.push('625.42(A) — EMS managed maximum');
  return{connected,demand:managed&&parts.some(p=>/load managed/i.test(p.description||'')&&!(Number(p.evManagedMax)>0))?null:Math.round(demand),treatment:bits.join('; ')||'—'};
 }
+function pcHvac22060(){
+ const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcNormalizeCategory(p.category,'dwelling-standard')==='hvac');
+ let connected=0,demand=0;const treatments=new Set();
+ parts.forEach(p=>{
+  const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
+  // Connected load remains the actual entered/nameplate load. HVAC detail values are
+  // calculation components and are not added again to the connected panel total.
+  connected+=base;
+  let d=base;
+  if(p.hvacType==='heat-pump'){
+   if(p.hvacAuxWithCompressor==='yes'){
+    d=Math.max(base,cool)+aux;
+    treatments.add('Heat pump — compressor + auxiliary heat can operate together');
+   }else{
+    const compressor=Math.max(base,cool),heating=Math.max(heat,aux);
+    d=Math.max(compressor,heating);
+    treatments.add('220.60 — heat pump noncoincident compressor / heat');
+   }
+  }else if(cool>0||heat>0){
+   if(p.hvacSimultaneous==='yes'){
+    d=cool+heat;
+    treatments.add('Coincident — heating + cooling');
+   }else{
+    d=Math.max(cool,heat);
+    treatments.add('220.60 — noncoincident, larger of heating or cooling');
+   }
+  }else if(p.hvacType==='air-handler'){
+   d=base;
+   treatments.add('Air handler — entered load');
+  }else if(p.hvacType==='heat'){
+   d=Math.max(base,heat);
+   treatments.add('Electric heat — entered heating load');
+  }else{
+   d=Math.max(base,cool);
+   treatments.add('Air conditioning — entered cooling load');
+  }
+  demand+=d;
+ });
+ return{connected,demand:Math.round(demand),treatment:[...treatments].join('; ')||'—'};
+}
 function renderClassificationSummary(){
  const dwelling=$('pcOccupancy').value==='dwelling',area=Number($('pcArea').value),show=!dwelling||(Number.isFinite(area)&&area>0);
  $('pcClassificationSummary').hidden=!show;
@@ -840,8 +880,9 @@ function renderClassificationSummary(){
    demands.appliance=app.demand;
   }
   if((totals.ev||0)>0){const ev=pcEv22057();totals.ev=ev.connected;treatments.ev=ev.treatment;demands.ev=ev.demand}
+  if((totals.hvac||0)>0){const hv=pcHvac22060();totals.hvac=hv.connected;treatments.hvac=hv.treatment;demands.hvac=hv.demand}
   // Remaining classifications will be connected to their own Standard Method rules.
-  ['hvac','motor'].forEach(k=>{if((totals[k]||0)>0){treatments[k]='Method-specific';demands[k]=null}});
+  ['motor'].forEach(k=>{if((totals[k]||0)>0){treatments[k]='Method-specific';demands[k]=null}});
  }
  const rows=categories.filter(([k])=>totals[k]>0);
  const methodLabel=key==='dwelling-optional'?'Optional Method — Dwelling':key==='dwelling-standard'?'Standard Method — Dwelling':'Standard Method — Commercial';
