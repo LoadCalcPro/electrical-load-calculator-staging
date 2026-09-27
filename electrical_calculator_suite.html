@@ -906,8 +906,8 @@ function renderClassificationSummary(){
   const o=pcOptional22082();
   totals.general=o.generalConnected; totals.appliance=o.applianceConnected; totals.hvac=o.hvacConnected; totals.ev=o.evConnected;
   demands.general=o.demandB; demands.appliance=0; demands.hvac=o.hvacDemand; demands.ev=o.evConnected?null:0;
-  treatments.general='220.82(B) combined pool ('+fmt(o.pool,0)+' VA): first 10,000 VA at 100%; remainder at 40%';
-  treatments.appliance='Included in the 220.82(B) combined pool above — do not add again';
+  treatments.general='220.82(B) combined demand pool — General + Appliance loads ('+fmt(o.pool,0)+' VA): first 10,000 VA at 100%; remainder at 40%';
+  treatments.appliance='Included with General Loads in the 220.82(B) combined demand pool';
   treatments.hvac=o.hvacTreatment;
   if(o.evConnected){treatments.ev='2023 Optional Method — EVSE shown separately for verification; not included in the 220.82(B) pool'}
   totals.continuous=0;demands.continuous=0;
