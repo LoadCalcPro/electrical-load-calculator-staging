@@ -899,7 +899,7 @@ function pcOptional22082(){
  const area=Number($('pcArea').value),parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
  const washers=parts.filter(p=>/^washer$/i.test((p.description||'').trim())),small=parts.filter(p=>p.category==='small-appliance'||/^small.appliance circuits?$/i.test((p.description||'').trim()));
  const lighting=Number.isFinite(area)&&area>0?area*3:0,smallVA=Math.max(3000,small.length*1500),laundryVA=1500,generalConnected=lighting+smallVA+laundryVA;
- const excluded=new Set(['general','lighting','small-appliance','laundry','hvac','ev','ev-managed']);
+ const excluded=new Set(['general','general-circuit','lighting','receptacle','small-appliance','laundry','hvac','ev','ev-managed']);
  const applianceParts=parts.filter(p=>!excluded.has(pcSemanticCategory(p))),applianceConnected=applianceParts.reduce((s,p)=>s+(Number(p.load)||0),0)+washers.slice(1).reduce((s,p)=>s+(Number(p.load)||0),0);
  const pool=generalConnected+applianceConnected,demandB=Math.min(10000,pool)+Math.max(0,pool-10000)*.4,hv=pcOptionalHvac22082C(parts);
  const evParts=parts.filter(p=>['ev','ev-managed'].includes(pcSemanticCategory(p))),evConnected=evParts.reduce((s,p)=>s+(Number(p.load)||0),0),evDemand=evParts.reduce((s,p)=>s+Math.max(7200,Number(p.load)||0),0);
@@ -925,6 +925,9 @@ function renderClassificationSummary(){
  if(!show)return;
  const key=pcCategoryKey(),categories=pcCategorySets[key],totals=Object.fromEntries(categories.map(([k])=>[k,0]));
  pcAssemblies.forEach(a=>a.parts.forEach(p=>{const k=pcPartCategory(p,key);totals[k]=(totals[k]||0)+(Number(p.load)||0)}));
+ // Dwelling "Lighting & receptacles" VA is for the panel schedule/phase totals only.
+ // It is intentionally replaced by the dwelling General Loads method calculation below,
+ // so the entered circuit VA is not counted a second time in the service/load calculation.
  let treatments=Object.fromEntries(categories.map(([k])=>[k,'100%']));
  let demands={...totals};
  // Dwelling General Loads must use the established method allowance/calculation,
