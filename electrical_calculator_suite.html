@@ -722,7 +722,7 @@ function analyzePanel(){const max=Number($('pcSpaces').value)||42,seq=phaseSeque
 function renderLiveSchedule(r){
  const count=Math.max(1,Number($('pcSpaces').value)||42),seq=phaseSequence();
  $('pcLiveHead').innerHTML='<tr><th class="pc-circuit">Circuit</th><th class="pc-description">Description</th><th class="pc-breaker">Breaker</th><th class="pc-wire">Wire</th>'+seq.map(p=>'<th class="pc-phase">'+p+' ('+pcLoadUnit()+')</th>').join('')+'<th class="pc-wire">Wire</th><th class="pc-breaker">Breaker</th><th class="pc-description">Description</th><th class="pc-circuit">Circuit</th></tr>';
- const bySpace={};pcAssemblies.forEach(a=>{for(const space of assemblyPositions(a)){(bySpace[space]??=[]).push(a)}});
+ const bySpace={};pcAssemblies.forEach(a=>{const hasEntry=a.parts.some(p=>(p.description||'').trim()||Number(p.load)>0||p.category&&p.category!=='other');if(!hasEntry)return;for(const space of assemblyPositions(a)){(bySpace[space]??=[]).push(a)}});
  function side(space){const assemblies=bySpace[space]||[],loads=Object.fromEntries(seq.map(p=>[p,0]));
  if(!assemblies.length)return{description:'',breaker:'',wire:'',loads,id:null,mergeKey:null};
  const desc=[],breaker=[],wire=[],phase=seq[Math.floor((space-1)/2)%seq.length];
