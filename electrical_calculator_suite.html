@@ -73,7 +73,7 @@
 .pc-compact-results{margin-top:14px}.pc-compact-results h3{margin:0 0 10px}.pc-compact-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.pc-compact-metrics>div{padding:9px 11px;border:1px solid var(--line);border-radius:8px}.pc-compact-metrics span{display:block;font-size:11px;font-weight:700;color:var(--muted)}.pc-compact-metrics strong{display:block;font-size:19px;color:var(--navy2);margin-top:3px}.pc-compact-results .pc-load-summary{width:100%;border-collapse:collapse;min-width:0}.pc-compact-results .pc-load-summary th,.pc-compact-results .pc-load-summary td{padding:7px 9px;border:1px solid var(--line);text-align:left}.pc-compact-results .pc-load-summary th{background:var(--navy2);color:#fff}.pc-total-row{font-weight:800;background:var(--soft)}.pc-compact-results .pc-compact-basis,.pc-compact-results .demand-note{margin:7px 0;font-size:12px}.pc-compact-results .pc-report-actions{margin:8px 0 0}@media(max-width:650px){.pc-compact-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media print{.pc-report-actions{display:none!important}}
 
 /* Panel Loads print controls: print-only presentation; live calculator is unchanged. */
-.pc-print-options{margin:14px 0 4px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f8fafc}
+.pc-print-details>summary{cursor:pointer;font-weight:800;font-size:18px;list-style:none}.pc-print-details>summary::-webkit-details-marker{display:none}.pc-print-details>summary:before{content:"▸";display:inline-block;margin-right:8px}.pc-print-details[open]>summary:before{content:"▾"}.pc-open-hint{font-size:12px;font-weight:600;color:#64748b;margin-left:8px}.pc-print-details[open] .pc-open-hint{display:none}.pc-print-options{margin:14px 0 4px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f8fafc}
 .pc-print-options h3{margin:0 0 8px}.pc-print-presets{display:flex;gap:8px;flex-wrap:wrap}.pc-print-checks{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px}.pc-print-checks label{display:flex;gap:6px;align-items:center;font-weight:700;color:#475467}
 .pc-print-header{display:none}
 @media print{
@@ -319,20 +319,8 @@
           <div class="field"><label for="pcFeederEGC">Feeder EGC size</label><select id="pcFeederEGC"><option value="">Select size</option><option value="#14">#14</option><option value="#12">#12</option><option value="#10">#10</option><option value="#8">#8</option><option value="#6">#6</option><option value="#4">#4</option><option value="#3">#3</option><option value="#2">#2</option><option value="#1">#1</option><option value="1/0">1/0</option><option value="2/0">2/0</option><option value="3/0">3/0</option><option value="4/0">4/0</option><option value="250 kcmil">250 kcmil</option><option value="300 kcmil">300 kcmil</option><option value="350 kcmil">350 kcmil</option><option value="400 kcmil">400 kcmil</option><option value="500 kcmil">500 kcmil</option><option value="600 kcmil">600 kcmil</option><option value="700 kcmil">700 kcmil</option><option value="750 kcmil">750 kcmil</option><option value="800 kcmil">800 kcmil</option><option value="900 kcmil">900 kcmil</option><option value="1000 kcmil">1000 kcmil</option><option value="1250 kcmil">1250 kcmil</option><option value="1500 kcmil">1500 kcmil</option><option value="1750 kcmil">1750 kcmil</option><option value="2000 kcmil">2000 kcmil</option></select></div>
         </div>
       </details>
-      <div class="pc-breaker-toolbar">
-        
-        <div class="pc-entry-unit"><div class="field"><label for="pcArea">Square footage (ft²)</label><input id="pcArea" type="number" min="0" step="1" placeholder="Area served"></div><div class="field"><label for="pcOccupancy">Panel occupancy</label><select id="pcOccupancy"><option value="commercial">Commercial</option><option value="dwelling">Dwelling</option></select></div><div class="field"><label for="pcOccupancyType">Occupancy type</label><select id="pcOccupancyType"></select></div><div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div></div>
-      </div>
-      <div class="pc-method-row" id="pcMethodRow" hidden><div class="field"><label for="pcMethod">Dwelling calculation method</label><select id="pcMethod"><option value="standard">Standard Method</option><option value="optional">Optional Method</option></select></div></div>
-      <div class="panel-actions add-controls">
-        <button class="btn" id="pcAdd" type="button">Add Breaker</button>
-        
-        <button class="btn secondary" id="pcClear" type="button">Clear panel</button>
-      </div>
-      <div class="pc-legacy-demand" hidden><div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div></div>
-      <div class="breaker-list" id="pcBreakers"></div><datalist id="pcDescriptionChoices"></datalist>
-      <section class="pc-print-options" aria-label="Panel schedule print options">
-        <h3>Print Options</h3>
+      <details class="pc-print-options pc-print-details">
+        <summary>Print Options <span class="pc-open-hint">Click to open</span></summary>
         <div class="pc-print-presets">
           <button class="btn secondary" type="button" id="pcPrintScheduleOnly">Schedule Only</button>
           <button class="btn secondary" type="button" id="pcPrintScheduleHeader">Schedule + Header</button>
@@ -345,7 +333,19 @@
           <label><input type="checkbox" id="pcPrintTotals" checked> Phase totals</label>
           <label><input type="checkbox" id="pcPrintSummary" checked> Final load summary</label>
         </div>
-      </section>
+      </details>
+      <div class="pc-breaker-toolbar">
+        
+        <div class="pc-entry-unit"><div class="field"><label for="pcArea">Square footage (ft²)</label><input id="pcArea" type="number" min="0" step="1" placeholder="Area served"></div><div class="field"><label for="pcOccupancy">Panel occupancy</label><select id="pcOccupancy"><option value="commercial">Commercial</option><option value="dwelling">Dwelling</option></select></div><div class="field"><label for="pcOccupancyType">Occupancy type</label><select id="pcOccupancyType"></select></div><div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div></div>
+      </div>
+      <div class="pc-method-row" id="pcMethodRow" hidden><div class="field"><label for="pcMethod">Dwelling calculation method</label><select id="pcMethod"><option value="standard">Standard Method</option><option value="optional">Optional Method</option></select></div></div>
+      <div class="panel-actions add-controls">
+        <button class="btn" id="pcAdd" type="button">Add Breaker</button>
+        
+        <button class="btn secondary" id="pcClear" type="button">Clear panel</button>
+      </div>
+      <div class="pc-legacy-demand" hidden><div class="field"><label for="pcDemandMode">Demand factors</label><select id="pcDemandMode"><option value="category">By load category</option><option value="custom">Enter each factor</option></select></div></div>
+      <div class="breaker-list" id="pcBreakers"></div><datalist id="pcDescriptionChoices"></datalist>
       <section class="pc-print-header" id="pcPrintHeaderBlock" aria-label="Printed panel identification">
         <h2 id="pcPrintPanelTitle">PANEL SCHEDULE</h2>
         <div class="pc-print-header-grid" id="pcPrintHeaderGrid"></div>
