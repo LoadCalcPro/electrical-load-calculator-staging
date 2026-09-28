@@ -295,11 +295,8 @@
       <p class="note">Build a new panel or reproduce an existing panel. Physical panel spaces and the circuits contained in each breaker assembly are tracked separately.</p>
       <div class="panel-setup pc-primary">
         <div class="field"><label for="pcName">Panel name</label><input id="pcName" value="Panel A"></div>
-        <div class="field"><label for="pcLocation">Location</label><input id="pcLocation" placeholder="Optional"></div>
-        <div class="field"><label for="pcPhase">Panel phase</label><select id="pcPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
         <div class="field"><label for="pcVoltage">System voltage</label><select id="pcVoltage"><option value="120/240">120/240 V</option><option value="120/208" selected>120/208 V</option><option value="277/480">277/480 V</option></select></div>
-        <div class="field"><label for="pcSpaces">Panel spaces</label><input id="pcSpaces" type="number" min="2" max="120" step="2" value="42"></div>
-        <div class="field"><label for="pcMode">Panel condition</label><select id="pcMode"><option value="new">New panel</option><option value="existing">Existing panel</option></select></div><div class="field"><label for="pcFaultCurrent">Available fault current (A)</label><input id="pcFaultCurrent" type="number" min="0" step="1" placeholder="Optional"></div>
+        <div class="field"><label for="pcPhase">Panel phase</label><select id="pcPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
       </div>
       <h3>Panel Supply</h3>
       <div class="panel-setup pc-supply pc-supply-primary">
