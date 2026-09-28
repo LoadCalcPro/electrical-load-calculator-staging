@@ -298,7 +298,7 @@
         <div class="field"><label for="pcVoltage">System voltage</label><select id="pcVoltage"><option value="120/240">120/240 V</option><option value="120/208" selected>120/208 V</option><option value="277/480">277/480 V</option></select></div>
         <div class="field"><label for="pcPhase">Panel phase</label><select id="pcPhase"><option value="1">Single phase</option><option value="3" selected>Three phase</option></select></div>
       </div>
-      <h3>Panel Supply</h3>
+      
       <div class="panel-setup pc-supply pc-supply-primary">
         
         <div class="field"><label for="pcMainType">Panel main type</label><select id="pcMainType"><option value="mlo">Main Lugs Only (MLO)</option><option value="mcb">Main Breaker (MCB)</option></select></div>
@@ -310,7 +310,7 @@
         <div class="field"><label for="pcFedFrom">Fed from (panel / equipment)</label><input id="pcFedFrom" placeholder="e.g., MDP, Panel A, T-1"></div>
         <div class="field"><label for="pcFaultCurrent">Available fault current (A)</label><input id="pcFaultCurrent" type="number" min="0" step="1" placeholder="Optional"></div>
       </div>
-      <details class="pc-feeder-details"><summary>Additional feeder details</summary>
+      <details class="pc-feeder-details"><summary>Additional details</summary>
         <div class="panel-setup pc-supply pc-supply-extra">
           <div class="field"><label for="pcUpstream">Upstream feeder OCPD (A)</label><input id="pcUpstream" type="number" min="0" placeholder="Amperes"></div>
           <div class="field"><label for="pcFeederMaterial">Feeder conductor material</label><select id="pcFeederMaterial"><option value="">Select</option><option value="Copper">Copper</option><option value="Aluminum">Aluminum</option></select></div>
@@ -320,7 +320,7 @@
         </div>
       </details>
       <div class="pc-breaker-toolbar">
-        <h3>Breaker Assemblies</h3>
+        
         <div class="pc-entry-unit"><div class="field"><label for="pcArea">Square footage (ft²)</label><input id="pcArea" type="number" min="0" step="1" placeholder="Area served"></div><div class="field"><label for="pcOccupancy">Panel occupancy</label><select id="pcOccupancy"><option value="commercial">Commercial</option><option value="dwelling">Dwelling</option></select></div><div class="field"><label for="pcOccupancyType">Occupancy type</label><select id="pcOccupancyType"></select></div><div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div></div>
       </div>
       <div class="pc-method-row" id="pcMethodRow" hidden><div class="field"><label for="pcMethod">Dwelling calculation method</label><select id="pcMethod"><option value="standard">Standard Method</option><option value="optional">Optional Method</option></select></div></div>
