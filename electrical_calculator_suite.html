@@ -203,6 +203,19 @@
 }
 
 
+
+@media(min-width:561px){
+ .breaker-card.pc-selected{position:relative}
+ .breaker-card.pc-selected>.mini-grid>.pc-config-field{grid-column:1!important;grid-row:1!important}
+ .breaker-card.pc-selected>.mini-grid>.mini-row[data-part]>.pc-control-load{grid-column:2!important;grid-row:1!important}
+ .breaker-card.pc-selected>.mini-grid>.mini-row[data-part]>.pc-control-cat{grid-column:3!important;grid-row:1!important}
+ .breaker-card.pc-selected>.mini-grid>.mini-row[data-part]>.pc-control-trip{grid-column:1!important;grid-row:2!important}
+ .breaker-card.pc-selected>.mini-grid>.mini-row[data-part]>.pc-control-wire{grid-column:2!important;grid-row:2!important}
+ .breaker-card.pc-selected>.pc-breaker-actions{position:absolute;right:12px;bottom:12px;padding:0!important}
+ .breaker-card.pc-selected:has(.pc-head-system:not(.pc-system-hidden))>.mini-grid>.pc-config-field{grid-column:1!important;grid-row:2!important}
+ .breaker-card.pc-selected:has(.pc-head-system:not(.pc-system-hidden))>.mini-grid>.mini-row[data-part]>.pc-control-trip{grid-column:2!important;grid-row:2!important}
+ .breaker-card.pc-selected:has(.pc-head-system:not(.pc-system-hidden))>.mini-grid>.mini-row[data-part]>.pc-control-wire{grid-column:3!important;grid-row:2!important}
+}
 </style>
 </head>
 <body>
