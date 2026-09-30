@@ -184,6 +184,14 @@
  .breaker-head>.pc-head-system{display:block}
  .pc-hvac-options>label:has(.pc-hvac-system){display:none!important}
 }
+
+@media(min-width:561px){
+ .breaker-card.pc-selected{--pc-col1:minmax(180px,.7fr);--pc-col2:minmax(330px,1.2fr);--pc-col3:minmax(390px,1.45fr)}
+ .breaker-card.pc-selected>.breaker-head{grid-template-columns:var(--pc-col1) var(--pc-col2) var(--pc-col3)!important}
+ .breaker-card.pc-selected>.mini-grid{grid-template-columns:var(--pc-col1) var(--pc-col2) var(--pc-col3)!important}
+ .breaker-head>.pc-head-system,.pc-control-load,.pc-control-cat{width:100%!important;min-width:0!important;box-sizing:border-box!important}
+ .breaker-head>.pc-head-system input,.pc-control-load input,.pc-control-cat select{width:100%!important;box-sizing:border-box!important}
+}
 </style>
 </head>
 <body>
