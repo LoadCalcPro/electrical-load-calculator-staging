@@ -1294,7 +1294,10 @@ $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').a
 $('pcPrintScheduleOnly').addEventListener('click',()=>setPanelPrintPreset('schedule'));
 $('pcPrintScheduleHeader').addEventListener('click',()=>setPanelPrintPreset('header'));
 $('pcPrintFull').addEventListener('click',()=>setPanelPrintPreset('full'));
-restorePanel();syncPcUseVisibility();pcSelectedId=null;renderPanel();
+restorePanel();syncPcUseVisibility();pcSelectedId=null;
+// Render the physical panel schedule first so it is never blocked by a later calculator error.
+try{renderLiveSchedule({})}catch(err){console.error('Initial Panel Schedule render error',err)}
+renderPanel();
 
 ['csCurrent','csFuse','csParallel','csMaterial'].forEach(id=>$(id).addEventListener('input',()=>conductor(true)));['csVoltage','csPhase','csLength','csSelected'].forEach(id=>$(id).addEventListener('input',()=>conductor(false)));
 fillWireSelect();transformer();conductor(true);vd();convert();motor();panelCalc();
