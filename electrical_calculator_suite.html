@@ -1242,7 +1242,7 @@ function renderClassificationSummary(){
  }
  $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+pcDisplayLoadWithUnit(total)+'</td><td></td><td>'+finalResult+'</td></tr>';
 }
-function panelCalc(){setTimeout(pcUpdateMissingLoadWarnings,0);if(!$('pcBreakers'))return;$('pcMainField').hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
+function panelCalc(){setTimeout(pcUpdateMissingLoadWarnings,0);if(!$('pcBreakers'))return;const mainField=$('pcMainField');if(mainField)mainField.hidden=$('pcMainType').value!=='mcb';const r=analyzePanel(),seq=phaseSequence(),ln=pcVoltageLN(),totalConn=r.rows.reduce((s,x)=>s+x.conn,0),totalDem=r.rows.reduce((s,x)=>s+x.dem,0),amps=seq.map(p=>r.phaseDem[p]/ln),maxA=Math.max(0,...amps),minA=Math.min(...amps),imb=maxA?((maxA-minA)/maxA*100):0;
  renderLiveSchedule(r);
  renderClassificationSummary();
  const dwelling=$('pcOccupancy').value==='dwelling',method=$('pcMethod').value==='optional'?'Optional':'Standard';
