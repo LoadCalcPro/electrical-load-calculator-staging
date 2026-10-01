@@ -954,7 +954,8 @@ function pcSemanticCategory(p){
  if(/^ev charger/.test(d))return /load managed/.test(d)?'ev-managed':'ev';
  if(/air handling|air handler|condensing unit|heat pump|electric heat|auxiliary heat|packaged hvac|^hvac/.test(d))return 'hvac';
  if(/^lighting\s*&\s*receptacles?$/.test(d))return 'general-circuit';if(/^small[- ]appliance circuits?$/.test(d))return 'small-appliance';
- if(/^laundry circuit$/.test(d))return 'laundry';\n if(/^washer$/.test(d))return 'appliance';
+ if(/^laundry circuit$/.test(d))return 'laundry';
+ if(/^washer$/.test(d))return 'appliance';
  if(/^dryer$|clothes dryer/.test(d))return 'dryer';
  if(/^water heater/.test(d))return 'water-heater';
  return p.category;
