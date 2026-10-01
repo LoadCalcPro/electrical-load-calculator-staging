@@ -1023,18 +1023,19 @@ function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs
 function dwellingMethodFromEntries(){
  const area=Number($('pcArea').value),parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
  const washers=parts.filter(p=>/^washer$/i.test((p.description||'').trim()));
- const small=parts.filter(p=>p.category==='small-appliance'||/^small.appliance circuits?$/i.test((p.description||'').trim()));
+ const laundry=parts.filter(p=>pcSemanticCategory(p)==='laundry');
+ const small=parts.filter(p=>pcSemanticCategory(p)==='small-appliance');
  const lighting=Number.isFinite(area)&&area>0?area*3:0;
- // A small-appliance description is one circuit, even when its entered load exceeds 1,500 VA.
- const smallVA=Math.max(3000,small.length*1500);
- const laundryVA=washers.length?Math.max(1500,Number(washers[0].load)||0):1500;
- const additionalWashers=washers.slice(1).reduce((n,p)=>n+Number(p.load),0);
+ // Panel Loads only includes dwelling allowances that the user actually placed in the panel.
+ const smallVA=small.length*1500;
+ const laundryVA=laundry.length*1500;
+ const additionalWashers=washers.reduce((n,p)=>n+Number(p.load),0);
  const general=lighting+smallVA+laundryVA;
  const method=$('pcMethod').value;
  const demanded=method==='standard'?Math.min(3000,general)+Math.min(117000,Math.max(0,general-3000))*.35+Math.max(0,general-120000)*.25:Math.min(10000,general)+Math.max(0,general-10000)*.4;
  const voltage=$('pcVoltage').value,phase=$('pcPhase').value;
  const volts=Number(voltage.split('/').pop()),denominator=phase==='3'?Math.sqrt(3)*volts:volts;
- return{area,lighting,smallVA,laundryVA,additionalWashers,general,demanded,amps:denominator>0?demanded/denominator:null,missingArea:!Number.isFinite(area)||area<=0,missingWashers:!washers.length,smallCount:small.length,phase,voltage};
+ return{area,lighting,smallVA,laundryVA,additionalWashers,general,demanded,amps:denominator>0?demanded/denominator:null,missingArea:!Number.isFinite(area)||area<=0,missingLaundry:!laundry.length,smallCount:small.length,laundryCount:laundry.length,phase,voltage};
 }
 // NEC Table 220.55 household cooking equipment demand (Standard Method dwelling).
 // A/B are demand percentages; C is the table maximum demand in kW.
@@ -1192,10 +1193,10 @@ function pcHvac22060(){
 }
 function pcOptional22082(){
  const area=Number($('pcArea').value),parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
- const washers=parts.filter(p=>/^washer$/i.test((p.description||'').trim())),small=parts.filter(p=>p.category==='small-appliance'||/^small.appliance circuits?$/i.test((p.description||'').trim()));
- const lighting=Number.isFinite(area)&&area>0?area*3:0,smallVA=Math.max(3000,small.length*1500),laundryVA=1500,generalConnected=lighting+smallVA+laundryVA;
+ const small=parts.filter(p=>pcSemanticCategory(p)==='small-appliance'),laundry=parts.filter(p=>pcSemanticCategory(p)==='laundry');
+ const lighting=Number.isFinite(area)&&area>0?area*3:0,smallVA=small.length*1500,laundryVA=laundry.length*1500,generalConnected=lighting+smallVA+laundryVA;
  const excluded=new Set(['general','general-circuit','lighting','receptacle','small-appliance','laundry','hvac','ev','ev-managed']);
- const applianceParts=parts.filter(p=>!excluded.has(pcSemanticCategory(p))),applianceConnected=applianceParts.reduce((s,p)=>s+(Number(p.load)||0),0)+washers.slice(1).reduce((s,p)=>s+(Number(p.load)||0),0);
+ const applianceParts=parts.filter(p=>!excluded.has(pcSemanticCategory(p))),applianceConnected=applianceParts.reduce((s,p)=>s+(Number(p.load)||0),0);
  const pool=generalConnected+applianceConnected,demandB=Math.min(10000,pool)+Math.max(0,pool-10000)*.4,hv=pcOptionalHvac22082C(parts);
  const evParts=parts.filter(p=>['ev','ev-managed'].includes(pcSemanticCategory(p))),evConnected=evParts.reduce((s,p)=>s+(Number(p.load)||0),0),evDemand=evParts.reduce((s,p)=>s+Math.max(7200,Number(p.load)||0),0);
  return{generalConnected,applianceConnected,pool,demandB,hvacConnected:hv.connected,hvacDemand:hv.demand,hvacTreatment:hv.treatment,evConnected,evDemand};
@@ -1290,7 +1291,7 @@ function panelCalc(){setTimeout(pcUpdateMissingLoadWarnings,0);if(!$('pcBreakers
  const dwellingResult=dwelling?dwellingMethodFromEntries():null;
  $('pcDwellingMethodVA').textContent=dwellingResult&&!dwellingResult.missingArea?fmt(dwellingResult.demanded,0)+' VA':'Enter floor area';
  $('pcDwellingMethodAmps').textContent=dwellingResult&&!dwellingResult.missingArea&&dwellingResult.amps!==null?fmt(dwellingResult.amps,1)+' A':'—';
- $('pcDwellingMethodNote').textContent=dwellingResult?'GENERAL LOADS ONLY — not the total dwelling service calculation. Floor area: '+(dwellingResult.missingArea?'missing':fmt(dwellingResult.lighting,0)+' VA at 3 VA/ft²')+'; small-appliance circuits: '+fmt(dwellingResult.smallVA,0)+' VA ('+dwellingResult.smallCount+' entered; 3,000 VA minimum); first washer/laundry: '+fmt(dwellingResult.laundryVA,0)+' VA'+(dwellingResult.missingWashers?' (minimum allowance; no washer entered)':'')+'. General connected allowance: '+fmt(dwellingResult.general,0)+' VA; additional washers to Appliances: '+fmt(dwellingResult.additionalWashers,0)+' VA (not included above). Demand shown applies only to this general-load section. Verify voltage, code cycle and required allowances.':'—';
+ $('pcDwellingMethodNote').textContent=dwellingResult?'GENERAL LOADS ONLY — not the total dwelling service calculation. Floor area: '+(dwellingResult.missingArea?'missing':fmt(dwellingResult.lighting,0)+' VA at 3 VA/ft²')+'; small-appliance circuits: '+fmt(dwellingResult.smallVA,0)+' VA ('+dwellingResult.smallCount+' entered); laundry circuits: '+fmt(dwellingResult.laundryVA,0)+' VA ('+dwellingResult.laundryCount+' entered). General connected allowance: '+fmt(dwellingResult.general,0)+' VA; washers/appliances: '+fmt(dwellingResult.additionalWashers,0)+' VA (not included above). Small-appliance and laundry allowances are included only when those circuits are entered in the panel. Demand shown applies only to this general-load section. Verify voltage, code cycle and required allowances.':'—';
  $('pcLoadSummaryHead').innerHTML='<tr><th>Load</th>'+seq.map(p=>'<th>Phase '+p+' ('+pcLoadUnit()+')</th>').join('')+'<th>Panel total ('+pcLoadUnit()+')</th></tr>';
  const summaryValue=v=>v>0?pcDisplayNumber(v):'';
  const summaryRow=(label,values,total)=>'<tr><td>'+label+'</td>'+seq.map(p=>'<td>'+summaryValue(values[p])+'</td>').join('')+'<td>'+summaryValue(total)+'</td></tr>';
