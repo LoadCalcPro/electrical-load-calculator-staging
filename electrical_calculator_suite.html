@@ -1120,14 +1120,13 @@ function pcMotorDesiredType(p){if($('pcPhase').value==='3'&&(p.motorPhase||'1')=
 function pcMotorSuggestedCircuit(p){
  const t=pcMotorTableFLC(p);if(!t)return null;
  const va=t.phase==='3'?Math.sqrt(3)*t.rated*t.flc:t.rated*t.flc;
- // Motor branch-circuit conductor: 125% of table FLC. Motor short-circuit/ground-fault
- // protection is a maximum percentage under Table 430.52, not a minimum breaker size.
- const maxFactor=p.motorProtection==='fuse'?1.75:p.motorProtection==='other'?1:2.5;
- const maxProtection=t.flc*maxFactor;
- const breakerCandidates=pcBreakerRatings.filter(a=>a>=t.flc&&a<=maxProtection);
- const breaker=breakerCandidates.length?breakerCandidates[0]:(pcBreakerRatings.find(a=>a>=t.flc)||Math.ceil(t.flc));
+ // Motor branch-circuit conductor: 125% of table FLC (430.22).
+ // Branch-circuit short-circuit/ground-fault protection uses the selected Table 430.52 percentage.
+ const factor=p.motorProtection==='fuse'?1.75:p.motorProtection==='other'?1:2.5;
+ const protectionAmps=t.flc*factor;
+ const breaker=pcBreakerRatings.find(a=>a>=protectionAmps)||Math.ceil(protectionAmps);
  const conductorAmps=t.flc*1.25,wi=pcWireAmpacity.findIndex(a=>a>=conductorAmps),wire=wi<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[wi];
- return{flc:t.flc,volts:t.rated,phase:t.phase,va:Math.round(va),breaker,wire,conductorAmps,maxProtection};
+ return{flc:t.flc,volts:t.rated,phase:t.phase,va:Math.round(va),breaker,wire,conductorAmps,protectionAmps};
 }
 function pcApplyMotorSizing(p){
  const s=pcMotorSuggestedCircuit(p);if(!s)return false;
