@@ -508,7 +508,7 @@
         
         <div class="pc-entry-unit"><div class="field"><label for="pcArea">Square footage (ft²)</label><input id="pcArea" type="number" min="0" step="1" placeholder="Area served"></div><div class="field"><label for="pcOccupancy">Panel occupancy</label><select id="pcOccupancy"><option value="">Select occupancy</option><option value="commercial">Commercial</option><option value="dwelling">Dwelling</option></select></div><div class="field"><label for="pcOccupancyType">Occupancy type</label><select id="pcOccupancyType"></select></div><div class="field"><label for="pcUnit">Load entry unit</label><select id="pcUnit"><option value="">Select unit</option><option value="VA" selected>VA</option><option value="kVA">kVA</option></select></div></div>
       </div>
-      <div class="pc-method-row" id="pcMethodRow" hidden><div class="field"><label for="pcMethod">Dwelling calculation method</label><select id="pcMethod"><option value="standard">Standard Method</option><option value="optional">Optional Method</option></select></div></div>
+      <div class="pc-method-row" id="pcMethodRow" hidden><div class="field"><label for="pcMethod">Dwelling calculation method</label><select id="pcMethod"><option value="standard">Standard Method</option><option value="optional">Optional Method</option></select></div><div class="field" id="pcLargestMotorField"><label for="pcIncludeLargestMotor">Largest motor / A-C adder</label><select id="pcIncludeLargestMotor"><option value="no" selected>Do not add 25%</option><option value="yes">Include 25% largest motor / A-C</option></select></div></div>
       <div class="panel-actions add-controls">
         <button class="btn" id="pcAdd" type="button">Add Breaker</button>
         
@@ -1155,44 +1155,38 @@ function pcMotor43024(){
 }
 function pcHvac22060(){
  const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcPartCategory(p,'dwelling-standard')==='hvac');
- let connected=0,demand=0,largestMotorAc=0;const treatments=new Set();
- parts.forEach(p=>{
-  const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0; largestMotorAc=Math.max(largestMotorAc,base,cool);
-  // Connected load remains the actual entered/nameplate load. HVAC detail values are
-  // calculation components and are not added again to the connected panel total.
-  connected+=base;
-  let d=base;
-  if(p.hvacType==='heat-pump'){
-   if(p.hvacAuxWithCompressor==='yes'){
-    d=Math.max(base,cool)+aux;
-    treatments.add('Heat pump — compressor + auxiliary heat can operate together');
+ const connected=parts.reduce((s,p)=>s+(Number(p.load)||0),0);
+ const groups=new Map();
+ parts.forEach((p,i)=>{const key=(p.hvacSystem||'').trim()||'__'+i;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)});
+ let demand=0,largestMotorAc=0;const treatments=[];
+ groups.forEach(group=>{
+  let cooling=0,heating=0,common=0,coincident=0;
+  group.forEach(p=>{
+   const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
+   if(p.hvacType==='ac'){
+    const ac=cool>0?cool:base;cooling+=ac;largestMotorAc=Math.max(largestMotorAc,ac);
+   }else if(p.hvacType==='air-handler'){
+    // Blower/air-handler load is common to either mode; strip heat is a heating component.
+    common+=Math.max(0,base-heat);heating+=heat;
+   }else if(p.hvacType==='heat'){
+    heating+=heat>0?heat:base;
+   }else if(p.hvacType==='heat-pump'){
+    const comp=cool>0?cool:base;largestMotorAc=Math.max(largestMotorAc,comp);
+    if(p.hvacAuxWithCompressor==='yes')coincident+=comp+aux;
+    else{cooling+=comp;heating+=Math.max(heat,aux)}
+   }else if(p.hvacType==='packaged'){
+    const ac=cool>0?cool:base;cooling+=ac;largestMotorAc=Math.max(largestMotorAc,ac);heating+=heat;
    }else{
-    const compressor=Math.max(base,cool),heating=Math.max(heat,aux);
-    d=Math.max(heating,compressor);
-    treatments.add('220.60 noncoincident: compressor 100% = '+fmt(compressor,0)+' VA vs heat 100% = '+fmt(heating,0)+' VA → '+fmt(d,0)+' VA used');
+    if(cool>0){cooling+=cool;largestMotorAc=Math.max(largestMotorAc,cool)}
+    if(heat>0)heating+=heat;
+    if(!cool&&!heat)common+=base;
    }
-  }else if(cool>0||heat>0){
-   if(p.hvacSimultaneous==='yes'){
-    d=cool+heat;
-    treatments.add('Coincident: A/C '+fmt(cool,0)+' VA + heat '+fmt(heat,0)+' VA = '+fmt(d,0)+' VA used');
-   }else{
-    const ac=Math.max(base,cool),other=heat;
-    d=Math.max(other,ac);
-    treatments.add('220.60 noncoincident: A/C 100% = '+fmt(ac,0)+' VA vs heat 100% = '+fmt(other,0)+' VA → '+fmt(d,0)+' VA used');
-   }
-  }else if(p.hvacType==='air-handler'){
-   d=base;
-   treatments.add('Air handler — entered load');
-  }else if(p.hvacType==='heat'){
-   d=Math.max(base,heat);
-   treatments.add('Electric heat — entered heating load');
-  }else{
-   d=Math.max(base,cool);
-   treatments.add('Air conditioning — entered cooling load');
-  }
-  demand+=d;
+  });
+  const coolOption=common+cooling,heatOption=common+heating,used=Math.max(coolOption,heatOption,coincident);
+  demand+=used;
+  treatments.push('220.60: cooling = '+fmt(coolOption,0)+' VA vs heating = '+fmt(heatOption,0)+' VA'+(coincident>0?' vs coincident heat-pump option = '+fmt(coincident,0)+' VA':'')+' → '+fmt(used,0)+' VA used');
  });
- return{connected,demand:Math.round(demand),largestMotorAc,treatment:[...treatments].join('; ')||'—'};
+ return{connected,demand:Math.round(demand),largestMotorAc,treatment:treatments.join('; ')||'—'};
 }
 function pcOptional22082(){
  const area=Number($('pcArea').value),parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0);
@@ -1295,12 +1289,12 @@ function renderClassificationSummary(){
  let bodyRows=(rows.length?rows:categories.slice(0,1)).map(([k,label])=>'<tr><td>'+esc(label)+'</td><td>'+pcDisplayNumber(totals[k]||0)+' '+pcLoadUnit()+'</td><td>'+esc(treatments[k]||'—')+'</td><td>'+(key==='dwelling-optional'&&(k==='general'||k==='appliance')?'Included in combined pool':demands[k]===null?'Pending method logic':pcDisplayNumber(demands[k]||0)+' '+pcLoadUnit())+'</td></tr>').join('');
  if(key==='dwelling-optional'){const o=pcOptional22082(),combined='<tr class="pc-combined-demand"><td><strong>220.82(B) Combined Load</strong></td><td><strong>'+pcDisplayLoadWithUnit(o.pool)+'</strong></td><td>First 10,000 VA at 100%; remainder at 40%</td><td><strong>'+pcDisplayLoadWithUnit(o.demandB)+'</strong></td></tr>';const marker='</tr><tr><td>HVAC Loads</td>';bodyRows=bodyRows.includes(marker)?bodyRows.replace(marker,'</tr>'+combined+'<tr><td>HVAC Loads</td>'):bodyRows+combined}
  $('pcClassificationBody').innerHTML=bodyRows;
- const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0)+(key==='dwelling-standard'?.25*largestMotorAc:0):null;
+ const total=Object.values(totals).reduce((s,v)=>s+v,0),demandValues=rows.map(([k])=>demands[k]),complete=demandValues.every(v=>v!==null),includeLargestMotor=key==='dwelling-standard'&&$('pcIncludeLargestMotor').value==='yes',motorAdder=includeLargestMotor?.25*largestMotorAc:0,demandTotal=complete?demandValues.reduce((s,v)=>s+(v||0),0)+motorAdder:null;
  let finalResult=demandTotal===null?'Pending method logic':fmt(demandTotal,0)+' VA';
  if(demandTotal!==null){
   const voltage=Number(($('pcVoltage').value||'').split('/').pop())||0,phase=$('pcPhase').value;
   const calcAmps=voltage>0?(phase==='3'?demandTotal/(Math.sqrt(3)*voltage):demandTotal/voltage):null;
-  finalResult='<strong>'+pcDisplayLoadWithUnit(demandTotal)+' / '+(calcAmps===null?'—':fmt(calcAmps,1)+' A')+'</strong>'+(key==='dwelling-standard'&&largestMotorAc>0?'<br><span style="font-size:11px">Includes 25% largest motor/A-C component: '+pcDisplayNumber(.25*largestMotorAc)+' '+pcLoadUnit()+'</span>':'');
+  finalResult='<strong>'+pcDisplayLoadWithUnit(demandTotal)+' / '+(calcAmps===null?'—':fmt(calcAmps,1)+' A')+'</strong>'+(includeLargestMotor&&largestMotorAc>0?'<br><span style="font-size:11px">Includes selected 25% largest motor/A-C component: '+pcDisplayNumber(motorAdder)+' '+pcLoadUnit()+'</span>':'');
  }
  $('pcClassificationFoot').innerHTML='<tr><td>PANEL TOTALS</td><td>'+pcDisplayLoadWithUnit(total)+'</td><td></td><td>'+finalResult+'</td></tr>';
 }
@@ -1328,7 +1322,7 @@ function panelCalc(){setTimeout(pcUpdateMissingLoadWarnings,0);if(!$('pcBreakers
  $('pcConnected').textContent=fmt(totalConn,0)+' VA';$('pcDemand').textContent=fmt(totalDem,0)+' VA';$('pcMaxAmps').textContent=fmt(maxA,1)+' A';$('pcWarning').textContent=r.warnings.join(' ');savePanel()}
 function selectPanelAssembly(id){pcSelectedId=id;renderPanel();const card=$('pcBreakers').querySelector('.breaker-card[data-id="'+id+'"]');if(card){card.classList.add('pc-selected');card.style.setProperty('border','4px solid #0d9488','important');card.style.setProperty('box-shadow','0 0 0 2px rgba(13,148,136,.16)','important');card.scrollIntoView({behavior:'smooth',block:'center'})}}
 function renderPanel(){renderBreakers();panelCalc()}
-function savePanel(){try{localStorage.setItem('loadcalcpro-panel-v2',JSON.stringify({assemblies:pcAssemblies,next:pcNextId,settings:{use:$('pcUse').value,fedFrom:$('pcFedFrom').value,mainType:$('pcMainType').value,upstream:$('pcUpstream').value,feederMaterial:$('pcFeederMaterial').value,feederWire:$('pcFeederWire').value,feederSets:$('pcFeederSets').value,feederEGC:$('pcFeederEGC').value,phase:$('pcPhase').value,voltage:$('pcVoltage').value,unit:$('pcUnit').value,occupancy:$('pcOccupancy').value,occupancyType:$('pcOccupancyType').value,area:$('pcArea').value,method:$('pcMethod').value,spaces:$('pcSpaces').value,main:$('pcMain').value,name:$('pcName').value,location:$('pcLocation').value,faultCurrent:$('pcFaultCurrent').value,mode:$('pcMode').value,demand:$('pcDemandMode').value}}))}catch{}}
+function savePanel(){try{localStorage.setItem('loadcalcpro-panel-v2',JSON.stringify({assemblies:pcAssemblies,next:pcNextId,settings:{use:$('pcUse').value,fedFrom:$('pcFedFrom').value,mainType:$('pcMainType').value,upstream:$('pcUpstream').value,feederMaterial:$('pcFeederMaterial').value,feederWire:$('pcFeederWire').value,feederSets:$('pcFeederSets').value,feederEGC:$('pcFeederEGC').value,phase:$('pcPhase').value,voltage:$('pcVoltage').value,unit:$('pcUnit').value,occupancy:$('pcOccupancy').value,occupancyType:$('pcOccupancyType').value,area:$('pcArea').value,method:$('pcMethod').value,includeLargestMotor:$('pcIncludeLargestMotor').value,spaces:$('pcSpaces').value,main:$('pcMain').value,name:$('pcName').value,location:$('pcLocation').value,faultCurrent:$('pcFaultCurrent').value,mode:$('pcMode').value,demand:$('pcDemandMode').value}}))}catch{}}
 const pcOccupancyTypes={dwelling:[['dwelling-unit','Dwelling unit']],commercial:[['armory-auditorium','Armory / auditorium'],['bank','Bank'],['barber-beauty','Barber shop / beauty parlor'],['church','Church / place of worship'],['club','Club'],['courtroom','Courtroom'],['commercial-garage','Commercial garage (storage)'],['hospital','Hospital'],['hotel-motel','Hotel / motel'],['industrial-loft','Industrial / commercial loft'],['lodge','Lodge room'],['office','Office'],['restaurant','Restaurant'],['school','School / university'],['sports-arena','Sports arena'],['retail','Retail store'],['warehouse','Warehouse (storage)'],['assembly-hall','Assembly hall'],['corridor','Hall / corridor / closet / stairway'],['storage-space','Storage space'],['other','Other commercial']]};
 function pcScheduleOnly(){return $('pcUse')?.value==='schedule'}
 function syncPcUseVisibility(){
@@ -1339,18 +1333,18 @@ function syncPcUseVisibility(){
  $('pcClassificationSummary').hidden=only;
  $('pcClassificationNote').hidden=only;
 }
-function syncPcMethodVisibility(){$('pcMethodRow').hidden=pcScheduleOnly()||$('pcOccupancy').value!=='dwelling';}
+function syncPcMethodVisibility(){const dwelling=$('pcOccupancy').value==='dwelling',only=pcScheduleOnly();$('pcMethodRow').hidden=only||!dwelling;$('pcLargestMotorField').hidden=only||!dwelling||$('pcMethod').value!=='standard';}
 function syncPcOccupancyTypes(preferred){const el=$('pcOccupancyType');const choices=pcOccupancyTypes[$('pcOccupancy').value]||pcOccupancyTypes.commercial;const prior=preferred||el.value;el.replaceChildren(...choices.map(([value,label])=>new Option(label,value)));if(choices.some(([value])=>value===prior))el.value=prior;}
-function restorePanel(){try{const x=JSON.parse(localStorage.getItem('loadcalcpro-panel-v2'));if(!x)return false;const saved=Array.isArray(x.assemblies)?x.assemblies:[];pcAssemblies=saved.filter(a=>a&&typeof a==='object'&&Array.isArray(a.parts)).map(a=>({...a,id:Number(a.id)||pcNextId++,start:Math.max(1,Number(a.start)||1),type:assemblyConfigs[a.type]?a.type:'standard1',parts:a.parts.filter(p=>p&&typeof p==='object').map(p=>({...p,description:String(p.description||''),detail:String(p.detail||''),label:String(p.label||''),category:String(p.category||'other'),wire:String(p.wire||''),poles:Math.max(1,Number(p.poles)||1),breaker:Math.max(0,Number(p.breaker)||0),load:Math.max(0,Number(p.load)||0),factor:Number.isFinite(Number(p.factor))?Number(p.factor):1,motorHp:p.motorHp??'',motorVoltage:Math.max(0,Number(p.motorVoltage)||0),motorPhase:String(p.motorPhase||''),motorProtection:String(p.motorProtection||'inverse-time'),hvacSystem:String(p.hvacSystem||''),hvacType:String(p.hvacType||''),hvacMca:Math.max(0,Number(p.hvacMca)||0),hvacMocp:Math.max(0,Number(p.hvacMocp)||0),hvacHeat:Math.max(0,Number(p.hvacHeat)||0),hvacAux:Math.max(0,Number(p.hvacAux)||0),hvacAuxWithCompressor:String(p.hvacAuxWithCompressor||'no'),evManagedMax:Math.max(0,Number(p.evManagedMax)||0)}))})).filter(a=>a.parts.length);pcNextId=Math.max(Number(x.next)||1,1,...pcAssemblies.map(a=>(Number(a.id)||0)+1));const s=x.settings||{};[['pcUse','use'],['pcFedFrom','fedFrom'],['pcMainType','mainType'],['pcUpstream','upstream'],['pcFeederMaterial','feederMaterial'],['pcFeederWire','feederWire'],['pcFeederSets','feederSets'],['pcFeederEGC','feederEGC'],['pcPhase','phase'],['pcVoltage','voltage'],['pcUnit','unit'],['pcOccupancy','occupancy'],['pcArea','area'],['pcMethod','method'],['pcSpaces','spaces'],['pcMain','main'],['pcName','name'],['pcLocation','location'],['pcFaultCurrent','faultCurrent'],['pcMode','mode'],['pcDemandMode','demand']].forEach(([id,k])=>{if(s[k]!=null)$(id).value=s[k]});syncPcOccupancyTypes(s.occupancyType);syncPcMethodVisibility();syncPcUseVisibility();syncPcDescriptionChoices();return true}catch{return false}}
+function restorePanel(){try{const x=JSON.parse(localStorage.getItem('loadcalcpro-panel-v2'));if(!x)return false;const saved=Array.isArray(x.assemblies)?x.assemblies:[];pcAssemblies=saved.filter(a=>a&&typeof a==='object'&&Array.isArray(a.parts)).map(a=>({...a,id:Number(a.id)||pcNextId++,start:Math.max(1,Number(a.start)||1),type:assemblyConfigs[a.type]?a.type:'standard1',parts:a.parts.filter(p=>p&&typeof p==='object').map(p=>({...p,description:String(p.description||''),detail:String(p.detail||''),label:String(p.label||''),category:String(p.category||'other'),wire:String(p.wire||''),poles:Math.max(1,Number(p.poles)||1),breaker:Math.max(0,Number(p.breaker)||0),load:Math.max(0,Number(p.load)||0),factor:Number.isFinite(Number(p.factor))?Number(p.factor):1,motorHp:p.motorHp??'',motorVoltage:Math.max(0,Number(p.motorVoltage)||0),motorPhase:String(p.motorPhase||''),motorProtection:String(p.motorProtection||'inverse-time'),hvacSystem:String(p.hvacSystem||''),hvacType:String(p.hvacType||''),hvacMca:Math.max(0,Number(p.hvacMca)||0),hvacMocp:Math.max(0,Number(p.hvacMocp)||0),hvacHeat:Math.max(0,Number(p.hvacHeat)||0),hvacAux:Math.max(0,Number(p.hvacAux)||0),hvacAuxWithCompressor:String(p.hvacAuxWithCompressor||'no'),evManagedMax:Math.max(0,Number(p.evManagedMax)||0)}))})).filter(a=>a.parts.length);pcNextId=Math.max(Number(x.next)||1,1,...pcAssemblies.map(a=>(Number(a.id)||0)+1));const s=x.settings||{};[['pcUse','use'],['pcFedFrom','fedFrom'],['pcMainType','mainType'],['pcUpstream','upstream'],['pcFeederMaterial','feederMaterial'],['pcFeederWire','feederWire'],['pcFeederSets','feederSets'],['pcFeederEGC','feederEGC'],['pcPhase','phase'],['pcVoltage','voltage'],['pcUnit','unit'],['pcOccupancy','occupancy'],['pcArea','area'],['pcMethod','method'],['pcIncludeLargestMotor','includeLargestMotor'],['pcSpaces','spaces'],['pcMain','main'],['pcName','name'],['pcLocation','location'],['pcFaultCurrent','faultCurrent'],['pcMode','mode'],['pcDemandMode','demand']].forEach(([id,k])=>{if(s[k]!=null)$(id).value=s[k]});syncPcOccupancyTypes(s.occupancyType);syncPcMethodVisibility();syncPcUseVisibility();syncPcDescriptionChoices();return true}catch{return false}}
 function clearPanel(){if(!confirm('Clear the entire panel schedule?'))return;pcAssemblies=[];pcNextId=1;pcSelectedId=null;renderPanel()}
 function newPanelCalculation(){pcAssemblies=[];pcNextId=1;pcSelectedId=null;
  ['pcName','pcLocation','pcFedFrom','pcFaultCurrent','pcUpstream','pcFeederMaterial','pcFeederWire','pcFeederSets','pcFeederEGC','pcArea','pcMain','pcSpaces'].forEach(id=>$(id).value='');
- ['pcUse','pcMainType','pcPhase','pcVoltage','pcOccupancy','pcUnit'].forEach(id=>$(id).value='');['pcMode','pcMethod','pcDemandMode'].forEach(id=>$(id).selectedIndex=0);
+ ['pcUse','pcMainType','pcPhase','pcVoltage','pcOccupancy','pcUnit'].forEach(id=>$(id).value='');['pcMode','pcMethod','pcDemandMode','pcIncludeLargestMotor'].forEach(id=>$(id).selectedIndex=0);
  syncPcOccupancyTypes();$('pcOccupancyType').innerHTML='<option value="">Select occupancy type</option>';$('pcOccupancyType').value='';syncPcMethodVisibility();syncPcDescriptionChoices();setPanelPrintPreset('full');renderPanel();savePanel()}
 function loadExample(){pcAssemblies=[];pcNextId=1;pcSelectedId=null;addAssembly('standard2',1,{parts:[{poles:2,label:'2P',description:'Air conditioning',breaker:30,wire:'#10',load:4800,category:'hvac',factor:1}]});addAssembly('tandem',5,{parts:[{poles:1,label:'Mini A',description:'Lighting',breaker:20,wire:'#12',load:1200,category:'lighting',factor:1},{poles:1,label:'Mini B',description:'Receptacles',breaker:20,wire:'#12',load:1500,category:'receptacle',factor:1}]});addAssembly('quad121',2,{parts:[{poles:1,label:'Outer 1P A',description:'Appliance',breaker:20,wire:'#12',load:1200,category:'appliance',factor:1},{poles:2,label:'Center 2P',description:'Water heater',breaker:30,wire:'#10',load:4500,category:'appliance',factor:1},{poles:1,label:'Outer 1P B',description:'Continuous load',breaker:20,wire:'#12',load:800,category:'continuous',factor:1.25}]});renderPanel()}
 $('pcUse').addEventListener('change',()=>{syncPcUseVisibility();renderPanel()});
 $('pcUnit').addEventListener('change',()=>{renderPanel();requestAnimationFrame(()=>{document.querySelectorAll('#panelcalc .pc-load').forEach(el=>{el.placeholder=pcLoadUnit();el.title='Connected '+pcLoadUnit()});document.querySelectorAll('#panelcalc .pc-ev-managed').forEach(el=>{el.placeholder='Managed max';el.title='EMS/load-managed maximum ('+pcLoadUnit()+')'});});});
-syncPcOccupancyTypes();syncPcMethodVisibility();syncPcUseVisibility();syncPcDescriptionChoices();$('pcOccupancy').addEventListener('change',()=>{syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();renderPanel()});$('pcMethod').addEventListener('change',()=>renderPanel());$('pcOccupancyType').addEventListener('change',()=>savePanel());$('pcArea').addEventListener('input',()=>panelCalc());
+syncPcOccupancyTypes();syncPcMethodVisibility();syncPcUseVisibility();syncPcDescriptionChoices();$('pcOccupancy').addEventListener('change',()=>{syncPcOccupancyTypes();syncPcMethodVisibility();syncPcDescriptionChoices();renderPanel()});$('pcMethod').addEventListener('change',()=>{syncPcMethodVisibility();renderPanel()});$('pcIncludeLargestMotor').addEventListener('change',()=>renderPanel());$('pcOccupancyType').addEventListener('change',()=>savePanel());$('pcArea').addEventListener('input',()=>panelCalc());
 $('pcAdd').addEventListener('click',()=>addAssembly('standard1'));$('pcClear').addEventListener('click',clearPanel);
 ['pcFedFrom','pcMainType','pcUpstream','pcFeederMaterial','pcFeederWire','pcFeederSets','pcFeederEGC','pcPhase','pcVoltage','pcSpaces','pcMain','pcName','pcLocation','pcFaultCurrent','pcMode','pcDemandMode'].forEach(id=>$(id).addEventListener('input',e=>{if(id==='pcVoltage'&&e.target.value==='custom')$('pcVoltage').value='120/208';if(id==='pcPhase'&&e.target.value==='1'&&pcAssemblies.some(a=>a.parts.some(p=>p.poles===3))){e.target.value='3';$('pcWarning').textContent='Remove or change existing three-pole breakers before selecting a single-phase panel.';return}if(id==='pcDemandMode'&&e.target.value==='category')pcAssemblies.forEach(a=>a.parts.forEach(p=>p.factor=demandDefaults[p.category]??1));renderPanel()}));
 $('pcPrintScheduleOnly').addEventListener('click',()=>setPanelPrintPreset('schedule'));
