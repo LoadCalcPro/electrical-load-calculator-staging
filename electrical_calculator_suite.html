@@ -1213,9 +1213,10 @@ function pcOptionalHvac22082C(parts){
   else if(p.hvacType==='heat'){spaceHeat+=Math.max(base,heat);heatUnits++}
   else {cooling+=Math.max(base,cool);if(heat>0){spaceHeat+=heat;heatUnits++}}
  });
- const factor=heatUnits>=4?.40:.65,choices=[[cooling,'220.82(C) — cooling at 100%'],[heatPump,'220.82(C) — heat pump at 100%'],[hpSupplemental,'220.82(C) — compressor when simultaneous + 65% supplemental heat'],[spaceHeat*factor,'220.82(C) — electric space heat at '+Math.round(factor*100)+'%']];
- const best=choices.reduce((a,b)=>b[0]>a[0]?b:a,[0,'220.82(C) — no HVAC load']);
- return{connected,demand:Math.round(best[0]),treatment:best[1]};
+ const factor=heatUnits>=4?.40:.65,heatDemand=spaceHeat*factor,choices=[[cooling,'A/C 100%'],[heatPump,'heat pump 100%'],[hpSupplemental,'compressor + 65% supplemental heat'],[heatDemand,'heat '+Math.round(factor*100)+'%']];
+ const best=choices.reduce((a,b)=>b[0]>a[0]?b:a,[0,'no HVAC load']);
+ const comparison='220.82(C): A/C 100% = '+fmt(cooling,0)+' VA; heat '+Math.round(factor*100)+'% = '+fmt(heatDemand,0)+' VA'+(heatPump>0?'; heat pump 100% = '+fmt(heatPump,0)+' VA':'')+(hpSupplemental>0?'; compressor + 65% supplemental heat = '+fmt(hpSupplemental,0)+' VA':'')+' → '+fmt(best[0],0)+' VA used ('+best[1]+')';
+ return{connected,demand:Math.round(best[0]),treatment:comparison};
 }
 function renderClassificationSummary(){
  const dwelling=$('pcOccupancy').value==='dwelling',area=Number($('pcArea').value),show=!dwelling||(Number.isFinite(area)&&area>0);
