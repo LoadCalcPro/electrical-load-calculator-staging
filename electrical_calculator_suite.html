@@ -1209,13 +1209,31 @@ function pcOptionalHvac22082C(parts){
  let cooling=0,heatPump=0,hpSupplemental=0,spaceHeat=0,heatUnits=0;
  hv.forEach(p=>{
   const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
-  if(p.hvacType==='heat-pump'){const comp=Math.max(base,cool);if(aux>0)hpSupplemental+=(p.hvacAuxWithCompressor==='yes'?comp:0)+.65*aux;else heatPump+=comp}
-  else if(p.hvacType==='heat'){spaceHeat+=Math.max(base,heat);heatUnits++}
-  else {cooling+=Math.max(base,cool);if(heat>0){spaceHeat+=heat;heatUnits++}}
+  if(p.hvacType==='ac'){
+   // Condensing-unit connected load belongs to the cooling option only.
+   cooling+=cool>0?cool:base;
+  }else if(p.hvacType==='air-handler'){
+   // An AHU load is not itself A/C compressor load. Its electric-heat detail belongs
+   // to the space-heating option; any remaining entered AHU load is not copied into cooling.
+   if(heat>0){spaceHeat+=heat;heatUnits++}
+  }else if(p.hvacType==='heat-pump'){
+   const comp=cool>0?cool:base;
+   if(aux>0){
+    if(p.hvacAuxWithCompressor==='yes')hpSupplemental+=comp+.65*aux;
+    else hpSupplemental+=.65*aux;
+   }else heatPump+=comp;
+  }else if(p.hvacType==='heat'){
+   const h=heat>0?heat:base;if(h>0){spaceHeat+=h;heatUnits++}
+  }else if(p.hvacType==='packaged'){
+   // Packaged unit entered load is treated as cooling unless explicit heat is entered.
+   cooling+=cool>0?cool:base;if(heat>0){spaceHeat+=heat;heatUnits++}
+  }else{
+   if(cool>0)cooling+=cool;if(heat>0){spaceHeat+=heat;heatUnits++}
+  }
  });
- const factor=heatUnits>=4?.40:.65,heatDemand=spaceHeat*factor,choices=[[cooling,'A/C 100%'],[heatPump,'heat pump 100%'],[hpSupplemental,'compressor + 65% supplemental heat'],[heatDemand,'heat '+Math.round(factor*100)+'%']];
- const best=choices.reduce((a,b)=>b[0]>a[0]?b:a,[0,'no HVAC load']);
- const comparison='220.82(C): A/C 100% = '+fmt(cooling,0)+' VA; heat '+Math.round(factor*100)+'% = '+fmt(heatDemand,0)+' VA'+(heatPump>0?'; heat pump 100% = '+fmt(heatPump,0)+' VA':'')+(hpSupplemental>0?'; compressor + 65% supplemental heat = '+fmt(hpSupplemental,0)+' VA':'')+' → '+fmt(best[0],0)+' VA used ('+best[1]+')';
+ const factor=heatUnits>=4?.40:.65,heatDemand=spaceHeat*factor,choices=[[cooling,'A/C 100%'],[heatPump,'heat pump 100%'],[hpSupplemental,'heat-pump heating option'],[heatDemand,'heat '+Math.round(factor*100)+'%']];
+ const best=choices.reduce((x,y)=>y[0]>x[0]?y:x,[0,'no HVAC load']);
+ const comparison='220.82(C): A/C 100% = '+fmt(cooling,0)+' VA; heat '+Math.round(factor*100)+'% = '+fmt(heatDemand,0)+' VA'+(heatPump>0?'; heat pump 100% = '+fmt(heatPump,0)+' VA':'')+(hpSupplemental>0?'; heat-pump heating option = '+fmt(hpSupplemental,0)+' VA':'')+' → '+fmt(best[0],0)+' VA used ('+best[1]+')';
  return{connected,demand:Math.round(best[0]),treatment:comparison};
 }
 function renderClassificationSummary(){
