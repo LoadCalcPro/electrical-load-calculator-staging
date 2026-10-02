@@ -196,6 +196,14 @@
   body.print-compact.pc-print-summary #panelcalc .pc-classification-table th,
   body.print-compact.pc-print-summary #panelcalc .pc-classification-table td{font-size:6px;padding:1px 2px}
   body.print-compact.pc-print-summary #panelcalc #pcClassificationSummary .demand-note{font-size:5.5px;margin-top:1px}
+
+  /* Keep schedule numbers visually consistent with the surrounding schedule text. */
+  body.print-full #panelcalc .pc-live-table td{font-size:8px!important}
+  body.print-full #panelcalc .pc-live-table td.pc-phase{font-size:8px!important;font-weight:400}
+  body.print-full #panelcalc .pc-live-table tfoot td.pc-phase{font-weight:900}
+  body.print-compact #panelcalc .pc-live-table td{font-size:6.5px!important}
+  body.print-compact #panelcalc .pc-live-table td.pc-phase{font-size:6.5px!important;font-weight:400}
+  body.print-compact #panelcalc .pc-live-table tfoot td.pc-phase{font-weight:900}
 }
 
 @media(min-width:561px){
@@ -816,7 +824,7 @@ document.querySelectorAll('input[name="mPhase"]').forEach(input=>input.addEventL
 const pcDisplayLoad=v=>($('pcUnit').value==='kVA'?Number(v||0)/1000:Number(v||0));
 const pcInputLoad=v=>(Number(v)||0)*($('pcUnit').value==='kVA'?1000:1);
 const pcLoadUnit=()=>$('pcUnit').value;
-const pcDisplayNumber=v=>fmt(pcDisplayLoad(v),pcLoadUnit()==='kVA'?3:0);
+const pcDisplayNumber=v=>fmt(pcDisplayLoad(v),pcLoadUnit()==='kVA'?2:0);
 const pcDisplayLoadWithUnit=v=>pcDisplayNumber(v)+' '+pcLoadUnit();
 const pcVoltageLN=()=>({'120/240':120,'120/208':120,'277/480':277}[$('pcVoltage').value]||120);
 const pcBreakerRatings=[10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600];
