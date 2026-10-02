@@ -163,6 +163,39 @@
   body.pc-print-summary #panelcalc #pcFinalBasis,body.pc-print-summary #panelcalc #pcFinalResults>.demand-note{display:none!important}
   body.pc-print-basic #panelcalc .pc-live-table th.pc-description{width:34%}
   body.pc-print-basic #panelcalc .pc-live-table .pc-description{font-size:9px}
+
+  /* Full: normalized type hierarchy, sized so a 42-circuit panel remains a one-page target. */
+  body.print-full #panelcalc .pc-print-header h2{font-size:15px}
+  body.print-full #panelcalc .pc-print-header-grid{font-size:8px}
+  body.print-full #panelcalc .pc-live-table,
+  body.print-full #panelcalc .pc-live-table th,
+  body.print-full #panelcalc .pc-live-table td{font-size:8px}
+  body.print-full #panelcalc .pc-live-table th{font-weight:800}
+  body.print-full #panelcalc .pc-live-table tfoot td,
+  body.print-full #panelcalc .pc-panel-total span,
+  body.print-full #panelcalc .pc-panel-total strong{font-size:8px;font-weight:900}
+  body.print-full.pc-print-summary #panelcalc #pcClassificationSummary h3{font-size:9px}
+  body.print-full.pc-print-summary #panelcalc .pc-classification-table th,
+  body.print-full.pc-print-summary #panelcalc .pc-classification-table td{font-size:7.5px}
+  body.print-full.pc-print-summary #panelcalc #pcClassificationSummary .demand-note{font-size:6.5px}
+
+  /* Compact is intentionally narrower and uses a smaller, tighter print scale. */
+  body.print-compact #panelcalc .pc-print-header{margin-bottom:5px;padding:2px 0 5px}
+  body.print-compact #panelcalc .pc-print-header h2{font-size:12px;margin-bottom:4px}
+  body.print-compact #panelcalc .pc-print-header-grid{font-size:6.5px;gap:2px 8px}
+  body.print-compact #panelcalc .pc-live-table,
+  body.print-compact #panelcalc .pc-live-table th,
+  body.print-compact #panelcalc .pc-live-table td{font-size:6.5px;padding:1px}
+  body.print-compact #panelcalc .pc-live-table th{font-weight:800}
+  body.print-compact #panelcalc .pc-live-table tfoot td,
+  body.print-compact #panelcalc .pc-panel-total span,
+  body.print-compact #panelcalc .pc-panel-total strong{font-size:6.5px;font-weight:900}
+  body.print-compact #panelcalc .pc-panel-total{gap:5px}
+  body.print-compact.pc-print-summary #panelcalc #pcClassificationSummary{margin-top:4px}
+  body.print-compact.pc-print-summary #panelcalc #pcClassificationSummary h3{font-size:7.5px;margin-bottom:2px}
+  body.print-compact.pc-print-summary #panelcalc .pc-classification-table th,
+  body.print-compact.pc-print-summary #panelcalc .pc-classification-table td{font-size:6px;padding:1px 2px}
+  body.print-compact.pc-print-summary #panelcalc #pcClassificationSummary .demand-note{font-size:5.5px;margin-top:1px}
 }
 
 @media(min-width:561px){
