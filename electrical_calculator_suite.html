@@ -1169,16 +1169,16 @@ function pcHvac22060(){
    }else{
     const compressor=Math.max(base,cool),heating=Math.max(heat,aux);
     d=Math.max(heating,compressor);
-    treatments.add('220.60 — heat pump noncoincident; larger entered heat or compressor component');
+    treatments.add('220.60 noncoincident: compressor 100% = '+fmt(compressor,0)+' VA vs heat 100% = '+fmt(heating,0)+' VA → '+fmt(d,0)+' VA used');
    }
   }else if(cool>0||heat>0){
    if(p.hvacSimultaneous==='yes'){
     d=cool+heat;
-    treatments.add('Coincident — heating + cooling');
+    treatments.add('Coincident: A/C '+fmt(cool,0)+' VA + heat '+fmt(heat,0)+' VA = '+fmt(d,0)+' VA used');
    }else{
     const ac=Math.max(base,cool),other=heat;
     d=Math.max(other,ac);
-    treatments.add('220.60 — noncoincident; larger entered heating or cooling component');
+    treatments.add('220.60 noncoincident: A/C 100% = '+fmt(ac,0)+' VA vs heat 100% = '+fmt(other,0)+' VA → '+fmt(d,0)+' VA used');
    }
   }else if(p.hvacType==='air-handler'){
    d=base;
