@@ -136,6 +136,10 @@
   #panelcalc .pc-live-table{width:100%;font-size:8px}
   #panelcalc .pc-live-table th,#panelcalc .pc-live-table td{padding:2px 2px;border-color:#555}
   #panelcalc .pc-live-table th{background:#eee!important;color:#000!important}
+  #panelcalc .pc-panel-total-cell{text-align:center!important;vertical-align:middle!important;padding:5px 8px!important}
+  #panelcalc .pc-panel-total{display:flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap}
+  #panelcalc .pc-panel-total span{font-size:11px;font-weight:800}
+  #panelcalc .pc-panel-total strong{font-size:12px;font-weight:900}
   #panelcalc .pc-live-table .pc-circuit{background:#f7f7f7!important}
   body.pc-print-no-header #panelcalc .pc-print-header{display:none!important}
   body.pc-print-no-phase #panelcalc .pc-live-table .pc-phase{display:none!important}
@@ -1016,7 +1020,8 @@ function renderLiveSchedule(r){
  html+='<tr data-left="'+(L.id??'')+'" data-right="'+(R?.id??'')+'" data-left-space="'+left+'" data-right-space="'+(right<=count?right:'')+'">'+cell(left,'pc-circuit pc-left-cell')+sideCells(index,'L')+phaseCells+sideCells(index,'R')+cell(R?right:'','pc-circuit pc-right-cell')+'</tr>';
  });
  $('pcLiveBody').innerHTML=html;
- $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end">'+(total[p]>0?pcDisplayNumber(total[p]):'')+'</td>').join('')+cell('')+cell('')+cell('')+cell('')+'</tr>';
+ const panelTotal=seq.reduce((s,p)=>s+total[p],0);
+ $('pcLiveFoot').innerHTML='<tr>'+cell('Connected '+pcLoadUnit(),'pc-total-label')+cell('')+cell('')+cell('')+seq.map(p=>'<td class="pc-phase pc-phase-pair-start pc-phase-pair-end">'+(total[p]>0?pcDisplayNumber(total[p]):'')+'</td>').join('')+cell('')+cell('')+cell(panelTotal>0?'<div class="pc-panel-total"><span>Panel Total</span><strong>'+pcDisplayNumber(panelTotal)+' '+pcLoadUnit()+'</strong></div>':'','pc-panel-total-cell')+cell('')+'</tr>';
  $('pcLiveBody').querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',e=>{const td=e.target.closest('td');if(!td)return;const sideHint=e.target.closest('[data-side]')?.dataset.side;const phaseCell=td.classList.contains('pc-phase');let right;if(td.classList.contains('pc-right-cell'))right=true;else if(td.classList.contains('pc-left-cell'))right=false;else if(sideHint)right=sideHint==='right';else if(phaseCell)right=e.offsetX>td.clientWidth/2;else right=td.cellIndex>=(tr.cells.length/2);const id=Number(tr.dataset[right?'right':'left']);if(id){selectPanelAssembly(id);return}const space=Number(tr.dataset[right?'rightSpace':'leftSpace']);if(!space)return;const occupying=pcAssemblies.find(a=>assemblyPositions(a).includes(space));if(occupying){if(pcUntouchedAssembly(occupying))selectPanelAssembly(occupying.id);return}addAssembly('standard1',space)}));
 }
 function configOptionsLabel(type){return (assemblyConfigs[type]||assemblyConfigs.custom).label}
