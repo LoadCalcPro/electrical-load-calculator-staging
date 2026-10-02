@@ -1156,17 +1156,26 @@ function pcMotor43024(){
 function pcHvac22060(){
  const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>Number(p.load)>0&&pcPartCategory(p,'dwelling-standard')==='hvac');
  const connected=parts.reduce((s,p)=>s+(Number(p.load)||0),0);
+ // Pair HVAC entries by System #. Entries with no System # are treated as one dwelling HVAC
+ // group so a condenser and its air handler are not incorrectly added as separate systems.
+ const numbered=parts.some(p=>(p.hvacSystem||'').trim());
  const groups=new Map();
- parts.forEach((p,i)=>{const key=(p.hvacSystem||'').trim()||'__'+i;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)});
+ parts.forEach((p,i)=>{
+  const sys=(p.hvacSystem||'').trim();
+  const key=sys?'system-'+sys:(numbered?'unassigned':'dwelling-hvac');
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key).push(p);
+ });
  let demand=0,largestMotorAc=0;const treatments=[];
- groups.forEach(group=>{
+ groups.forEach((group,key)=>{
   let cooling=0,heating=0,common=0,coincident=0;
   group.forEach(p=>{
    const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
    if(p.hvacType==='ac'){
     const ac=cool>0?cool:base;cooling+=ac;largestMotorAc=Math.max(largestMotorAc,ac);
    }else if(p.hvacType==='air-handler'){
-    // Blower/air-handler load is common to either mode; strip heat is a heating component.
+    // The entered AHU load may include electric heat. Only the non-heat remainder is
+    // common blower/AHU load; the Electric Heat field is compared on the heating side.
     common+=Math.max(0,base-heat);heating+=heat;
    }else if(p.hvacType==='heat'){
     heating+=heat>0?heat:base;
@@ -1184,7 +1193,8 @@ function pcHvac22060(){
   });
   const coolOption=common+cooling,heatOption=common+heating,used=Math.max(coolOption,heatOption,coincident);
   demand+=used;
-  treatments.push('220.60: cooling = '+fmt(coolOption,0)+' VA vs heating = '+fmt(heatOption,0)+' VA'+(coincident>0?' vs coincident heat-pump option = '+fmt(coincident,0)+' VA':'')+' → '+fmt(used,0)+' VA used');
+  const label=key.startsWith('system-')?'System '+key.slice(7)+': ':'';
+  treatments.push(label+'220.60 cooling = '+fmt(coolOption,0)+' VA vs heating = '+fmt(heatOption,0)+' VA'+(coincident>0?' vs coincident heat-pump option = '+fmt(coincident,0)+' VA':'')+' → '+fmt(used,0)+' VA used');
  });
  return{connected,demand:Math.round(demand),largestMotorAc,treatment:treatments.join('; ')||'—'};
 }
