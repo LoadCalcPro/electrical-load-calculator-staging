@@ -874,7 +874,19 @@ function pcApplyDryerSizing(p){
  if(!p.dryerWireManual||pcWireSizes.indexOf(p.wire)<pcWireSizes.indexOf(minWire))p.wire=minWire;
  return true
 }
-function pcMinimumWire(p){let amps=Math.max(Number(p.breaker)||0,0);if(pcSemanticCategory(p)==='motor'){const t=pcMotorTableFLC(p);if(t)amps=t.flc*1.25}if(amps===15)return '#14';const i=pcWireAmpacity.findIndex(a=>a>=amps);return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i]}
+function pcMinimumWire(p){
+ let amps=Math.max(Number(p.breaker)||0,0);
+ if(pcSemanticCategory(p)==='motor'){const t=pcMotorTableFLC(p);if(t)amps=t.flc*1.25}
+ // NEC 240.4(D) small-conductor overcurrent limits for ordinary branch circuits.
+ // Motor/HVAC equipment may have special protection rules and use their own sizing paths.
+ if(pcSemanticCategory(p)!=='motor'&&pcSemanticCategory(p)!=='hvac'){
+  if(amps<=15)return '#14';
+  if(amps<=20)return '#12';
+  if(amps<=30)return '#10';
+ }
+ const i=pcWireAmpacity.findIndex(a=>a>=amps);
+ return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i];
+}
 // Dwelling general lighting/receptacle circuit VA sizes its branch circuit,
 // but is not added again to the dwelling square-footage demand allowance.
 function pcApplyGeneralCircuitSizing(p){
