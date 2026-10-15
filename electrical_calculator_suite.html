@@ -883,6 +883,9 @@ function pcMinimumWire(p){
   if(amps<=15)return '#14';
   if(amps<=20)return '#12';
   if(amps<=30)return '#10';
+  // #10 Cu is limited to 30 A OCPD under 240.4(D) for ordinary circuits;
+  // do not allow its 35 A 75°C table ampacity to select it on a 35 A breaker.
+  if(amps>30&&amps<=35)return '#8';
  }
  const i=pcWireAmpacity.findIndex(a=>a>=amps);
  return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i];
