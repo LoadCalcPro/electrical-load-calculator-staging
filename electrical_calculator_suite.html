@@ -922,7 +922,13 @@ function pcApplyEvSuggestedCircuit(p){
  if(!p.evWireManual||pcWireSizes.indexOf(p.wire)<pcWireSizes.indexOf(minWire))p.wire=minWire;
  return true;
 }
-function pcWireOptions(p){const min=pcMinimumWire(p),start=pcWireSizes.indexOf(min),chosen=pcWireSizes.indexOf(p.wire)>=start?p.wire:min;p.wire=chosen;return pcWireSizes.slice(start).map(w=>'<option value="'+w+'"'+(w===chosen?' selected':'')+'>'+w+'</option>').join('')}
+function pcWireOptions(p){
+ // Enforce the minimum on every editor render, including previously saved circuits.
+ const min=pcMinimumWire(p),start=Math.max(0,pcWireSizes.indexOf(min));
+ const chosen=pcWireSizes.indexOf(p.wire)>=start?p.wire:min;
+ p.wire=chosen;
+ return pcWireSizes.slice(start).map(w=>'<option value="'+w+'"'+(w===chosen?' selected':'')+'>'+w+'</option>').join('')
+}
 function pcBreakerOptions(p){const ratings=pcBreakerRatings.includes(Number(p.breaker))?pcBreakerRatings:[...pcBreakerRatings,Number(p.breaker)].sort((a,b)=>a-b);return ratings.map(a=>'<option value="'+a+'"'+(a===Number(p.breaker)?' selected':'')+'>'+a+' A</option>').join('')}function pcHvacWireForMca(p){
  const mca=Number(p.hvacMca)||0;if(!mca)return p.wire||'#12';
  const i=pcWireAmpacity.findIndex(a=>a>=mca);return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i]
