@@ -330,7 +330,24 @@
 @media(min-width:561px){
  .pc-hvac-options>label{white-space:nowrap}
 }
-@media(min-width:561px){.pc-hvac-tonnage{grid-column:1/-1;display:flex;justify-content:flex-start;padding:0 12px}.pc-hvac-tonnage label{font-size:12px;font-weight:700}.pc-hvac-tonnage select{margin-left:10px;padding:6px;min-width:150px}}@media(max-width:560px){.pc-hvac-tonnage{grid-column:1/-1;padding:8px}.pc-hvac-tonnage select{display:block;width:100%;min-height:44px}}@media(min-width:561px){.pc-hvac-status{grid-column:1/-1;padding:4px 12px;font-size:12px;font-weight:700;color:#174c68}}@media(max-width:560px){.pc-hvac-status{grid-column:1/-1;padding:8px;font-size:12px;font-weight:700;color:#174c68}}</style>
+@media(min-width:561px){.pc-hvac-tonnage{grid-column:1/-1;display:flex;justify-content:flex-start;padding:0 12px}.pc-hvac-tonnage label{font-size:12px;font-weight:700}.pc-hvac-tonnage select{margin-left:10px;padding:6px;min-width:150px}}@media(max-width:560px){.pc-hvac-tonnage{grid-column:1/-1;padding:8px}.pc-hvac-tonnage select{display:block;width:100%;min-height:44px}}@media(min-width:561px){.pc-hvac-status{grid-column:1/-1;padding:4px 12px;font-size:12px;font-weight:700;color:#174c68}}@media(max-width:560px){.pc-hvac-status{grid-column:1/-1;padding:8px;font-size:12px;font-weight:700;color:#174c68}}
+/* Consistent breaker-editor column widths across all desktop rows. */
+@media(min-width:561px){
+ .breaker-card.pc-selected{--b1:minmax(0,1fr);--b2:minmax(0,1fr);--b3:minmax(0,1fr);--b4:minmax(0,1fr)}
+ .breaker-card.pc-selected>.breaker-head,
+ .breaker-card.pc-selected>.mini-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;column-gap:12px!important}
+ .breaker-card.pc-selected>.breaker-head>.field,
+ .breaker-card.pc-selected>.mini-grid .pc-control{min-width:0!important}
+ .breaker-card.pc-selected>.breaker-head input,
+ .breaker-card.pc-selected>.breaker-head select,
+ .breaker-card.pc-selected>.mini-grid .pc-control input,
+ .breaker-card.pc-selected>.mini-grid .pc-control select{width:100%!important;min-width:0!important;box-sizing:border-box!important;min-height:40px}
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-options{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-options label{min-width:0!important}
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-options input,
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-options select{width:100%!important;min-width:0!important;box-sizing:border-box!important;min-height:40px}
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
