@@ -354,6 +354,18 @@
 .breaker-card.pc-selected .pc-hvac-tonnage label{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;margin:0!important;font-size:13px!important;font-weight:700!important}
 .breaker-card.pc-selected .pc-hvac-tonnage select{margin:0!important;min-height:40px!important;min-width:200px!important;padding:6px 10px!important;box-sizing:border-box!important}
 @media(max-width:560px){.breaker-card.pc-selected .pc-hvac-tonnage label,.breaker-card.pc-selected .pc-hvac-tonnage select{width:100%!important;min-width:0!important}}
+
+/* Compact, aligned HVAC editor: nameplate row, estimate row, then actions. */
+@media(min-width:561px){
+ .breaker-card.pc-selected>.mini-grid{row-gap:8px!important;align-content:start!important;grid-auto-rows:min-content!important}
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-options{grid-column:1/-1!important;grid-row:auto!important;margin:0!important;padding:12px!important;align-content:start!important}
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-tonnage{grid-column:1/-1!important;grid-row:auto!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:end!important;gap:8px 12px!important;margin:0!important;padding:10px 12px 0!important;border-top:1px solid #dce4ee!important}
+ .breaker-card.pc-selected .pc-hvac-tonnage .pc-hvac-estimate-heading{grid-column:1/-1!important;margin:0!important}
+ .breaker-card.pc-selected .pc-hvac-tonnage label{grid-column:1!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:6px!important;min-width:0!important}
+ .breaker-card.pc-selected .pc-hvac-tonnage select{width:100%!important;min-width:0!important;min-height:40px!important}
+ .breaker-card.pc-selected>.mini-grid>.pc-hvac-status{grid-column:1/-1!important;grid-row:auto!important;padding:2px 12px 4px!important;margin:0!important;min-height:0!important}
+ .breaker-card.pc-selected>.pc-breaker-actions{position:static!important;padding:0 12px 10px!important;margin:0!important;min-height:0!important}
+}
 </style>
 </head>
 <body>
