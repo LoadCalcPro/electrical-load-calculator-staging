@@ -971,8 +971,8 @@ function pcHvacTonnageVa(tons){
 }
 function pcHvacDesignVolts(){return Number(($('pcVoltage').value||'120/240').split('/').pop())||240}
 function pcHvacEstimatedCurrent(p){const v=pcHvacDesignVolts();return Number(p.load)>0?Number(p.load)/v:0}
-function pcHvacEstimatedMinimum(p){const amps=pcHvacEstimatedCurrent(p)*1.25;return pcBreakerRatings.find(x=>x>=amps)||Math.ceil(amps)}
-function pcHvacDesignWire(p){const amps=pcHvacEstimatedCurrent(p)*1.25;const i=pcWireAmpacity.findIndex(x=>x>=amps);return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i]}
+function pcHvacEstimatedMinimum(p){const amps=Math.max(15,pcHvacEstimatedCurrent(p)*1.25);return pcBreakerRatings.find(x=>x>=amps)||Math.ceil(amps)}
+function pcHvacDesignWire(p){const amps=Math.max(15,pcHvacEstimatedCurrent(p)*1.25);const i=pcWireAmpacity.findIndex(x=>x>=amps);return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i]}
 function pcApplyHvacDesignSizing(p){
  if(pcSemanticCategory(p)!=='hvac'||!(Number(p.load)>0))return false;
  const mca=Number(p.hvacMca)||0,mocp=Number(p.hvacMocp)||0;
