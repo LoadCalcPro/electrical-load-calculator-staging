@@ -144,6 +144,7 @@
   body.pc-print-no-header #panelcalc .pc-print-header{display:none!important}
   body.pc-print-name-only #panelcalc .pc-print-header{display:block!important}
   body.pc-print-name-only #panelcalc .pc-print-header-grid{display:none!important}
+  body.pc-print-header-only #panelcalc .pc-print-header h2{display:none!important}
   body.pc-print-no-phase #panelcalc .pc-live-table .pc-phase{display:none!important}
   body.pc-print-no-wire #panelcalc .pc-live-table .pc-wire{display:none!important}
   body.pc-print-no-totals #panelcalc .pc-live-table tfoot{display:none!important}
@@ -676,15 +677,16 @@ function resetActivePanel(){
 }
 function applyPanelPrintOptions(){
   const body=document.body;
-  ['pc-print-no-header','pc-print-name-only','pc-print-no-phase','pc-print-no-wire','pc-print-no-totals','pc-print-no-summary','pc-print-summary','pc-print-basic'].forEach(x=>body.classList.remove(x));
+  ['pc-print-no-header','pc-print-name-only','pc-print-header-only','pc-print-no-phase','pc-print-no-wire','pc-print-no-totals','pc-print-no-summary','pc-print-summary','pc-print-basic'].forEach(x=>body.classList.remove(x));
   if(!$('pcPrintHeader')?.checked)body.classList.add('pc-print-no-header');
   if(!$('pcPrintHeader')?.checked&&$('pcPrintName')?.checked)body.classList.add('pc-print-name-only');
+  if($('pcPrintHeader')?.checked&&!$('pcPrintName')?.checked)body.classList.add('pc-print-header-only');
   if(!$('pcPrintPhase')?.checked)body.classList.add('pc-print-no-phase','pc-print-basic');
   if(!$('pcPrintWire')?.checked)body.classList.add('pc-print-no-wire','pc-print-basic');
   if(!$('pcPrintTotals')?.checked)body.classList.add('pc-print-no-totals');
   if($('pcPrintSummary')?.checked)body.classList.add('pc-print-summary');else body.classList.add('pc-print-no-summary');
   const name=$('pcName')?.value?.trim()||'Panel';
-  $('pcPrintPanelTitle').textContent=(!$('pcPrintHeader')?.checked&&$('pcPrintName')?.checked)?name.toUpperCase():name.toUpperCase()+' — PANEL SCHEDULE';
+  $('pcPrintPanelTitle').textContent=name.toUpperCase();
   const main=$('pcMainType').value==='mcb'?(($('pcMain').value||'—')+' A MCB'):'MLO';
   $('pcPrintHeaderGrid').innerHTML=
     '<div><strong>Location:</strong> '+esc($('pcLocation').value||'—')+'</div>'+
@@ -981,6 +983,7 @@ function pcWireOptions(p){
  p.wire=chosen;
  return pcWireSizes.slice(start).map(w=>'<option value="'+w+'"'+(w===chosen?' selected':'')+'>'+w+'</option>').join('')
 }
+function pcWireProtectionWarning(p){const cat=pcSemanticCategory(p),amps=Number(p.breaker)||0,wire=p.wire;if(!amps||!wire||cat==='motor'||cat==='hvac')return '';const min=pcMinimumWire(p);return pcWireSizes.indexOf(wire)<pcWireSizes.indexOf(min)?'Breaker '+amps+' A requires at least '+min+' copper for an ordinary branch circuit; selected '+wire+' is undersized.':''}
 function pcBreakerOptions(p){const ratings=pcBreakerRatings.includes(Number(p.breaker))?pcBreakerRatings:[...pcBreakerRatings,Number(p.breaker)].sort((a,b)=>a-b);return ratings.map(a=>'<option value="'+a+'"'+(a===Number(p.breaker)?' selected':'')+'>'+a+' A</option>').join('')}function pcHvacWireForMca(p){
  const mca=Number(p.hvacMca)||0;if(!mca)return p.wire||'#12';
  const i=pcWireAmpacity.findIndex(a=>a>=mca);return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i]
