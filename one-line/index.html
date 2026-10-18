@@ -81,6 +81,23 @@ function feederPath(a,b,w={}){
  // Connection ports are always on the equipment boundary. Gutter connections
  // default to the facing vertical edges, not to a shared feeder trunk.
  const sidePoint=(n,side,offset=0)=>{const z=bounds(n);const v=Math.max(-1,Math.min(1,Number(offset)||0));return side==='top'?{x:n.x+v*z.r,y:n.y-z.t}:side==='bottom'?{x:n.x+v*z.r,y:n.y+z.b}:side==='left'?{x:n.x-z.l,y:n.y+v*z.b}:{x:n.x+z.r,y:n.y+v*z.b};};
+ // User-chosen attachment sides override automatic wireway and bend routing.
+ // Route from a short outward stub on each enclosure, so the final segment
+ // approaches the selected face rather than crossing through the equipment.
+ if(w.fromSide&&w.toSide){
+   const P=sidePoint(a,w.fromSide,w.fromOffset),Q=sidePoint(b,w.toSide,w.toOffset);
+   const extend=(p,side)=>({x:p.x+(side==='right'?22:side==='left'?-22:0),y:p.y+(side==='bottom'?22:side==='top'?-22:0)});
+   const S=extend(P,w.fromSide),T=extend(Q,w.toSide);
+   const startVertical=w.fromSide==='top'||w.fromSide==='bottom';
+   const endVertical=w.toSide==='top'||w.toSide==='bottom';
+   let middle;
+   if(startVertical&&endVertical)middle=`V${(S.y+T.y)/2}H${T.x}V${T.y}`;
+   else if(!startVertical&&!endVertical)middle=`H${(S.x+T.x)/2}V${T.y}H${T.x}`;
+   else if(startVertical)middle=`V${T.y}H${T.x}`;
+   else middle=`H${T.x}V${T.y}`;
+   const d=`M${P.x} ${P.y}L${S.x} ${S.y}${middle}L${Q.x} ${Q.y}`;
+   return {d,lx:(S.x+T.x)/2+8,ly:(S.y+T.y)/2-8,handle:null};
+ }
  const gutterPair=a.type==='gutter'||b.type==='gutter';
  if(gutterPair && (style==='auto'||style==='straight'||style==='bend')){
    const upper=a.y<=b.y?a:b,lower=upper===a?b:a;
