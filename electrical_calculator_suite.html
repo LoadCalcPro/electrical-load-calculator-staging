@@ -1463,7 +1463,7 @@ function pcOptional22082(){
 }
 function pcOptionalHvac22082C(parts){
  const hv=parts.filter(p=>pcSemanticCategory(p)==='hvac'),connected=hv.reduce((s,p)=>s+(Number(p.load)||0),0);
- let cooling=0,heatPump=0,hpSupplemental=0,spaceHeat=0,heatUnits=0;
+ let cooling=0,heatPump=0,hpSupplemental=0,spaceHeat=0,heatUnits=0,commonAirHandler=0;
  hv.forEach(p=>{
   const base=Number(p.load)||0,cool=Number(p.hvacCool)||0,heat=Number(p.hvacHeat)||0,aux=Number(p.hvacAux)||0;
   if(p.hvacType==='ac'){
@@ -1473,12 +1473,14 @@ function pcOptionalHvac22082C(parts){
    // An AHU load is not itself A/C compressor load. Its electric-heat detail belongs
    // to the space-heating option; any remaining entered AHU load is not copied into cooling.
    if(heat>0){spaceHeat+=heat;heatUnits++}
+   commonAirHandler+=Math.max(0,base-heat);
   }else if(p.hvacType==='heat-pump'){
    const comp=cool>0?cool:base;
+   heatPump+=comp;
    if(aux>0){
     if(p.hvacAuxWithCompressor==='yes')hpSupplemental+=comp+.65*aux;
     else hpSupplemental+=.65*aux;
-   }else heatPump+=comp;
+   }
   }else if(p.hvacType==='heat'){
    const h=heat>0?heat:base;if(h>0){spaceHeat+=h;heatUnits++}
   }else if(p.hvacType==='packaged'){
@@ -1490,6 +1492,7 @@ function pcOptionalHvac22082C(parts){
  });
  const factor=heatUnits>=4?.40:.65,heatDemand=spaceHeat*factor,choices=[[cooling,'A/C 100%'],[heatPump,'heat pump 100%'],[hpSupplemental,'heat-pump heating option'],[heatDemand,'heat '+Math.round(factor*100)+'%']];
  const best=choices.reduce((x,y)=>y[0]>x[0]?y:x,[0,'no HVAC load']);
+ best[0]+=commonAirHandler;
  const comparison='220.82(C): A/C 100% = '+fmt(cooling,0)+' VA; heat '+Math.round(factor*100)+'% = '+fmt(heatDemand,0)+' VA'+(heatPump>0?'; heat pump 100% = '+fmt(heatPump,0)+' VA':'')+(hpSupplemental>0?'; heat-pump heating option = '+fmt(hpSupplemental,0)+' VA':'')+' → '+fmt(best[0],0)+' VA used ('+best[1]+')';
  return{connected,demand:Math.round(best[0]),treatment:comparison};
 }
