@@ -727,7 +727,7 @@ $('mainSiteButton').addEventListener('click',()=>{window.location.href='index.ht
 $('calculatorsButton').addEventListener('click',()=>{window.location.href='staging-member-dashboard.html'});
 $('printSaveToggle').addEventListener('click',()=>{const menu=$('printSaveMenu'),open=menu.hidden;menu.hidden=!open;$('printSaveToggle').setAttribute('aria-expanded',String(open));$('printSaveToggle').textContent=open?'Print / Save ▴':'Print / Save ▾'});
 function pcUpdateSaveControls(){const supported=activePanel()?.id==='panelcalc';$('saveCalculationButton').disabled=!supported;$('openPreviousButton').disabled=!supported}
-$('saveCalculationButton').addEventListener('click',()=>{if(activePanel()?.id!=='panelcalc')return;const filename=($('pcName').value.trim()||'Panel-Loads').replace(/[^a-z0-9_-]+/gi,'-').replace(/^-|-$/g,'').slice(0,90)||'Panel-Loads';const data={format:'loadcalcprox',version:1,calculator:'panelcalc',savedAt:new Date().toISOString(),data:pcSnapshot()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename+'.loadcalcx';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)});
+$('saveCalculationButton').addEventListener('click',()=>{if(activePanel()?.id!=='panelcalc')return;const filename=($('pcName').value.trim()||'Panel-Loads').replace(/[^a-z0-9_-]+/gi,'-').replace(/^-|-$/g,'').slice(0,90)||'Panel-Loads';const data={format:'loadcalcprox',version:1,calculator:'panelcalc',savedAt:new Date().toISOString(),calculatorVersion:'1.0',necEdition:null,data:pcSnapshot()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename+'.loadcalcx';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)});
 $('openPreviousButton').addEventListener('click',()=>{if(activePanel()?.id==='panelcalc')$('openCalculationFile').click()});
 $('openCalculationFile').addEventListener('change',async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{if(file.size>5*1024*1024)throw Error('File exceeds 5 MB');const obj=JSON.parse(await file.text());if(obj.format!=='loadcalcprox'||obj.version!==1||obj.calculator!=='panelcalc'||!obj.data||!Array.isArray(obj.data.assemblies))throw Error('This is not a supported Panel Loads calculation file');if(!confirm('Open '+file.name+'? This will replace the current panel calculation. Save your current work first if needed.'))return;if(!restorePanel(obj.data))throw Error('Unable to restore the calculation');pcSelectedId=null;renderPanel();savePanel()}catch(err){alert('Could not open calculation: '+err.message)}});
 $('printPdfButton').addEventListener('click',printActivePanel);
@@ -1486,7 +1486,7 @@ function pcOptionalHvac22082C(parts){
  const comparison='220.82(C): A/C 100% = '+fmt(cooling,0)+' VA; heat '+Math.round(factor*100)+'% = '+fmt(heatDemand,0)+' VA'+(heatPump>0?'; heat pump 100% = '+fmt(heatPump,0)+' VA':'')+(hpSupplemental>0?'; heat-pump heating option = '+fmt(hpSupplemental,0)+' VA':'')+' → '+fmt(best[0],0)+' VA used ('+best[1]+')';
  return{connected,demand:Math.round(best[0]),treatment:comparison};
 }
-function pcHvacSystemMode(sys){const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>pcSemanticCategory(p)==='hvac'&&String(p.hvacSystem||'')===String(sys));const modes=new Set(parts.map(p=>p.hvacSimultaneous).filter(v=>v==='yes'||v==='no'));return modes.size===1?Array.from(modes)[0]:'unknown'}
+function pcHvacSystemMode(sys){const parts=pcAssemblies.flatMap(a=>a.parts).filter(p=>pcSemanticCategory(p)==='hvac'&&String(p.hvacSystem||'')===String(sys));const modes=new Set(parts.map(p=>p.hvacSimultaneous));return parts.length>0&&modes.size===1&&['yes','no'].includes(parts[0].hvacSimultaneous)?parts[0].hvacSimultaneous:'unknown'}
 function pcSetHvacSystemMode(sys,mode){pcAssemblies.forEach(a=>a.parts.forEach(p=>{if(pcSemanticCategory(p)==='hvac'&&String(p.hvacSystem||'')===String(sys))p.hvacSimultaneous=mode}))}
 // NEC 220.60: only verified, fully separated heating/cooling branches are reduced.
 // Complex equipment stays at connected load pending equipment-specific evaluation.
@@ -1507,8 +1507,8 @@ function pcCommercialHvacDemand(){
    // cannot safely be separated using the single circuit VA alone.
    if(Number(p.hvacAux)>0||Number(p.hvacHeat)>0||Number(p.hvacCool)>0||['heat-pump','packaged'].includes(type)||Number(p.hvacAuxWithCompressor==='yes')){uncertain=true;return}
    if(type==='heat'||/electric heat/.test(name))heat+=v;
+   else if(type==='air-handler'||/air handling|air handler/.test(name))common+=v;
    else if(type==='ac'||/condensing unit/.test(name))cool+=v;
-   else if(type==='air-handler'||/air handling/.test(name))common+=v;
    else uncertain=true;
   });
   if(uncertain){complex=true;demand+=connected}
