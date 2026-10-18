@@ -1437,10 +1437,17 @@ function pcHvac22060(){
     if(!cool&&!heat)common+=base;
    }
   });
-  const coolOption=common+cooling,heatOption=common+heating,used=Math.max(coolOption,heatOption,coincident);
+  const coolOption=common+cooling,heatOption=common+heating;
+  // Do not apply 220.60 reduction without confirmed noncoincident operation.
+  // Heat-pump/auxiliary combinations are conservatively retained at connected VA
+  // until their exact operating sequence can be established.
+  const mode=key.startsWith('system-')?pcHvacSystemMode(key.slice(7)):'unknown';
+  const complex=group.some(p=>['heat-pump','packaged'].includes(p.hvacType)||Number(p.hvacAux)>0||Number(p.hvacAuxWithCompressor==='yes'));
+  const groupConnected=group.reduce((sum,p)=>sum+(Number(p.load)||0),0);
+  const used=mode==='no'&&!complex?Math.max(coolOption,heatOption,coincident):Math.max(groupConnected,coolOption,heatOption,coincident);
   demand+=used;
   const label=key.startsWith('system-')?'System '+key.slice(7)+': ':'';
-  treatments.push(label+'220.60 cooling = '+fmt(coolOption,0)+' VA vs heating = '+fmt(heatOption,0)+' VA'+(coincident>0?' vs coincident heat-pump option = '+fmt(coincident,0)+' VA':'')+' → '+fmt(used,0)+' VA used');
+  treatments.push(label+(mode==='no'&&!complex?'220.60 confirmed noncoincident':'Simultaneous/unconfirmed or complex HVAC — conservative')+'; cooling = '+fmt(coolOption,0)+' VA vs heating = '+fmt(heatOption,0)+' VA'+(coincident>0?' vs coincident heat-pump option = '+fmt(coincident,0)+' VA':'')+' → '+fmt(used,0)+' VA used');
  });
  return{connected,demand:Math.round(demand),largestMotorAc,treatment:treatments.join('; ')||'—'};
 }
