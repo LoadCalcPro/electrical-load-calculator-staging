@@ -31,7 +31,8 @@ main>.panel:first-child>.hint:first-of-type{display:none}
  }
  function ladderPosition(a){if(!a)return null;if(a.kind==='coil'){const n=nodes.find(z=>z.id===a.id);return n?{x:n.x+(a.side==='left'?-44:44)*(Number(n.scaleX)||1),y:n.y}:null;}if(a.kind==='rail'){const l=drawnLines.find(z=>z.id===a.id);return l?{x:l.x1,y:l.y1+(l.y2-l.y1)*a.yRatio}:null;}return null;}
  function attachLadderEnd(l,end,pt){const a=ladderAttachment(pt);l[end==='start'?'attachStart':'attachEnd']=a;const p=ladderPosition(a);if(p){l[end==='start'?'x1':'x2']=p.x;l[end==='start'?'y1':'y2']=p.y;}}
- function syncLadderLines(){for(const l of drawnLines){const coilEnd=[l.attachStart,l.attachEnd].find(a=>a?.kind==='coil'),coil=coilEnd&&nodes.find(n=>n.id===coilEnd.id);for(const [key,x,y] of [['attachStart','x1','y1'],['attachEnd','x2','y2']]){const p=ladderPosition(l[key]);if(p){l[x]=p.x;l[y]=p.y;if(coil&&l[key]?.kind==='rail'){const rail=drawnLines.find(r=>r.id===l[key].id);if(rail){const top=Math.min(rail.y1,rail.y2),bottom=Math.max(rail.y1,rail.y2);l[y]=Math.max(top,Math.min(bottom,coil.y));}}}}}}
+ function syncLadderLines(){for(const l of drawnLines){const coilAttach=[l.attachStart,l.attachEnd].find(a=>a?.kind==='coil');const coil=coilAttach&&nodes.find(n=>n.id===coilAttach.id);for(const [key,x,y] of [['attachStart','x1','y1'],['attachEnd','x2','y2']]){const p=ladderPosition(l[key]);if(p){l[x]=p.x;l[y]=p.y;}}if(coil){for(const [key,y] of [['attachStart','y1'],['attachEnd','y2']]){if(l[key]?.kind==='rail'){const rail=drawnLines.find(r=>r.id===l[key].id);if(rail){l[y]=coil.y;l[key].yRatio=Math.abs(rail.y2-rail.y1)>0.01?(coil.y-rail.y1)/(rail.y2-rail.y1):0;}}}l.y1=coil.y;l.y2=coil.y;}}}
+
  function snapPoint(pt,anchor=null){
   if(!snapOn)return pt;
   // Snap to the closest point anywhere on an enclosure edge, not just its midpoint.
