@@ -21,8 +21,12 @@
   }
   if(distance<15)return best;
   if(anchor){if(Math.abs(pt.y-anchor.y)<12)best.y=anchor.y;if(Math.abs(pt.x-anchor.x)<12)best.x=anchor.x;}
+  // Snap to a complete nearby endpoint only. Never borrow X and Y separately
+  // from unrelated lines: that can pull a polyline back toward its first point.
+  let endpointDistance=9;
   for(const l of drawnLines){for(const p of [{x:l.x1,y:l.y1},{x:l.x2,y:l.y2}]){
-   if(Math.abs(pt.x-p.x)<9)best.x=p.x;if(Math.abs(pt.y-p.y)<9)best.y=p.y;
+   const d=Math.hypot(pt.x-p.x,pt.y-p.y);
+   if(d<endpointDistance){endpointDistance=d;best={x:p.x,y:p.y};}
   }}
   return best;
  }
