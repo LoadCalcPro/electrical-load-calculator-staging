@@ -1427,8 +1427,8 @@ function pcHvac22060(){
     heating+=heat>0?heat:base;
    }else if(p.hvacType==='heat-pump'){
     const comp=cool>0?cool:base;largestMotorAc=Math.max(largestMotorAc,comp);
-    if(p.hvacAuxWithCompressor==='yes')coincident+=comp+aux;
-    else{cooling+=comp;heating+=Math.max(heat,aux)}
+    if(p.hvacAuxWithCompressor==='no'){cooling+=comp;heating+=Math.max(heat,aux)}
+    else coincident+=comp+Math.max(heat,aux); // yes or unspecified
    }else if(p.hvacType==='packaged'){
     const ac=cool>0?cool:base;cooling+=ac;largestMotorAc=Math.max(largestMotorAc,ac);heating+=heat;
    }else{
@@ -1444,7 +1444,7 @@ function pcHvac22060(){
   const mode=key.startsWith('system-')?pcHvacSystemMode(key.slice(7)):'unknown';
   const complex=group.some(p=>['heat-pump','packaged'].includes(p.hvacType)||Number(p.hvacAux)>0||Number(p.hvacAuxWithCompressor==='yes'));
   const groupConnected=group.reduce((sum,p)=>sum+(Number(p.load)||0),0);
-  const used=mode==='no'&&!complex?Math.max(coolOption,heatOption,coincident):Math.max(groupConnected,coolOption,heatOption,coincident);
+  const used=mode==='no'&&!complex?Math.max(coolOption,heatOption,coincident):Math.max(groupConnected,coolOption,heatOption,coincident+common,cooling+heating+common);
   demand+=used;
   const label=key.startsWith('system-')?'System '+key.slice(7)+': ':'';
   treatments.push(label+(mode==='no'&&!complex?'220.60 confirmed noncoincident':'Simultaneous/unconfirmed or complex HVAC — conservative')+'; cooling = '+fmt(coolOption,0)+' VA vs heating = '+fmt(heatOption,0)+' VA'+(coincident>0?' vs coincident heat-pump option = '+fmt(coincident,0)+' VA':'')+' → '+fmt(used,0)+' VA used');
@@ -1478,8 +1478,8 @@ function pcOptionalHvac22082C(parts){
    const comp=cool>0?cool:base;
    heatPump+=comp;
    if(aux>0){
-    if(p.hvacAuxWithCompressor==='yes')hpSupplemental+=comp+.65*aux;
-    else hpSupplemental+=.65*aux;
+    if(p.hvacAuxWithCompressor==='no')hpSupplemental+=.65*aux;
+    else hpSupplemental+=comp+.65*aux; // yes or unspecified: conservative simultaneous assumption
    }
   }else if(p.hvacType==='heat'){
    const h=heat>0?heat:base;if(h>0){spaceHeat+=h;heatUnits++}
