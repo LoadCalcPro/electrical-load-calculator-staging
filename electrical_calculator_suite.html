@@ -978,7 +978,7 @@ function pcApplyEvSuggestedCircuit(p){
 }
 function pcWireOptions(p){
  // Enforce the minimum on every editor render, including previously saved circuits.
- const min=pcSemanticCategory(p)==='hvac'?(Number(p.hvacMca)>0?pcHvacWireForMca(p):(Number(p.load)>0?pcHvacDesignWire(p):pcMinimumWire(p))):pcMinimumWire(p),start=Math.max(0,pcWireSizes.indexOf(min));
+ const min=pcSemanticCategory(p)==='hvac'?(Number(p.hvacMca)>0?pcHvacWireForMca(p):(pcHvacReference(p)?pcHvacWireForMca({hvacMca:pcHvacReference(p).mca}):(Number(p.load)>0?pcHvacDesignWire(p):pcMinimumWire(p)))):pcMinimumWire(p),start=Math.max(0,pcWireSizes.indexOf(min));
  const chosen=pcWireSizes.indexOf(p.wire)>=start?p.wire:min;
  p.wire=chosen;
  return pcWireSizes.slice(start).map(w=>'<option value="'+w+'"'+(w===chosen?' selected':'')+'>'+w+'</option>').join('')
@@ -1007,26 +1007,44 @@ function pcHvacTonnageVa(tons){
  const commercialSizes=[7.5,10,12.5,15,17.5,20,25];
  return commercialSizes.includes(tons)?Math.ceil((tons*12000/9)/pcHvacPlanningPowerFactor/100)*100:0
 }
+// Published Carrier 26SCA5 208/230 V single-phase condensing-unit data.
+// Size (nominal BTU/h / 1000), MCA, maximum fuse or circuit-breaker amperes.
+// https://device.report/manual/17441120
+// Reference values are preliminary only, never actual equipment nameplate ratings.
+const pcHvacCarrier26SCA5={1.5:[10.9,15],2:[13.6,20],2.5:[16.5,25],3:[17.6,30],3.5:[22.7,35],4:[29.1,40],5:[31.1,50]};
+function pcHvacReference(p){
+ const volts=pcHvacDesignVolts();
+ const poles=Number(p.poles)||Number(p.pole)||2;
+ if(!['ac','heat-pump'].includes(p.hvacType)||poles!==2||![208,230,240].includes(volts))return null;
+ const data=pcHvacCarrier26SCA5[Number(p.hvacTons)];
+ return data?{mca:data[0],max:data[1]}:null
+}
+function pcHvacPreliminaryBreaker(p){
+ const reference=pcHvacReference(p);
+ if(reference)return reference.max; // published maximum, preliminary selection only
+ return pcHvacEstimatedMinimum(p)
+}
 function pcHvacDesignVolts(){return Number(($('pcVoltage').value||'120/240').split('/').pop())||240}
-function pcHvacEstimatedCurrent(p){const v=pcHvacDesignVolts(),phase=$('pcPhase').value;return Number(p.load)>0?Number(p.load)/(phase==='3'?Math.sqrt(3)*v:v):0}
+function pcHvacEstimatedCurrent(p){const v=pcHvacDesignVolts(),phase=$('pcPhase').value,poles=Number(p.poles)||Number(p.pole)||2;return Number(p.load)>0?Number(p.load)/(phase==='3'&&poles===3?Math.sqrt(3)*v:v):0}
 function pcHvacEstimatedMinimum(p){const amps=Math.max(15,pcHvacEstimatedCurrent(p)*1.25);return pcBreakerRatings.find(x=>x>=amps)||Math.ceil(amps)}
 function pcHvacDesignWire(p){const amps=Math.max(15,pcHvacEstimatedCurrent(p)*1.25);const i=pcWireAmpacity.findIndex(x=>x>=amps);return i<0?pcWireSizes[pcWireSizes.length-1]:pcWireSizes[i]}
 function pcApplyHvacDesignSizing(p){
- if(pcSemanticCategory(p)!=='hvac'||!(Number(p.load)>0))return false;
+ if(pcSemanticCategory(p)!=='hvac')return false;
  const mca=Number(p.hvacMca)||0,mocp=Number(p.hvacMocp)||0;
- if(mca){pcApplyHvacNameplateSizing(p);return true}
- const minimum=pcHvacEstimatedMinimum(p);
- if(!p.hvacBreakerManual||Number(p.breaker)<minimum)p.breaker=minimum;
- const wire=pcHvacDesignWire(p);
+ if(mca||mocp)return pcApplyHvacNameplateSizing(p);
+ if(!(Number(p.load)>0))return false;
+ const reference=pcHvacReference(p);
+ const minimum=reference?reference.max:pcHvacEstimatedMinimum(p);
+ if(!p.hvacBreakerManual||!Number(p.breaker))p.breaker=minimum;
+ const wire=reference?pcHvacWireForMca({hvacMca:reference.mca}):pcHvacDesignWire(p);
  if(!p.hvacWireManual||pcWireSizes.indexOf(p.wire)<pcWireSizes.indexOf(wire))p.wire=wire;
- if(mocp&&p.breaker>mocp)$('pcWarning').textContent='Preliminary breaker requirement exceeds entered nameplate maximum OCPD; verify equipment data.';
  return true
 }
 function pcApplyHvacNameplateSizing(p){
- const mca=Number(p.hvacMca)||0,mocp=Number(p.hvacMocp)||0;if(!mca&&!mocp)return false;
+ const mca=Number(p.hvacMca)||0,mocp=Number(p.hvacMocp)||0;
+ if(!mca&&!mocp)return false;
  if(mca){const minWire=pcHvacWireForMca(p);if(!p.hvacWireManual||pcWireSizes.indexOf(p.wire)<pcWireSizes.indexOf(minWire))p.wire=minWire}
- // MCA sizes conductors, not the breaker. The actual breaker is selected from equipment nameplate data.
- // Never silently replace a user's breaker choice with the MOCP value.
+ if(mocp&&!p.hvacBreakerManual){const allowed=pcBreakerRatings.filter(x=>x<=mocp&&x>=15);if(allowed.length)p.breaker=allowed[allowed.length-1]}
  return true
 }
 
