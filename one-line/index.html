@@ -161,6 +161,17 @@ function feederPath(a,b,w={}){
  // Connection ports are always on the equipment boundary. Gutter connections
  // default to the facing vertical edges, not to a shared feeder trunk.
  const sidePoint=(n,side,offset=0)=>{if(n.equipmentSubtype&&n.equipmentSubtype.includes('Coil')&&(side==='left'||side==='right'))return {x:n.x+(side==='left'?-44:44)*(Number(n.scaleX)||1),y:n.y};const z=bounds(n);const v=Math.max(-1,Math.min(1,Number(offset)||0));return side==='top'?{x:n.x+v*z.r,y:n.y-z.t}:side==='bottom'?{x:n.x+v*z.r,y:n.y+z.b}:side==='left'?{x:n.x-z.l,y:n.y+v*z.b}:{x:n.x+z.r,y:n.y+v*z.b};};
+ // Above/below routes take precedence over generic attachment-side routing.
+ // Both endpoints stay on the corresponding enclosure edge, even after dragging.
+ if(style==='up'||style==='down'){
+   const side=style==='up'?'top':'bottom';
+   const P=sidePoint(a,side,w.fromOffset),Q=sidePoint(b,side,w.toOffset);
+   const edge=style==='up'?Math.min(a.y-A.t,b.y-B.t):Math.max(a.y+A.b,b.y+B.b);
+   const preferred=style==='up'?edge-55:edge+55;
+   const requested=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):preferred;
+   const level=style==='up'?Math.max(24,Math.min(requested,edge-12)):Math.min(676,Math.max(requested,edge+12));
+   return {d:`M${P.x} ${P.y}V${level}H${Q.x}V${Q.y}`,lx:(P.x+Q.x)/2+7,ly:level-8,handle:{x:(P.x+Q.x)/2,y:level,axis:'y'}};
+ }
  // User-chosen attachment sides override automatic wireway and bend routing.
  // Route from a short outward stub on each enclosure, so the final segment
  // approaches the selected face rather than crossing through the equipment.
