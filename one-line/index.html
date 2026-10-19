@@ -221,8 +221,9 @@ function feederPath(a,b,w={}){
    const P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
    const verticalEnds=(fs==='top'||fs==='bottom')&&(ts==='top'||ts==='bottom');
    const horizontalEnds=(fs==='left'||fs==='right')&&(ts==='left'||ts==='right');
-   const defaultLevel=style==='up'?Math.max(24,Math.min(P.y,Q.y)-55):style==='down'?Math.min(676,Math.max(P.y,Q.y)+55):(P.y+Q.y)/2;
-   const level=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):defaultLevel;
+   const defaultLevel=style==='up'?Math.max(24,Math.min(a.y-A.t,b.y-B.t)-55):style==='down'?Math.min(676,Math.max(a.y+A.b,b.y+B.b)+55):(P.y+Q.y)/2;
+   const requestedLevel=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):defaultLevel;
+   const level=style==='up'?Math.max(24,Math.min(requestedLevel,Math.min(a.y-A.t,b.y-B.t)-12)):style==='down'?Math.min(676,Math.max(requestedLevel,Math.max(a.y+A.b,b.y+B.b)+12)):requestedLevel;
    const d=verticalEnds?`M${P.x} ${P.y}V${level}H${Q.x}V${Q.y}`:horizontalEnds?`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`:`M${P.x} ${P.y}V${Q.y}H${Q.x}`;
    return {d,lx:(P.x+Q.x)/2+8,ly:verticalEnds?level-8:(P.y+Q.y)/2-8,handle:verticalEnds?{x:(P.x+Q.x)/2,y:level,axis:'y'}:null};
  }
