@@ -212,6 +212,19 @@ function feederPath(a,b,w={}){
    return {d:path,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-8,handle:null};
  }
 
+ // Attachment offsets must also work with automatic, above, and below routes.
+ // Previously these route styles ignored the position controls entirely.
+ if((w.fromOffset!=null&&Number(w.fromOffset)!==0)||(w.toOffset!=null&&Number(w.toOffset)!==0)){
+   const fs=w.fromSide||(style==='up'?'top':style==='down'?'bottom':Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'bottom':'top'));
+   const ts=w.toSide||(style==='up'?'top':style==='down'?'bottom':Math.abs(dx)>Math.abs(dy)?(dx>0?'left':'right'):(dy>0?'top':'bottom'));
+   const P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
+   const verticalEnds=(fs==='top'||fs==='bottom')&&(ts==='top'||ts==='bottom');
+   const horizontalEnds=(fs==='left'||fs==='right')&&(ts==='left'||ts==='right');
+   const defaultLevel=style==='up'?Math.max(24,Math.min(P.y,Q.y)-55):style==='down'?Math.min(676,Math.max(P.y,Q.y)+55):(P.y+Q.y)/2;
+   const level=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):defaultLevel;
+   const d=verticalEnds?`M${P.x} ${P.y}V${level}H${Q.x}V${Q.y}`:horizontalEnds?`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`:`M${P.x} ${P.y}V${Q.y}H${Q.x}`;
+   return {d,lx:(P.x+Q.x)/2+8,ly:verticalEnds?level-8:(P.y+Q.y)/2-8,handle:verticalEnds?{x:(P.x+Q.x)/2,y:level,axis:'y'}:null};
+ }
  if(style==='vertical-first'||style==='horizontal-first'){
    const verticalFirst=style==='vertical-first';
    const P=verticalFirst?sidePoint(a,b.y>=a.y?'bottom':'top'):sidePoint(a,b.x>=a.x?'right':'left');
