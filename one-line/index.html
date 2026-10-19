@@ -164,13 +164,18 @@ function feederPath(a,b,w={}){
  // Above/below routes take precedence over generic attachment-side routing.
  // Both endpoints stay on the corresponding enclosure edge, even after dragging.
  if(style==='up'||style==='down'){
-   const side=style==='up'?'top':'bottom';
-   const P=sidePoint(a,side,w.fromOffset),Q=sidePoint(b,side,w.toOffset);
+   const defaultSide=style==='up'?'top':'bottom',fs=w.fromSide||defaultSide,ts=w.toSide||defaultSide;
+   const P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
+   const extend=(p,side)=>({x:p.x+(side==='left'?-18:side==='right'?18:0),y:p.y+(side==='top'?-18:side==='bottom'?18:0)});
+   const S=extend(P,fs),T=extend(Q,ts);
    const edge=style==='up'?Math.min(a.y-A.t,b.y-B.t):Math.max(a.y+A.b,b.y+B.b);
    const preferred=style==='up'?edge-55:edge+55;
    const requested=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):preferred;
    const level=style==='up'?Math.max(24,Math.min(requested,edge-12)):Math.min(676,Math.max(requested,edge+12));
-   return {d:`M${P.x} ${P.y}V${level}H${Q.x}V${Q.y}`,lx:(P.x+Q.x)/2+7,ly:level-8,handle:{x:(P.x+Q.x)/2,y:level,axis:'y'}};
+   // Side connections travel outward first, then around the enclosure to the shared route.
+   const begin=(fs==='top'||fs==='bottom')?`M${P.x} ${P.y}V${level}`:`M${P.x} ${P.y}H${S.x}V${level}`;
+   const finish=(ts==='top'||ts==='bottom')?`H${Q.x}V${Q.y}`:`H${T.x}V${T.y}H${Q.x}`;
+   return {d:begin+finish,lx:(S.x+T.x)/2+7,ly:level-8,handle:{x:(S.x+T.x)/2,y:level,axis:'y'}};
  }
  // User-chosen attachment sides override automatic wireway and bend routing.
  // Route from a short outward stub on each enclosure, so the final segment
