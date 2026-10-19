@@ -222,8 +222,8 @@ function feederPath(a,b,w={}){
  let d,lx,ly,handle=null;
  if(style==='up'||style==='down'){
   const up=style==='up',y1=a.y+(up?-A.t:A.b),y2=b.y+(up?-B.t:B.b),x1=a.x,x2=b.x;
-  const defaultY=up?Math.min(y1,y2)-55:Math.max(y1,y2)+55;
-  const mid=Math.max(18,Math.min(682,w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):defaultY));
+  const safeTop=24,safeBottom=676,preferred=55;const defaultY=up?Math.max(safeTop,Math.min(y1,y2)-preferred):Math.min(safeBottom,Math.max(y1,y2)+preferred);
+  const mid=Math.max(safeTop,Math.min(safeBottom,w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):defaultY));
   d=`M${x1} ${y1}V${mid}H${x2}V${y2}`;lx=(x1+x2)/2+7;ly=mid-8;handle={x:(x1+x2)/2,y:mid,axis:'y'};
  }else if(horizontal){
   const x1=a.x+(dx>0?A.r:-A.l),x2=b.x+(dx>0?-B.l:B.r),y=a.y;
