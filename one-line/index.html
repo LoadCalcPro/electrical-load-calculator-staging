@@ -313,10 +313,13 @@ function organizeEquipmentProperties(){
  if(hint?.classList.contains('status'))hint.remove();
  const designation=p.querySelector('[data-prop="name"]')?.closest('label')||p.querySelector('[data-prop="label"]')?.closest('label');
  if(designation)info.insertBefore(designation,size||null);
- const electricalKeys=['voltage','phase','amps','rating','fuseRating','interruptingRating','kva','kw'];
- for(const key of electricalKeys){const el=p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
+ const electricalKeys=['voltage','phase','amps','rating','mainType','kaic','interruptingRating','fuseRating','kva','kw','notes'];
+ for(const key of electricalKeys){const el=key==='mainType'?p.querySelector('[data-main-type]'):p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
  p.insertBefore(info,p.firstChild?.nextSibling||null);
  p.insertBefore(common,info.nextSibling);
+ const innerTextFields=Array.from(p.querySelectorAll('[data-inner-text]'));
+ for(const input of innerTextFields){const field=input.closest('label');if(!field)continue;const next=field.nextElementSibling;common.appendChild(field);if(next?.matches('details.equipment-category'))common.appendChild(next);}
+
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';
  const summary=document.createElement('summary');summary.textContent='Advanced Drawing Settings';advanced.appendChild(summary);
@@ -328,6 +331,10 @@ function organizeEquipmentProperties(){
  if(placementHeading)advanced.appendChild(placementHeading);
  if(top)advanced.appendChild(top);if(left)advanced.appendChild(left);
  if(rotation)advanced.appendChild(rotation);
+ for(const key of ['width','height']){const field=p.querySelector('[data-prop="'+key+'"]')?.closest('label');if(field)advanced.appendChild(field);}
+ for(const attr of ['data-weight-style','data-weight-custom']){const field=p.querySelector('['+attr+']')?.closest('label');if(field)advanced.appendChild(field);}
+ const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
+ if(drawingHint)advanced.appendChild(drawingHint);
  if(advanced.children.length>1)p.appendChild(advanced);
 }
 function render(skipProperties=false){$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','meterbank','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g=`translate(${panX} ${panY}) scale(${zoom})`;$('sheetLayer').removeAttribute('transform');$('titleblock').removeAttribute('transform');$('personalImages').setAttribute('transform',g);$('personalImages').innerHTML=personalImages.map(im=>`<g data-personal-image="${im.kind}"><image href="${im.src}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="xMidYMid meet"/><rect x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" fill="transparent" stroke="none"/></g>`).join('');$('wires').setAttribute('transform',g);$('drawnLines').setAttribute('transform',g);$('nodes').setAttribute('transform',g);$('wires').innerHTML=wires.map(w=>{const a=nodes.find(n=>n.id===w.from),b=nodes.find(n=>n.id===w.to);if(!a||!b)return '';const route=feederPath(a,b,w);
