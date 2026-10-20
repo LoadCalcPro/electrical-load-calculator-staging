@@ -354,6 +354,7 @@ function organizeEquipmentProperties(){
   sync();
  }
 
+ p.querySelectorAll('input').forEach(el=>el.addEventListener('focus',()=>{const key=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;if(key&&defs.some(d=>d[0]===key)){activeInnerKey=key;toolbar.syncSelectedText?.();renderCanvasOnly();}}));
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
  const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';
