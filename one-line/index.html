@@ -337,6 +337,9 @@ function organizeEquipmentProperties(){
  const defs=item?[...(item._labelDefs||[]),['drawingLabel','Additional Label',item.drawingLabel||'',item.drawingLabelSize||12]]:[];
  const existing=p.querySelectorAll('[data-inner-text]');
  existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
+ // Remove the now-empty duplicate text editing section, not the equipment's actual properties.
+ for(const el of p.querySelectorAll('b,strong,h4')){if(el.textContent?.includes('All text inside this equipment')){const section=el.closest('.section')||el.parentElement;if(section&&section!==p)section.remove();}}
+
  if(item&&defs.length){
   if(!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=defs[0][0];
   const editor=document.createElement('div');editor.className='shared-text-editor';
