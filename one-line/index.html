@@ -44,14 +44,14 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:auto;min-height:0;flex:0 0 auto;aspect-ratio:10 / 7;overflow:hidden}
- body:has(.suite-header) #svg{width:100%;height:auto;aspect-ratio:10 / 7;display:block}
+ body:has(.suite-header) .viewport{height:auto;min-height:0;flex:0 0 auto;overflow:hidden}
+ body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
  body:has(.suite-header) main{display:block;height:auto;min-height:0}
  body:has(.suite-header) .workspace{height:auto;min-height:0}
- body:has(.suite-header) .viewport{height:auto;width:100%;aspect-ratio:10 / 7;overflow:visible}
- body:has(.suite-header) #svg{width:100%;height:auto;aspect-ratio:10 / 7;max-height:180mm}
+ body:has(.suite-header) .viewport{height:auto;width:100%;overflow:visible}
+ body:has(.suite-header) #svg{width:100%;height:auto;max-height:none}
 }
 
 .drawing-secondary-actions{display:flex;justify-content:flex-end;margin:0 0 8px}.drawing-secondary-actions #clear{background:#fff;color:#34445a;border:1px solid #bdcadb;border-radius:7px;padding:7px 12px;cursor:pointer}
