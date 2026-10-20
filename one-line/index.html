@@ -335,7 +335,7 @@ function organizeEquipmentProperties(){
  const item=nodes.find(n=>n.id===selected.id);
  const defs=item?[...(item._labelDefs||[]),['drawingLabel','Additional Label',item.drawingLabel||'',item.drawingLabelSize||12]]:[];
  const existing=p.querySelectorAll('[data-inner-text]');
- existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
+ existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field){field.classList.add('field');info.appendChild(field);}});
  if(item&&defs.length){
   if(!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=defs[0][0];
   const editor=document.createElement('div');editor.className='shared-text-editor';
@@ -356,7 +356,13 @@ function organizeEquipmentProperties(){
   sync();
  }
 
- p.querySelectorAll('input').forEach(el=>el.addEventListener('focus',()=>{const key=el.hasAttribute('data-common-label')?'drawingLabel':(el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY);if(key&&defs.some(d=>d[0]===key)){activeInnerKey=key;toolbar.syncSelectedText?.();renderCanvasOnly();}}));
+ p.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('focus',()=>{
+ const raw=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;
+ const fieldKey=el.dataset.prop||el.dataset.field||(el.hasAttribute('data-main-type')?'mainType':null);
+ const map={name:'name',voltage:'voltage',amps:'amps',rating:'rating',mainType:'panelMain',kaic:'panelKaic',kva:'kva',kw:'kw',fuseAmps:'fuseAmps'};
+ const key=el.hasAttribute('data-common-label')?'drawingLabel':(raw||(fieldKey?map[fieldKey]:null));
+ if(key&&defs.some(d=>d[0]===key)){activeInnerKey=key;toolbar.syncSelectedText?.();renderCanvasOnly();}
+}));
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
  const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';
