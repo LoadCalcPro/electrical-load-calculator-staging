@@ -363,6 +363,7 @@ function organizeEquipmentProperties(){
  const key=el.hasAttribute('data-common-label')?'drawingLabel':(raw||(fieldKey?map[fieldKey]:null));
  if(key&&defs.some(d=>d[0]===key)){activeInnerKey=key;toolbar.syncSelectedText?.();renderCanvasOnly();}
 }));
+ for(const attr of ['data-common-label-x','data-common-label-y','data-common-label-size']){const el=common.querySelector('['+attr+']');const field=el?.closest('label');if(field){const row=field.parentElement;field.remove();if(row?.classList.contains('row')&&!row.querySelector('label'))row.remove();}}
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
  const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';
