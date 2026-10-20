@@ -364,6 +364,15 @@ function organizeEquipmentProperties(){
  if(key&&defs.some(d=>d[0]===key)){activeInnerKey=key;toolbar.syncSelectedText?.();renderCanvasOnly();}
 }));
  for(const attr of ['data-common-label-x','data-common-label-y','data-common-label-size']){const el=common.querySelector('['+attr+']');const field=el?.closest('label');if(field){const row=field.parentElement;field.remove();if(row?.classList.contains('row')&&!row.querySelector('label'))row.remove();}}
+ // Keep the formatting target tied to the field the user actually selects.
+ for(const field of info.querySelectorAll('label.field')){
+  const input=field.querySelector('input,select,textarea');if(!input)continue;
+  const raw=input.dataset.innerText;
+  const attr=input.dataset.prop||(input.hasAttribute('data-main-type')?'mainType':null);
+  const aliases={name:['name','panelName','designation'],voltage:['voltage','panelVoltage'],amps:['amps','panelMain'],rating:['rating'],mainType:['panelMain','mainType'],kaic:['panelKaic','kaic'],fuseAmps:['fuseAmps']};
+  const key=input.hasAttribute('data-common-label')?'drawingLabel':(raw||(aliases[attr]||[attr]).find(k=>defs.some(d=>d[0]===k)));
+  if(key&&defs.some(d=>d[0]===key))input.addEventListener('pointerdown',()=>{activeInnerKey=key;toolbar.syncSelectedText?.();});
+ }
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
  const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';
