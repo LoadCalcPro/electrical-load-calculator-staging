@@ -332,7 +332,9 @@ function organizeEquipmentProperties(){
  if(top)advanced.appendChild(top);if(left)advanced.appendChild(left);
  if(rotation)advanced.appendChild(rotation);
  for(const key of ['width','height']){const field=p.querySelector('[data-prop="'+key+'"]')?.closest('label');if(field)advanced.appendChild(field);}
- for(const attr of ['data-weight-style','data-weight-custom']){const field=p.querySelector('['+attr+']')?.closest('label');if(field)advanced.appendChild(field);}
+ for(const attr of ['data-weight-style','data-weight-value']){const field=p.querySelector('['+attr+']')?.closest('label');if(field)advanced.appendChild(field);}
+ const weightStyle=advanced.querySelector('[data-weight-style]');const customThickness=advanced.querySelector('[data-weight-value]')?.closest('label');
+ if(weightStyle&&customThickness){const syncThickness=()=>{customThickness.hidden=weightStyle.value!=='custom';customThickness.style.display=weightStyle.value==='custom'?'':'none';};weightStyle.addEventListener('change',syncThickness);syncThickness();}
  const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
  if(drawingHint)advanced.appendChild(drawingHint);
  if(advanced.children.length>1){p.insertBefore(advanced,info);advanced.open=false;}
