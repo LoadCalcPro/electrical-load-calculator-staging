@@ -313,7 +313,7 @@ function organizeEquipmentProperties(){
  if(hint?.classList.contains('status'))hint.remove();
  const designation=p.querySelector('[data-prop="name"]')?.closest('label')||p.querySelector('[data-prop="label"]')?.closest('label');
  if(designation)info.insertBefore(designation,size||null);
- const electricalKeys=['voltage','phase','amps','rating','mainType','kaic','interruptingRating','fuseRating','kva','kw','notes'];
+ const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','kaic','interruptingRating','fuseRating','kva','kw','notes'];
  for(const key of electricalKeys){const el=key==='mainType'?p.querySelector('[data-main-type]'):p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
  p.insertBefore(info,p.firstChild?.nextSibling||null);
  p.insertBefore(common,info.nextSibling);
