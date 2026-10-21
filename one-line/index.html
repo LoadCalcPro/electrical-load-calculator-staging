@@ -416,8 +416,9 @@ function organizeEquipmentProperties(){
 
  if(item&&defs.length){
   if(!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=defs[0][0];
-  const editor=document.createElement('div');editor.className='shared-text-editor';
+  const editor=document.createElement('div');editor.className='shared-text-editor equipment-text-editor';
   editor.innerHTML='<div data-shared-selected class="shared-selected-label"></div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Position X<input data-shared-x type="number" step="1"></label><label class="field">Position Y<input data-shared-y type="number" step="1"></label></div>';
+  const equipmentGrid=editor.querySelector('.shared-text-grid');equipmentGrid.style.setProperty('display','grid','important');equipmentGrid.style.setProperty('grid-template-columns','minmax(0, 1fr) minmax(0, 1fr)','important');equipmentGrid.style.setProperty('gap','12px','important');for(const field of equipmentGrid.children){field.style.minWidth='0';field.style.width='100%';}
   common.appendChild(editor);
   const syncPalettes=makeColorRows(editor,
  ()=>activeInnerKey==='drawingLabel'?(item.drawingLabelColor||'#111111'):(item.textColors?.[activeInnerKey]||'#111111'),
