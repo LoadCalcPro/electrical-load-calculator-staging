@@ -281,6 +281,7 @@ function feederPath(a,b,w={}){
    }
    const nearVertical=(sourceSide==='top'||sourceSide==='bottom')&&(destSide==='top'||destSide==='bottom');
    const nearHorizontal=(sourceSide==='left'||sourceSide==='right')&&(destSide==='left'||destSide==='right');
+   if(nearVertical && Math.abs(P.x-Q.x)>1){const level=w.routeOffset!=null&&w.routeOffset!==''?Math.max(18,Math.min(682,Number(w.routeOffset))):(P.y+Q.y)/2;return {d:`M${P.x} ${P.y}V${level}H${Q.x}V${Q.y}`,lx:(P.x+Q.x)/2+8,ly:level-8,handle:{x:(P.x+Q.x)/2,y:level,axis:'y'}};}
    const path=(nearHorizontal&&Math.abs(P.y-Q.y)<1)?`M${P.x} ${P.y}H${Q.x}`:(nearHorizontal&&P.x!==Q.x)?`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`:(nearVertical && Math.abs(P.x-Q.x)<1)?`M${P.x} ${P.y}V${Q.y}`:(nearHorizontal&&Math.abs(P.y-Q.y)<1)?`M${P.x} ${P.y}H${Q.x}`:nearVertical?`M${P.x} ${P.y}V${(P.y+Q.y)/2}H${Q.x}V${Q.y}`:`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`;
    return {d:path,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-8,handle:null};
  }
