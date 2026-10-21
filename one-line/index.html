@@ -260,8 +260,9 @@ function feederPath(a,b,w={}){
  const gutterPair=a.type==='gutter'||b.type==='gutter';
  if(gutterPair && (style==='auto'||style==='straight'||style==='bend')){
    const upper=a.y<=b.y?a:b,lower=upper===a?b:a;
-   const sourceSide=w.fromSide|| (a===upper?'bottom':'top');
-   const destSide=w.toSide|| (b===lower?'top':'bottom');
+   const sideBySide=Math.abs(dx)>A.r+B.l && Math.abs(dy)<Math.max(A.t+B.t,Math.min(A.t+A.b,B.t+B.b));
+   const sourceSide=w.fromSide||(sideBySide?(dx>0?'right':'left'):(a===upper?'bottom':'top'));
+   const destSide=w.toSide||(sideBySide?(dx>0?'left':'right'):(b===lower?'top':'bottom'));
    let P=sidePoint(a,sourceSide,w.fromOffset),Q=sidePoint(b,destSide,w.toOffset);
    // For equipment above/below a gutter, automatically place the gutter
    // connection directly under/over the equipment (provided it fits).
@@ -280,7 +281,7 @@ function feederPath(a,b,w={}){
    }
    const nearVertical=(sourceSide==='top'||sourceSide==='bottom')&&(destSide==='top'||destSide==='bottom');
    const nearHorizontal=(sourceSide==='left'||sourceSide==='right')&&(destSide==='left'||destSide==='right');
-   const path=(nearVertical && Math.abs(P.x-Q.x)<1)?`M${P.x} ${P.y}V${Q.y}`:(nearHorizontal&&Math.abs(P.y-Q.y)<1)?`M${P.x} ${P.y}H${Q.x}`:nearVertical?`M${P.x} ${P.y}V${(P.y+Q.y)/2}H${Q.x}V${Q.y}`:`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`;
+   const path=(nearHorizontal&&Math.abs(P.y-Q.y)<1)?`M${P.x} ${P.y}H${Q.x}`:(nearHorizontal&&P.x!==Q.x)?`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`:(nearVertical && Math.abs(P.x-Q.x)<1)?`M${P.x} ${P.y}V${Q.y}`:(nearHorizontal&&Math.abs(P.y-Q.y)<1)?`M${P.x} ${P.y}H${Q.x}`:nearVertical?`M${P.x} ${P.y}V${(P.y+Q.y)/2}H${Q.x}V${Q.y}`:`M${P.x} ${P.y}H${(P.x+Q.x)/2}V${Q.y}H${Q.x}`;
    return {d:path,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-8,handle:null};
  }
  if(w.fromSide||w.toSide){
