@@ -365,7 +365,10 @@ function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight){
   for(const [name,hex] of colors){const b=document.createElement('button');b.type='button';b.title=name;b.setAttribute('aria-label',label+': '+name);b.style.cssText='flex:1;min-width:0;height:27px;padding:0;border:2px solid #cbd7e5;border-radius:6px;background:'+hex;b.onclick=()=>{set(hex);sync()};bar.appendChild(b);buttons.push([b,hex]);}
   if(clear){const b=document.createElement('button');b.type='button';b.title='Remove highlight';b.textContent='×';b.style.cssText='padding:2px 6px;height:27px';b.onclick=()=>{set('');sync()};bar.appendChild(b);}
   const picker=document.createElement('input');picker.type='color';picker.title='Custom '+label;picker.style.cssText='width:30px;height:27px;padding:1px';picker.oninput=()=>{set(picker.value);sync()};bar.appendChild(picker);
-  function sync(){const current=get()||'';for(const [b,hex] of buttons)b.style.outline=current.toLowerCase()===hex?'2px solid #168c9a':'none';picker.value=current||colors[0][1];}
+  const hexInput=document.createElement('input');hexInput.type='text';hexInput.maxLength=7;hexInput.spellcheck=false;hexInput.setAttribute('aria-label',label+' HEX color');hexInput.title='Enter HEX color, for example #FF0000';hexInput.placeholder='#RRGGBB';hexInput.style.cssText='width:88px;min-width:78px;box-sizing:border-box;padding:5px 6px;height:29px;font-size:12px;font-family:monospace;border:1px solid #b8c9dc;border-radius:6px;background:white;color:#172331';bar.appendChild(hexInput);
+  const applyHex=()=>{let v=hexInput.value.trim();if(/^[0-9a-fA-F]{6}$/.test(v))v='#'+v;if(/^#[0-9a-fA-F]{6}$/.test(v)){set(v.toLowerCase());sync();hexInput.setCustomValidity('');}else{hexInput.setCustomValidity('Enter a six-digit HEX color, such as #FF0000');hexInput.reportValidity();}};
+  hexInput.addEventListener('change',applyHex);hexInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyHex();hexInput.blur();}});
+  function sync(){const current=get()||'';for(const [b,hex] of buttons)b.style.outline=current.toLowerCase()===hex?'2px solid #168c9a':'none';picker.value=current||colors[0][1];if(document.activeElement!==hexInput)hexInput.value=(current||'').toUpperCase();}
   sync();return sync;
  }
  const a=row('Text / Line Color',textColors,getColor,setColor,false);
