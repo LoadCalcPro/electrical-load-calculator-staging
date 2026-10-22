@@ -407,7 +407,7 @@ function organizeEquipmentProperties(){
  if(hint?.classList.contains('status'))hint.remove();
  const designation=p.querySelector('[data-prop="name"]')?.closest('label')||p.querySelector('[data-prop="label"]')?.closest('label');
  if(designation)info.insertBefore(designation,size||null);
- const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','kaic','interruptingRating','fuseRating','kva','kw'];
+ const itemForInfo=nodes.find(n=>n.id===selected.id);if(itemForInfo&&['meter','metercombo'].includes(itemForInfo.type)){const meterField=document.createElement('label');meterField.className='field';meterField.textContent='Meter Symbol (inside circle)';const meterInput=document.createElement('input');meterInput.type='text';meterInput.dataset.innerText='meterLetter';meterInput.value=itemForInfo.innerText?.meterLetter??'M';meterInput.placeholder='Leave blank to remove lettering';meterInput.addEventListener('focus',()=>{activeInnerKey='meterLetter';toolbar.syncSelectedText?.();});meterInput.addEventListener('click',()=>{activeInnerKey='meterLetter';toolbar.syncSelectedText?.();});meterInput.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText.meterLetter=meterInput.value;activeInnerKey='meterLetter';renderCanvasOnly();toolbar.syncSelectedText?.();});meterField.appendChild(meterInput);info.insertBefore(meterField,size||null);}const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','kaic','interruptingRating','fuseRating','kva','kw'];
  for(const key of electricalKeys){const el=key==='mainType'?p.querySelector('[data-main-type]'):p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
  const additionalLabel=common.querySelector('[data-common-label]')?.closest('label');
  if(additionalLabel){additionalLabel.classList.add('field');const input=additionalLabel.querySelector('[data-common-label]');if(input){input.style.width='100%';input.style.boxSizing='border-box';}info.appendChild(additionalLabel);}
@@ -416,7 +416,7 @@ function organizeEquipmentProperties(){
  const item=nodes.find(n=>n.id===selected.id);
  if(item){const outline=document.createElement('div');outline.className='equipment-outline-palette';common.appendChild(outline);makeColorRows(outline,()=>item.boxOutlineColor||'#111111',v=>{item.boxOutlineColor=v;renderCanvasOnly()},()=>'',()=>{},{colorLabel:'Equipment Box / Symbol Outline Color',noHighlight:true});}
  const defs=item?[...(item._labelDefs||[]),['drawingLabel','Additional Label',item.drawingLabel||'',item.drawingLabelSize||12]]:[];
- const existing=p.querySelectorAll('[data-inner-text]');
+ const existing=p.querySelectorAll('[data-inner-text]:not(.property-priority [data-inner-text])');
  existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
  // Remove the now-empty duplicate text editing section, not the equipment's actual properties.
  for(const el of p.querySelectorAll('b,strong,h4')){if(el.textContent?.includes('All text inside this equipment')){const section=el.closest('.section')||el.parentElement;if(section&&section!==p)section.remove();}}
