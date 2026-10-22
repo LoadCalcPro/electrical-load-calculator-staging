@@ -74,11 +74,18 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
  .toolbar-drawing{padding-bottom:1px}
  .toolbar-view{row-gap:4px}
 }
+/* Word-like scrolling: the full-size sheet scrolls within its own viewing pane. */
+@media screen{
+ body:has(.suite-header) .viewport{scroll-behavior:auto}
+ body:has(.suite-header) .viewport::-webkit-scrollbar{width:8px;height:8px}
+ body:has(.suite-header) .viewport::-webkit-scrollbar-thumb{background:#888;border-radius:8px}
+ body:has(.suite-header) .viewport::-webkit-scrollbar-track{background:#e7e7e7}
+}
 /* One authoritative screen-sheet sizing rule. The title block occupies y=635..681 of viewBox 0 0 1000 700. */
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:auto;max-height:none;min-height:0;flex:0 0 auto;overflow:visible;display:block}
+ body:has(.suite-header) .viewport{height:calc(100vh - 250px);max-height:none;min-height:360px;flex:0 0 auto;overflow-y:auto;overflow-x:auto;overscroll-behavior:contain;display:block;scrollbar-width:thin;scrollbar-color:#888 #e7e7e7}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
