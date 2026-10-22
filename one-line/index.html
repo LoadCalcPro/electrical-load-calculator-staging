@@ -48,7 +48,7 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:calc(100vh - 215px);max-height:calc(100vh - 215px);min-height:300px;flex:0 1 auto;overflow-y:auto;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:thin}
+ body:has(.suite-header) .viewport{height:calc(100vh - 215px);max-height:calc(100vh - 215px);min-height:300px;flex:0 1 auto;overflow:hidden;display:flex;align-items:center;justify-content:center}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
@@ -801,12 +801,16 @@ function updateSheetProportions(){const [w,h]=sheetDimensions[$('paper').value]|
 $('paper').addEventListener('change',updateSheetProportions);
 function sizeDrawingSheetForScroll(){
  const viewport=$('viewport'),svg=$('svg');if(!viewport||!svg)return;
- const width=viewport.clientWidth-2;
- if(width<=0)return;
- const height=Math.ceil(width*sheetHeightUnits()/1000);
- svg.style.setProperty('height',height+'px','important');
+ const width=viewport.clientWidth-4,height=viewport.clientHeight-4;
+ if(width<=0||height<=0)return;
+ const sheetHeight=sheetHeightUnits();
+ const fittedWidth=Math.min(width,height*1000/sheetHeight);
+ const fittedHeight=fittedWidth*sheetHeight/1000;
+ svg.style.setProperty('width',fittedWidth+'px','important');
+ svg.style.setProperty('height',fittedHeight+'px','important');
  svg.style.setProperty('min-height','0','important');
  svg.style.setProperty('max-height','none','important');
+ svg.style.setProperty('margin','auto','important');
 }
 window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 function drawingPanBounds(){const h=sheetHeightUnits();const svg=$('svg'),r=svg.getBoundingClientRect();const unit=Math.min(r.width/1000,r.height/h)||1;const viewW=Math.min(1000,r.width/unit),viewH=Math.min(h,r.height/unit);const spanX=Math.max(0,1000-viewW/zoom),spanY=Math.max(0,h-viewH/zoom);return {xMin:-spanX,xMax:0,yMin:-spanY,yMax:0};}
