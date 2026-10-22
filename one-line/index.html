@@ -78,7 +78,7 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:auto;max-height:none;min-height:0;flex:0 0 auto;overflow:visible;display:block}
+ body:has(.suite-header) .viewport{height:calc(100vh - 245px);max-height:none;min-height:320px;flex:0 0 auto;overflow:auto;overscroll-behavior:contain;display:block;scrollbar-width:thin;scrollbar-color:#888 #e7e7e7}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
@@ -847,8 +847,8 @@ function updateSheetProportions(){const [w,h]=sheetDimensions[$('paper').value]|
 $('paper').addEventListener('change',updateSheetProportions);
 function sizeDrawingSheetForScroll(){
  const viewport=$('viewport'),svg=$('svg');if(!viewport||!svg)return;
- const width=viewport.clientWidth-4,height=viewport.clientHeight-4;
- if(width<=0||height<=0)return;
+ const width=viewport.clientWidth-4;
+ if(width<=0)return;
  const sheetHeight=sheetHeightUnits();
  const fittedWidth=width;
  const fittedHeight=fittedWidth*sheetHeight/1000;
@@ -882,14 +882,9 @@ $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return
 // At unzoomed 100% (no drawing pan range), retain normal page scrolling.
 $('viewport').addEventListener('wheel',e=>{
  if(e.ctrlKey||e.altKey)return;
- // At 100% the entire physical sheet extends down the page: wheel-scroll
- // the outer document, even when a computed pan range exists.
- if(zoom<=1.001){
-  e.preventDefault();
-  const factor=e.deltaMode===1?16:e.deltaMode===2?window.innerHeight:1;
-  window.scrollBy({top:e.deltaY*factor,left:e.shiftKey?e.deltaX*factor:0,behavior:'instant'});
-  return;
- }
+ // At 100% use the drawing viewport's own native scrollbars.
+ // The sheet stays full-sized and its bottom remains reachable.
+ if(zoom<=1.001)return;
  const b=drawingPanBounds();
  const hasX=b.xMax-b.xMin>0.01,hasY=b.yMax-b.yMin>0.01;
  if(!hasX&&!hasY)return;
