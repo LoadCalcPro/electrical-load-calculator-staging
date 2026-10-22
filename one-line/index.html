@@ -48,7 +48,7 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:auto;min-height:0;flex:0 0 auto;overflow:hidden}
+ body:has(.suite-header) .viewport{height:calc(100vh - 215px);max-height:calc(100vh - 215px);min-height:300px;flex:0 1 auto;overflow-y:auto;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:thin}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
