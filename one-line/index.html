@@ -382,6 +382,18 @@ function shapeConnectionPoint(shape,target){
  const dx=target.x-cx,dy=target.y-cy,scale=1/Math.max(Math.abs(dx)/halfW,Math.abs(dy)/halfH,0.00001);
  return {x:cx+dx*Math.min(1,scale),y:cy+dy*Math.min(1,scale)};
 }
+function shapeConnectionAnchor(shape,anchor){
+ const pts=revisionShapePoints(shape),xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+ const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
+ const x=left+(right-left)*anchor.u,y=top+(bottom-top)*anchor.v;
+ return shapeConnectionPoint(shape,{x,y});
+}
+function shapeAnchorAt(shape,pt){
+ const pts=revisionShapePoints(shape),xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+ const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
+ const edge=shapeConnectionPoint(shape,pt);
+ return {u:Math.max(0,Math.min(1,(edge.x-left)/Math.max(1,right-left))),v:Math.max(0,Math.min(1,(edge.y-top)/Math.max(1,bottom-top)))};
+}
 function syncShapeConnections(){
  for(const line of drawnLines){
   if(!line.shapeConnection)continue;
@@ -389,7 +401,7 @@ function syncShapeConnections(){
   const b=polyRoutes.find(v=>v.id===line.shapeConnection.to&&v.kind==='revision-shape');
   if(!a||!b)continue;
   const center=v=>{const pts=revisionShapePoints(v);return {x:(Math.min(...pts.map(p=>p.x))+Math.max(...pts.map(p=>p.x)))/2,y:(Math.min(...pts.map(p=>p.y))+Math.max(...pts.map(p=>p.y)))/2}};
-  const start=shapeConnectionPoint(a,center(b)),end=shapeConnectionPoint(b,center(a));
+  const start=line.shapeConnection.startAnchor?shapeConnectionAnchor(a,line.shapeConnection.startAnchor):shapeConnectionPoint(a,center(b)),end=line.shapeConnection.endAnchor?shapeConnectionAnchor(b,line.shapeConnection.endAnchor):shapeConnectionPoint(b,center(a));
   line.x1=start.x;line.y1=start.y;line.x2=end.x;line.y2=end.y;
  }
 }
@@ -643,15 +655,34 @@ $('svg').addEventListener('pointerdown',e=>{
  if(mode!=='connect'||e.button!==0)return;
  const g=e.target.closest('[data-polyroute]'),shape=polyRoutes.find(v=>v.id===Number(g?.dataset.polyroute));
  if(!shape||shape.kind!=='revision-shape')return;
- if(!pendingShapeConnection){pendingShapeConnection=shape.id;start=null;freeConnectStart=null;$('status').textContent='Select a second rectangle or cloud to connect.';}
- else if(pendingShapeConnection===shape.id){pendingShapeConnection=null;$('status').textContent='Connection cancelled. Select a shape to begin again.';}
+ if(!pendingShapeConnection){pendingShapeConnection={id:shape.id,anchor:shapeAnchorAt(shape,xy(e))};start=null;freeConnectStart=null;$('status').textContent='Select a second rectangle or cloud to connect.';}
+ else if(pendingShapeConnection.id===shape.id){pendingShapeConnection=null;$('status').textContent='Connection cancelled. Select a shape to begin again.';}
  else{
-  const first=polyRoutes.find(v=>v.id===pendingShapeConnection&&v.kind==='revision-shape');
-  if(first){const line={id:next++,x1:0,y1:0,x2:0,y2:0,width:1,color:conductorChoices[0]||'#111111',shapeConnection:{from:first.id,to:shape.id}};drawnLines.push(line);selected={kind:'line',id:line.id};}
+  const first=polyRoutes.find(v=>v.id===pendingShapeConnection.id&&v.kind==='revision-shape');
+  if(first){const line={id:next++,x1:0,y1:0,x2:0,y2:0,width:1,color:conductorChoices[0]||'#111111',shapeConnection:{from:first.id,to:shape.id,startAnchor:pendingShapeConnection.anchor,endAnchor:shapeAnchorAt(shape,xy(e))}};drawnLines.push(line);selected={kind:'line',id:line.id};}
   pendingShapeConnection=null;$('status').textContent='Shapes connected. Select another rectangle or cloud to continue.';
  }
  render();e.preventDefault();e.stopImmediatePropagation();
 },true);
+let shapeEndpointDrag=null;
+$('svg').addEventListener('pointerdown',e=>{
+ if(mode!=='select'||e.button!==0)return;
+ const handle=e.target.closest('[data-line-end]'),g=e.target.closest('[data-drawn-line]');
+ if(!handle||!g)return;
+ const line=drawnLines.find(v=>v.id===Number(g.dataset.drawnLine));
+ if(!line?.shapeConnection)return;
+ const which=handle.dataset.lineEnd,shape=polyRoutes.find(v=>v.id===line.shapeConnection[which==='start'?'from':'to']);
+ if(!shape)return;
+ selected={kind:'line',id:line.id};shapeEndpointDrag={lineId:line.id,which,shapeId:shape.id,pointerId:e.pointerId};
+ $('svg').setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();
+},true);
+$('svg').addEventListener('pointermove',e=>{
+ if(!shapeEndpointDrag||shapeEndpointDrag.pointerId!==e.pointerId)return;
+ const line=drawnLines.find(v=>v.id===shapeEndpointDrag.lineId),shape=polyRoutes.find(v=>v.id===shapeEndpointDrag.shapeId);
+ if(line&&shape){line.shapeConnection[shapeEndpointDrag.which==='start'?'startAnchor':'endAnchor']=shapeAnchorAt(shape,xy(e));renderCanvasOnly();}
+ e.stopImmediatePropagation();
+},true);
+$('svg').addEventListener('pointerup',e=>{if(!shapeEndpointDrag||shapeEndpointDrag.pointerId!==e.pointerId)return;shapeEndpointDrag=null;render();e.stopImmediatePropagation();},true);
 let revisionLabelDrag=null;
 $('svg').addEventListener('pointerdown',e=>{const target=e.target.closest('[data-revision-label-drag]');if(!target||mode!=='select'||e.button!==0)return;const group=target.closest('[data-polyroute]');const route=polyRoutes.find(v=>v.id===Number(group?.dataset.polyroute));if(!route||route.kind!=='revision-shape')return;selected={kind:'polyroute',id:route.id};revisionLabelDrag={id:route.id,point:xy(e),x:Number(route.labelDX)||0,y:Number(route.labelDY)||0,pointerId:e.pointerId};$('svg').setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();},true);
 $('svg').addEventListener('pointermove',e=>{if(!revisionLabelDrag||revisionLabelDrag.pointerId!==e.pointerId)return;const route=polyRoutes.find(v=>v.id===revisionLabelDrag.id);if(!route)return;const pt=xy(e);route.labelDX=revisionLabelDrag.x+pt.x-revisionLabelDrag.point.x;route.labelDY=revisionLabelDrag.y+pt.y-revisionLabelDrag.point.y;renderCanvasOnly();e.stopImmediatePropagation();},true);
