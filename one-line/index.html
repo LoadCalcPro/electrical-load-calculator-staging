@@ -48,7 +48,7 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:calc(100vh - 205px);max-height:calc(100vh - 205px);min-height:320px;flex:0 0 auto;overflow:auto;display:block;overscroll-behavior:contain;scrollbar-width:thin}
+ body:has(.suite-header) .viewport{height:auto;max-height:none;min-height:0;flex:0 0 auto;overflow:visible;display:block}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
@@ -836,10 +836,10 @@ $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return
 $('viewport').addEventListener('wheel',e=>{
  if(e.ctrlKey||e.altKey)return;
  if(zoom>1.001)return;
+ // At 100%, let the outer page scroll through the full-height drawing.
  const v=$('viewport'),factor=e.deltaMode===1?16:e.deltaMode===2?v.clientHeight:1;
- const amount=e.deltaY*factor;
- if(e.shiftKey){v.scrollLeft+=amount||e.deltaX*factor;}else{v.scrollTop+=amount;v.scrollLeft+=e.deltaX*factor;}
- e.preventDefault();
+ // No nested scrolling at 100%: browser scrollbars reach the entire sheet.
+ return;
 },{passive:false});
 // Mouse wheel over a zoomed drawing navigates vertically within the sheet; outside the drawing the browser scrolls normally.
 $('svg').addEventListener('wheel',e=>{if(e.ctrlKey||e.altKey)return;if(zoom<=1.001)return;const b=drawingPanBounds();const r=$('svg').getBoundingClientRect();const pxPerUnit=r.height/sheetHeightUnits()*zoom;if(!Number.isFinite(pxPerUnit)||pxPerUnit<=0)return;const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?r.height:1);const next=Math.max(b.yMin,Math.min(b.yMax,panY-delta/pxPerUnit));if(Math.abs(next-panY)>0.0001){e.preventDefault();panY=next;renderCanvasOnly();}},{passive:false});
