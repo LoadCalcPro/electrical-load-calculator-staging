@@ -242,6 +242,21 @@ function feederPath(a,b,w={}){
    }
    return {d:`M${P.x} ${P.y}L${Q.x} ${Q.y}`,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-9,handle:null};
  }
+ // Respect mixed attachment faces: leave the first enclosure normal to its
+ // selected side, then approach the second enclosure normal to its own side.
+ if(w.fromSide&&w.toSide&&style!=='straight'&&style!=='up'&&style!=='down'){
+   const fs=w.fromSide,ts=w.toSide,P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
+   const verticalStart=fs==='top'||fs==='bottom',verticalEnd=ts==='top'||ts==='bottom';
+   const stub=20;
+   const S={x:P.x+(fs==='left'?-stub:fs==='right'?stub:0),y:P.y+(fs==='top'?-stub:fs==='bottom'?stub:0)};
+   const T={x:Q.x+(ts==='left'?-stub:ts==='right'?stub:0),y:Q.y+(ts==='top'?-stub:ts==='bottom'?stub:0)};
+   let middle;
+   if(verticalStart&&!verticalEnd)middle=`V${T.y}H${T.x}`;
+   else if(!verticalStart&&verticalEnd)middle=`H${T.x}V${T.y}`;
+   else if(verticalStart)middle=`V${(S.y+T.y)/2}H${T.x}V${T.y}`;
+   else middle=`H${(S.x+T.x)/2}V${T.y}H${T.x}`;
+   return {d:`M${P.x} ${P.y}L${S.x} ${S.y}${middle}L${Q.x} ${Q.y}`,lx:(S.x+T.x)/2+8,ly:(S.y+T.y)/2-8,handle:null};
+ }
  // Above/below routes take precedence over generic attachment-side routing.
  // Both endpoints stay on the corresponding enclosure edge, even after dragging.
  if(style==='up'||style==='down'){
@@ -784,8 +799,7 @@ $('newConnectionStyle').addEventListener('change',e=>{
  wire.routeStyle=e.target.value;
  wire.routeOffset=null;
  // A new route starts with its natural attachment sides; manual sides can be chosen afterward.
- wire.fromSide='';wire.toSide='';
- wire.fromOffset=0;wire.toOffset=0;
+ // Preserve user-selected connection sides and attachment offsets.
  render();
  $('status').textContent='Selected connection updated to '+e.target.selectedOptions[0].text+'.';
 });
