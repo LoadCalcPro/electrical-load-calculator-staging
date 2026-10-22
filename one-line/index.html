@@ -48,7 +48,7 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:auto;max-height:none;min-height:0;flex:0 0 auto;overflow:visible;display:block}
+ body:has(.suite-header) .viewport{height:calc(100vh - 205px);max-height:calc(100vh - 205px);min-height:320px;flex:0 0 auto;overflow:auto;display:block;overscroll-behavior:contain;scrollbar-width:thin}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
@@ -832,6 +832,15 @@ $('newConnectionStyle').addEventListener('change',e=>{
 $('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(1/1.25);$('fit').onclick=()=>{zoom=1;panX=panY=0;limitDrawingPan();render()};
 $('zoomSelection').onclick=()=>{if(!selected){$('status').textContent='Select equipment or a drawing object first.';return;}let cx,cy,wide=100,high=100;if(selected.kind==='node'){const n=nodes.find(n=>n.id===selected.id);if(!n)return;const b=bounds(n);cx=n.x;cy=n.y;wide=b.l+b.r;high=b.t+b.b;}else if(selected.kind==='line'){const l=drawnLines.find(l=>l.id===selected.id);if(!l)return;cx=(Number(l.x1)+Number(l.x2))/2;cy=(Number(l.y1)+Number(l.y2))/2;wide=Math.abs(l.x2-l.x1);high=Math.abs(l.y2-l.y1);}else if(selected.kind==='annotation'){const a=annotations.find(a=>a.id===selected.id);if(!a)return;cx=a.x;cy=a.y;}else{$('status').textContent='Select an equipment item, line, or note to zoom in.';return;}zoom=Math.max(.25,Math.min(8,Math.min(850/Math.max(100,wide*2),560/Math.max(80,high*2))));panX=500/zoom-cx;panY=350/zoom-cy;limitDrawingPan();render();};
 $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return;e.preventDefault();const r=$('svg').getBoundingClientRect();const h=sheetHeightUnits(),aspect=Math.min(r.width/1000,r.height/h);const ox=(r.width-1000*aspect)/2,oy=(r.height-h*aspect)/2;const cx=(e.clientX-r.left-ox)/aspect,cy=(e.clientY-r.top-oy)/aspect;zoomAt(e.deltaY<0?1.15:1/1.15,cx,cy);},{passive:false});
+// Wheel navigation within the drawing always controls its own viewport, including at 100%.
+$('viewport').addEventListener('wheel',e=>{
+ if(e.ctrlKey||e.altKey)return;
+ if(zoom>1.001)return;
+ const v=$('viewport'),factor=e.deltaMode===1?16:e.deltaMode===2?v.clientHeight:1;
+ const amount=e.deltaY*factor;
+ if(e.shiftKey){v.scrollLeft+=amount||e.deltaX*factor;}else{v.scrollTop+=amount;v.scrollLeft+=e.deltaX*factor;}
+ e.preventDefault();
+},{passive:false});
 // Mouse wheel over a zoomed drawing navigates vertically within the sheet; outside the drawing the browser scrolls normally.
 $('svg').addEventListener('wheel',e=>{if(e.ctrlKey||e.altKey)return;if(zoom<=1.001)return;const b=drawingPanBounds();const r=$('svg').getBoundingClientRect();const pxPerUnit=r.height/sheetHeightUnits()*zoom;if(!Number.isFinite(pxPerUnit)||pxPerUnit<=0)return;const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?r.height:1);const next=Math.max(b.yMin,Math.min(b.yMax,panY-delta/pxPerUnit));if(Math.abs(next-panY)>0.0001){e.preventDefault();panY=next;renderCanvasOnly();}},{passive:false});
 // Drafting zoom changes the viewport only; never the stored size or position of objects.
