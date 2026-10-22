@@ -48,7 +48,7 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
 @media screen{
  body:has(.suite-header) .center{min-width:0;overflow:visible}
  body:has(.suite-header) .workspace{height:auto;min-height:0;flex:0 0 auto;overflow:visible}
- body:has(.suite-header) .viewport{height:calc(100vh - 215px);max-height:calc(100vh - 215px);min-height:300px;flex:0 1 auto;overflow:hidden;display:flex;align-items:center;justify-content:center}
+ body:has(.suite-header) .viewport{height:auto;max-height:none;min-height:0;flex:0 0 auto;overflow:visible;display:block}
  body:has(.suite-header) #svg{width:100%;height:auto;display:block}
 }
 @media print{
@@ -804,7 +804,7 @@ function sizeDrawingSheetForScroll(){
  const width=viewport.clientWidth-4,height=viewport.clientHeight-4;
  if(width<=0||height<=0)return;
  const sheetHeight=sheetHeightUnits();
- const fittedWidth=Math.min(width,height*1000/sheetHeight);
+ const fittedWidth=width;
  const fittedHeight=fittedWidth*sheetHeight/1000;
  svg.style.setProperty('width',fittedWidth+'px','important');
  svg.style.setProperty('height',fittedHeight+'px','important');
