@@ -761,6 +761,18 @@ function syncDrawingScrollbars(){const b=drawingPanBounds(),x=$('drawingScrollX'
 $('drawingScrollX').addEventListener('input',e=>{const b=drawingPanBounds();panX=b.xMax-(Number(e.target.value)/1000)*(b.xMax-b.xMin);renderCanvasOnly();});
 $('drawingScrollY').addEventListener('input',e=>{const b=drawingPanBounds();panY=b.yMax-(Number(e.target.value)/1000)*(b.yMax-b.yMin);renderCanvasOnly();});
 function limitDrawingPan(){const b=drawingPanBounds();panX=Math.max(b.xMin,Math.min(b.xMax,panX));panY=Math.max(b.yMin,Math.min(b.yMax,panY));}function zoomAt(factor,cx=500,cy=350){const old=zoom;zoom=Math.max(.1,Math.min(16,zoom*factor));panX=cx/zoom-(cx/old-panX);panY=cy/zoom-(cy/old-panY);limitDrawingPan();renderCanvasOnly();}
+// Apply the toolbar route to the selected existing equipment connection immediately.
+$('newConnectionStyle').addEventListener('change',e=>{
+ if(selected?.kind!=='wire')return;
+ const wire=wires.find(w=>w.id===selected.id);if(!wire)return;
+ wire.routeStyle=e.target.value;
+ wire.routeOffset=null;
+ // A new route starts with its natural attachment sides; manual sides can be chosen afterward.
+ wire.fromSide='';wire.toSide='';
+ wire.fromOffset=0;wire.toOffset=0;
+ render();
+ $('status').textContent='Selected connection updated to '+e.target.selectedOptions[0].text+'.';
+});
 $('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(1/1.25);$('fit').onclick=()=>{zoom=1;panX=panY=0;limitDrawingPan();render()};
 $('zoomSelection').onclick=()=>{if(!selected){$('status').textContent='Select equipment or a drawing object first.';return;}let cx,cy,wide=100,high=100;if(selected.kind==='node'){const n=nodes.find(n=>n.id===selected.id);if(!n)return;const b=bounds(n);cx=n.x;cy=n.y;wide=b.l+b.r;high=b.t+b.b;}else if(selected.kind==='line'){const l=drawnLines.find(l=>l.id===selected.id);if(!l)return;cx=(Number(l.x1)+Number(l.x2))/2;cy=(Number(l.y1)+Number(l.y2))/2;wide=Math.abs(l.x2-l.x1);high=Math.abs(l.y2-l.y1);}else if(selected.kind==='annotation'){const a=annotations.find(a=>a.id===selected.id);if(!a)return;cx=a.x;cy=a.y;}else{$('status').textContent='Select an equipment item, line, or note to zoom in.';return;}zoom=Math.max(.25,Math.min(8,Math.min(850/Math.max(100,wide*2),560/Math.max(80,high*2))));panX=500/zoom-cx;panY=350/zoom-cy;limitDrawingPan();render();};
 $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return;e.preventDefault();const r=$('svg').getBoundingClientRect();const h=sheetHeightUnits(),aspect=Math.min(r.width/1000,r.height/h);const ox=(r.width-1000*aspect)/2,oy=(r.height-h*aspect)/2;const cx=(e.clientX-r.left-ox)/aspect,cy=(e.clientY-r.top-oy)/aspect;zoomAt(e.deltaY<0?1.15:1/1.15,cx,cy);},{passive:false});
