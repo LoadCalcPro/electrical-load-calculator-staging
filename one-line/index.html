@@ -226,6 +226,22 @@ function feederPath(a,b,w={}){
  // Connection ports are always on the equipment boundary. Gutter connections
  // default to the facing vertical edges, not to a shared feeder trunk.
  const sidePoint=(n,side,offset=0)=>{if(n.equipmentSubtype&&n.equipmentSubtype.includes('Coil')&&(side==='left'||side==='right'))return {x:n.x+(side==='left'?-44:44)*(Number(n.scaleX)||1),y:n.y};const z=bounds(n);const v=Math.max(-1,Math.min(1,Number(offset)||0));return side==='top'?{x:n.x+v*z.r,y:n.y-z.t}:side==='bottom'?{x:n.x+v*z.r,y:n.y+z.b}:side==='left'?{x:n.x-z.l,y:n.y+v*z.b}:{x:n.x+z.r,y:n.y+v*z.b};};
+ // Straight is always a single segment. Never route through the gutter/bend logic.
+ if(style==='straight'){
+   const horizontal=Math.abs(dx)>=Math.abs(dy);
+   const fs=w.fromSide||(horizontal?(dx>=0?'right':'left'):(dy>=0?'bottom':'top'));
+   const ts=w.toSide||(horizontal?(dx>=0?'left':'right'):(dy>=0?'top':'bottom'));
+   let P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
+   // On facing sides, share one coordinate where both edges allow it.
+   if((fs==='left'||fs==='right')&&(ts==='left'||ts==='right')){
+     const low=Math.max(a.y-A.t,b.y-B.t),high=Math.min(a.y+A.b,b.y+B.b);
+     if(low<=high){const y=Math.max(low,Math.min(high,(P.y+Q.y)/2));P.y=y;Q.y=y;}
+   }else if((fs==='top'||fs==='bottom')&&(ts==='top'||ts==='bottom')){
+     const low=Math.max(a.x-A.l,b.x-B.l),high=Math.min(a.x+A.r,b.x+B.r);
+     if(low<=high){const x=Math.max(low,Math.min(high,(P.x+Q.x)/2));P.x=x;Q.x=x;}
+   }
+   return {d:`M${P.x} ${P.y}L${Q.x} ${Q.y}`,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-9,handle:null};
+ }
  // Above/below routes take precedence over generic attachment-side routing.
  // Both endpoints stay on the corresponding enclosure edge, even after dragging.
  if(style==='up'||style==='down'){
