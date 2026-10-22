@@ -882,6 +882,14 @@ $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return
 // At unzoomed 100% (no drawing pan range), retain normal page scrolling.
 $('viewport').addEventListener('wheel',e=>{
  if(e.ctrlKey||e.altKey)return;
+ // At 100% the entire physical sheet extends down the page: wheel-scroll
+ // the outer document, even when a computed pan range exists.
+ if(zoom<=1.001){
+  e.preventDefault();
+  const factor=e.deltaMode===1?16:e.deltaMode===2?window.innerHeight:1;
+  window.scrollBy({top:e.deltaY*factor,left:e.shiftKey?e.deltaX*factor:0,behavior:'instant'});
+  return;
+ }
  const b=drawingPanBounds();
  const hasX=b.xMax-b.xMin>0.01,hasY=b.yMax-b.yMin>0.01;
  if(!hasX&&!hasY)return;
