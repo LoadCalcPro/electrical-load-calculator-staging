@@ -914,6 +914,26 @@ $('svg').addEventListener('pointerup',e=>{
  comboMeterDrag=null;render();e.preventDefault();e.stopImmediatePropagation();
 },true);
 // Move and resize compartments independently without moving the enclosure.
+// Keep a compartment in its assigned bay and prevent it from covering
+// neighboring compartments. A blocked drag leaves the last valid box in place.
+function constrainComboCompartment(n,key,box,previous,w,h){
+ const bay=Number(key.split('_')[1])||0;
+ const left=-w/2+82+bay*112+3,right=Math.min(w/2-3,left+106);
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ const candidate={...box};
+ candidate.w=clamp(Number(candidate.w)||24,24,right-left);
+ candidate.h=clamp(Number(candidate.h)||18,18,h-6);
+ candidate.x=clamp(Number(candidate.x)||left,left,right-candidate.w);
+ candidate.y=clamp(Number(candidate.y)||(-h/2+3),-h/2+3,h/2-3-candidate.h);
+ const intersects=(a,b)=>a.x<b.x+b.w+2&&a.x+a.w+2>b.x&&a.y<b.y+b.h+2&&a.y+a.h+2>b.y;
+ const count=Math.max(1,Math.min(12,Number(n.comboCounts?.[bay])||5));
+ for(let i=0;i<count;i++){
+  const otherKey='comboCell_'+bay+'_'+i;if(otherKey===key)continue;
+  const other=n.comboBoxes?.[otherKey]||{x:left+2,y:-h/2+10+i*34,w:102,h:31};
+  if(intersects(candidate,other))return previous;
+ }
+ return candidate;
+}
 let comboSlotDrag=null;
 $('svg').addEventListener('pointerdown',e=>{
  if(mode!=='select'||e.button!==0)return;
@@ -933,7 +953,7 @@ $('svg').addEventListener('pointermove',e=>{
  if(Math.hypot(dx,dy)<1&&!d.moved)return;d.moved=true;
  n.comboBoxes??={};const o=d.original;
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
- n.comboBoxes[d.key]=d.resize?{...o,w:clamp(o.w+dx,24,d.w/2-o.x-3),h:clamp(o.h+dy,18,d.h/2-o.y-3)}:{...o,x:clamp(o.x+dx,-d.w/2+3,d.w/2-o.w-3),y:clamp(o.y+dy,-d.h/2+3,d.h/2-o.h-3)};
+ const proposed=d.resize?{...o,w:clamp(o.w+dx,24,d.w/2-o.x-3),h:clamp(o.h+dy,18,d.h/2-o.y-3)}:{...o,x:o.x+dx,y:o.y+dy};n.comboBoxes[d.key]=constrainComboCompartment(n,d.key,proposed,n.comboBoxes[d.key]||o,d.w,d.h);
  renderCanvasOnly();e.preventDefault();e.stopImmediatePropagation();
 },true);
 $('svg').addEventListener('pointerup',e=>{if(!comboSlotDrag||comboSlotDrag.pointerId!==e.pointerId)return;comboSlotDrag=null;render();e.preventDefault();e.stopImmediatePropagation();},true);
