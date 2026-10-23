@@ -271,7 +271,7 @@ if(t==='metercombo'){
  const label=n.innerText?.[key]??legacy??defaults[i]??'';
  out+=`<rect data-combo-slot="${b}:${i}" x="${bx}" y="${by}" width="${bw}" height="${bh}" ${line} style="pointer-events:all;cursor:move"/>`;
  out+=`<g transform="translate(${bx+bw/2} ${by+bh/2}) scale(${invX} ${invY})">${txt(0,3,label,9,'normal',key)}</g>`;
- if(selected?.kind==='node'&&selected.id===n.id)out+=`<rect data-combo-resize="${b}:${i}" x="${bx+bw-5}" y="${by+bh-5}" width="9" height="9" fill="#ffffff" stroke="#168c9a" style="cursor:nwse-resize;pointer-events:all"/>`;
+ if(selected?.kind==='node'&&selected.id===n.id)out+=`<rect data-combo-resize="${b}:${i}" x="${bx+bw-6}" y="${by+bh-6}" width="12" height="12" fill="#ffffff" stroke="#168c9a" style="cursor:nwse-resize;pointer-events:all"/>`;
  }}return out;}
 if(t==='panel'||t==='switchboard')return `<rect x="-43" y="-55" width="86" height="110" ${line}/>${txt(0,-30,n.name,11,'bold','panelName')}${txt(0,-10,n.amps?n.amps+'A':'',12,'panelRating')}${txt(0,6,n.innerText?.panelMain??n.mainType??'M.L.O.',10,'panelMain')}${txt(0,19,n.voltage||'',8,'normal','panelVoltage')}${txt(0,30,n.kaic?String(n.kaic).trim()+(String(n.kaic).toUpperCase().includes('KAIC')?'':' kAIC'):'',8,'normal','panelKaic')}<path d="M-30 40H30M-30 47H30" ${line}/>`;
 if(t==='planroom'){const w=320,h=210,wall=Math.max(0,Number(n.wallInches??6))*Math.min(w/Math.max(1,Number(n.roomLengthIn??240)),h/Math.max(1,Number(n.roomWidthIn??144)));return `<rect x="-160" y="-105" width="320" height="210" stroke="${ink}" stroke-width="1.5" fill="none"/><rect x="${-160-wall}" y="${-105-wall}" width="${320+2*wall}" height="${210+2*wall}" stroke="${ink}" stroke-width="1.5" fill="none"/>${n.showRoomName===false||!String(n.name||'').trim()?'':txt(0,-85,n.name,12,'bold','roomLabel')}`;}
@@ -976,7 +976,9 @@ $('svg').addEventListener('pointermove',e=>{
  const proposed=d.resize?{...o,w:clamp(o.w+dx,24,d.w/2-o.x-3),h:clamp(o.h+dy,18,d.h/2-o.y-3)}:{...o,x:o.x+dx,y:o.y+dy};n.comboBoxes[d.key]=constrainComboCompartment(n,d.key,proposed,n.comboBoxes[d.key]||o,d.w,d.h);
  renderCanvasOnly();e.preventDefault();e.stopImmediatePropagation();
 },true);
-$('svg').addEventListener('pointerup',e=>{if(!comboSlotDrag||comboSlotDrag.pointerId!==e.pointerId)return;comboSlotDrag=null;render();e.preventDefault();e.stopImmediatePropagation();},true);
+const finishComboSlotDrag=e=>{if(!comboSlotDrag||comboSlotDrag.pointerId!==e.pointerId)return;comboSlotDrag=null;render();e.preventDefault();e.stopImmediatePropagation();};
+$('svg').addEventListener('pointerup',finishComboSlotDrag,true);
+$('svg').addEventListener('pointercancel',finishComboSlotDrag,true);
 let shapeMiddleDrag=null;
 $('svg').addEventListener('pointerdown',e=>{
  if(mode!=='select'||e.button!==0||e.target.closest('[data-line-end]'))return;
