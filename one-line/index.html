@@ -270,7 +270,8 @@ if(t==='metercombo'){
  const legacy=b===0?[n.amps?String(n.amps).trim()+(String(n.amps).toUpperCase().includes('A')?'':'A')+' MAIN':'400A MAIN',n.surgeInstalled===false?'':'SURGE PROTECTION',n.breakerA||'200A A',n.breakerB||'200A B',n.kaic?String(n.kaic)+' kAIC':'SPARE / AUXILIARY'][i]:undefined;
  const label=n.innerText?.[key]??legacy??defaults[i]??'';
  out+=`<rect data-combo-slot="${b}:${i}" x="${bx}" y="${by}" width="${bw}" height="${bh}" ${line} style="pointer-events:all;cursor:move"/>`;
- out+=`<g transform="translate(${bx+bw/2} ${by+bh/2}) scale(${invX} ${invY})">${txt(0,3,label,9,'normal',key)}</g>`;
+ const offsetX=Number(n.textOffsets?.[key]?.x)||0,offsetY=Number(n.textOffsets?.[key]?.y)||0;
+ out+=`<g transform="translate(${bx+bw/2} ${by+bh/2}) scale(${invX} ${invY}) translate(${offsetX} ${offsetY})">${txt(0,3,label,9,'normal',key)}</g>`;
  if(selected?.kind==='node'&&selected.id===n.id)out+=`<rect data-combo-resize="${b}:${i}" x="${bx+bw-5}" y="${by+bh-5}" width="9" height="9" fill="#ffffff" stroke="#168c9a" style="cursor:nwse-resize;pointer-events:all"/>`;
  }}return out;}
 if(t==='panel'||t==='switchboard')return `<rect x="-43" y="-55" width="86" height="110" ${line}/>${txt(0,-30,n.name,11,'bold','panelName')}${txt(0,-10,n.amps?n.amps+'A':'',12,'panelRating')}${txt(0,6,n.innerText?.panelMain??n.mainType??'M.L.O.',10,'panelMain')}${txt(0,19,n.voltage||'',8,'normal','panelVoltage')}${txt(0,30,n.kaic?String(n.kaic).trim()+(String(n.kaic).toUpperCase().includes('KAIC')?'':' kAIC'):'',8,'normal','panelKaic')}<path d="M-30 40H30M-30 47H30" ${line}/>`;
