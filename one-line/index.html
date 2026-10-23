@@ -630,7 +630,7 @@ const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','k
  const raw=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;
  const fieldKey=el.dataset.prop||el.dataset.field||(el.hasAttribute('data-main-type')?'mainType':null);
  const map={name:'name',voltage:'voltage',amps:'amps',rating:'rating',mainType:'panelMain',kaic:'panelKaic',kva:'kva',kw:'kw',fuseAmps:'fuseAmps'};
- const aliases={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic'],mainType:['panelMain']};const key=el.hasAttribute('data-common-label')?'drawingLabel':(raw||((aliases[fieldKey]||[map[fieldKey]]).find(k=>defs.some(d=>d[0]===k))));
+ const aliases={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],mainType:['panelMain']};const key=el.hasAttribute('data-common-label')?'drawingLabel':(raw||((aliases[fieldKey]||[map[fieldKey]]).find(k=>defs.some(d=>d[0]===k))));
  if(key&&defs.some(d=>d[0]===key)){activeInnerKey=key;toolbar.syncSelectedText?.();renderCanvasOnly();toolbar.syncSelectedText?.();}
 }));
  for(const attr of ['data-common-label-x','data-common-label-y','data-common-label-size']){const el=common.querySelector('['+attr+']');const field=el?.closest('label');if(field){const row=field.parentElement;field.remove();if(row?.classList.contains('row')&&!row.querySelector('label'))row.remove();}}
@@ -639,7 +639,7 @@ const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','k
   const input=field.querySelector('input,select,textarea');if(!input)continue;
   const raw=input.dataset.innerText;
   const attr=input.dataset.prop||(input.hasAttribute('data-main-type')?'mainType':null);
-  const aliases={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic'],fuseAmps:['disconnectFuse']};
+  const aliases={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],fuseAmps:['disconnectFuse']};
   const key=input.hasAttribute('data-common-label')?'drawingLabel':(raw||(aliases[attr]||[attr]).find(k=>defs.some(d=>d[0]===k)));
   if(key&&defs.some(d=>d[0]===key))input.addEventListener('pointerdown',()=>{activeInnerKey=key;toolbar.syncSelectedText?.();});
  }
