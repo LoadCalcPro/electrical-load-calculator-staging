@@ -555,6 +555,25 @@ function organizeEquipmentProperties(){
   symbolInput.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText.generatorLetter=symbolInput.value;activeInnerKey='generatorLetter';renderCanvasOnly();toolbar.syncSelectedText?.();});
   symbolField.appendChild(symbolInput);info.insertBefore(symbolField,size||null);
 }
+if(itemForInfo?.type==='metercombo'){
+ const layout=p.querySelector('.section:has(#comboBays)');
+ if(layout){const layoutHome=document.createElement('section');layoutHome.className='meter-combo-layout';const heading=document.createElement('h4');heading.textContent='Bay and Compartment Layout';layoutHome.appendChild(heading);while(layout.firstChild){const child=layout.firstChild;if(child.tagName==='B'){child.remove();continue;}layoutHome.appendChild(child);}layout.remove();info.appendChild(layoutHome);}
+ const bays=Math.max(1,Math.min(8,Number(itemForInfo.comboBays)||1)),counts=Array.isArray(itemForInfo.comboCounts)?itemForInfo.comboCounts:[];
+ const defaults=['400A MAIN','SURGE PROTECTION','200A A','200A B','SPARE / AUXILIARY'];
+ for(let b=0;b<bays;b++){
+  const heading=document.createElement('h4');heading.textContent='Bay '+(b+1)+' — Compartment Labels';info.appendChild(heading);
+  for(let i=0;i<Math.max(1,Math.min(12,Number(counts[b])||5));i++){
+   const key='comboCell_'+b+'_'+i,field=document.createElement('label');field.className='field';field.textContent='Compartment '+(i+1);
+   const input=document.createElement('input');input.type='text';input.dataset.innerText=key;
+   const legacy=b===0?[itemForInfo.amps?String(itemForInfo.amps)+'A MAIN':'400A MAIN',itemForInfo.surgeInstalled===false?'':'SURGE PROTECTION',itemForInfo.breakerA||'200A A',itemForInfo.breakerB||'200A B',itemForInfo.kaic?String(itemForInfo.kaic)+' kAIC':'SPARE / AUXILIARY'][i]:undefined;
+   input.value=itemForInfo.innerText?.[key]??legacy??defaults[i]??'';
+   input.addEventListener('focus',()=>{activeInnerKey=key;toolbar.syncSelectedText?.();});
+   input.addEventListener('click',()=>{activeInnerKey=key;toolbar.syncSelectedText?.();});
+   input.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText[key]=input.value;activeInnerKey=key;renderCanvasOnly();toolbar.syncSelectedText?.();});
+   field.appendChild(input);info.appendChild(field);
+  }
+ }
+}
 const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','kaic','interruptingRating','fuseRating','kva','kw'];
  for(const key of electricalKeys){const el=key==='mainType'?p.querySelector('[data-main-type]'):p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
  const additionalLabel=common.querySelector('[data-common-label]')?.closest('label');
@@ -627,7 +646,7 @@ const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','k
  if(weightStyle&&customThickness){const syncThickness=()=>{customThickness.hidden=weightStyle.value!=='custom';customThickness.style.display=weightStyle.value==='custom'?'':'none';};weightStyle.addEventListener('change',syncThickness);syncThickness();}
  const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
  if(drawingHint)advanced.appendChild(drawingHint);
- if(advanced.children.length>1){info.insertAdjacentElement('afterend',advanced);advanced.open=false;}
+ if(advanced.children.length>1){p.appendChild(advanced);advanced.open=false;}
 }
 
 // Shared property layout: keep existing inputs/listeners intact while organizing tool controls.
