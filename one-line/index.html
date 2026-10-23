@@ -669,9 +669,9 @@ if(itemForInfo?.type==='metercombo'){
    const input=document.createElement('input');input.type='text';input.dataset.innerText=key;
    const legacy=b===0?[itemForInfo.amps?String(itemForInfo.amps)+'A MAIN':'400A MAIN',itemForInfo.surgeInstalled===false?'':'SURGE PROTECTION',itemForInfo.breakerA||'200A A',itemForInfo.breakerB||'200A B',itemForInfo.kaic?String(itemForInfo.kaic)+' kAIC':'SPARE / AUXILIARY'][i]:undefined;
    input.value=itemForInfo.innerText?.[key]??legacy??defaults[i]??'';
-   input.addEventListener('focus',()=>{activeInnerKey=key;toolbar.syncSelectedText?.();});
-   input.addEventListener('click',()=>{activeInnerKey=key;toolbar.syncSelectedText?.();});
-   input.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText[key]=input.value;activeInnerKey=key;renderCanvasOnly();toolbar.syncSelectedText?.();});
+   input.addEventListener('focus',()=>{activateEquipmentText(itemForInfo,key);renderCanvasOnly();});
+   input.addEventListener('click',()=>{activateEquipmentText(itemForInfo,key);renderCanvasOnly();});
+   input.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText[key]=input.value;activateEquipmentText(itemForInfo,key);renderCanvasOnly();});
    field.appendChild(input);info.appendChild(field);
   }
  }
@@ -964,7 +964,7 @@ $('svg').addEventListener('pointerdown',e=>{
  const bays=Math.max(1,Math.min(8,Number(n.comboBays)||1)),counts=Array.isArray(n.comboCounts)?n.comboCounts:[],h=Math.max(190,Math.max(1,...Array.from({length:bays},(_,b)=>Math.max(1,Math.min(12,Number(counts[b])||5))))*34+20),w=82+bays*112;
  const original=n.comboBoxes?.[key]||{x:-w/2+82+bay*112+5,y:-h/2+10+index*34,w:102,h:31};
  comboSlotDrag={id:n.id,key,pointerId:e.pointerId,start:xy(e),original:{...original},resize:!!handle,w,h,moved:false};
- selectEquipmentTarget(n.id,key);selectedNodeIds.clear();selectedNodeIds.add(n.id);
+ selectEquipmentTarget(n.id,key);selectedNodeIds.clear();selectedNodeIds.add(n.id);render();
  $('svg').setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();
 },true);
 $('svg').addEventListener('pointermove',e=>{
