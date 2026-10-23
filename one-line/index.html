@@ -264,7 +264,7 @@ if(t==='metercombo'){
  const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1,invX=1/sx,invY=1/sy;
  let out=`<rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" ${line}/><path d="M${-w/2+meterW} ${-h/2}V${h/2}" ${line}/>`;
  const mx=-w/2+meterW/2+(Number(n.comboMeterX)||0),my=-h/2+48+(Number(n.comboMeterY)||0);
- out+=`<g transform="translate(${mx} ${my}) scale(${invX} ${invY})"><circle r="22" ${line}/>${txt(0,7,'M',23,'bold','meterLetter')}</g>`;
+ out+=`<g data-combo-meter="true" transform="translate(${mx} ${my}) scale(${invX} ${invY})" style="cursor:move"><circle r="22" ${line} style="pointer-events:all"/>${txt(0,7,'M',23,'bold','meterLetter')}</g>`;
  for(let b=0;b<bays;b++){const x=-w/2+meterW+b*bayW;if(b)out+=`<path d="M${x} ${-h/2}V${h/2}" ${line}/>`;const count=Math.max(1,Math.min(12,Number(counts[b])||5));
  for(let i=0;i<count;i++){const key='comboCell_'+b+'_'+i,box=n.comboBoxes?.[key]||{},bx=Math.max(-w/2+3,Math.min(w/2-24,Number(box.x??(x+5)))),by=Math.max(-h/2+3,Math.min(h/2-18,Number(box.y??(-h/2+10+i*cellH)))),bw=Math.max(24,Math.min(w/2-bx-3,Number(box.w)||bayW-10)),bh=Math.max(18,Math.min(h/2-by-3,Number(box.h)||cellH-3));
  const legacy=b===0?[n.amps?String(n.amps).trim()+(String(n.amps).toUpperCase().includes('A')?'':'A')+' MAIN':'400A MAIN',n.surgeInstalled===false?'':'SURGE PROTECTION',n.breakerA||'200A A',n.breakerB||'200A B',n.kaic?String(n.kaic)+' kAIC':'SPARE / AUXILIARY'][i]:undefined;
@@ -882,6 +882,36 @@ $('svg').addEventListener('pointerdown',e=>{
   pendingShapeConnection=null;$('status').textContent='Shapes connected. Select another rectangle or cloud to continue.';
  }
  render();e.preventDefault();e.stopImmediatePropagation();
+},true);
+// The Meter Combo's meter head is independently draggable. Use the same
+// local-coordinate movement convention as its adjustable compartments.
+let comboMeterDrag=null;
+$('svg').addEventListener('pointerdown',e=>{
+ if(mode!=='select'||e.button!==0)return;
+ const meter=e.target.closest('[data-combo-meter]'),root=e.target.closest('[data-node]');
+ if(!meter||!root)return;
+ const n=nodes.find(v=>v.id===Number(root.dataset.node));
+ if(n?.type!=='metercombo')return;
+ comboMeterDrag={id:n.id,pointerId:e.pointerId,start:xy(e),x:Number(n.comboMeterX)||0,y:Number(n.comboMeterY)||0};
+ selectEquipmentTarget(n.id,'meterLetter');
+ selectedNodeIds.clear();selectedNodeIds.add(n.id);
+ $('svg').setPointerCapture(e.pointerId);
+ e.preventDefault();e.stopImmediatePropagation();
+},true);
+$('svg').addEventListener('pointermove',e=>{
+ const d=comboMeterDrag;if(!d||d.pointerId!==e.pointerId)return;
+ const n=nodes.find(v=>v.id===d.id);if(!n)return;
+ const pt=xy(e),sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;
+ const bays=Math.max(1,Math.min(8,Number(n.comboBays)||1)),counts=n.comboCounts||[];
+ const height=Math.max(190,Math.max(1,...Array.from({length:bays},(_,b)=>Math.max(1,Math.min(12,Number(counts[b])||5))))*34+20);
+ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ n.comboMeterX=clamp(d.x+(pt.x-d.start.x)/sx,-19,19);
+ n.comboMeterY=clamp(d.y+(pt.y-d.start.y)/sy,-height/2+26-(-height/2+48),height/2-26-(-height/2+48));
+ renderCanvasOnly();e.preventDefault();e.stopImmediatePropagation();
+},true);
+$('svg').addEventListener('pointerup',e=>{
+ if(!comboMeterDrag||comboMeterDrag.pointerId!==e.pointerId)return;
+ comboMeterDrag=null;render();e.preventDefault();e.stopImmediatePropagation();
 },true);
 // Move and resize compartments independently without moving the enclosure.
 let comboSlotDrag=null;
