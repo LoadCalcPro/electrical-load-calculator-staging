@@ -868,7 +868,7 @@ const inspector=$('textInspector');inspector.replaceChildren();const section=doc
 if(selected.kind==='wire'){
  const inspector=$('textInspector');inspector.replaceChildren();
  const section=document.createElement('details');section.className='equipment-category properties-common';section.open=true;
- section.innerHTML='<summary>Drawing & Formatting Controls</summary><div class="shared-text-editor feeder-label-editor"><div class="shared-selected-label">Selected: Feeder Label</div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal<input data-shared-x type="number" step="1"></label><label class="field">Vertical<input data-shared-y type="number" step="1"></label></div></div>';
+ section.innerHTML='<summary>Drawing & Formatting Controls</summary><div class="shared-text-editor feeder-label-editor"><div class="shared-selected-label">Selected: Feeder Label</div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal<input data-shared-x type="number" step="1"></label><label class="field">Vertical<input data-shared-y type="number" step="1"></label><label class="field">Rotation (degrees)<input data-shared-angle type="number" min="-360" max="360" step="1"></label></div></div>';
  inspector.appendChild(section);
  const paletteSection=document.createElement('div');paletteSection.className='section connection-line-palette';paletteSection.innerHTML='<b>Connection Line Color</b><p class="status">Select a color for the connection. Black is the default.</p>';
  section.insertBefore(paletteSection,section.querySelector('.shared-text-editor'));
@@ -879,11 +879,12 @@ if(selected.kind==='wire'){
  const labelPalette=document.createElement('div');labelPalette.className='feeder-label-palette';section.querySelector('.shared-text-editor').appendChild(labelPalette);
  makeColorRows(labelPalette,()=>item.labelColor||'#111111',v=>{item.labelColor=v;renderCanvasOnly()},()=>'',()=>{},{colorLabel:'Text / Line Color',noHighlight:true});
  const field=(key)=>p.querySelector('[data-prop="'+key+'"]');
- for(const key of ['labelSize','labelStyle','labelColor','labelDX','labelDY'])field(key)?.closest('label')?.remove();
- const mapping=[['[data-shared-size]','labelSize',9],['[data-shared-style]','labelStyle','normal'],['[data-shared-x]','labelDX',0],['[data-shared-y]','labelDY',0]];
+ for(const key of ['labelSize','labelStyle','labelColor','labelDX','labelDY','labelAngle'])field(key)?.closest('label')?.remove();
+ const mapping=[['[data-shared-size]','labelSize',9],['[data-shared-style]','labelStyle','normal'],['[data-shared-x]','labelDX',0],['[data-shared-y]','labelDY',0],['[data-shared-angle]','labelAngle',0]];
  for(const [sel,key,fallback] of mapping){
   const el=section.querySelector(sel);el.value=item[key]??fallback;
   if(key==='labelDX'||key==='labelDY'){bindDrawingLabelOffset(el,item,key);continue;}
+  if(key==='labelAngle'){el.addEventListener('input',()=>{if(el.value.trim()==='')return;const angle=Number(el.value);if(!Number.isFinite(angle))return;item.labelAngle=Math.max(-360,Math.min(360,angle));renderCanvasOnly();});el.addEventListener('change',()=>{el.value=normalizeDrawingPropertyNumber(item.labelAngle,0,-360,360);});continue;}
   el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{
    if(key==='labelSize'&&el.value.trim()==='')return;
    item[key]=key==='labelSize'?normalizeDrawingPropertyNumber(el.value,9,5,48):el.value;renderCanvasOnly();
