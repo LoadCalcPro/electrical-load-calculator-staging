@@ -938,7 +938,7 @@ $('svg').addEventListener('pointerup',e=>{
 // neighboring compartments. A blocked drag leaves the last valid box in place.
 function constrainComboCompartment(n,key,box,previous,w,h){
  const bay=Number(key.split('_')[1])||0;
- const left=-w/2+82+bay*112+3,right=Math.min(w/2-3,left+106);
+ const left=-w/2+82+bay*112+3,right=Math.min(w/2-3,-w/2+82+(bay+1)*112-3);
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const candidate={...box};
  candidate.w=clamp(Number(candidate.w)||24,24,right-left);
@@ -949,7 +949,7 @@ function constrainComboCompartment(n,key,box,previous,w,h){
  const count=Math.max(1,Math.min(12,Number(n.comboCounts?.[bay])||5));
  for(let i=0;i<count;i++){
   const otherKey='comboCell_'+bay+'_'+i;if(otherKey===key)continue;
-  const other=n.comboBoxes?.[otherKey]||{x:left+2,y:-h/2+10+i*34,w:102,h:31};
+  const raw=n.comboBoxes?.[otherKey]||{x:left+2,y:-h/2+10+i*34,w:102,h:31};const other={x:Math.max(-w/2+3,Math.min(w/2-24,Number(raw.x))),y:Math.max(-h/2+3,Math.min(h/2-18,Number(raw.y))),w:Math.max(24,Math.min(w/2-(Number(raw.x)||0)-3,Number(raw.w)||102)),h:Math.max(18,Math.min(h/2-(Number(raw.y)||0)-3,Number(raw.h)||31))};
   if(intersects(candidate,other))return previous;
  }
  return candidate;
