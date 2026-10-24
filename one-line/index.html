@@ -646,7 +646,7 @@ function selectEquipmentTarget(id,key=null){
 }
 // Keep formatting selection stable while clicking controls, but never let
 // a stale text key carry over to a different equipment item.
-function equipmentTextKeys(item){return (item?._labelDefs||[]).map(d=>d[0]);}
+function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[0]),'drawingLabel']:[];}
 function activateEquipmentText(item,key){if(!item||!equipmentTextKeys(item).includes(key))return false;selectEquipmentTarget(item.id,key);$('textInspector').syncSelectedText?.();return true;}
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
