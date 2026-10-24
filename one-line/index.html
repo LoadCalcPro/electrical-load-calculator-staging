@@ -804,11 +804,13 @@ function standardizeDrawingProperties(){
   // For example, 'Label rotation' belongs with position, not label content.
   // Preserve label-first ordering even when a label field also contains formatting terminology.
   const isLabelContent=!!field.querySelector('input[type="text"],textarea')&&/^(?:(?:additional\s+)?label\b|designation\b|description\b|name\b)/i.test(label);
-  // Keep visual formatting together; color/highlight controls should not be
-  // scattered among label-position fields just because their title says 'label'.
-  const isAppearance=/color|highlight|thickness|opacity|outline|fill|width|height|size/i.test(label);
-  const isPosition=/font|offset|rotation|position|horizontal|vertical/i.test(label);
-  const idx=isLabelContent?0:isAppearance?2:isPosition?1:/label|name|description|designation|text/i.test(label)?0:-1;
+  // Classify by the control's function, not by incidental words in its caption.
+  // Font size belongs with font controls; conductor/box dimensions belong
+  // with appearance. Label content remains the first section.
+  const isFont=/\bfont\b|\btypeface\b|\btext style\b/i.test(label);
+  const isPosition=/\boffset\b|\brotation\b|\bposition\b|\bhorizontal\b|\bvertical\b|\bpos\s*[xy]\b/i.test(label);
+  const isAppearance=/\bcolor\b|\bhighlight\b|\bthickness\b|\bopacity\b|\boutline\b|\bfill\b|\bwidth\b|\bheight\b|\bsize\b/i.test(label);
+  const idx=isLabelContent?0:isFont||isPosition?1:isAppearance?2:/label|name|description|designation|text/i.test(label)?0:-1;
   if(idx>=0){sections[idx].appendChild(field);used++;}
  }
  if(!used)return;
