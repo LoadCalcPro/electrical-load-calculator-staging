@@ -656,6 +656,7 @@ function organizeEquipmentProperties(){
  const hint=size?.nextElementSibling;
  const info=document.createElement('section');info.className='property-priority';
  const h=document.createElement('h4');h.textContent='Equipment Information';info.appendChild(h);
+ // Keep the equipment designation and electrical data above sizing controls.
  if(size)info.appendChild(size);
  if(hint?.classList.contains('status'))hint.remove();
  const designation=p.querySelector('[data-prop="name"]')?.closest('label')||p.querySelector('[data-prop="label"]')?.closest('label');
