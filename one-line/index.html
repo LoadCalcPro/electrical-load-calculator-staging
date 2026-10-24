@@ -794,7 +794,9 @@ function standardizeDrawingProperties(){
  let used=0;
  for(const field of fields){
   const label=(field.querySelector('input,select,textarea')?.closest('label')?.textContent||field.textContent||'').trim().slice(0,100);
-  const idx=groups.findIndex(g=>g.test.test(label));
+  // Match the actual control purpose before generic words such as 'label' or 'text'.
+  // For example, 'Label rotation' belongs with position, not label content.
+  const idx=/color|highlight|thickness|opacity|outline|fill/i.test(label)?2:/font|offset|rotation|position|horizontal|vertical/i.test(label)?1:/label|name|description|designation|text/i.test(label)?0:/width|height|size/i.test(label)?2:-1;
   if(idx>=0){sections[idx].appendChild(field);used++;}
  }
  if(!used)return;
