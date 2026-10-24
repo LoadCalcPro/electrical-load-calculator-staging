@@ -656,8 +656,7 @@ function organizeEquipmentProperties(){
  const hint=size?.nextElementSibling;
  const info=document.createElement('section');info.className='property-priority';
  const h=document.createElement('h4');h.textContent='Equipment Information';info.appendChild(h);
- // Keep the equipment designation and electrical data above sizing controls.
- if(size)info.appendChild(size);
+ // Add sizing after the equipment information, without moving the control twice.
  if(hint?.classList.contains('status'))hint.remove();
  const designation=p.querySelector('[data-prop="name"]')?.closest('label')||p.querySelector('[data-prop="label"]')?.closest('label');
  if(designation)info.insertBefore(designation,size||null);
@@ -687,7 +686,7 @@ if(itemForInfo?.type==='metercombo'){
   }
  }
 }
-const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','kaic','interruptingRating','fuseRating','kva','kw'];
+const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','fuseRating','kaic','interruptingRating','kva','kw'];
  for(const key of electricalKeys){const el=key==='mainType'?p.querySelector('[data-main-type]'):p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
  const additionalLabel=common.querySelector('[data-common-label]')?.closest('label');
  if(additionalLabel){additionalLabel.classList.add('field');const input=additionalLabel.querySelector('[data-common-label]');if(input){input.style.width='100%';input.style.boxSizing='border-box';}info.appendChild(additionalLabel);}
