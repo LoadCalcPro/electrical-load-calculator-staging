@@ -799,7 +799,9 @@ function standardizeDrawingProperties(){
   const label=(field.querySelector('input,select,textarea')?.closest('label')?.textContent||field.textContent||'').trim().slice(0,100);
   // Match the actual control purpose before generic words such as 'label' or 'text'.
   // For example, 'Label rotation' belongs with position, not label content.
-  const idx=/font|offset|rotation|position|horizontal|vertical/i.test(label)?1:/color|highlight|thickness|opacity|outline|fill|width|height|size/i.test(label)?2:/label|name|description|designation|text/i.test(label)?0:-1;
+  // Preserve label-first ordering even when a label field also contains formatting terminology.
+  const isLabelContent=field.querySelector('input[type="text"],textarea')&&/^(additional )?label|designation|description|name/i.test(label);
+  const idx=isLabelContent?0:/font|offset|rotation|position|horizontal|vertical/i.test(label)?1:/color|highlight|thickness|opacity|outline|fill|width|height|size/i.test(label)?2:/label|name|description|designation|text/i.test(label)?0:-1;
   if(idx>=0){sections[idx].appendChild(field);used++;}
  }
  if(!used)return;
