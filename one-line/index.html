@@ -903,9 +903,9 @@ const inspector=$('textInspector');inspector.replaceChildren();const section=doc
  for(const field of Array.from(p.querySelectorAll('[data-parallel-color]')).map(el=>el.closest('label'))){field?.remove();}
  const feederLabel=p.querySelector('[data-prop="label"]')?.closest('label');
  if(feederLabel){
-  p.insertBefore(feederLabel,p.firstElementChild?.nextElementSibling||null);
+  const firstEditable=Array.from(p.children).find(el=>el.matches?.('label.field'));if(firstEditable&&firstEditable!==feederLabel)p.insertBefore(feederLabel,firstEditable);else if(!firstEditable)p.insertBefore(feederLabel,p.firstElementChild?.nextElementSibling||null);
   let after=feederLabel;
-  for(const key of ['labelSize','labelStyle','labelColor','labelDX','labelDY','labelAngle']){
+  for(const key of ['labelSize','labelStyle','labelDX','labelDY','labelAngle']){
    const field=p.querySelector('[data-prop="'+key+'"]')?.closest('label');
    if(field){after.insertAdjacentElement('afterend',field);after=field;}
   }
