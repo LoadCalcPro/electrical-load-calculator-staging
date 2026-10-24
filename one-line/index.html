@@ -808,7 +808,7 @@ function standardizeDrawingProperties(){
   // Classify by the control's function, not by incidental words in its caption.
   // Font size belongs with font controls; conductor/box dimensions belong
   // with appearance. Label content remains the first section.
-  const isFont=/\bfont\b|\btypeface\b|\btext style\b/i.test(label);
+  const isFont=/\bfont\b|\btypeface\b|\btext style\b|\blabel\s+(?:size|style)\b/i.test(label);
   const isPosition=/\boffset\b|\brotation\b|\bposition\b|\bhorizontal\b|\bvertical\b|\bpos\s*[xy]\b/i.test(label);
   const isAppearance=/\bcolor\b|\bhighlight\b|\bthickness\b|\bopacity\b|\boutline\b|\bfill\b|\bwidth\b|\bheight\b|\bsize\b/i.test(label);
   // A label-color control is still a color control, even if its caption
