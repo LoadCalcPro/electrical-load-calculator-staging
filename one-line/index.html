@@ -783,6 +783,7 @@ function standardizeDrawingProperties(){
  p.classList.add('standardized-properties');
  const existing=p.querySelector('.property-priority');
  if(existing){existing.classList.add('property-section');return;}
+ // Rebuild only the layout containers: keep each input node and its listeners intact.
  const fields=Array.from(p.children).filter(el=>el.matches?.('label.field,div.field'));
  if(!fields.length)return;
  const groups=[
@@ -803,6 +804,7 @@ function standardizeDrawingProperties(){
  const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';const summary=document.createElement('summary');summary.textContent='Advanced Drawing Settings';advanced.appendChild(summary);
  // Preserve all remaining controls, including their original event listeners.
  for(const field of fields){if(field.parentElement===p)advanced.appendChild(field);}
+ // Insert the three standard sections together, ahead of advanced settings.
  for(const section of sections){if(section.children.length>1)p.appendChild(section);}
  if(advanced.children.length>1)p.appendChild(advanced);
 }
