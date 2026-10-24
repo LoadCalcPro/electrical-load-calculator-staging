@@ -891,14 +891,20 @@ if(selected.kind==='wire'){
  const section=document.createElement('details');section.className='equipment-category properties-common';section.open=true;
  section.innerHTML='<summary>Drawing & Formatting Controls</summary><div class="shared-text-editor feeder-label-editor"><div class="shared-selected-label">Selected: Feeder Label</div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal<input data-shared-x type="number" step="1"></label><label class="field">Vertical<input data-shared-y type="number" step="1"></label><label class="field">Rotation (degrees)<input data-shared-angle type="number" min="-360" max="360" step="1"></label></div></div>';
  inspector.appendChild(section);
- const paletteSection=document.createElement('div');paletteSection.className='section connection-line-palette';paletteSection.innerHTML='<b>Connection Line Color</b><p class="status">Select a color for the connection. Black is the default.</p>';
- section.insertBefore(paletteSection,section.querySelector('.shared-text-editor'));
  const from=nodes.find(n=>n.id===item.from),to=nodes.find(n=>n.id===item.to);
  const isOldGroundDefault=(from?.type==='groundterminal'||to?.type==='groundterminal')&&item.parallelColors?.length===1&&item.parallelColors[0]?.toLowerCase()==='#16a34a';
  if(isOldGroundDefault)item.parallelColors=['#111111'];
- makeColorRows(paletteSection,()=>item.parallelColors?.[0]||'#111111',v=>{item.parallelColors=Array.from({length:Math.max(1,Number(item.parallelCount)||1)},()=>v);renderCanvasOnly()},()=>'',()=>{},{colorLabel:'Conductor Color',noHighlight:true});
- const labelPalette=document.createElement('div');labelPalette.className='feeder-label-palette';section.querySelector('.shared-text-editor').appendChild(labelPalette);
- makeColorRows(labelPalette,()=>item.labelColor||'#111111',v=>{item.labelColor=v;renderCanvasOnly()},()=>'',()=>{},{colorLabel:'Text / Line Color',noHighlight:true});
+ const paletteRoot=section.querySelector('.shared-text-editor');
+ const targetField=document.createElement('label');targetField.className='field';targetField.textContent='Format selected part';
+ const targetSelect=document.createElement('select');targetSelect.innerHTML='<option value="label">Feeder label</option><option value="conductor">Connection conductor</option>';
+ targetSelect.value=item.label?'label':'conductor';targetField.appendChild(targetSelect);
+ paletteRoot.insertBefore(targetField,paletteRoot.querySelector('.shared-text-grid'));
+ const syncColors=makeColorRows(paletteRoot,()=>targetSelect.value==='label'?(item.labelColor||'#111111'):(item.parallelColors?.[0]||'#111111'),
+ v=>{if(targetSelect.value==='label')item.labelColor=v;else item.parallelColors=Array.from({length:Math.max(1,Number(item.parallelCount)||1)},()=>v);renderCanvasOnly()},
+ ()=>'',
+ ()=>{},
+ {colorLabel:'Color',noHighlight:true});
+ targetSelect.onchange=syncColors;
  const field=(key)=>p.querySelector('[data-prop="'+key+'"]');
  for(const key of ['labelSize','labelStyle','labelColor','labelDX','labelDY','labelAngle'])field(key)?.closest('label')?.remove();
  const mapping=[['[data-shared-size]','labelSize',9],['[data-shared-style]','labelStyle','normal'],['[data-shared-x]','labelDX',0],['[data-shared-y]','labelDY',0],['[data-shared-angle]','labelAngle',0]];
