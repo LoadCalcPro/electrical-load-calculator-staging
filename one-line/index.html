@@ -691,6 +691,9 @@ const electricalKeys=['voltage','phase','amps','rating','mainType','fuseAmps','k
  for(const key of electricalKeys){const el=key==='mainType'?p.querySelector('[data-main-type]'):p.querySelector('[data-prop="'+key+'"]');const field=el?.closest('label');if(field)info.appendChild(field);}
  const additionalLabel=common.querySelector('[data-common-label]')?.closest('label');
  if(additionalLabel){additionalLabel.classList.add('field');const input=additionalLabel.querySelector('[data-common-label]');if(input){input.style.width='100%';input.style.boxSizing='border-box';}info.appendChild(additionalLabel);}
+ // Put the external label immediately after designation; keep ratings and dimensions below it.
+ if(additionalLabel){const designationField=info.querySelector('[data-prop="name"]')?.closest('label')||info.querySelector('[data-prop="label"]')?.closest('label');if(designationField)designationField.insertAdjacentElement('afterend',additionalLabel);else info.insertBefore(additionalLabel,info.firstElementChild?.nextElementSibling||null);}
+ if(size)info.appendChild(size);
  p.insertBefore(info,p.firstChild?.nextSibling||null);
  const toolbar=$('textInspector');toolbar.replaceChildren();toolbar.appendChild(common);common.open=true;
  const item=nodes.find(n=>n.id===selected.id);
