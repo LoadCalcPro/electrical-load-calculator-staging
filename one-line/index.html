@@ -787,6 +787,8 @@ function standardizeDrawingProperties(){
  if(existing){existing.classList.add('property-section');return;}
  // Rebuild only the layout containers: keep each input node and its listeners intact.
  const fields=Array.from(p.children).filter(el=>el.matches?.('label.field,div.field'));
+ // Keep label-content fields in their original sequence; don't move any live
+ // control into a different DOM tree until its destination is determined.
  if(!fields.length)return;
  const groups=[
   {title:'Label & Information'},
@@ -796,7 +798,8 @@ function standardizeDrawingProperties(){
  const sections=groups.map(g=>{const sec=document.createElement('section');sec.className='property-priority property-section';const h=document.createElement('h4');h.textContent=g.title;sec.appendChild(h);return sec;});
  let used=0;
  for(const field of fields){
-  const label=(field.querySelector('input,select,textarea')?.closest('label')?.textContent||field.textContent||'').trim().slice(0,100);
+  const control=field.querySelector('input,select,textarea');
+  const label=(control?.closest('label')?.textContent||field.textContent||'').trim().slice(0,100);
   // Match the actual control purpose before generic words such as 'label' or 'text'.
   // For example, 'Label rotation' belongs with position, not label content.
   // Preserve label-first ordering even when a label field also contains formatting terminology.
