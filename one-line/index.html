@@ -810,7 +810,11 @@ function standardizeDrawingProperties(){
   const isFont=/\bfont\b|\btypeface\b|\btext style\b/i.test(label);
   const isPosition=/\boffset\b|\brotation\b|\bposition\b|\bhorizontal\b|\bvertical\b|\bpos\s*[xy]\b/i.test(label);
   const isAppearance=/\bcolor\b|\bhighlight\b|\bthickness\b|\bopacity\b|\boutline\b|\bfill\b|\bwidth\b|\bheight\b|\bsize\b/i.test(label);
-  const idx=isLabelContent?0:isFont||isPosition?1:isAppearance?2:/label|name|description|designation|text/i.test(label)?0:-1;
+  // A label-color control is still a color control, even if its caption
+  // also contains 'font' or 'position'. Keep explicit font-size controls
+  // in typography and route color/highlight to appearance consistently.
+  const isColor=/\bcolor\b|\bhighlight\b|\bfill\b|\boutline\b/i.test(label);
+  const idx=isLabelContent?0:isColor?2:isFont||isPosition?1:isAppearance?2:/label|name|description|designation|text/i.test(label)?0:-1;
   if(idx>=0){sections[idx].appendChild(field);used++;}
  }
  if(!used)return;
