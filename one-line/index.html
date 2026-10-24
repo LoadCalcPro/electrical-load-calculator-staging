@@ -198,7 +198,7 @@ function guideSectionBounds(){
 function activeGuideEquipmentPlacement(type,scale=1){
  const b=guideSectionBounds();if(!b)return null;
  const temp={type,scaleX:scale,scaleY:scale},bounds=baseBounds(temp);
- const pad=8,left=b.left+bounds.l*scale+pad,right=b.right-bounds.r*scale-pad,top=b.top+bounds.t*scale+pad,bottom=b.bottom-bounds.b*scale-pad;
+ const pad=8,left=b.left-bounds.l*scale+pad,right=b.right-bounds.r*scale-pad,top=b.top-bounds.t*scale+pad,bottom=b.bottom-bounds.b*scale-pad;
  const offset=activeGuidePlacementCount++%9,dx=((offset%3)-1)*24,dy=(Math.floor(offset/3)-1)*24;
  const cx=(b.left+b.right)/2,cy=(b.top+b.bottom)/2;
  return {x:left<=right?Math.max(left,Math.min(right,cx+dx)):cx,y:top<=bottom?Math.max(top,Math.min(bottom,cy+dy)):cy};
