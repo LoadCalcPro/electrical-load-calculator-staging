@@ -784,7 +784,7 @@ function standardizeDrawingProperties(){
  if(!fields.length)return;
  const groups=[
   {title:'Label & Information',test:/label|name|description|designation|text/i},
-  {title:'Font & Position',test:/font|offset|rotation|position/i},
+  {title:'Font & Position',test:/font|offset|rotation|position|horizontal|vertical/i},
   {title:'Appearance & Dimensions',test:/color|thickness|width|height|size|opacity|outline|fill/i}
  ];
  const sections=groups.map(g=>{const sec=document.createElement('section');sec.className='property-priority property-section';const h=document.createElement('h4');h.textContent=g.title;sec.appendChild(h);return sec;});
