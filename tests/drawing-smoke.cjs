@@ -22,6 +22,8 @@ const fs = require('node:fs');
    await page.locator('#svg [data-node]').first().waitFor();
    const props = page.locator('#properties');
    assert.ok((await props.innerText()).trim().length > 0, 'Properties empty for '+tab);
+   // Plan footprints currently use separate label fields; exercise shared text formatting on One-Line equipment only.
+   if (tab === 'one') {
    const textEditor = page.locator('.equipment-text-editor');
    assert.ok(await textEditor.count(), 'Shared equipment editor missing for '+tab);
    assert.ok(await textEditor.locator('[data-shared-size]').count(), 'Font-size control missing for '+tab);
@@ -105,6 +107,11 @@ const fs = require('node:fs');
    assert.ok(await fontSize.isEnabled(), 'Text selection was lost after editing label color or offset in '+tab);
    checkErrors(tab+' palette and font-size/style edits');
    checkErrors(tab+' equipment Properties');
+   } else {
+    assert.ok(await props.locator('[data-plan-inside-label]').count(), 'Plan equipment inside-label field missing');
+    assert.ok(await props.locator('[data-plan-outside-label]').count(), 'Plan equipment designation field missing');
+    checkErrors('Plan View footprint properties');
+   }
   }
 
   await page.locator('[data-drawing-tab="ladder"]').click();
