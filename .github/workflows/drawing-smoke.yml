@@ -1,0 +1,20 @@
+name: Drawing Suite Browser Smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'one-line/index.html'
+      - 'tests/drawing-smoke.cjs'
+      - '.github/workflows/drawing-smoke.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/drawing-smoke.cjs
