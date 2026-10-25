@@ -766,7 +766,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  ()=>outlineSelect.value==='label'?labelHighlight():'',
  v=>{if(selected?.kind!=='node'||selected.id!==item.id||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
  {colorLabel:'Color'});
- const syncTarget=()=>{outlineSelect.value=hasTextTarget()?'label':'outline';outlineSelect.querySelector('option[value="label"]').disabled=!hasTextTarget();syncOutlinePalette();};
+ const syncTarget=()=>{const canFormatLabel=hasTextTarget();outlineSelect.querySelector('option[value="label"]').disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';syncOutlinePalette();};
  outlineSelect.onchange=()=>{if(outlineSelect.value==='label'&&!hasTextTarget())outlineSelect.value='outline';syncOutlinePalette();};
  outline.syncSelectedColor=syncTarget;syncTarget();
 }
