@@ -688,7 +688,7 @@ function sharedEquipmentTextEditorMarkup(){
 }
 function equipmentTextKeyForControl(el,defs){
  const raw=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;
- if(el.hasAttribute('data-common-label'))return 'drawingLabel';
+ if(el.hasAttribute('data-common-label'))return defs.some(def=>def[0]==='drawingLabel')?'drawingLabel':null;
  if(raw&&defs.some(def=>def[0]===raw))return raw;
  const field=el.dataset.prop||el.dataset.field||(el.hasAttribute('data-main-type')?'mainType':null);
  const fallback={name:'name',voltage:'voltage',phase:'phase',amps:'amps',rating:'rating',mainType:'panelMain',kaic:'panelKaic',interruptingRating:'interruptingRating',kva:'kva',kw:'kw',fuseAmps:'fuseAmps',fuseRating:'fuseRating'};
@@ -697,7 +697,7 @@ function equipmentTextKeyForControl(el,defs){
 function syncEquipmentTextHighlight(info,svg,item,key,defs){
  info.querySelectorAll('.active-text-field,.active-text-input').forEach(el=>el.classList.remove('active-text-field','active-text-input'));
  for(const el of info.querySelectorAll('input,select,textarea')){
-  const matches=key!==null&&equipmentTextKeyForControl(el,defs)===key;
+  const matches=key!==null&&defs.some(def=>def[0]===key)&&equipmentTextKeyForControl(el,defs)===key;
   if(matches){el.classList.add('active-text-input');el.closest('label.field')?.classList.add('active-text-field');}
  }
  svg.querySelectorAll('.active-drawing-text').forEach(el=>el.classList.remove('active-drawing-text'));
