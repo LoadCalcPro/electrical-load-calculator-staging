@@ -673,6 +673,7 @@ function activateEquipmentText(item,key){if(!item||!equipmentTextKeys(item).incl
 const EQUIPMENT_TEXT_ALIASES={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],phase:['panelPhase','generatorPhase','atsPhase','meterPhase','disconnectPhase'],fuseAmps:['disconnectFuse','atsFuse','fuseRating'],fuseRating:['disconnectFuse','atsFuse','fuseRating'],interruptingRating:['disconnectKaic','atsKaic','panelKaic','meterKaic'],kva:['transformerKva','generatorKva'],kw:['generatorKw']};
 function finiteEquipmentOffset(value){if(value===null||String(value).trim()==='')return 0;const number=Number(value);return Number.isFinite(number)?number:0;}
 function equipmentFontSize(value,fallback=12){const number=Number(value);return Number.isFinite(number)&&number>0?Math.max(5,Math.min(48,number)):fallback;}
+function equipmentTextStyle(value){return ['normal','bold','italic'].includes(value)?value:'normal';}
 function sharedEquipmentTextEditorMarkup(){
  const controls=[
   {label:'Font size',attribute:'data-shared-size',type:'number',extra:'min="5" max="48"'},
@@ -791,7 +792,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   toolbar.syncSelectedText=sync;
   for(const [sel,handler] of [
    ['[data-shared-size]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelSize=equipmentFontSize(v,12);else{item.textSizes??={};item.textSizes[activeInnerKey]=equipmentFontSize(v,10);}}],
-   ['[data-shared-style]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelStyle=v;else{item.textStyles??={};item.textStyles[activeInnerKey]=v;}}],
+   ['[data-shared-style]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelStyle=equipmentTextStyle(v);else{item.textStyles??={};item.textStyles[activeInnerKey]=equipmentTextStyle(v);}}],
    ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=finiteEquipmentOffset(v);}}],
    ['[data-shared-y]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelY=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].y=finiteEquipmentOffset(v);}}]
   ]){const control=get(sel);
