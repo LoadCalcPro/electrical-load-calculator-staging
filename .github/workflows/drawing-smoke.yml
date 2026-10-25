@@ -18,3 +18,10 @@ jobs:
       - run: npm install --no-save playwright
       - run: npx playwright install --with-deps chromium
       - run: node tests/drawing-smoke.cjs
+      - name: Upload browser failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drawing-smoke-failure
+          path: test-results/
+          if-no-files-found: ignore
