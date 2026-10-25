@@ -136,6 +136,11 @@ const fs = require('node:fs');
     assert.equal(await page.locator('#svg [data-node]').last().locator('text').filter({hasText:'PLAN DESIGNATION'}).count(), 0, 'Hidden Plan designation remains visible');
     await visibility.check();
     assert.ok(await page.locator('#svg [data-node]').last().locator('text').filter({hasText:'PLAN DESIGNATION'}).count(), 'Plan designation did not reappear');
+    const planScale = props.locator('[data-equipment-size]');
+    assert.ok(await planScale.count(), 'Plan equipment scale control missing');
+    await planScale.fill('75');
+    const outsideSvg = page.locator('#svg [data-node]').last().locator('[data-plan-outside-text]');
+    assert.ok((await outsideSvg.getAttribute('transform'))?.includes('scale(0.75 0.75)'), 'Plan designation did not scale with equipment');
     checkErrors('Plan View footprint properties');
    }
   }
