@@ -110,6 +110,18 @@ const fs = require('node:fs');
    } else {
     assert.ok(await props.locator('[data-plan-inside-label]').count(), 'Plan equipment inside-label field missing');
     assert.ok(await props.locator('[data-plan-outside-label]').count(), 'Plan equipment designation field missing');
+    const insideLabel = props.locator('[data-plan-inside-label]');
+    const outsideLabel = props.locator('[data-plan-outside-label]');
+    await insideLabel.fill('PANEL TEST');
+    assert.ok(await page.locator('#svg [data-node]').last().locator('text').filter({hasText:'PANEL TEST'}).count(), 'Plan inside label did not update drawing');
+    await outsideLabel.fill('PLAN DESIGNATION');
+    assert.ok(await page.locator('#svg [data-node]').last().locator('text').filter({hasText:'PLAN DESIGNATION'}).count(), 'Plan designation did not update drawing');
+    const visibility = props.locator('[data-plan-outside-visible]');
+    assert.ok(await visibility.count(), 'Plan designation visibility toggle missing');
+    await visibility.uncheck();
+    assert.equal(await page.locator('#svg [data-node]').last().locator('text').filter({hasText:'PLAN DESIGNATION'}).count(), 0, 'Hidden Plan designation remains visible');
+    await visibility.check();
+    assert.ok(await page.locator('#svg [data-node]').last().locator('text').filter({hasText:'PLAN DESIGNATION'}).count(), 'Plan designation did not reappear');
     checkErrors('Plan View footprint properties');
    }
   }
