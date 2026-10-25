@@ -794,7 +794,15 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    ['[data-shared-style]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelStyle=v;else{item.textStyles??={};item.textStyles[activeInnerKey]=v;}}],
    ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=Number(v)||0;else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=Number(v)||0;}}],
    ['[data-shared-y]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelY=Number(v)||0;else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].y=Number(v)||0;}}]
-  ])get(sel).addEventListener('input',e=>{if(activeInnerKey===null||!defs.some(d=>d[0]===activeInnerKey))return;handler(e.target.value);renderCanvasOnly();toolbar.syncSelectedText?.();});
+  ]){const control=get(sel);
+   // Formatting controls must not replace the selected equipment text target.
+   control.addEventListener('pointerdown',e=>e.stopPropagation());
+   control.addEventListener('input',e=>{
+    if(selected?.kind!=='node'||selected.id!==item.id)return;
+    if(activeInnerKey===null||!defs.some(d=>d[0]===activeInnerKey))return;
+    handler(e.target.value);renderCanvasOnly();toolbar.syncSelectedText?.();
+   });
+  }
   sync();
  }
 
