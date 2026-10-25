@@ -40,6 +40,8 @@ const assert = require('node:assert/strict');
    assert.equal((await outlineHex.inputValue()).toLowerCase(), '#2266aa', 'Outline HEX color did not persist for '+tab);
    const colorAfterEdit = await page.locator('#svg [data-node]').last().getAttribute('data-node');
    assert.ok(colorAfterEdit, 'Equipment disappeared after outline color edit in '+tab);
+   const symbolStroke = await page.locator('#svg [data-node]').last().locator('.equipment-symbol [stroke]').first().getAttribute('stroke');
+   assert.equal(symbolStroke?.toLowerCase(), '#2266aa', 'SVG equipment outline did not reflect HEX color in '+tab);
    await textEditor.locator('[data-shared-size]').focus();
    checkErrors(tab+' palette and font focus');
    checkErrors(tab+' equipment Properties');
