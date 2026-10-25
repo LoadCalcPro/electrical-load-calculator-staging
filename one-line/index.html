@@ -1,5 +1,9 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LoadCalcPro X — Electrical Drawing Suite</title><style>
 /* Shared properties typography across One-Line, Plan View, and Ladder. */
+/* Consistent equipment text controls; keep layout out of per-item JavaScript. */
+#properties .equipment-text-editor .shared-text-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#properties .equipment-text-editor .shared-text-grid>.field{min-width:0;width:100%}
+
 :root{--drawing-property-heading-size:16px;--drawing-property-section-size:14px;--drawing-property-label-size:14px;--drawing-property-value-size:14px;--drawing-property-gap:9px}
 #properties{gap:var(--drawing-property-gap)}#properties> b{font-size:var(--drawing-property-heading-size)}#properties .field,#properties label.field,#properties .section .field{font-size:var(--drawing-property-label-size);font-weight:600;color:#435b78}#properties input:not([type=checkbox]),#properties select,#properties textarea,#properties button{font-size:var(--drawing-property-value-size);font-weight:400}#properties .section,#properties .section>b,#properties .property-priority h4,#properties .equipment-category summary{font-size:var(--drawing-property-section-size)}#properties .leader-toggle-row{font-size:var(--drawing-property-label-size);font-weight:600}
 
@@ -743,7 +747,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   if(activeInnerKey!==null&&!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=null;
   const editor=document.createElement('div');editor.className='shared-text-editor equipment-text-editor';
   editor.innerHTML=sharedEquipmentTextEditorMarkup();
-  const equipmentGrid=editor.querySelector('.shared-text-grid');equipmentGrid.style.setProperty('display','grid','important');equipmentGrid.style.setProperty('grid-template-columns','minmax(0, 1fr) minmax(0, 1fr)','important');equipmentGrid.style.setProperty('gap','12px','important');for(const field of equipmentGrid.children){field.style.minWidth='0';field.style.width='100%';}
+  // Shared layout lives in CSS so all equipment editors use one consistent grid.
   common.appendChild(editor);
   const syncPalettes=()=>common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();
   const get=sel=>editor.querySelector(sel);
