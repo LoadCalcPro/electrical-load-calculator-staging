@@ -765,9 +765,9 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const labelColor=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelColor||'#111111'):(item.textColors?.[activeInnerKey]||'#111111');
  const labelHighlight=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelHighlight||''):(item.textHighlights?.[activeInnerKey]||'');
  const syncOutlinePalette=makeColorRows(outline,()=>outlineSelect.value==='label'?labelColor():(item.boxOutlineColor||'#111111'),
- v=>{if(selected?.kind!=='node'||selected.id!==item.id)return;if(outlineSelect.value==='outline')item.boxOutlineColor=v;else if(hasTextTarget()){if(activeInnerKey==='drawingLabel')item.drawingLabelColor=v;else{item.textColors??={};item.textColors[activeInnerKey]=v;}}renderCanvasOnly()},
+ v=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;if(outlineSelect.value==='outline')item.boxOutlineColor=v;else if(hasTextTarget()){if(activeInnerKey==='drawingLabel')item.drawingLabelColor=v;else{item.textColors??={};item.textColors[activeInnerKey]=v;}}renderCanvasOnly()},
  ()=>outlineSelect.value==='label'?labelHighlight():'',
- v=>{if(selected?.kind!=='node'||selected.id!==item.id||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
+ v=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
  {colorLabel:'Color'});
  const syncTarget=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;const canFormatLabel=hasTextTarget();outlineSelect.querySelector('option[value="label"]').disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';syncOutlinePalette();};
  outlineSelect.onchange=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;if(outlineSelect.value==='label'&&!hasTextTarget())outlineSelect.value='outline';syncOutlinePalette();};outline.addEventListener('pointerdown',event=>event.stopPropagation());
