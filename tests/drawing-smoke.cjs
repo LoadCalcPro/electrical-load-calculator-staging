@@ -27,6 +27,14 @@ const assert = require('node:assert/strict');
    assert.ok(await textEditor.locator('[data-shared-style]').count(), 'Font-style control missing for '+tab);
    assert.ok(await textEditor.locator('[data-shared-x]').count(), 'Horizontal offset missing for '+tab);
    assert.ok(await textEditor.locator('[data-shared-y]').count(), 'Vertical offset missing for '+tab);
+   const palette = page.locator('.equipment-outline-palette');
+   assert.ok(await palette.count(), 'Shared equipment color palette missing for '+tab);
+   const target = palette.locator('select[aria-label="Choose equipment label or outline color target"]');
+   assert.ok(await target.count(), 'Palette target selector missing for '+tab);
+   await target.selectOption('outline');
+   assert.equal(await target.inputValue(), 'outline', 'Could not select equipment outline for '+tab);
+   await textEditor.locator('[data-shared-size]').focus();
+   checkErrors(tab+' palette and font focus');
    checkErrors(tab+' equipment Properties');
   }
 
