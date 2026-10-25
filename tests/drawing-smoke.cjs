@@ -43,7 +43,15 @@ const fs = require('node:fs');
    assert.ok(colorAfterEdit, 'Equipment disappeared after outline color edit in '+tab);
    const strokes = await page.locator('#svg [data-node]').last().locator('.equipment-symbol [stroke]').evaluateAll(elements => elements.map(el => el.getAttribute('stroke')?.toLowerCase()).filter(Boolean));
    assert.ok(strokes.includes('#2266aa'), 'SVG equipment outline did not reflect HEX color in '+tab+'; strokes: '+strokes.join(', '));
-   await textEditor.locator('[data-shared-size]').focus();
+   // Formatting fields are intentionally disabled until a particular text label is selected.
+   // Select a real SVG text element first; focusing a disabled input is not a valid test.
+   const drawingText = page.locator('#svg [data-node]').last().locator('[data-inner-key]').first();
+   assert.ok(await drawingText.count(), 'No selectable equipment text found for '+tab);
+   await drawingText.click();
+   const activeEditor = page.locator('.equipment-text-editor');
+   const fontSize = activeEditor.locator('[data-shared-size]');
+   assert.ok(await fontSize.isEnabled(), 'Font-size control did not enable after selecting equipment text in '+tab);
+   await fontSize.focus();
    checkErrors(tab+' palette and font focus');
    checkErrors(tab+' equipment Properties');
   }
