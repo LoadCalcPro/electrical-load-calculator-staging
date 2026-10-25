@@ -109,10 +109,16 @@ const fs = require('node:fs');
    const scaleControl = props.locator('[data-equipment-size]');
    assert.ok(await scaleControl.count(), 'Equipment size control missing in '+tab);
    const equipmentSymbol = page.locator('#svg [data-node]').last().locator('.equipment-symbol');
+   const textWidthBeforeScale = (await selectedText.boundingBox())?.width;
+   assert.ok(textWidthBeforeScale>0, 'Equipment text has no measurable width before resizing in '+tab);
    await scaleControl.fill('75');
    const symbolTransform = await equipmentSymbol.getAttribute('transform');
    assert.ok(symbolTransform?.includes('scale(0.75 0.75)'), 'Equipment did not resize to 75% in '+tab+': '+symbolTransform);
    assert.ok(await selectedText.count(), 'Equipment text disappeared after resizing in '+tab);
+   const textWidthAfterScale = (await selectedText.boundingBox())?.width;
+   assert.ok(textWidthAfterScale>0, 'Equipment text disappeared visually after resizing in '+tab);
+   const widthRatio = textWidthAfterScale/textWidthBeforeScale;
+   assert.ok(Math.abs(widthRatio-0.75)<0.08, 'Equipment label did not scale proportionally in '+tab+'; measured ratio '+widthRatio);
    checkErrors(tab+' palette and font-size/style edits');
    checkErrors(tab+' equipment Properties');
    } else {
