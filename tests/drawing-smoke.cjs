@@ -67,6 +67,19 @@ const fs = require('node:fs');
    await fontStyle.selectOption('bold');
    assert.equal(await selectedText.getAttribute('font-weight'), 'bold', 'SVG text did not change to bold in '+tab);
    assert.ok(await fontSize.isEnabled(), 'Text selection was lost after changing font weight in '+tab);
+   // The same palette must format the selected label independently of the outline.
+   const activeTarget = page.locator('.equipment-outline-palette select[aria-label="Choose equipment label or outline color target"]');
+   await activeTarget.selectOption('label');
+   assert.equal(await activeTarget.inputValue(), 'label', 'Label color target did not remain selected in '+tab);
+   const labelHex = page.locator('.equipment-outline-palette input[aria-label="Color HEX color"]');
+   await labelHex.fill('#BB3344');
+   await labelHex.press('Tab');
+   const labelFill = await selectedText.getAttribute('fill');
+   assert.equal(labelFill?.toLowerCase(), '#bb3344', 'Selected SVG label color did not update in '+tab);
+   const offsetX = activeEditor.locator('[data-shared-x]');
+   await offsetX.fill('12');
+   assert.equal(await offsetX.inputValue(), '12', 'Label horizontal offset control did not retain value in '+tab);
+   assert.ok(await fontSize.isEnabled(), 'Text selection was lost after editing label color or offset in '+tab);
    checkErrors(tab+' palette and font-size/style edits');
    checkErrors(tab+' equipment Properties');
   }
