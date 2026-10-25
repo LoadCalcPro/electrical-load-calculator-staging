@@ -671,6 +671,7 @@ function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[
 function activateEquipmentText(item,key){if(!item||!equipmentTextKeys(item).includes(key))return false;selectEquipmentTarget(item.id,key);$('textInspector').syncSelectedText?.();return true;}
 // One equipment-text alias table shared by focus, pointer and visual selection.
 const EQUIPMENT_TEXT_ALIASES={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],phase:['panelPhase','generatorPhase','atsPhase','meterPhase','disconnectPhase'],fuseAmps:['disconnectFuse','atsFuse','fuseRating'],fuseRating:['disconnectFuse','atsFuse','fuseRating'],interruptingRating:['disconnectKaic','atsKaic','panelKaic','meterKaic'],kva:['transformerKva','generatorKva'],kw:['generatorKw']};
+function finiteEquipmentOffset(value){const number=Number(value);return Number.isFinite(number)?number:0;}
 function sharedEquipmentTextEditorMarkup(){
  const controls=[
   {label:'Font size',attribute:'data-shared-size',type:'number',extra:'min="5" max="48"'},
@@ -790,8 +791,8 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   for(const [sel,handler] of [
    ['[data-shared-size]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelSize=Math.max(5,Math.min(48,Number(v)||12));else{item.textSizes??={};item.textSizes[activeInnerKey]=Math.max(5,Math.min(48,Number(v)||10));}}],
    ['[data-shared-style]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelStyle=v;else{item.textStyles??={};item.textStyles[activeInnerKey]=v;}}],
-   ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=Number(v)||0;else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=Number(v)||0;}}],
-   ['[data-shared-y]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelY=Number(v)||0;else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].y=Number(v)||0;}}]
+   ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=finiteEquipmentOffset(v);}}],
+   ['[data-shared-y]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelY=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].y=finiteEquipmentOffset(v);}}]
   ]){const control=get(sel);
    // Formatting controls must not replace the selected equipment text target.
    control.addEventListener('pointerdown',e=>e.stopPropagation());
