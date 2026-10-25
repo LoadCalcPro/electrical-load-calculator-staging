@@ -60,7 +60,14 @@ const fs = require('node:fs');
    const renderedSize = await selectedText.getAttribute('font-size');
    assert.equal(Number(renderedSize), newSize, 'SVG text font size did not update in '+tab);
    assert.ok(await fontSize.isEnabled(), 'Selected equipment text was lost after changing font size in '+tab);
-   checkErrors(tab+' palette and font-size edit');
+   const fontStyle = activeEditor.locator('[data-shared-style]');
+   await fontStyle.selectOption('italic');
+   assert.equal(await selectedText.getAttribute('font-style'), 'italic', 'SVG text did not change to italic in '+tab);
+   assert.ok(await fontStyle.isEnabled(), 'Text selection was lost after changing font style in '+tab);
+   await fontStyle.selectOption('bold');
+   assert.equal(await selectedText.getAttribute('font-weight'), 'bold', 'SVG text did not change to bold in '+tab);
+   assert.ok(await fontSize.isEnabled(), 'Text selection was lost after changing font weight in '+tab);
+   checkErrors(tab+' palette and font-size/style edits');
    checkErrors(tab+' equipment Properties');
   }
 
