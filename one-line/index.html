@@ -769,10 +769,11 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  ()=>outlineSelect.value==='label'?labelHighlight():'',
  v=>{if(selected?.kind!=='node'||selected.id!==item.id||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
  {colorLabel:'Color'});
- const syncTarget=()=>{const canFormatLabel=hasTextTarget();outlineSelect.querySelector('option[value="label"]').disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';syncOutlinePalette();};
+ const syncTarget=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;const canFormatLabel=hasTextTarget();outlineSelect.querySelector('option[value="label"]').disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';syncOutlinePalette();};
  outlineSelect.onchange=()=>{if(outlineSelect.value==='label'&&!hasTextTarget())outlineSelect.value='outline';syncOutlinePalette();};outline.addEventListener('pointerdown',event=>event.stopPropagation());
- outline.syncSelectedColor=syncTarget;syncTarget();
+ outline.syncSelectedColor=syncTarget;
 }
+ if(item)outline.syncSelectedColor?.();
  const defs=item?[...(item._labelDefs||[]),['drawingLabel','Additional Label',item.drawingLabel||'',item.drawingLabelSize||12]]:[];
  const existing=p.querySelectorAll('[data-inner-text]:not(.property-priority [data-inner-text])');
  existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
