@@ -11,7 +11,7 @@ const fs = require('node:fs');
  const checkErrors = stage => assert.deepEqual(errors, [], 'JavaScript errors after '+stage);
  try {
   await page.goto('file://' + path.resolve(__dirname, '../one-line/index.html'));
-  await page.locator('#library [data-add="panel"]').waitFor();
+  await page.locator('#library [data-add="panel"]').first().waitFor();
   checkErrors('initial load');
 
   for (const [tab, type] of [['one','panel'], ['plan','planpanel']]) {
