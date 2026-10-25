@@ -756,7 +756,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const item=nodes.find(n=>n.id===selected.id);
  if(item){const outline=document.createElement('div');outline.className='equipment-outline-palette';common.appendChild(outline);
  const outlineTarget=document.createElement('label');outlineTarget.className='field';outlineTarget.textContent='Format selected part';
- const outlineSelect=document.createElement('select');outlineSelect.innerHTML='<option value="label">Selected equipment label</option><option value="outline">Equipment outline</option>';
+ const outlineSelect=document.createElement('select');outlineSelect.setAttribute('aria-label','Choose equipment label or outline color target');outlineSelect.innerHTML='<option value="label">Selected equipment label</option><option value="outline">Equipment outline</option>';
  outlineSelect.value=activeInnerKey?'label':'outline';outlineTarget.appendChild(outlineSelect);outline.appendChild(outlineTarget);
  const hasTextTarget=()=>activeInnerKey==='drawingLabel'||(item._labelDefs||[]).some(d=>d[0]===activeInnerKey);
  const labelColor=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelColor||'#111111'):(item.textColors?.[activeInnerKey]||'#111111');
@@ -767,7 +767,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  v=>{if(selected?.kind!=='node'||selected.id!==item.id||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
  {colorLabel:'Color'});
  const syncTarget=()=>{const canFormatLabel=hasTextTarget();outlineSelect.querySelector('option[value="label"]').disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';syncOutlinePalette();};
- outlineSelect.onchange=()=>{if(outlineSelect.value==='label'&&!hasTextTarget())outlineSelect.value='outline';syncOutlinePalette();};
+ outlineSelect.onchange=()=>{if(outlineSelect.value==='label'&&!hasTextTarget())outlineSelect.value='outline';syncOutlinePalette();};outline.addEventListener('pointerdown',event=>event.stopPropagation());
  outline.syncSelectedColor=syncTarget;syncTarget();
 }
  const defs=item?[...(item._labelDefs||[]),['drawingLabel','Additional Label',item.drawingLabel||'',item.drawingLabelSize||12]]:[];
