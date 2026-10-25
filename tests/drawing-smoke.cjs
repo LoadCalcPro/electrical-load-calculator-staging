@@ -1,6 +1,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 
 (async () => {
  const browser = await chromium.launch({headless:true});
@@ -55,6 +56,11 @@ const assert = require('node:assert/strict');
   await page.locator('[data-drawing-tab="one"]').click();
   checkErrors('return to One-Line');
   console.log('PASS: all drawing tabs, equipment Properties, shared formatting controls, no JavaScript errors');
+ } catch (error) {
+  fs.mkdirSync('test-results', {recursive:true});
+  await page.screenshot({path:'test-results/drawing-smoke-failure.png',fullPage:true}).catch(()=>{});
+  fs.writeFileSync('test-results/failure.txt', String(error?.stack||error)+'\nPage errors:\n'+errors.join('\n'));
+  throw error;
  } finally {
   await browser.close();
  }
