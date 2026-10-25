@@ -105,6 +105,14 @@ const fs = require('node:fs');
    assert.ok(Math.abs(draggedX-xAfter)>0.5||Math.abs(draggedY-yAfter)>0.5, 'Mouse drag did not move the equipment label in '+tab);
    assert.equal(await selectedNode.getAttribute('transform'), nodeTransformBefore, 'Dragging a label moved the entire equipment in '+tab);
    assert.ok(await fontSize.isEnabled(), 'Text selection was lost after editing label color or offset in '+tab);
+   // Equipment scale must affect the symbol and its labels together.
+   const scaleControl = props.locator('[data-equipment-size]');
+   assert.ok(await scaleControl.count(), 'Equipment size control missing in '+tab);
+   const equipmentSymbol = page.locator('#svg [data-node]').last().locator('.equipment-symbol');
+   await scaleControl.fill('75');
+   const symbolTransform = await equipmentSymbol.getAttribute('transform');
+   assert.ok(symbolTransform?.includes('scale(0.75 0.75)'), 'Equipment did not resize to 75% in '+tab+': '+symbolTransform);
+   assert.ok(await selectedText.count(), 'Equipment text disappeared after resizing in '+tab);
    checkErrors(tab+' palette and font-size/style edits');
    checkErrors(tab+' equipment Properties');
    } else {
