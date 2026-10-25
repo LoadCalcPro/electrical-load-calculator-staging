@@ -671,7 +671,21 @@ function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[
 function activateEquipmentText(item,key){if(!item||!equipmentTextKeys(item).includes(key))return false;selectEquipmentTarget(item.id,key);$('textInspector').syncSelectedText?.();return true;}
 // One equipment-text alias table shared by focus, pointer and visual selection.
 const EQUIPMENT_TEXT_ALIASES={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],phase:['panelPhase','generatorPhase','atsPhase','meterPhase','disconnectPhase'],fuseAmps:['disconnectFuse','atsFuse','fuseRating'],fuseRating:['disconnectFuse','atsFuse','fuseRating'],interruptingRating:['disconnectKaic','atsKaic','panelKaic','meterKaic'],kva:['transformerKva','generatorKva'],kw:['generatorKw']};
-function sharedEquipmentTextEditorMarkup(){return '<div data-shared-selected class="shared-selected-label"></div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal Offset<input data-shared-x type="number" step="1"></label><label class="field">Vertical Offset<input data-shared-y type="number" step="1"></label></div>';}
+function sharedEquipmentTextEditorMarkup(){
+ const controls=[
+  {label:'Font size',attribute:'data-shared-size',type:'number',extra:'min="5" max="48"'},
+  {label:'Style',attribute:'data-shared-style',options:[['normal','Regular'],['bold','Bold'],['italic','Italic']]},
+  {label:'Horizontal Offset',attribute:'data-shared-x',type:'number',extra:'step="1"'},
+  {label:'Vertical Offset',attribute:'data-shared-y',type:'number',extra:'step="1"'}
+ ];
+ const fields=controls.map(control=>{
+  const input=control.options
+   ? '<select '+control.attribute+'>'+control.options.map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('')+'</select>'
+   : '<input '+control.attribute+' type="'+control.type+'" '+control.extra+'>';
+  return '<label class="field">'+control.label+input+'</label>';
+ }).join('');
+ return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><div class="shared-text-grid">'+fields+'</div>';
+}
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
  const common=p.querySelector('details.properties-common');if(!common)return;
