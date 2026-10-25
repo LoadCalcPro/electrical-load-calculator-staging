@@ -51,8 +51,16 @@ const fs = require('node:fs');
    const activeEditor = page.locator('.equipment-text-editor');
    const fontSize = activeEditor.locator('[data-shared-size]');
    assert.ok(await fontSize.isEnabled(), 'Font-size control did not enable after selecting equipment text in '+tab);
-   await fontSize.focus();
-   checkErrors(tab+' palette and font focus');
+   const selectedKey = await drawingText.getAttribute('data-inner-key');
+   const selectedNode = page.locator('#svg [data-node]').last();
+   const selectedText = selectedNode.locator('[data-inner-key="'+selectedKey+'"]').first();
+   const newSize = 17;
+   await fontSize.fill(String(newSize));
+   assert.equal(await fontSize.inputValue(), String(newSize), 'Font size control lost its edited value in '+tab);
+   const renderedSize = await selectedText.getAttribute('font-size');
+   assert.equal(Number(renderedSize), newSize, 'SVG text font size did not update in '+tab);
+   assert.ok(await fontSize.isEnabled(), 'Selected equipment text was lost after changing font size in '+tab);
+   checkErrors(tab+' palette and font-size edit');
    checkErrors(tab+' equipment Properties');
   }
 
