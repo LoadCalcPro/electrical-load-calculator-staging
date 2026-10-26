@@ -216,6 +216,20 @@ const fs = require('node:fs');
   await page.mouse.up();
   assert.equal(await wire.locator('[data-port-handle]').count(),2,'Route adjustment lost conductor selection');
   checkErrors('One-Line conductor route adjustment');
+  // Verify each side grip accepts a real mouse drag while retaining the wire selection.
+  for (const end of ['from','to']) {
+    const sideGrip = page.locator('#svg [data-wire-side-handle][data-wire-side-end="'+end+'"]').last();
+    assert.ok(await sideGrip.count(), 'Missing '+end+' U-route side grip');
+    const gripBox = await sideGrip.boundingBox();
+    assert.ok(gripBox, end+' U-route side grip has no pointer hit area');
+    const gx = gripBox.x+gripBox.width/2, gy=gripBox.y+gripBox.height/2;
+    await page.mouse.move(gx,gy);
+    await page.mouse.down();
+    await page.mouse.move(gx+12,gy,{steps:5});
+    await page.mouse.up();
+    assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging '+end+' U-route side grip lost conductor selection');
+  }
+  checkErrors('One-Line U-route side handle mouse dragging');
 
 
   await page.locator('[data-drawing-tab="ladder"]').click();
