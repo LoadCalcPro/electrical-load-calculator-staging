@@ -452,6 +452,7 @@ const fs = require('node:fs');
     'Saved project omitted the conductor attachment edits');
   // Import is asynchronous: wait for its completion status, not merely for
   // existing wires (which were already present before importing).
+  page.once('dialog', dialog => dialog.accept());
   await page.locator('#new').click();
   assert.equal(await page.locator('#svg [data-wire]').count(),0,
     'New Drawing did not clear conductors before reopening saved project');
