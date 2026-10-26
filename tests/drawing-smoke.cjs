@@ -262,6 +262,29 @@ const fs = require('node:fs');
   assert.ok(Math.hypot(movedLabelBox.x-labelBox.x,movedLabelBox.y-labelBox.y)>0.5,'Feeder label did not move independently');
   assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging feeder label lost conductor selection');
   checkErrors('One-Line feeder label mouse dragging');
+  // Regression: endpoint dragging must remain usable when the drawing is zoomed.
+  // The page boundary stays fixed; only the drawing objects are magnified.
+  await page.locator('#zoomIn').click();
+  assert.notEqual((await page.locator('#zoomPercent').innerText()).trim(), '100%', 'Zoom control did not magnify the drawing');
+  const zoomEndpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+  assert.ok(await zoomEndpoint.count(), 'Zooming removed the selected conductor endpoint');
+  const zoomBeforeX = Number(await zoomEndpoint.getAttribute('cx'));
+  const zoomBeforeY = Number(await zoomEndpoint.getAttribute('cy'));
+  const zoomBox = await zoomEndpoint.boundingBox();
+  assert.ok(zoomBox, 'Zoomed endpoint has no mouse hit area');
+  const zx=zoomBox.x+zoomBox.width/2, zy=zoomBox.y+zoomBox.height/2;
+  await page.mouse.move(zx,zy);
+  await page.mouse.down();
+  await page.mouse.move(zx+16,zy+10,{steps:6});
+  await page.mouse.up();
+  const zoomMoved = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+  assert.ok(zoomMoved.count(), 'Zoomed endpoint vanished after mouse drag');
+  assert.ok(Math.hypot(Number(await zoomMoved.getAttribute('cx'))-zoomBeforeX,Number(await zoomMoved.getAttribute('cy'))-zoomBeforeY)>0.5,
+    'Mouse drag did not move endpoint while zoomed');
+  assert.equal(await wire.locator('[data-port-handle]').count(),2,'Zoomed drag lost conductor selection');
+  await page.locator('#zoomOut').click();
+  checkErrors('One-Line endpoint mouse dragging after zoom');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
