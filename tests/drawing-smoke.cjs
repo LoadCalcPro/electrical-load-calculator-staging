@@ -199,6 +199,19 @@ const fs = require('node:fs');
   assert.ok(Math.hypot(otherAfterX-otherBeforeX, otherAfterY-otherBeforeY)>0.5, 'Opposite endpoint did not move with the mouse');
   assert.equal(await wire.locator('[data-port-handle]').count(), 2, 'Dragging opposite endpoint removed conductor handles');
   checkErrors('One-Line endpoint mouse dragging');
+  // Selected conductor route controls must remain available after editing both endpoints.
+  const routeControls = page.locator('#svg [data-route-handle], #svg [data-wire-side-handle]');
+  assert.ok(await routeControls.count() > 0, 'No middle or side routing handles appeared for selected conductor');
+  const routeControl = routeControls.first();
+  const routeBox = await routeControl.boundingBox();
+  assert.ok(routeBox, 'Conductor routing handle has no pointer hit area');
+  const rx = routeBox.x + routeBox.width/2, ry = routeBox.y + routeBox.height/2;
+  await page.mouse.move(rx,ry);
+  await page.mouse.down();
+  await page.mouse.move(rx+14,ry+14,{steps:5});
+  await page.mouse.up();
+  assert.equal(await wire.locator('[data-port-handle]').count(),2,'Route adjustment lost conductor selection');
+  checkErrors('One-Line conductor route adjustment');
 
 
   await page.locator('[data-drawing-tab="ladder"]').click();
