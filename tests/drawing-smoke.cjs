@@ -145,6 +145,22 @@ const fs = require('node:fs');
    }
   }
 
+  // Verify the One-Line conductor's middle handle responds to real mouse dragging.
+  await page.locator('[data-drawing-tab="one"]').click();
+  await page.locator('#library [data-add="panel"]').first().click();
+  await page.locator('#library [data-add="panel"]').first().click();
+  const conductorNodes = page.locator('#svg [data-node]');
+  assert.ok(await conductorNodes.count() >= 2, 'Need two equipment items for conductor drag test');
+  await page.locator('#connectMode').click();
+  await conductorNodes.nth(0).click();
+  await conductorNodes.nth(1).click();
+  const wire = page.locator('#svg [data-wire]').last();
+  assert.ok(await wire.count(), 'Connect tool did not create a conductor');
+  await page.locator('#selectMode').click();
+  await wire.locator('path[stroke="transparent"]').first().click({force:true});
+  assert.ok(await wire.locator('[data-port-handle]').count() === 2, 'Both endpoint handles must appear');
+  checkErrors('One-Line conductor creation and selection');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
