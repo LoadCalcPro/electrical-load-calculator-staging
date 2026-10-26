@@ -285,6 +285,32 @@ const fs = require('node:fs');
   await page.locator('#zoomOut').click();
   checkErrors('One-Line endpoint mouse dragging after zoom');
 
+  // Regression: after zooming, panning via the drawing scrollbar must not break
+  // pointer hit-testing or conductor endpoint dragging.
+  await page.locator('#zoomIn').click();
+  const horizontalScroll = page.locator('#drawingScrollX');
+  assert.ok(await horizontalScroll.count(), 'Drawing horizontal pan control missing');
+  await horizontalScroll.fill('750');
+  await horizontalScroll.dispatchEvent('input');
+  const pannedEndpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+  assert.ok(await pannedEndpoint.count(), 'Panning removed the conductor endpoint');
+  const panBeforeX = Number(await pannedEndpoint.getAttribute('cx'));
+  const panBeforeY = Number(await pannedEndpoint.getAttribute('cy'));
+  const panBox = await pannedEndpoint.boundingBox();
+  assert.ok(panBox, 'Panned endpoint has no mouse hit area');
+  const px=panBox.x+panBox.width/2, py=panBox.y+panBox.height/2;
+  await page.mouse.move(px,py);
+  await page.mouse.down();
+  await page.mouse.move(px+12,py+10,{steps:6});
+  await page.mouse.up();
+  const panMoved = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+  assert.ok(panMoved.count(), 'Panned endpoint disappeared after dragging');
+  assert.ok(Math.hypot(Number(await panMoved.getAttribute('cx'))-panBeforeX,Number(await panMoved.getAttribute('cy'))-panBeforeY)>0.5,
+    'Endpoint did not move after panning');
+  assert.equal(await wire.locator('[data-port-handle]').count(),2,'Panned drag lost conductor selection');
+  await page.locator('#zoomOut').click();
+  checkErrors('One-Line endpoint dragging after panning');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
