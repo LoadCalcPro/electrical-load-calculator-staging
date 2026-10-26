@@ -429,6 +429,32 @@ const fs = require('node:fs');
   await page.locator('#zoomOut').click();
   checkErrors('One-Line feeder label drag after zoom and pan');
 
+  // Regression: exported JSON must retain the edited conductor endpoints,
+  // routing and feeder label, and importing it must restore them.
+  const [projectDownload] = await Promise.all([
+    page.waitForEvent('download'),
+    page.locator('#save').click({force:true})
+  ]);
+  const projectPath = await projectDownload.path();
+  assert.ok(projectPath,'Save Project did not produce a downloadable file');
+  const savedProject = JSON.parse(require('fs').readFileSync(projectPath,'utf8'));
+  assert.equal(savedProject.format,'LoadCalcProX-OneLine','Unexpected project file format');
+  const savedWires = savedProject.drawingViews?.one?.wires || savedProject.wires;
+  assert.ok(savedWires.length>=2,'Saved project omitted conductors');
+  const savedEditedWire = savedWires.find(w=>String(w.id)===String(topWireId));
+  assert.ok(savedEditedWire,'Saved project omitted the overlapping conductor');
+  const savedLabelWire = savedWires.find(w=>w.label==='FEEDER TEST');
+  assert.ok(savedLabelWire,'Saved project omitted the edited feeder label');
+  assert.ok(savedLabelWire.fromSide || savedLabelWire.toSide,
+    'Saved project omitted the conductor attachment edits');
+  await page.locator('#file').setInputFiles(projectPath);
+  await page.waitForFunction(() => document.querySelectorAll('#svg [data-wire]').length >= 2);
+  const reopenedLabel = page.locator('#svg [data-feeder-text]').filter({hasText:'FEEDER TEST'});
+  assert.ok(await reopenedLabel.count(),'Opening project did not restore feeder label');
+  assert.ok(await page.locator('#svg [data-wire="'+topWireId+'"]').count(),
+    'Opening project did not restore the second conductor');
+  checkErrors('One-Line project export and reopen');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
