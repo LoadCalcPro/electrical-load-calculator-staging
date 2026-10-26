@@ -161,8 +161,8 @@ const fs = require('node:fs');
   assert.ok(await wire.locator('[data-port-handle]').count() === 2, 'Both endpoint handles must appear');
   checkErrors('One-Line conductor creation and selection');
   // Drag an endpoint with real pointer events and verify its rendered position changes.
-  // The selection may change after a wire click; target the endpoint through the SVG layer.
-  await page.locator('#svg [data-wire] path[stroke="transparent"]').last().click({force:true});
+  // Keep the conductor selected: clicking its route a second time can initiate a route drag.
+  // The endpoint was already verified after the first selection above.
   const endpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
   assert.ok(await endpoint.count(), 'Endpoint handle missing after selecting conductor; visible wire handles: '+await page.locator('#svg [data-port-handle]').count()+'; selected wire markup: '+(await page.locator('#svg [data-wire]').last().getAttribute('data-wire')));
   const beforeX = Number(await endpoint.getAttribute('cx'));
