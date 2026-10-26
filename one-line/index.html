@@ -1273,7 +1273,7 @@ window.addEventListener('paste',async e=>{
  const focus=document.activeElement;
  if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
  const data=e.clipboardData;if(!data)return;
- const imageItem=[...data.items].find(item=>item.kind==='file'&&/^image\\/(png|jpeg|webp)$/.test(item.type));
+ const imageItem=[...data.items].find(item=>item.kind==='file'&&['image/png','image/jpeg','image/webp'].includes(item.type));
  if(imageItem){
   e.preventDefault();const file=imageItem.getAsFile();if(!file)return;
   if(file.size>5*1024*1024){$('status').textContent='Pasted image exceeds 5 MB.';return;}
