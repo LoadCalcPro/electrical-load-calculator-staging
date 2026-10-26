@@ -200,6 +200,8 @@ const fs = require('node:fs');
   assert.equal(await wire.locator('[data-port-handle]').count(), 2, 'Dragging opposite endpoint removed conductor handles');
   checkErrors('One-Line endpoint mouse dragging');
   // Selected conductor route controls must remain available after editing both endpoints.
+  // U-shaped routes expose the middle and side grips; automatic/straight routes may not.
+  await page.locator('#newConnectionStyle').selectOption('up');
   const routeControls = page.locator('#svg [data-route-handle], #svg [data-wire-side-handle]');
   assert.ok(await routeControls.count() > 0, 'No middle or side routing handles appeared for selected conductor');
   const routeControl = routeControls.first();
