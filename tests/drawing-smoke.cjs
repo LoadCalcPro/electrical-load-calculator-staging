@@ -262,6 +262,13 @@ const fs = require('node:fs');
   assert.ok(Math.hypot(movedLabelBox.x-labelBox.x,movedLabelBox.y-labelBox.y)>0.5,'Feeder label did not move independently');
   assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging feeder label lost conductor selection');
   checkErrors('One-Line feeder label mouse dragging');
+  // Deselect and reselect the connection to catch hit-testing regressions.
+  await conductorNodes.nth(0).click();
+  assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
+  await wire.locator('path[stroke="transparent"]').first().click({force:true});
+  assert.equal(await wire.locator('[data-port-handle]').count(),2,'Could not reselect conductor after selecting equipment');
+  assert.ok(await page.locator('#svg [data-route-handle]').count()>0,'Reselected U-route lost its middle handle');
+  checkErrors('One-Line conductor re-selection');
 
 
   await page.locator('[data-drawing-tab="ladder"]').click();
