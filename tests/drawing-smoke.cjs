@@ -227,6 +227,12 @@ const fs = require('node:fs');
     await page.mouse.down();
     await page.mouse.move(gx+12,gy+12,{steps:5});
     await page.mouse.up();
+    const movedSideGrip = page.locator('#svg [data-wire-side-handle][data-wire-side-end="'+end+'"]').last();
+    assert.ok(await movedSideGrip.count(), 'Dragging '+end+' U-route side grip removed it');
+    const movedSideBox = await movedSideGrip.boundingBox();
+    assert.ok(movedSideBox, 'Dragging '+end+' U-route side grip removed its hit area');
+    const mx=movedSideBox.x+movedSideBox.width/2, my=movedSideBox.y+movedSideBox.height/2;
+    assert.ok(Math.hypot(mx-gx,my-gy)>0.5,'Dragging '+end+' U-route side grip did not change its position');
     assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging '+end+' U-route side grip lost conductor selection');
   }
   checkErrors('One-Line U-route side handle mouse dragging');
