@@ -329,6 +329,35 @@ const fs = require('node:fs');
   assert.notEqual(wirePathAfter,wirePathBefore,'Conductor route did not follow moved equipment');
   checkErrors('One-Line connected equipment drag');
 
+  // Regression: a selected endpoint can be moved to each of the four faces
+  // of its equipment, and remains selectable after each drag.
+  const equipmentBox = await conductorNodes.nth(0).boundingBox();
+  assert.ok(equipmentBox, 'Equipment boundary unavailable for four-side port test');
+  const cx=equipmentBox.x+equipmentBox.width/2,cy=equipmentBox.y+equipmentBox.height/2;
+  const faceTargets=[
+    {side:'top',x:cx,y:equipmentBox.y+3},
+    {side:'right',x:equipmentBox.x+equipmentBox.width-3,y:cy},
+    {side:'bottom',x:cx,y:equipmentBox.y+equipmentBox.height-3},
+    {side:'left',x:equipmentBox.x+3,y:cy}
+  ];
+  for (const target of faceTargets) {
+    const port = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+    const before = await port.boundingBox();
+    assert.ok(before,'Port handle unavailable before '+target.side+' drag');
+    await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
+    await page.mouse.down();
+    await page.mouse.move(target.x,target.y,{steps:10});
+    await page.mouse.up();
+    const after = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+    const afterBox = await after.boundingBox();
+    assert.ok(afterBox,'Port handle disappeared on '+target.side+' face');
+    assert.ok(Math.hypot(afterBox.x+afterBox.width/2-target.x,afterBox.y+afterBox.height/2-target.y)<22,
+      'Port handle did not reach the '+target.side+' equipment face');
+    assert.equal(await wire.locator('[data-port-handle]').count(),2,
+      'Conductor selection lost after moving port to '+target.side);
+  }
+  checkErrors('One-Line conductor attachment on all equipment faces');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
