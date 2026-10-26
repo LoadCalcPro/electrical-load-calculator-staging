@@ -242,6 +242,26 @@ const fs = require('node:fs');
     assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging '+end+' U-route side grip lost conductor selection');
   }
   checkErrors('One-Line U-route side handle mouse dragging');
+  // Feeder labels must move independently of the conductor.
+  const labelInput = page.locator('#properties [data-prop="label"]').first();
+  assert.ok(await labelInput.count(), 'Selected conductor has no feeder label field');
+  await labelInput.fill('FEEDER TEST');
+  await labelInput.dispatchEvent('input');
+  await labelInput.dispatchEvent('change');
+  const feederText = page.locator('#svg [data-feeder-text]').last();
+  assert.ok(await feederText.count(), 'Feeder label did not render after editing its text');
+  const labelBox = await feederText.boundingBox();
+  assert.ok(labelBox, 'Feeder label has no mouse hit area');
+  const lx=labelBox.x+labelBox.width/2,ly=labelBox.y+labelBox.height/2;
+  await page.mouse.move(lx,ly);
+  await page.mouse.down();
+  await page.mouse.move(lx+22,ly+15,{steps:5});
+  await page.mouse.up();
+  const movedLabelBox = await feederText.boundingBox();
+  assert.ok(movedLabelBox, 'Feeder label disappeared after dragging');
+  assert.ok(Math.hypot(movedLabelBox.x-labelBox.x,movedLabelBox.y-labelBox.y)>0.5,'Feeder label did not move independently');
+  assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging feeder label lost conductor selection');
+  checkErrors('One-Line feeder label mouse dragging');
 
 
   await page.locator('[data-drawing-tab="ladder"]').click();
