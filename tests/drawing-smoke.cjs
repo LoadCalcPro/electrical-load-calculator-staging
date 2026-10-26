@@ -27,6 +27,16 @@ const fs = require('node:fs');
   const pastedImage=page.locator('#svg [data-personal-image^="clipboard-"]').first();
   await pastedImage.locator('rect').first().click({force:true});
   assert.ok(await page.locator('#svg [data-image-resize]').count(),'Pasted image lacks resize handle');
+  const beforeResize=await pastedImage.locator('image').evaluate(el=>({width:Number(el.getAttribute('width')),height:Number(el.getAttribute('height'))}));
+  const handle=page.locator('#svg [data-image-resize]').first();
+  const handleBox=await handle.boundingBox();
+  assert.ok(handleBox,'Pasted image resize handle is not visible');
+  await page.mouse.move(handleBox.x+handleBox.width/2,handleBox.y+handleBox.height/2);
+  await page.mouse.down();await page.mouse.move(handleBox.x+handleBox.width/2+35,handleBox.y+handleBox.height/2+35,{steps:5});await page.mouse.up();
+  const afterResize=await pastedImage.locator('image').evaluate(el=>({width:Number(el.getAttribute('width')),height:Number(el.getAttribute('height'))}));
+  assert.ok(afterResize.width>beforeResize.width,'Dragging image corner did not increase width');
+  assert.ok(Math.abs(afterResize.width/afterResize.height-beforeResize.width/beforeResize.height)<0.02,'Resizing changed image aspect ratio');
+
   await page.locator('[data-drawing-tab="plan"]').click();
   assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'Pasted image leaked into Plan View');
   await page.locator('[data-drawing-tab="one"]').click();
