@@ -161,9 +161,9 @@ const fs = require('node:fs');
   assert.ok(await wire.locator('[data-port-handle]').count() === 2, 'Both endpoint handles must appear');
   checkErrors('One-Line conductor creation and selection');
   // Drag an endpoint with real pointer events and verify its rendered position changes.
-  // The previous conductor selection is cleared when switching modes; reselect it explicitly.
-  await wire.locator('path[stroke="transparent"]').first().click({force:true});
-  const endpoint = wire.locator('[data-port-handle][data-port-end="from"]');
+  // The selection may change after a wire click; target the endpoint through the SVG layer.
+  await page.locator('#svg [data-wire] path[stroke="transparent"]').last().click({force:true});
+  const endpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
   const beforeX = Number(await endpoint.getAttribute('cx'));
   const beforeY = Number(await endpoint.getAttribute('cy'));
   const endpointBox = await endpoint.boundingBox();
@@ -173,7 +173,7 @@ const fs = require('node:fs');
   await page.mouse.down();
   await page.mouse.move(ex+18, ey+12, {steps:6});
   await page.mouse.up();
-  const movedEndpoint = wire.locator('[data-port-handle][data-port-end="from"]');
+  const movedEndpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
   const afterX = Number(await movedEndpoint.getAttribute('cx'));
   const afterY = Number(await movedEndpoint.getAttribute('cy'));
   assert.ok(Math.hypot(afterX-beforeX,afterY-beforeY)>0.5, 'Mouse dragging did not move the conductor endpoint');
