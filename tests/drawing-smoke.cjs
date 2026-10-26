@@ -164,6 +164,7 @@ const fs = require('node:fs');
   // The selection may change after a wire click; target the endpoint through the SVG layer.
   await page.locator('#svg [data-wire] path[stroke="transparent"]').last().click({force:true});
   const endpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+  assert.ok(await endpoint.count(), 'Endpoint handle missing after selecting conductor; visible wire handles: '+await page.locator('#svg [data-port-handle]').count()+'; selected wire markup: '+(await page.locator('#svg [data-wire]').last().getAttribute('data-wire')));
   const beforeX = Number(await endpoint.getAttribute('cx'));
   const beforeY = Number(await endpoint.getAttribute('cy'));
   const endpointBox = await endpoint.boundingBox();
