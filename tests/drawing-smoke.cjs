@@ -450,6 +450,14 @@ const fs = require('node:fs');
   assert.ok(savedLabelWire,'Saved project omitted the edited feeder label');
   assert.ok(savedLabelWire.fromSide || savedLabelWire.toSide,
     'Saved project omitted the conductor attachment edits');
+  const savedAttachment = {
+    fromSide:savedLabelWire.fromSide, toSide:savedLabelWire.toSide,
+    fromOffset:savedLabelWire.fromOffset, toOffset:savedLabelWire.toOffset,
+    routeStyle:savedLabelWire.routeStyle,
+    routeOffset:savedLabelWire.routeOffset,
+    label:savedLabelWire.label,
+    labelX:savedLabelWire.labelX, labelY:savedLabelWire.labelY
+  };
   // Import is asynchronous: wait for its completion status, not merely for
   // existing wires (which were already present before importing).
   page.once('dialog', dialog => dialog.accept());
@@ -461,6 +469,20 @@ const fs = require('node:fs');
   await page.waitForFunction(() => document.querySelectorAll('#svg [data-wire]').length >= 2);
   const reopenedLabel = page.locator('#svg [data-feeder-text]').filter({hasText:'FEEDER TEST'});
   assert.ok(await reopenedLabel.count(),'Opening project did not restore feeder label');
+  // A visible label alone does not prove the conductor's edited geometry survived.
+  // Save again after import and compare the serialized attachment/route fields.
+  const [reopenedDownload] = await Promise.all([
+    page.waitForEvent('download'),
+    page.locator('#save').click()
+  ]);
+  const reopenedPath=await reopenedDownload.path();
+  const reopenedProject=JSON.parse(fs.readFileSync(reopenedPath,'utf8'));
+  const reopenedWires=reopenedProject.drawingViews?.one?.wires || reopenedProject.wires;
+  const reopenedEdited=reopenedWires.find(w=>String(w.id)===String(savedLabelWire.id));
+  assert.ok(reopenedEdited,'Reopened project lost edited conductor ID');
+  for(const [key,expected] of Object.entries(savedAttachment)){
+    assert.deepEqual(reopenedEdited[key],expected,'Reopened conductor changed '+key);
+  }
   assert.ok(await page.locator('#svg [data-wire="'+topWireId+'"]').count(),
     'Opening project did not restore the second conductor');
   checkErrors('One-Line project export and reopen');
