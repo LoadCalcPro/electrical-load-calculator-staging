@@ -387,6 +387,24 @@ const fs = require('node:fs');
   }
   checkErrors('One-Line middle routing grip preserves attachments');
 
+  // Regression: a conductor must remain selectable even when another
+  // conductor occupies the same route. Select the uppermost hit path, then
+  // verify that the chosen wire receives its own endpoint handles.
+  await page.locator('#connectMode').click();
+  await conductorNodes.nth(0).click();
+  await conductorNodes.nth(1).click();
+  await page.locator('#selectMode').click();
+  const allWires=page.locator('#svg [data-wire]');
+  assert.ok(await allWires.count()>=2,'Overlapping conductor setup did not create a second wire');
+  const topWire=allWires.last();
+  const topWireId=await topWire.getAttribute('data-wire');
+  const topHit=topWire.locator('path[stroke="transparent"]').first();
+  assert.ok(await topHit.count(),'Overlapping wire lacks selectable hit path');
+  await topHit.click({force:true});
+  assert.equal(await page.locator('#svg [data-wire="'+topWireId+'"] [data-port-handle]').count(),2,
+    'Upper overlapping conductor could not be selected independently');
+  checkErrors('One-Line overlapping conductor selection');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
