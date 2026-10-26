@@ -160,6 +160,24 @@ const fs = require('node:fs');
   await wire.locator('path[stroke="transparent"]').first().click({force:true});
   assert.ok(await wire.locator('[data-port-handle]').count() === 2, 'Both endpoint handles must appear');
   checkErrors('One-Line conductor creation and selection');
+  // Drag an endpoint with real pointer events and verify its rendered position changes.
+  const endpoint = wire.locator('[data-port-handle][data-port-end="from"]');
+  const beforeX = Number(await endpoint.getAttribute('cx'));
+  const beforeY = Number(await endpoint.getAttribute('cy'));
+  const endpointBox = await endpoint.boundingBox();
+  assert.ok(endpointBox, 'Endpoint has no mouse hit area');
+  const ex = endpointBox.x + endpointBox.width/2, ey = endpointBox.y + endpointBox.height/2;
+  await page.mouse.move(ex, ey);
+  await page.mouse.down();
+  await page.mouse.move(ex+18, ey+12, {steps:6});
+  await page.mouse.up();
+  const movedEndpoint = wire.locator('[data-port-handle][data-port-end="from"]');
+  const afterX = Number(await movedEndpoint.getAttribute('cx'));
+  const afterY = Number(await movedEndpoint.getAttribute('cy'));
+  assert.ok(Math.hypot(afterX-beforeX,afterY-beforeY)>0.5, 'Mouse dragging did not move the conductor endpoint');
+  assert.equal(await wire.locator('[data-port-handle]').count(), 2, 'Dragging removed an endpoint handle');
+  checkErrors('One-Line endpoint mouse dragging');
+
 
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
