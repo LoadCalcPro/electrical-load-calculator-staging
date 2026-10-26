@@ -47,6 +47,29 @@ const fs = require('node:fs');
     window.dispatchEvent(new ClipboardEvent('paste',{clipboardData:dt,bubbles:true,cancelable:true}));
   });
   assert.ok(await page.locator('#svg [data-annotation]').count(),'Clipboard text did not create an annotation');
+  // Save/Open must preserve the pasted image and text on the correct tab.
+  await page.locator('#printToggle').click();
+  await page.locator('#save').waitFor({state:'visible'});
+  const [clipboardDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#save').click()]);
+  const clipboardPath=await clipboardDownload.path();
+  const clipboardProject=JSON.parse(fs.readFileSync(clipboardPath,'utf8'));
+  assert.equal(clipboardProject.drawingViews.one.personalImages.filter(im=>im.kind.startsWith('clipboard-')).length,1,'Saved One-Line image missing');
+  assert.equal((clipboardProject.drawingViews.plan?.personalImages||[]).length,0,'Saved Plan View contains One-Line image');
+  assert.ok(clipboardProject.drawingViews.one.annotations.some(a=>a.text==='PASTED CLIPBOARD NOTE'),'Saved clipboard note missing');
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#new').click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'New Drawing did not clear pasted image');
+  await page.locator('#file').setInputFiles(clipboardPath);
+  await page.waitForFunction(()=>document.querySelector('#status')?.textContent?.includes('Project opened.'));
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),1,'Reopened project lost pasted image');
+  assert.ok((await page.locator('#svg #annotations').textContent()).includes('PASTED CLIPBOARD NOTE'),'Reopened project lost pasted text');
+  await page.locator('[data-drawing-tab="plan"]').click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'Reopened image leaked into Plan View');
+  await page.locator('[data-drawing-tab="one"]').click();
+  await page.locator('#svg [data-personal-image^="clipboard-"] rect').first().click({force:true});
+  await page.locator('#imgRemove').click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'Remove from drawing did not delete pasted image');
+
   checkErrors('clipboard paste and tab isolation');
 
   for (const [tab, type] of [['one','panel'], ['plan','planpanel']]) {
