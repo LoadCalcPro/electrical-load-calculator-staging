@@ -16,13 +16,14 @@ const fs = require('node:fs');
 
   // Clipboard regression: external image and plain text paste, editable selection,
   // drawing-tab isolation, and preservation through tab switching.
-  const clipboardPng='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==';
-  await page.evaluate(async base64=>{
-    const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
-    const file=new File([bytes],'copied.png',{type:'image/png'});
+  await page.evaluate(async ()=>{
+    const canvas=document.createElement('canvas');canvas.width=120;canvas.height=80;
+    const context=canvas.getContext('2d');context.fillStyle='#123456';context.fillRect(0,0,120,80);
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+    const file=new File([blob],'copied.png',{type:'image/png'});
     const dt=new DataTransfer();dt.items.add(file);
     window.dispatchEvent(new ClipboardEvent('paste',{clipboardData:dt,bubbles:true,cancelable:true}));
-  },clipboardPng);
+  });
   await page.locator('#svg [data-personal-image^="clipboard-"]').first().waitFor();
   const pastedImage=page.locator('#svg [data-personal-image^="clipboard-"]').first();
   await pastedImage.locator('rect').first().click({force:true});
