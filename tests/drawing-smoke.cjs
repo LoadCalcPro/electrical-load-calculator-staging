@@ -14,6 +14,30 @@ const fs = require('node:fs');
   await page.locator('#library [data-add="panel"]').first().waitFor();
   checkErrors('initial load');
 
+  // Clipboard regression: external image and plain text paste, editable selection,
+  // drawing-tab isolation, and preservation through tab switching.
+  const clipboardPng='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==';
+  await page.evaluate(async base64=>{
+    const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+    const file=new File([bytes],'copied.png',{type:'image/png'});
+    const dt=new DataTransfer();dt.items.add(file);
+    window.dispatchEvent(new ClipboardEvent('paste',{clipboardData:dt,bubbles:true,cancelable:true}));
+  },clipboardPng);
+  await page.locator('#svg [data-personal-image^="clipboard-"]').first().waitFor();
+  const pastedImage=page.locator('#svg [data-personal-image^="clipboard-"]').first();
+  await pastedImage.locator('rect').first().click({force:true});
+  assert.ok(await page.locator('#svg [data-image-resize]').count(),'Pasted image lacks resize handle');
+  await page.locator('[data-drawing-tab="plan"]').click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'Pasted image leaked into Plan View');
+  await page.locator('[data-drawing-tab="one"]').click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),1,'Pasted image lost when switching tabs');
+  await page.evaluate(()=>{
+    const dt=new DataTransfer();dt.setData('text/plain','PASTED CLIPBOARD NOTE');
+    window.dispatchEvent(new ClipboardEvent('paste',{clipboardData:dt,bubbles:true,cancelable:true}));
+  });
+  assert.ok(await page.locator('#svg [data-annotation]').count(),'Clipboard text did not create an annotation');
+  checkErrors('clipboard paste and tab isolation');
+
   for (const [tab, type] of [['one','panel'], ['plan','planpanel']]) {
    await page.locator('[data-drawing-tab="'+tab+'"]').click();
    assert.equal(await page.locator('body').getAttribute('data-drawing-view'), tab);
