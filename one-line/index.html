@@ -1281,7 +1281,7 @@ window.addEventListener('paste',async e=>{
    const src=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});
    const picture=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src});
    const ratio=picture.naturalWidth/Math.max(1,picture.naturalHeight);
-   const w=Math.min(280,Math.max(60,picture.naturalWidth)),h=Math.min(280,w/ratio);
+   const scale=Math.min(1,280/Math.max(picture.naturalWidth,picture.naturalHeight));const w=Math.max(1,picture.naturalWidth*scale),h=Math.max(1,picture.naturalHeight*scale);
    const kind='clipboard-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
    personalImages.push({kind,src,...clipboardPlacement(w,h)});
    selected={kind:'personalImage',id:kind};mode='select';render();
