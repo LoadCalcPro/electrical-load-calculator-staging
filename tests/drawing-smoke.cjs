@@ -225,7 +225,7 @@ const fs = require('node:fs');
     const gx = gripBox.x+gripBox.width/2, gy=gripBox.y+gripBox.height/2;
     await page.mouse.move(gx,gy);
     await page.mouse.down();
-    await page.mouse.move(gx+12,gy,{steps:5});
+    await page.mouse.move(gx+12,gy+12,{steps:5});
     await page.mouse.up();
     assert.equal(await wire.locator('[data-port-handle]').count(),2,'Dragging '+end+' U-route side grip lost conductor selection');
   }
