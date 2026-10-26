@@ -265,7 +265,7 @@ const fs = require('node:fs');
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
-  await wire.locator('path[stroke="transparent"]').first().click({force:true,position:{x:2,y:2}});
+  await wire.locator('path[stroke="transparent"]').first().dispatchEvent('pointerdown',{pointerId:41,pointerType:'mouse',button:0,buttons:1,bubbles:true});
   assert.equal(await wire.locator('[data-port-handle]').count(),2,'Could not reselect conductor after selecting equipment');
   assert.ok(await page.locator('#svg [data-route-handle]').count()>0,'Reselected U-route lost its middle handle');
   checkErrors('One-Line conductor re-selection');
