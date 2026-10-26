@@ -180,6 +180,24 @@ const fs = require('node:fs');
   const afterY = Number(await movedEndpoint.getAttribute('cy'));
   assert.ok(Math.hypot(afterX-beforeX,afterY-beforeY)>0.5, 'Mouse dragging did not move the conductor endpoint');
   assert.equal(await wire.locator('[data-port-handle]').count(), 2, 'Dragging removed an endpoint handle');
+  // Exercise the opposite endpoint as well; it must remain independently draggable.
+  const otherEndpoint = page.locator('#svg [data-port-handle][data-port-end="to"]').last();
+  assert.ok(await otherEndpoint.count(), 'Opposite conductor endpoint is not selectable');
+  const otherBeforeX = Number(await otherEndpoint.getAttribute('cx'));
+  const otherBeforeY = Number(await otherEndpoint.getAttribute('cy'));
+  const otherBox = await otherEndpoint.boundingBox();
+  assert.ok(otherBox, 'Opposite endpoint has no mouse hit area');
+  const ox = otherBox.x + otherBox.width / 2, oy = otherBox.y + otherBox.height / 2;
+  await page.mouse.move(ox, oy);
+  await page.mouse.down();
+  await page.mouse.move(ox - 18, oy + 12, {steps:6});
+  await page.mouse.up();
+  const otherMoved = page.locator('#svg [data-port-handle][data-port-end="to"]').last();
+  assert.ok(await otherMoved.count(), 'Opposite endpoint disappeared after dragging');
+  const otherAfterX = Number(await otherMoved.getAttribute('cx'));
+  const otherAfterY = Number(await otherMoved.getAttribute('cy'));
+  assert.ok(Math.hypot(otherAfterX-otherBeforeX, otherAfterY-otherBeforeY)>0.5, 'Opposite endpoint did not move with the mouse');
+  assert.equal(await wire.locator('[data-port-handle]').count(), 2, 'Dragging opposite endpoint removed conductor handles');
   checkErrors('One-Line endpoint mouse dragging');
 
 
