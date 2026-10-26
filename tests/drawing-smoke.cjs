@@ -405,6 +405,30 @@ const fs = require('node:fs');
     'Upper overlapping conductor could not be selected independently');
   checkErrors('One-Line overlapping conductor selection');
 
+  // Regression: the feeder label remains independently draggable at a
+  // magnified and panned viewport position, without shifting its wire.
+  await page.locator('#zoomIn').click();
+  await page.locator('#drawingScrollX').fill('650');
+  await page.locator('#drawingScrollX').dispatchEvent('input');
+  const zoomedFeeder = page.locator('#svg [data-feeder-text]').last();
+  assert.ok(await zoomedFeeder.count(),'Feeder label missing after zoom and pan');
+  const feederBefore=await zoomedFeeder.boundingBox();
+  assert.ok(feederBefore,'Zoomed feeder label has no hit area');
+  const feederWireBefore=await wire.locator('path[stroke="transparent"]').first().getAttribute('d');
+  const fx=feederBefore.x+feederBefore.width/2,fy=feederBefore.y+feederBefore.height/2;
+  await page.mouse.move(fx,fy);
+  await page.mouse.down();
+  await page.mouse.move(fx+20,fy+12,{steps:8});
+  await page.mouse.up();
+  const feederAfter=await page.locator('#svg [data-feeder-text]').last().boundingBox();
+  assert.ok(feederAfter,'Feeder label disappeared after zoomed drag');
+  assert.ok(Math.hypot(feederAfter.x-feederBefore.x,feederAfter.y-feederBefore.y)>0.5,
+    'Feeder label did not move after zoom and pan');
+  assert.equal(await wire.locator('path[stroke="transparent"]').first().getAttribute('d'),feederWireBefore,
+    'Dragging feeder label changed the conductor route');
+  await page.locator('#zoomOut').click();
+  checkErrors('One-Line feeder label drag after zoom and pan');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
