@@ -450,7 +450,13 @@ const fs = require('node:fs');
   assert.ok(savedLabelWire,'Saved project omitted the edited feeder label');
   assert.ok(savedLabelWire.fromSide || savedLabelWire.toSide,
     'Saved project omitted the conductor attachment edits');
+  // Import is asynchronous: wait for its completion status, not merely for
+  // existing wires (which were already present before importing).
+  await page.locator('#new').click();
+  assert.equal(await page.locator('#svg [data-wire]').count(),0,
+    'New Drawing did not clear conductors before reopening saved project');
   await page.locator('#file').setInputFiles(projectPath);
+  await page.waitForFunction(() => document.querySelector('#status')?.textContent?.includes('Project opened.'));
   await page.waitForFunction(() => document.querySelectorAll('#svg [data-wire]').length >= 2);
   const reopenedLabel = page.locator('#svg [data-feeder-text]').filter({hasText:'FEEDER TEST'});
   assert.ok(await reopenedLabel.count(),'Opening project did not restore feeder label');
