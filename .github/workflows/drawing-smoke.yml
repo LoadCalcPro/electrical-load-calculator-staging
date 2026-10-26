@@ -16,7 +16,9 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save playwright
-      - run: npx playwright install --with-deps chromium
+      - name: Install Chromium with bounded runtime
+        timeout-minutes: 8
+        run: npx playwright install --with-deps chromium
       - run: node tests/drawing-smoke.cjs
       - name: Upload browser failure screenshot
         if: failure()
