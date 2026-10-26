@@ -358,6 +358,35 @@ const fs = require('node:fs');
   }
   checkErrors('One-Line conductor attachment on all equipment faces');
 
+  // Regression: moving the middle U-route grip must not change either
+  // equipment attachment point. Read actual rendered endpoint coordinates.
+  await page.locator('#newConnectionStyle').selectOption('up');
+  const attachment = async end => {
+    const p=page.locator('#svg [data-port-handle][data-port-end="'+end+'"]').last();
+    assert.ok(await p.count(), 'Missing '+end+' endpoint before route adjustment');
+    return {x:Number(await p.getAttribute('cx')),y:Number(await p.getAttribute('cy'))};
+  };
+  const fixedFrom=await attachment('from'),fixedTo=await attachment('to');
+  const middle=page.locator('#svg [data-route-handle]').first();
+  assert.ok(await middle.count(),'Missing middle U-route grip');
+  const middleBefore=await middle.boundingBox();
+  assert.ok(middleBefore,'Middle grip has no mouse hit area');
+  const mx0=middleBefore.x+middleBefore.width/2,my0=middleBefore.y+middleBefore.height/2;
+  await page.mouse.move(mx0,my0);
+  await page.mouse.down();
+  await page.mouse.move(mx0+18,my0-16,{steps:8});
+  await page.mouse.up();
+  const middleAfter=await page.locator('#svg [data-route-handle]').first().boundingBox();
+  assert.ok(middleAfter,'Middle grip vanished after drag');
+  assert.ok(Math.hypot(middleAfter.x+middleAfter.width/2-mx0,middleAfter.y+middleAfter.height/2-my0)>0.5,
+    'Middle U-route grip did not move');
+  for(const [end,expected] of [['from',fixedFrom],['to',fixedTo]]){
+    const actual=await attachment(end);
+    assert.ok(Math.hypot(actual.x-expected.x,actual.y-expected.y)<0.01,
+      'Moving the middle U-route grip changed the '+end+' attachment');
+  }
+  checkErrors('One-Line middle routing grip preserves attachments');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
