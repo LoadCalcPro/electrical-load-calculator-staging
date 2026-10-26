@@ -311,6 +311,24 @@ const fs = require('node:fs');
   await page.locator('#zoomOut').click();
   checkErrors('One-Line endpoint dragging after panning');
 
+  // Regression: moving connected equipment should update the conductor's rendered path.
+  // Use the equipment group's pointer hit area rather than a text label.
+  const attachedNode = conductorNodes.nth(0);
+  const attachedBefore = await attachedNode.getAttribute('transform');
+  const wirePathBefore = await wire.locator('path[stroke="transparent"]').first().getAttribute('d');
+  const nodeBox = await attachedNode.boundingBox();
+  assert.ok(nodeBox, 'Connected equipment has no pointer hit area');
+  const nx=nodeBox.x+nodeBox.width/2, ny=nodeBox.y+nodeBox.height/2;
+  await page.mouse.move(nx,ny);
+  await page.mouse.down();
+  await page.mouse.move(nx+32,ny+24,{steps:8});
+  await page.mouse.up();
+  const attachedAfter = await attachedNode.getAttribute('transform');
+  const wirePathAfter = await wire.locator('path[stroke="transparent"]').first().getAttribute('d');
+  assert.notEqual(attachedAfter,attachedBefore,'Connected equipment did not move with mouse drag');
+  assert.notEqual(wirePathAfter,wirePathBefore,'Conductor route did not follow moved equipment');
+  checkErrors('One-Line connected equipment drag');
+
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
