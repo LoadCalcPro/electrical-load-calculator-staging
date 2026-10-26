@@ -431,9 +431,12 @@ const fs = require('node:fs');
 
   // Regression: exported JSON must retain the edited conductor endpoints,
   // routing and feeder label, and importing it must restore them.
+  // Save is inside the collapsed Print / Save menu; reveal it before clicking.
+  await page.locator('#printToggle').click();
+  await page.locator('#save').waitFor({state:'visible'});
   const [projectDownload] = await Promise.all([
     page.waitForEvent('download'),
-    page.locator('#save').click({force:true})
+    page.locator('#save').click()
   ]);
   const projectPath = await projectDownload.path();
   assert.ok(projectPath,'Save Project did not produce a downloadable file');
