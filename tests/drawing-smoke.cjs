@@ -175,6 +175,7 @@ const fs = require('node:fs');
   await page.mouse.move(ex+18, ey+12, {steps:6});
   await page.mouse.up();
   const movedEndpoint = page.locator('#svg [data-port-handle][data-port-end="from"]').last();
+  assert.ok(await movedEndpoint.count(), 'Endpoint vanished after drag; remaining handles: '+await page.locator('#svg [data-port-handle]').count()+'; wire id: '+await page.locator('#svg [data-wire]').last().getAttribute('data-wire'));
   const afterX = Number(await movedEndpoint.getAttribute('cx'));
   const afterY = Number(await movedEndpoint.getAttribute('cy'));
   assert.ok(Math.hypot(afterX-beforeX,afterY-beforeY)>0.5, 'Mouse dragging did not move the conductor endpoint');
