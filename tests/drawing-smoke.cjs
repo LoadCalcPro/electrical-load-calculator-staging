@@ -214,6 +214,12 @@ const fs = require('node:fs');
   await page.mouse.down();
   await page.mouse.move(rx+14,ry+14,{steps:5});
   await page.mouse.up();
+  const movedRouteGrip = page.locator('#svg [data-route-handle]').first();
+  assert.ok(await movedRouteGrip.count(), 'Middle routing grip disappeared after dragging');
+  const movedRouteBox = await movedRouteGrip.boundingBox();
+  assert.ok(movedRouteBox, 'Middle routing grip lost its mouse hit area');
+  const rmx=movedRouteBox.x+movedRouteBox.width/2, rmy=movedRouteBox.y+movedRouteBox.height/2;
+  assert.ok(Math.hypot(rmx-rx,rmy-ry)>0.5,'Middle routing grip did not move with mouse drag');
   assert.equal(await wire.locator('[data-port-handle]').count(),2,'Route adjustment lost conductor selection');
   checkErrors('One-Line conductor route adjustment');
   // Verify each side grip accepts a real mouse drag while retaining the wire selection.
