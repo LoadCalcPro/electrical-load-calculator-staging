@@ -161,6 +161,8 @@ const fs = require('node:fs');
   assert.ok(await wire.locator('[data-port-handle]').count() === 2, 'Both endpoint handles must appear');
   checkErrors('One-Line conductor creation and selection');
   // Drag an endpoint with real pointer events and verify its rendered position changes.
+  // The previous conductor selection is cleared when switching modes; reselect it explicitly.
+  await wire.locator('path[stroke="transparent"]').first().click({force:true});
   const endpoint = wire.locator('[data-port-handle][data-port-end="from"]');
   const beforeX = Number(await endpoint.getAttribute('cx'));
   const beforeY = Number(await endpoint.getAttribute('cy'));
