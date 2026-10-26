@@ -467,9 +467,15 @@ const fs = require('node:fs');
   // Deselect and reselect the connection to catch hit-testing regressions.
   await conductorNodes.nth(0).click();
   assert.equal(await wire.locator('[data-port-handle]').count(),0,'Conductor handles stayed active after selecting equipment');
-  await wire.locator('path[stroke="transparent"]').first().click({force:true});
-  assert.equal(await wire.locator('[data-port-handle]').count(),2,'Could not reselect conductor after selecting equipment');
-  assert.ok(await page.locator('#svg [data-route-handle]').count()>0,'Reselected U-route lost its middle handle');
+  // Re-import clears selection and rebuilds SVG nodes. Select the restored
+  // edited conductor by its saved ID rather than relying on an old .last() locator.
+  const restoredWire = page.locator('#svg [data-wire="'+savedLabelWire.id+'"]');
+  assert.equal(await restoredWire.count(),1,'Edited conductor missing after reopen');
+  await restoredWire.locator('path[stroke="transparent"]').first().click({force:true});
+  assert.equal(await restoredWire.locator('[data-port-handle]').count(),2,
+    'Could not reselect the restored conductor after selecting equipment');
+  assert.ok(await page.locator('#svg [data-route-handle]').count()>0,
+    'Reselected restored U-route lost its middle handle');
   checkErrors('One-Line conductor re-selection');
 
 
