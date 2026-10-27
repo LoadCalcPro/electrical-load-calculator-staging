@@ -14,6 +14,35 @@ const fs = require('node:fs');
   await page.locator('#library [data-add="panel"]').first().waitFor();
   checkErrors('initial load');
 
+  // Audit every equipment type at multiple reduced sizes.
+  const typesToAudit = await page.locator('#library [data-add]').evaluateAll(
+    elements => [...new Set(elements.map(el => el.dataset.add))].filter(Boolean));
+  for (const type of typesToAudit) {
+    for (const percent of [100, 75, 50, 25]) {
+      const result = await page.evaluate(({type,percent}) => {
+        const previousCount=nodes.length;
+        document.getElementById('newEquipmentSize').value=String(percent);
+        add(type,500,350);
+        const item=nodes[nodes.length-1];
+        const symbol=document.querySelector('#svg [data-node="'+item.id+'"] .equipment-symbol');
+        const box=symbol?.getBoundingClientRect();
+        const output={visible:!!box&&box.width>0&&box.height>0,
+          sx:item.scaleX,sy:item.scaleY};
+        nodes.splice(previousCount);
+        selected=null;
+        render();
+        return output;
+      }, {type,percent});
+      assert.ok(result.visible, 'Equipment missing at '+percent+'%: '+type);
+      assert.ok(Math.abs(result.sx-percent/100)<0.001,
+        'Incorrect horizontal scale for '+type+' at '+percent+'%');
+      assert.ok(Math.abs(result.sy-percent/100)<0.001,
+        'Incorrect vertical scale for '+type+' at '+percent+'%');
+    }
+  }
+  console.log('PASS: equipment scaling audit across '+typesToAudit.length+' types');
+  checkErrors('equipment scaling audit');
+
   // Clipboard regression: external image and plain text paste, editable selection,
   // drawing-tab isolation, and preservation through tab switching.
   await page.evaluate(async ()=>{
