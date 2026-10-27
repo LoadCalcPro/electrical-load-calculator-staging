@@ -53,6 +53,16 @@ const fs = require('node:fs');
   await page.locator('#svg [data-personal-image^="clipboard-"]').last().locator('rect').first().click({button:'right',force:true});
   await page.locator('#drawingObjectMenu button', {hasText:'Delete'}).click();
   assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),1,'Delete did not remove duplicate image');
+
+  // Cut/Paste should remove and restore the selected object, with a new identity.
+  await page.locator('#svg [data-personal-image^="clipboard-"]').first().locator('rect').first().click({button:'right',force:true});
+  await page.locator('#drawingObjectMenu button', {hasText:'Cut'}).click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'Cut did not remove image');
+  await page.locator('#svg').click({button:'right',position:{x:200,y:160},force:true});
+  assert.equal(await page.locator('#drawingObjectMenu button', {hasText:'Paste'}).isDisabled(),false,'Paste disabled after Cut');
+  await page.locator('#drawingObjectMenu button', {hasText:'Paste'}).click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),1,'Paste did not restore cut image');
+  checkErrors('Cut and Paste context menu');
   // Locked background must not intercept mouse input and must preserve state.
   await page.evaluate(()=>{personalImages[0].locked=true;selected=null;render();});
   assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"] rect').first().getAttribute('pointer-events'),null);
