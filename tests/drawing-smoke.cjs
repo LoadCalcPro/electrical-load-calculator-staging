@@ -650,6 +650,36 @@ const fs = require('node:fs');
   await page.keyboard.press('Escape');
   checkErrors('Right-click editing from Connect mode');
 
+  // A simple line should support the same right-click actions as equipment.
+  // Use the existing One-Line sheet to avoid introducing another toolbar workflow.
+  const sampleLineId=await page.evaluate(()=>{
+    const id=next++;
+    drawnLines.push({id,x1:190,y1:180,x2:340,y2:180,color:'#222222',width:2});
+    mode='select';render();
+    return id;
+  });
+  const sampleLine=page.locator('#svg [data-drawn-line="'+sampleLineId+'"]');
+  await sampleLine.locator('path[stroke="transparent"]').first().click({button:'right',force:true});
+  assert.equal(await page.evaluate(()=>selected?.kind),'line','Right-click did not select the drawing line');
+  assert.equal(await page.locator('#drawingObjectMenu button').count(),5,'Line context menu is incomplete');
+  await page.locator('#drawingObjectMenu button', {hasText:'Duplicate'}).click();
+  const duplicateLineId=await page.evaluate(()=>selected?.id);
+  assert.notEqual(duplicateLineId,sampleLineId,'Line duplicate reused the original ID');
+  const linePositions=await page.evaluate(ids=>ids.map(id=>{
+    const line=drawnLines.find(v=>v.id===id);
+    return {x1:line.x1,y1:line.y1,x2:line.x2,y2:line.y2};
+  }),[sampleLineId,duplicateLineId]);
+  assert.equal(linePositions[1].x1-linePositions[0].x1,24,'Line duplicate was not offset horizontally');
+  assert.equal(linePositions[1].y1-linePositions[0].y1,24,'Line duplicate was not offset vertically');
+  const duplicateLine=page.locator('#svg [data-drawn-line="'+duplicateLineId+'"]');
+  await duplicateLine.locator('path[stroke="transparent"]').first().click({button:'right',force:true});
+  await page.locator('#drawingObjectMenu button', {hasText:'Delete'}).click();
+  assert.equal(await sampleLine.count(),1,'Deleting duplicate removed original drawing line');
+  assert.equal(await duplicateLine.count(),0,'Deleting duplicate did not remove its line');
+  await page.evaluate(id=>{drawnLines=drawnLines.filter(v=>v.id!==id);selected=null;selectedLineIds.clear();render();},sampleLineId);
+  checkErrors('Line right-click duplicate and delete');
+
+
 
 
   await page.locator('[data-drawing-tab="ladder"]').click();
