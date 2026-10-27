@@ -1273,7 +1273,7 @@ const drawingMenu=document.createElement('div');
 drawingMenu.id='drawingObjectMenu';
 drawingMenu.style.cssText='position:fixed;z-index:100000;display:none;background:white;color:#18242b;border:1px solid #aebbc2;border-radius:6px;box-shadow:0 4px 18px #0003;padding:5px;min-width:155px;font:13px Arial,sans-serif';
 document.body.appendChild(drawingMenu);
-function closeDrawingMenu(){drawingMenu.style.display='none';}
+function closeDrawingMenu(){drawingMenu.style.display='none';drawingMenu.replaceChildren();}
 function copyDrawingObject(){
  if(!selected)return false;
  const collections={node:nodes,annotation:annotations,personalImage:personalImages};
@@ -1305,11 +1305,11 @@ function deleteDrawingObject(){
 $('svg').addEventListener('contextmenu',e=>{
  if(mode!=='select')return;
  const hit=e.target.closest('[data-node],[data-annotation],[data-personal-image]');
- if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked)return;selected={kind,id};render();}
+ if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked)return;selected={kind,id};render();}else{selected=null;selectedNodeIds.clear();render();}
  e.preventDefault();closeDrawingMenu();
- const entries=[['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>pasteDrawingObject(),!drawingObjectClipboard],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
+ const entries=[['Cut',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>pasteDrawingObject(),!drawingObjectClipboard],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
  for(const [label,action,disabled] of entries){const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=disabled;button.style.cssText='display:block;width:100%;text-align:left;padding:7px;border:0;background:transparent;color:inherit;cursor:pointer';button.onclick=()=>{closeDrawingMenu();action()};drawingMenu.appendChild(button);}
- drawingMenu.style.left=Math.min(e.clientX,window.innerWidth-175)+'px';drawingMenu.style.top=Math.min(e.clientY,window.innerHeight-165)+'px';drawingMenu.style.display='block';
+ drawingMenu.style.left=Math.min(e.clientX,window.innerWidth-175)+'px';drawingMenu.style.top=Math.min(e.clientY,window.innerHeight-205)+'px';drawingMenu.style.display='block';
 });
 document.addEventListener('pointerdown',e=>{if(!drawingMenu.contains(e.target))closeDrawingMenu()},true);
 window.addEventListener('keydown',e=>{
@@ -1322,6 +1322,7 @@ window.addEventListener('keydown',e=>{
 // External clipboard paste: text becomes an editable note; bitmap images become
 // ordinary selectable/resizable drawing images. Do not intercept form-field paste.
 window.addEventListener('paste',async e=>{
+ if(e.defaultPrevented)return;
  const focus=document.activeElement;
  if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
  const data=e.clipboardData;if(!data)return;
