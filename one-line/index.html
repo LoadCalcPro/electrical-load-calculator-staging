@@ -299,17 +299,16 @@ if(t==='metercombo'){
  const bays=Math.max(1,Math.min(8,Number(n.comboBays)||1)),counts=Array.isArray(n.comboCounts)?n.comboCounts:[],cellH=34,bayW=112,meterW=82;
  const maxCount=Math.max(1,...Array.from({length:bays},(_,b)=>Math.max(1,Math.min(12,Number(counts[b])||5))));
  const h=Math.max(190,maxCount*cellH+20),w=meterW+bays*bayW,defaults=['400A MAIN','SURGE PROTECTION','200A A','200A B','SPARE / AUXILIARY'];
- const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1,invX=1/sx,invY=1/sy;
  let out=`<rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" ${line}/><path d="M${-w/2+meterW} ${-h/2}V${h/2}" ${line}/>`;
  const mx=-w/2+meterW/2+(Number(n.comboMeterX)||0),my=-h/2+48+(Number(n.comboMeterY)||0);
- out+=`<g data-combo-meter="true" transform="translate(${mx} ${my}) scale(${invX} ${invY})" style="cursor:move"><circle r="22" ${line} style="pointer-events:all"/>${txt(0,7,'M',23,'bold','meterLetter')}</g>`;
+ out+=`<g data-combo-meter="true" transform="translate(${mx} ${my})" style="cursor:move"><circle r="22" ${line} style="pointer-events:all"/>${txt(0,7,'M',23,'bold','meterLetter')}</g>`;
  for(let b=0;b<bays;b++){const x=-w/2+meterW+b*bayW;if(b)out+=`<path d="M${x} ${-h/2}V${h/2}" ${line}/>`;const count=Math.max(1,Math.min(12,Number(counts[b])||5));
  for(let i=0;i<count;i++){const key='comboCell_'+b+'_'+i,box=n.comboBoxes?.[key]||{},bx=Math.max(-w/2+3,Math.min(w/2-24,Number(box.x??(x+5)))),by=Math.max(-h/2+3,Math.min(h/2-18,Number(box.y??(-h/2+10+i*cellH)))),bw=Math.max(24,Math.min(w/2-bx-3,Number(box.w)||bayW-10)),bh=Math.max(18,Math.min(h/2-by-3,Number(box.h)||cellH-3));
  const legacy=b===0?[n.amps?String(n.amps).trim()+(String(n.amps).toUpperCase().includes('A')?'':'A')+' MAIN':'400A MAIN',n.surgeInstalled===false?'':'SURGE PROTECTION',n.breakerA||'200A A',n.breakerB||'200A B',n.kaic?String(n.kaic)+' kAIC':'SPARE / AUXILIARY'][i]:undefined;
  const label=n.innerText?.[key]??legacy??defaults[i]??'';
  const activeSlot=selected?.kind==='node'&&selected.id===n.id&&activeInnerKey===key;
  out+=`<rect data-combo-slot="${b}:${i}" x="${bx}" y="${by}" width="${bw}" height="${bh}" ${line} ${activeSlot?'stroke="#087d92" stroke-width="2.5" stroke-dasharray="5 3"':''} style="pointer-events:all;cursor:move"/>`;
- out+=`<g transform="translate(${bx+bw/2} ${by+bh/2}) scale(${invX} ${invY})">${txt(0,3,label,9,'normal',key)}</g>`;
+ out+=`<g transform="translate(${bx+bw/2} ${by+bh/2})">${txt(0,3,label,9,'normal',key)}</g>`;
  if(activeSlot)out+=`<rect data-combo-resize="${b}:${i}" x="${bx+bw-6}" y="${by+bh-6}" width="12" height="12" fill="#ffffff" stroke="#168c9a" style="cursor:nwse-resize;pointer-events:all"/>`;
  }}return out;}
 if(t==='panel'||t==='switchboard')return `<rect x="-43" y="-55" width="86" height="110" ${line}/>${txt(0,-30,n.name,11,'bold','panelName')}${txt(0,-10,n.amps?n.amps+'A':'',12,'panelRating')}${txt(0,6,n.innerText?.panelMain??n.mainType??'M.L.O.',10,'panelMain')}${txt(0,19,n.voltage||'',8,'normal','panelVoltage')}${txt(0,30,n.kaic?String(n.kaic).trim()+(String(n.kaic).toUpperCase().includes('KAIC')?'':' kAIC'):'',8,'normal','panelKaic')}<path d="M-30 40H30M-30 47H30" ${line}/>`;
