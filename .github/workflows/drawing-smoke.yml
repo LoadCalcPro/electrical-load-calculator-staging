@@ -19,7 +19,25 @@ jobs:
       - name: Install Chromium with bounded runtime
         timeout-minutes: 8
         run: npx playwright install --with-deps chromium
-      - run: node tests/drawing-smoke.cjs
+      - name: Run all Drawing Suite and clipboard browser checks
+        id: browser_tests
+        timeout-minutes: 10
+        run: node tests/drawing-smoke.cjs
+      - name: Publish test result to GitHub Actions summary
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.browser_tests.outcome }}
+        run: |
+          echo '## Drawing Suite and clipboard browser verification' >> "$GITHUB_STEP_SUMMARY"
+          echo "Chromium smoke suite: **$TEST_OUTCOME**" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Includes clipboard image/text paste, image resize, drawing-tab isolation, project Save/Open, and image removal.' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f test-results/failure.txt ]; then
+            echo '### Failure details' >> "$GITHUB_STEP_SUMMARY"
+            echo '\`\`\`text' >> "$GITHUB_STEP_SUMMARY"
+            head -c 12000 test-results/failure.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            echo '\`\`\`' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload browser failure screenshot
         if: failure()
         uses: actions/upload-artifact@v4
