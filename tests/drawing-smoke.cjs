@@ -721,7 +721,7 @@ const fs = require('node:fs');
     selected={kind:'line',id};selectedLineIds.clear();selectedLineIds.add(id);render();
     return id;
   });
-  await page.locator('#status').click({force:true});
+  await page.evaluate(()=>document.activeElement?.blur());
   await page.keyboard.press('Delete');
   assert.equal(await page.locator('#svg [data-drawn-line="'+keyboardLineId+'"]').count(),0,'Delete key did not remove selected line');
   checkErrors('Keyboard Delete on drawing object');
