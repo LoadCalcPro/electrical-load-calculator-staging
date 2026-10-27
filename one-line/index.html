@@ -1288,7 +1288,7 @@ document.body.appendChild(drawingMenu);
 function closeDrawingMenu(){drawingMenu.style.display='none';drawingMenu.replaceChildren();}
 function copyDrawingObject(){
  if(!selected)return false;
- const collections={node:nodes,annotation:annotations,personalImage:personalImages};
+ const collections={node:nodes,annotation:annotations,personalImage:personalImages,wire:wires};
  const collection=collections[selected.kind];if(!collection)return false;
  const item=collection.find(v=>(selected.kind==='personalImage'?v.kind:v.id)===selected.id);
  if(!item||item.locked)return false;
@@ -1302,6 +1302,7 @@ function pasteDrawingObject(){
  const item=structuredClone(data);
  const offset=24*(drawingObjectClipboard.pastes+1);drawingObjectClipboard.pastes++;
  if(kind==='personalImage'){item.kind='clipboard-'+next++;item.locked=false;item.x+=offset;item.y+=offset;personalImages.push(item);selected={kind,id:item.kind};}
+ else if(kind==='wire'){item.id=next++;item.routeOffset=(Number(item.routeOffset)||0)+offset;wires.push(item);selected={kind,id:item.id};}
  else {item.id=next++;item.x+=offset;item.y+=offset;if(kind==='node')nodes.push(item);else annotations.push(item);selected={kind,id:item.id};}
  mode='select';render();
  $('status').textContent='Object pasted. Drag it to position.';
@@ -1311,14 +1312,15 @@ function deleteDrawingObject(){
  const {kind,id}=selected;
  if(kind==='node'){nodes=nodes.filter(v=>v.id!==id);wires=wires.filter(v=>v.from!==id&&v.to!==id);}
  else if(kind==='annotation')annotations=annotations.filter(v=>v.id!==id);
+ else if(kind==='wire')wires=wires.filter(v=>v.id!==id);
  else if(kind==='personalImage'){if(personalImages.find(v=>v.kind===id)?.locked)return;personalImages=personalImages.filter(v=>v.kind!==id);}
  else return;
  selected=null;selectedNodeIds.clear();render();
 }
 $('svg').addEventListener('contextmenu',e=>{
  if(mode!=='select')return;
- const hit=e.target.closest('[data-node],[data-annotation],[data-personal-image]');
- if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked)return;selected={kind,id};render();}else{selected=null;selectedNodeIds.clear();render();}
+ const hit=e.target.closest('[data-node],[data-annotation],[data-personal-image],[data-wire]');
+ if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':hit.hasAttribute('data-wire')?'wire':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):kind==='wire'?wires.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked)return;selected={kind,id};render();}else{selected=null;selectedNodeIds.clear();render();}
  e.preventDefault();closeDrawingMenu();
  const entries=[['Cut',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>pasteDrawingObject(),!drawingObjectClipboard],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
  for(const [label,action,disabled] of entries){const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=disabled;button.style.cssText='display:block;width:100%;text-align:left;padding:7px;border:0;background:transparent;color:inherit;cursor:pointer';button.onclick=()=>{closeDrawingMenu();action()};drawingMenu.appendChild(button);}
