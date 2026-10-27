@@ -15,6 +15,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check inline editor JavaScript syntax before browser setup
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('one-line/index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)];
+          if (!scripts.length) throw Error('No inline editor scripts found');
+          scripts.forEach((match, i) => {
+            try { new vm.Script(match[1], {filename: 'one-line/index.html (script ' + (i+1) + ')'}); }
+            catch (error) { console.error('Inline script ' + (i+1) + ' has invalid JavaScript:', error); process.exitCode = 1; }
+          });
+          if (!process.exitCode) console.log('All ' + scripts.length + ' inline editor scripts passed syntax validation.');
+          NODE
       - run: npm install --no-save playwright
       - name: Install Chromium with bounded runtime
         timeout-minutes: 8
