@@ -639,6 +639,17 @@ const fs = require('node:fs');
   assert.equal(await restoredWire.count(),1,'Original conductor was removed with its duplicate');
   checkErrors('Conductor context menu duplicate and delete');
 
+  // A new user should be able to right-click an existing feeder directly,
+  // even if Connect is still active; unfinished connection state must clear.
+  await page.evaluate(()=>{mode='connect';start=nodes[0]?.id??null;connectStartSide={side:'right',offset:0};});
+  await restoredWire.locator('path[stroke="transparent"]').first().click({button:'right',force:true});
+  assert.equal(await page.evaluate(()=>mode),'select','Right-click did not switch back to Select');
+  assert.equal(await page.evaluate(()=>start),null,'Right-click left a pending Connect start');
+  assert.equal(await page.evaluate(()=>connectStartSide),null,'Right-click left a pending Connect port');
+  assert.equal(await page.locator('#drawingObjectMenu button').count(),5,'Right-click editing failed while Connect was active');
+  await page.keyboard.press('Escape');
+  checkErrors('Right-click editing from Connect mode');
+
 
 
   await page.locator('[data-drawing-tab="ladder"]').click();
