@@ -1330,8 +1330,12 @@ $('svg').addEventListener('contextmenu',e=>{
 document.addEventListener('pointerdown',e=>{if(!drawingMenu.contains(e.target))closeDrawingMenu()},true);
 window.addEventListener('keydown',e=>{
  if(e.key==='Escape')closeDrawingMenu();
+ const focus=document.activeElement;
+ if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
+ if((e.key==='Delete'||e.key==='Backspace')&&selected&&['node','annotation','personalImage','wire','line'].includes(selected.kind)){
+  e.preventDefault();closeDrawingMenu();deleteDrawingObject();return;
+ }
  if(!(e.metaKey||e.ctrlKey)||e.altKey)return;
- const focus=document.activeElement;if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
  if(e.key.toLowerCase()==='c'&&copyDrawingObject())e.preventDefault();
  if(e.key.toLowerCase()==='v'&&drawingObjectClipboard){e.preventDefault();pasteDrawingObject();}\n if(e.key.toLowerCase()==='x'&&copyDrawingObject()){e.preventDefault();deleteDrawingObject();}
 });
