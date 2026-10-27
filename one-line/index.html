@@ -372,7 +372,7 @@ function feederPath(a,b,w={}){
    const T={x:Q.x+(ts==='left'?-stub:ts==='right'?stub:0),y:Q.y+(ts==='top'?-stub:ts==='bottom'?stub:0)};
    let middle;
    if(verticalStart&&verticalEnd){
-     const level=w.routeOffset!=null&&w.routeOffset!==''?Math.max(18,Math.min(sheetHeightUnits()-18,Number(w.routeOffset))):(S.y+T.y)/2;
+     const level=w.routeOffset!=null&&w.routeOffset!==''?Math.max(16,Math.min(sheetDrawingBottom(),Number(w.routeOffset))):(S.y+T.y)/2;
      return {d:`M${P.x} ${P.y}V${level}H${Q.x}V${Q.y}`,lx:(P.x+Q.x)/2+8,ly:level-8,handle:{x:(P.x+Q.x)/2,y:level,axis:'y'}};
    }
    if(verticalStart&&!verticalEnd)middle=`V${T.y}H${T.x}`;
