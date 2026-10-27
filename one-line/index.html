@@ -216,9 +216,24 @@ function activeGuideEquipmentPlacement(type,scale=1){
  const cx=(b.left+b.right)/2,cy=(b.top+b.bottom)/2;
  return {x:left<=right?Math.max(left,Math.min(right,cx+dx)):cx,y:top<=bottom?Math.max(top,Math.min(bottom,cy+dy)):cy};
 }
+function visibleDrawingBounds(){
+ const svg=$('svg'),matrix=svg.getScreenCTM();if(!matrix)return null;
+ const r=svg.getBoundingClientRect(),viewport=svg.parentElement?.getBoundingClientRect()||r;
+ const left=Math.max(r.left,viewport.left,0),right=Math.min(r.right,viewport.right,window.innerWidth);
+ const top=Math.max(r.top,viewport.top,0),bottom=Math.min(r.bottom,viewport.bottom,window.innerHeight);
+ if(right-left<30||bottom-top<30)return null;
+ const inverse=matrix.inverse();
+ const convert=(x,y)=>{const p=svg.createSVGPoint();p.x=x;p.y=y;const q=p.matrixTransform(inverse);return {x:q.x/zoom-panX,y:q.y/zoom-panY};};
+ const a=convert(left,top),b=convert(right,bottom);
+ return {left:Math.max(18,Math.min(a.x,b.x)),right:Math.min(982,Math.max(a.x,b.x)),
+  top:Math.max(16,Math.min(a.y,b.y)),bottom:Math.min(sheetDrawingBottom(),Math.max(a.y,b.y))};
+}
 function placeNewEquipmentWithoutOverlap(n){
- const gap=12,b=bounds(n),section=guideSectionBounds();
- const area=section||{left:18,right:982,top:16,bottom:sheetDrawingBottom()};
+ const gap=12,b=bounds(n),section=guideSectionBounds(),visible=visibleDrawingBounds();
+ const full={left:18,right:982,top:16,bottom:sheetDrawingBottom()};
+ const target=section||full;
+ const area=visible?{left:Math.max(target.left,visible.left),right:Math.min(target.right,visible.right),
+  top:Math.max(target.top,visible.top),bottom:Math.min(target.bottom,visible.bottom)}:target;
  const minX=area.left+b.l+gap,maxX=area.right-b.r-gap;
  const minY=area.top+b.t+gap,maxY=area.bottom-b.b-gap;
  if(minX>maxX||minY>maxY)return;
