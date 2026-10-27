@@ -391,7 +391,7 @@ function feederPath(a,b,w={}){
    const edge=style==='up'?Math.min(a.y-A.t,b.y-B.t):Math.max(a.y+A.b,b.y+B.b);
    const preferred=style==='up'?edge-55:edge+55;
    const requested=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):preferred;
-   const level=style==='up'?Math.max(24,Math.min(requested,edge-12)):Math.min(676,Math.max(requested,edge+12));
+   const drawingTop=16,drawingBottom=sheetDrawingBottom();const level=style==='up'?Math.max(drawingTop,Math.min(drawingBottom,requested,edge-12)):Math.min(drawingBottom,Math.max(drawingTop,requested,edge+12));
    // Side connections travel outward first, then around the enclosure to the shared route.
    const begin=(fs==='top'||fs==='bottom')?`M${P.x} ${P.y}V${level}`:`M${P.x} ${P.y}H${S.x}V${level}`;
    const finish=(ts==='top'||ts==='bottom')?`H${Q.x}V${Q.y}`:`H${T.x}V${T.y}H${Q.x}`;
