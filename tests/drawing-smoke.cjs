@@ -330,6 +330,16 @@ const fs = require('node:fs');
   assert.ok(await routeControls.count() > 0, 'No middle or side routing handles appeared for selected conductor');
   assert.ok(await page.locator('#svg [data-route-handle]').count() > 0, 'U-shaped conductor is missing its middle routing grip');
   assert.equal(await page.locator('#svg [data-wire-side-handle]').count(), 2, 'U-shaped conductor must show a side grip for each endpoint');
+  // A click on a visible routing grip must never be stolen by the
+  // nearby invisible endpoint hit area.
+  const gripHitPriority=await page.evaluate(()=>{
+    const grip=document.querySelector('#svg [data-route-handle]');
+    if(!grip)return false;
+    const rect=grip.getBoundingClientRect();
+    const target=document.elementFromPoint(rect.x+rect.width/2,rect.y+rect.height/2);
+    return !!target?.closest('[data-route-handle]');
+  });
+  assert.equal(gripHitPriority,true,'Middle routing grip is obscured by another hit target');
   const routeControl = page.locator('#svg [data-route-handle]').first();
   const routeBox = await routeControl.boundingBox();
   assert.ok(routeBox, 'Conductor routing handle has no pointer hit area');
