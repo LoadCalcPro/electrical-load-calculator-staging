@@ -1316,7 +1316,8 @@ function deleteDrawingObject(){
  selected=null;selectedNodeIds.clear();render();
 }
 $('svg').addEventListener('contextmenu',e=>{
- if(mode!=='select')return;
+ // Right-click is always the familiar edit action, even after using Connect or Add.
+ if(mode!=='select'){mode='select';connectStart=null;connectStartSide=null;}
  const hit=e.target.closest('[data-node],[data-annotation],[data-personal-image],[data-wire]');
  if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':hit.hasAttribute('data-wire')?'wire':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):kind==='wire'?wires.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked)return;selected={kind,id};render();}else{selected=null;selectedNodeIds.clear();render();}
  e.preventDefault();closeDrawingMenu();
