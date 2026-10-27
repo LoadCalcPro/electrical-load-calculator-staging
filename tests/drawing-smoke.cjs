@@ -340,6 +340,20 @@ const fs = require('node:fs');
     return !!target?.closest('[data-route-handle]');
   });
   assert.equal(gripHitPriority,true,'Middle routing grip is obscured by another hit target');
+  // Side grips must remain independently draggable, with their offsets
+  // constrained to the equipment boundary.
+  const firstSideGrip=page.locator('#svg [data-wire-side-handle]').first();
+  const sideGripBox=await firstSideGrip.boundingBox();
+  assert.ok(sideGripBox,'Connect side grip is missing a mouse hit area');
+  const sideGripStart={x:sideGripBox.x+sideGripBox.width/2,y:sideGripBox.y+sideGripBox.height/2};
+  const sideGripEnd={x:sideGripStart.x+10,y:sideGripStart.y+18};
+  await page.mouse.move(sideGripStart.x,sideGripStart.y);
+  await page.mouse.down();
+  await page.mouse.move(sideGripEnd.x,sideGripEnd.y,{steps:4});
+  await page.mouse.up();
+  assert.ok(await page.locator('#svg [data-wire-side-handle]').count()===2,
+    'Connect side handles disappeared after dragging');
+  checkErrors('Connect side handle drag');
   const routeControl = page.locator('#svg [data-route-handle]').first();
   const routeBox = await routeControl.boundingBox();
   assert.ok(routeBox, 'Conductor routing handle has no pointer hit area');
