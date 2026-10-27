@@ -22,7 +22,7 @@ jobs:
           const vm = require('node:vm');
           const html = fs.readFileSync('one-line/index.html', 'utf8');
           const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
-          if (!scripts.length) throw Error('No inline editor scripts found');
+          if (scripts.length < 2 || !scripts.some(match => match[1].includes('function render('))) throw Error('Main drawing editor script was not found; syntax validation cannot be trusted');
           scripts.forEach((match, i) => {
             try { new vm.Script(match[1], {filename: 'one-line/index.html (script ' + (i+1) + ')'}); }
             catch (error) { console.error('Inline script ' + (i+1) + ' has invalid JavaScript:', error); process.exitCode = 1; }
