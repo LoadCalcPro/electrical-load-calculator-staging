@@ -679,6 +679,18 @@ const fs = require('node:fs');
   await page.evaluate(id=>{drawnLines=drawnLines.filter(v=>v.id!==id);selected=null;selectedLineIds.clear();render();},sampleLineId);
   checkErrors('Line right-click duplicate and delete');
 
+  // Right-click must not leave an unrelated line in the multi-selection.
+  await page.evaluate(id=>{
+    selectedLineIds.add(id);
+    selectedNodeIds.add(nodes[0].id);
+    render();
+  },sampleLineId);
+  await restoredWire.locator('path[stroke="transparent"]').first().click({button:'right',force:true});
+  assert.deepEqual(await page.evaluate(()=>[selectedLineIds.size,selectedNodeIds.size]),[0,0],
+    'Right-click on a conductor left stale line or equipment multi-selection');
+  await page.keyboard.press('Escape');
+  checkErrors('Right-click clears unrelated multi-selection');
+
   // Keyboard Delete should remove a selected line but never delete while typing.
   const keyboardLineId=await page.evaluate(()=>{
     const id=next++;drawnLines.push({id,x1:180,y1:240,x2:330,y2:240,width:2});
