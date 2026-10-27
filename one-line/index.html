@@ -178,7 +178,7 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
 
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
- .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
+ body:has(.suite-header) main{align-items:stretch}\n .center{align-self:stretch;min-height:100%}\n .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
  #drawingStickyToolbar .toolbar-navigation{position:absolute;right:8px;top:7px;z-index:1}
  #drawingStickyToolbar .toolbar-drawing{padding-right:112px}
  #applicationsJump{font-size:12px;padding:5px 7px;min-height:30px;background:#fff;color:#24516e}
