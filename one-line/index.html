@@ -1337,7 +1337,8 @@ window.addEventListener('keydown',e=>{
  }
  if(!(e.metaKey||e.ctrlKey)||e.altKey)return;
  if(e.key.toLowerCase()==='c'&&copyDrawingObject())e.preventDefault();
- if(e.key.toLowerCase()==='v'&&drawingObjectClipboard){e.preventDefault();pasteDrawingObject();}\n if(e.key.toLowerCase()==='x'&&copyDrawingObject()){e.preventDefault();deleteDrawingObject();}
+ if(e.key.toLowerCase()==='v'&&drawingObjectClipboard){e.preventDefault();pasteDrawingObject();}
+ if(e.key.toLowerCase()==='x'&&copyDrawingObject()){e.preventDefault();deleteDrawingObject();}
 });
 // External clipboard paste: text becomes an editable note; bitmap images become
 // ordinary selectable/resizable drawing images. Do not intercept form-field paste.
