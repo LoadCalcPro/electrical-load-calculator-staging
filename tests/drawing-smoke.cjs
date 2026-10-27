@@ -614,6 +614,21 @@ const fs = require('node:fs');
     'Reselected restored U-route lost its middle handle');
   checkErrors('One-Line conductor re-selection');
 
+  // Conductor right-click editing: duplicate must retain endpoint IDs,
+  // and removing the duplicate must leave the original feeder intact.
+  const wireCountBefore=await page.locator('#svg [data-wire]').count();
+  await restoredWire.locator('path[stroke="transparent"]').first().click({button:'right',force:true});
+  assert.equal(await page.locator('#drawingObjectMenu button').count(),5,'Conductor context menu did not open');
+  await page.locator('#drawingObjectMenu button', {hasText:'Duplicate'}).click();
+  assert.equal(await page.locator('#svg [data-wire]').count(),wireCountBefore+1,'Conductor Duplicate did not create a feeder');
+  const duplicatedWire=page.locator('#svg [data-wire]').last();
+  await duplicatedWire.locator('path[stroke="transparent"]').first().click({button:'right',force:true});
+  await page.locator('#drawingObjectMenu button', {hasText:'Delete'}).click();
+  assert.equal(await page.locator('#svg [data-wire]').count(),wireCountBefore,'Deleting duplicated conductor changed original conductor count');
+  assert.equal(await restoredWire.count(),1,'Original conductor was removed with its duplicate');
+  checkErrors('Conductor context menu duplicate and delete');
+
+
 
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
