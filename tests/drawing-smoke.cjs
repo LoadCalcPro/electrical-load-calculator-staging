@@ -679,6 +679,17 @@ const fs = require('node:fs');
   await page.evaluate(id=>{drawnLines=drawnLines.filter(v=>v.id!==id);selected=null;selectedLineIds.clear();render();},sampleLineId);
   checkErrors('Line right-click duplicate and delete');
 
+  // Keyboard Delete should remove a selected line but never delete while typing.
+  const keyboardLineId=await page.evaluate(()=>{
+    const id=next++;drawnLines.push({id,x1:180,y1:240,x2:330,y2:240,width:2});
+    selected={kind:'line',id};selectedLineIds.clear();selectedLineIds.add(id);render();
+    return id;
+  });
+  await page.locator('#status').click({force:true});
+  await page.keyboard.press('Delete');
+  assert.equal(await page.locator('#svg [data-drawn-line="'+keyboardLineId+'"]').count(),0,'Delete key did not remove selected line');
+  checkErrors('Keyboard Delete on drawing object');
+
 
 
 
