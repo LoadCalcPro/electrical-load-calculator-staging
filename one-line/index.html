@@ -219,8 +219,17 @@ function activeGuideEquipmentPlacement(type,scale=1){
 function visibleDrawingBounds(){
  const svg=$('svg'),matrix=svg.getScreenCTM();if(!matrix)return null;
  const r=svg.getBoundingClientRect(),viewport=svg.parentElement?.getBoundingClientRect()||r;
+ // The toolbar can float over the sheet: reserve its entire screen rectangle.
+ const blockers=[...document.querySelectorAll('button,select,input')].filter(el=>{
+  const rect=el.getBoundingClientRect();
+  return rect.width>0&&rect.height>0&&rect.bottom>r.top&&rect.top<r.bottom&&rect.left<r.right&&rect.right>r.left;
+ });
+ const toolbarBottom=blockers.reduce((bottom,el)=>{
+  const rect=el.getBoundingClientRect();
+  return rect.top<=r.top+90?Math.max(bottom,rect.bottom):bottom;
+ },r.top);
  const left=Math.max(r.left,viewport.left,0),right=Math.min(r.right,viewport.right,window.innerWidth);
- const top=Math.max(r.top,viewport.top,0),bottom=Math.min(r.bottom,viewport.bottom,window.innerHeight);
+ const top=Math.max(r.top,viewport.top,toolbarBottom+16,0),bottom=Math.min(r.bottom,viewport.bottom,window.innerHeight);
  if(right-left<30||bottom-top<30)return null;
  const inverse=matrix.inverse();
  const convert=(x,y)=>{const p=svg.createSVGPoint();p.x=x;p.y=y;const q=p.matrixTransform(inverse);return {x:q.x/zoom-panX,y:q.y/zoom-panY};};
