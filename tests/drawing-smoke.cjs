@@ -78,6 +78,17 @@ const fs = require('node:fs');
     return !!target&&!image.contains(target)&&target!==image;
   });
   assert.ok(hitTest,'Locked background is still the mouse hit target');
+
+  // The toolbar manager must allow a locked PDF/image to be selected and unlocked.
+  page.once('dialog',dialog=>dialog.accept('1'));
+  await page.locator('#manageBackgrounds').click();
+  assert.equal(await page.locator('#imgLocked').isChecked(),true,'Manage Backgrounds did not select the locked image');
+  await page.locator('#imgLocked').uncheck();
+  assert.equal(await page.locator('#imgLocked').isChecked(),false,'Background could not be unlocked through Properties');
+  assert.ok(!(await page.locator('#svg [data-personal-image^="clipboard-"] image').first().getAttribute('style')).includes('pointer-events:none'),'Unlocked image still ignores mouse selection');
+  await page.locator('#imgLocked').check();
+  assert.equal(await page.locator('#imgLocked').isChecked(),true,'Background could not be locked again');
+  checkErrors('Manage Backgrounds lock and unlock');
   await page.evaluate(()=>{personalImages[0].locked=false;render();});
   checkErrors('context menu, image layering, and background lock');
 
