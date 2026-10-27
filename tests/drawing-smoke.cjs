@@ -38,6 +38,29 @@ const fs = require('node:fs');
   assert.ok(afterResize.width>beforeResize.width,'Dragging image corner did not increase width');
   assert.ok(Math.abs(afterResize.width/afterResize.height-beforeResize.width/beforeResize.height)<0.02,'Resizing changed image aspect ratio');
 
+  // The imported image layer must remain below conductors, equipment, and notes.
+  const layers=await page.locator('#svg g[id]').evaluateAll(els=>els.map(el=>el.id));
+  for(const id of ['wires','drawnLines','nodes','annotations']){
+    assert.ok(layers.indexOf('personalImages')<layers.indexOf(id),'Imported image renders above '+id);
+  }
+  // Repeated right clicks must not accumulate duplicate menu actions.
+  await pastedImage.locator('rect').first().click({button:'right',force:true});
+  assert.equal(await page.locator('#drawingObjectMenu button').count(),5,'Object context menu lacks expected actions');
+  await pastedImage.locator('rect').first().click({button:'right',force:true});
+  assert.equal(await page.locator('#drawingObjectMenu button').count(),5,'Context menu duplicated actions on repeated opening');
+  await page.locator('#drawingObjectMenu button', {hasText:'Duplicate'}).click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),2,'Duplicate did not create another image');
+  await page.locator('#svg [data-personal-image^="clipboard-"]').last().locator('rect').first().click({button:'right',force:true});
+  await page.locator('#drawingObjectMenu button', {hasText:'Delete'}).click();
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),1,'Delete did not remove duplicate image');
+  // Locked background must not intercept mouse input and must preserve state.
+  await page.evaluate(()=>{personalImages[0].locked=true;selected=null;render();});
+  assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"] rect').first().getAttribute('pointer-events'),null);
+  assert.ok((await page.locator('#svg [data-personal-image^="clipboard-"] rect').first().getAttribute('style')).includes('pointer-events:none'),'Locked image still intercepts clicks');
+  await page.evaluate(()=>{personalImages[0].locked=false;render();});
+  checkErrors('context menu, image layering, and background lock');
+
+
   await page.locator('[data-drawing-tab="plan"]').click();
   assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"]').count(),0,'Pasted image leaked into Plan View');
   await page.locator('[data-drawing-tab="one"]').click();
