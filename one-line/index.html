@@ -1280,7 +1280,7 @@ function copyDrawingObject(){
  const collection=collections[selected.kind];if(!collection)return false;
  const item=collection.find(v=>(selected.kind==='personalImage'?v.kind:v.id)===selected.id);
  if(!item||item.locked)return false;
- drawingObjectClipboard={kind:selected.kind,data:structuredClone(item)};
+ drawingObjectClipboard={kind:selected.kind,data:structuredClone(item),pastes:0};
  $('status').textContent='Object copied. Right-click the drawing to paste.';
  return true;
 }
@@ -1288,8 +1288,9 @@ function pasteDrawingObject(){
  if(!drawingObjectClipboard)return;
  const {kind,data}=drawingObjectClipboard;
  const item=structuredClone(data);
- if(kind==='personalImage'){item.kind='clipboard-'+next++;item.locked=false;item.x+=24;item.y+=24;personalImages.push(item);selected={kind,id:item.kind};}
- else {item.id=next++;item.x+=24;item.y+=24;if(kind==='node')nodes.push(item);else annotations.push(item);selected={kind,id:item.id};}
+ const offset=24*(drawingObjectClipboard.pastes+1);drawingObjectClipboard.pastes++;
+ if(kind==='personalImage'){item.kind='clipboard-'+next++;item.locked=false;item.x+=offset;item.y+=offset;personalImages.push(item);selected={kind,id:item.kind};}
+ else {item.id=next++;item.x+=offset;item.y+=offset;if(kind==='node')nodes.push(item);else annotations.push(item);selected={kind,id:item.id};}
  mode='select';render();
  $('status').textContent='Object pasted. Drag it to position.';
 }
