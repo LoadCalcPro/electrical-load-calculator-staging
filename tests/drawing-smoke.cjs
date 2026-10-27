@@ -347,12 +347,23 @@ const fs = require('node:fs');
   assert.ok(sideGripBox,'Connect side grip is missing a mouse hit area');
   const sideGripStart={x:sideGripBox.x+sideGripBox.width/2,y:sideGripBox.y+sideGripBox.height/2};
   const sideGripEnd={x:sideGripStart.x+10,y:sideGripStart.y+18};
+  const sideGripBefore=await page.evaluate(()=>{
+    const id=Number(document.querySelector('#svg [data-wire-side-handle]').dataset.wireSideHandle);
+    const end=document.querySelector('#svg [data-wire-side-handle]').dataset.wireSideEnd;
+    const wire=wires.find(w=>w.id===id);
+    return {id,end,offset:Number(wire[end==='from'?'fromOffset':'toOffset'])||0};
+  });
   await page.mouse.move(sideGripStart.x,sideGripStart.y);
   await page.mouse.down();
   await page.mouse.move(sideGripEnd.x,sideGripEnd.y,{steps:4});
   await page.mouse.up();
   assert.ok(await page.locator('#svg [data-wire-side-handle]').count()===2,
     'Connect side handles disappeared after dragging');
+  const sideGripAfter=await page.evaluate(({id,end})=>{
+    const wire=wires.find(w=>w.id===id);
+    return Number(wire[end==='from'?'fromOffset':'toOffset'])||0;
+  },sideGripBefore);
+  assert.ok(Number.isFinite(sideGripAfter)&&Math.abs(sideGripAfter)<=.95,'Side grip produced an invalid endpoint offset');
   checkErrors('Connect side handle drag');
   const routeControl = page.locator('#svg [data-route-handle]').first();
   const routeBox = await routeControl.boundingBox();
