@@ -57,6 +57,17 @@ const fs = require('node:fs');
   await page.evaluate(()=>{personalImages[0].locked=true;selected=null;render();});
   assert.equal(await page.locator('#svg [data-personal-image^="clipboard-"] rect').first().getAttribute('pointer-events'),null);
   assert.ok((await page.locator('#svg [data-personal-image^="clipboard-"] rect').first().getAttribute('style')).includes('pointer-events:none'),'Locked image still intercepts clicks');
+  assert.ok((await page.locator('#svg [data-personal-image^="clipboard-"] image').first().getAttribute('style')).includes('pointer-events:none'),'Locked image bitmap still intercepts clicks');
+  assert.equal(await page.locator('#svg [data-image-resize]').count(),0,'Locked background still has a resize handle');
+  // A locked imported plan must allow electrical equipment underneath the cursor
+  // to receive pointer events instead of the background image.
+  const hitTest=await page.evaluate(()=>{
+    const image=document.querySelector('#svg [data-personal-image^="clipboard-"] image');
+    const box=image.getBoundingClientRect();
+    const target=document.elementFromPoint(box.left+box.width/2,box.top+box.height/2);
+    return !!target&&!image.contains(target)&&target!==image;
+  });
+  assert.ok(hitTest,'Locked background is still the mouse hit target');
   await page.evaluate(()=>{personalImages[0].locked=false;render();});
   checkErrors('context menu, image layering, and background lock');
 
