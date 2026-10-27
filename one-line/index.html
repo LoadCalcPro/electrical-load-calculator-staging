@@ -1385,4 +1385,32 @@ updateSheetProportions();})();
 
 // Jump to the existing application navigation without adding another header row.
 document.getElementById('applicationsJump').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+// Keep the drawing tools reachable even when a parent grid or browser layout
+// prevents CSS sticky positioning from following the document scroll.
+(function keepDrawingControlsVisible(){
+ const toolbar=document.getElementById('drawingStickyToolbar');
+ const center=toolbar?.parentElement;
+ if(!toolbar||!center)return;
+ const spacer=document.createElement('div');
+ spacer.setAttribute('aria-hidden','true');
+ spacer.style.display='none';
+ toolbar.after(spacer);
+ let fixed=false;
+ function update(){
+  const centerRect=center.getBoundingClientRect();
+  const height=toolbar.offsetHeight;
+  const shouldFix=centerRect.top<0&&centerRect.bottom>height+8;
+  if(shouldFix){
+   if(!fixed){spacer.style.height=height+'px';spacer.style.display='block';fixed=true;}
+   const r=center.getBoundingClientRect();
+   Object.assign(toolbar.style,{position:'fixed',top:'0px',left:r.left+'px',width:r.width+'px',zIndex:'1000',margin:'0'});
+  }else if(fixed){
+   fixed=false;spacer.style.display='none';
+   for(const key of ['position','top','left','width','zIndex','margin'])toolbar.style[key]='';
+  }
+ }
+ window.addEventListener('scroll',update,{passive:true});
+ window.addEventListener('resize',update);
+ update();
+})();
 </script></body></html>
