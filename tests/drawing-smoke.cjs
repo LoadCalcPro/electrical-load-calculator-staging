@@ -769,6 +769,42 @@ const fs = require('node:fs');
 
 
 
+  // Save/Open must retain appearance metadata across all four drawing object families.
+  const appearanceIds=await page.evaluate(()=>{
+    const id=()=>next++;
+    const node={id:id(),type:'panel',x:180,y:140,installationStatus:'existing',strokePattern:'dotted'};
+    const wire={id:id(),from:node.id,to:node.id,installationStatus:'remove',strokePattern:'dashdot'};
+    const line={id:id(),x1:100,y1:100,x2:240,y2:100,installationStatus:'existing',strokePattern:'dashed'};
+    const poly={id:id(),points:[{x:100,y:180},{x:240,y:180}],installationStatus:'remove',strokePattern:'dotted'};
+    nodes.push(node);wires.push(wire);drawnLines.push(line);polyRoutes.push(poly);render();
+    return {node:node.id,wire:wire.id,line:line.id,poly:poly.id};
+  });
+  const [appearanceDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#save').click()]);
+  const appearancePath=await appearanceDownload.path();
+  const appearanceProject=JSON.parse(fs.readFileSync(appearancePath,'utf8'));
+  const savedState=appearanceProject.drawingViews?.[appearanceProject.activeDrawingView||'one']||appearanceProject;
+  for(const [kind,key,status,pattern] of [
+    ['node','nodes','existing','dotted'],['wire','wires','remove','dashdot'],
+    ['line','drawnLines','existing','dashed'],['poly','polyRoutes','remove','dotted']
+  ]){
+    const saved=savedState[key].find(item=>item.id===appearanceIds[kind]);
+    assert.equal(saved?.installationStatus,status,kind+' status missing from saved project');
+    assert.equal(saved?.strokePattern,pattern,kind+' pattern missing from saved project');
+  }
+  await page.locator('#file').setInputFiles(appearancePath);
+  await page.waitForFunction(()=>document.querySelector('#status')?.textContent?.includes('Project opened.'));
+  const reopened=await page.evaluate(ids=>Object.fromEntries([
+    ['node',nodes],['wire',wires],['line',drawnLines],['poly',polyRoutes]
+  ].map(([key,items])=>[key,items.find(item=>item.id===ids[key])])),appearanceIds);
+  for(const [kind,status,pattern] of [
+    ['node','existing','dotted'],['wire','remove','dashdot'],
+    ['line','existing','dashed'],['poly','remove','dotted']
+  ]){
+    assert.equal(reopened[kind]?.installationStatus,status,kind+' status lost on reopening');
+    assert.equal(reopened[kind]?.strokePattern,pattern,kind+' pattern lost on reopening');
+  }
+  checkErrors('Appearance metadata Save/Open round trip');
+
   // Installation status and line patterns must remain independent and persist in the drawing model.
   const appearance=await page.evaluate(()=>{
     const cases=['solid','dashed','dotted','dashdot'].map(pattern=>{
