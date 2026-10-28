@@ -824,6 +824,28 @@ const fs = require('node:fs');
     'Existing drawn line not rendered in status gray');
   checkErrors('Printable SVG appearance');
 
+  // Print preparation must preserve drawing appearance and restore the grid afterward.
+  await page.evaluate(()=>{window.__printCalls=0;window.print=()=>{window.__printCalls++;};});
+  if(!(await page.locator('#print').isVisible()))await page.locator('#printToggle').click();
+  await page.locator('#print').waitFor({state:'visible'});
+  const beforePrint=await page.evaluate(()=>({
+    grid:document.querySelector('#gridBackground').getAttribute('fill'),
+    svg:document.querySelector('#svg').innerHTML
+  }));
+  await page.locator('#print').click();
+  const afterPrint=await page.evaluate(()=>({
+    calls:window.__printCalls,
+    grid:document.querySelector('#gridBackground').getAttribute('fill'),
+    css:document.querySelector('#drawingPrintPageSize')?.textContent||'',
+    svg:document.querySelector('#svg').innerHTML
+  }));
+  assert.equal(afterPrint.calls,1,'Print command was not invoked');
+  assert.equal(afterPrint.grid,beforePrint.grid,'Print did not restore grid background');
+  assert(afterPrint.css.includes('@media print')&&afterPrint.css.includes('@page'),
+    'Print stylesheet did not define page size');
+  assert.equal(afterPrint.svg,beforePrint.svg,'Print changed drawing geometry or styling');
+  checkErrors('Print preparation and grid restoration');
+
   // Installation status and line patterns must remain independent and persist in the drawing model.
   const appearance=await page.evaluate(()=>{
     const cases=['solid','dashed','dotted','dashdot'].map(pattern=>{
