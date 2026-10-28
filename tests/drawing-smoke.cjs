@@ -806,6 +806,24 @@ const fs = require('node:fs');
   }
   checkErrors('Appearance metadata Save/Open round trip');
 
+  // Verify the actual SVG carries the saved appearance into print output.
+  const svgAppearance=await page.evaluate(ids=>{
+    const node=document.querySelector('#svg [data-node="'+ids.node+'"]');
+    const line=document.querySelector('#svg [data-drawn-line="'+ids.line+'"]');
+    const equipmentOutline=node?.querySelector('[stroke-dasharray="1 5"]');
+    const lineOutline=line?.querySelector('path[stroke-dasharray="6 4"]');
+    return {nodePresent:!!node,nodeDotted:!!equipmentOutline,
+      linePresent:!!line,lineDashed:!!lineOutline,
+      lineGray:lineOutline?.getAttribute('stroke')};
+  },appearanceIds);
+  assert(svgAppearance.nodePresent&&svgAppearance.nodeDotted,
+    'Existing equipment dotted outline missing from SVG');
+  assert(svgAppearance.linePresent&&svgAppearance.lineDashed,
+    'Existing drawn line dashed pattern missing from SVG');
+  assert.equal(svgAppearance.lineGray,'#929aa3',
+    'Existing drawn line not rendered in status gray');
+  checkErrors('Printable SVG appearance');
+
   // Installation status and line patterns must remain independent and persist in the drawing model.
   const appearance=await page.evaluate(()=>{
     const cases=['solid','dashed','dotted','dashdot'].map(pattern=>{
