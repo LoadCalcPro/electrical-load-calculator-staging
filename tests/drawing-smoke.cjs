@@ -769,6 +769,22 @@ const fs = require('node:fs');
 
 
 
+  // Installation status and line patterns must remain independent and persist in the drawing model.
+  const appearance=await page.evaluate(()=>{
+    const cases=['solid','dashed','dotted','dashdot'].map(pattern=>{
+      const item={strokePattern:pattern,installationStatus:'existing'};
+      return {pattern,dash:drawingDashPattern(item),ink:installationStroke(item,'#111111')};
+    });
+    const legacy=drawingDashPattern({dashed:true});
+    const newInk=installationStroke({installationStatus:'new'},'#123456');
+    return {cases,legacy,newInk};
+  });
+  assert.deepEqual(appearance.cases.map(v=>v.dash),['','6 4','1 5','10 4 2 4']);
+  assert(appearance.cases.every(v=>v.ink==='#929aa3'),'Existing line status did not override stroke');
+  assert.equal(appearance.legacy,'6 4','Legacy dashed drawings lost their pattern');
+  assert.equal(appearance.newInk,'#123456','New line status changed user-selected colors');
+  checkErrors('Line patterns and installation status');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
