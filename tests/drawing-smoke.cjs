@@ -845,6 +845,20 @@ const fs = require('node:fs');
     'Print stylesheet did not define page size');
   assert.equal(afterPrint.svg,beforePrint.svg,'Print changed drawing geometry or styling');
   checkErrors('Print preparation and grid restoration');
+  // A failed print dialog must not leave the editor's grid background white.
+  const failedPrint=await page.evaluate(()=>{
+    const grid=document.querySelector('#gridBackground');
+    const before=grid.getAttribute('fill');
+    window.print=()=>{throw new Error('Simulated print failure')};
+    let threw=false;
+    try{document.querySelector('#print').click()}catch(e){threw=true}
+    const after=grid.getAttribute('fill');
+    window.print=()=>{window.__printCalls++};
+    return {before,after,threw};
+  });
+  assert.equal(failedPrint.after,failedPrint.before,
+    'Failed print left the drawing background modified');
+
 
   // Installation status and line patterns must remain independent and persist in the drawing model.
   const appearance=await page.evaluate(()=>{
