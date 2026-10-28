@@ -773,10 +773,11 @@ const fs = require('node:fs');
   const appearanceIds=await page.evaluate(()=>{
     const id=()=>next++;
     const node={id:id(),type:'panel',x:180,y:140,installationStatus:'existing',strokePattern:'dotted'};
-    const wire={id:id(),from:node.id,to:node.id,installationStatus:'remove',strokePattern:'dashdot'};
+    const destination={id:id(),type:'disconnect',x:360,y:140};
+    const wire={id:id(),from:node.id,to:destination.id,installationStatus:'remove',strokePattern:'dashdot'};
     const line={id:id(),x1:100,y1:100,x2:240,y2:100,installationStatus:'existing',strokePattern:'dashed'};
     const poly={id:id(),points:[{x:100,y:180},{x:240,y:180}],installationStatus:'remove',strokePattern:'dotted'};
-    nodes.push(node);wires.push(wire);drawnLines.push(line);polyRoutes.push(poly);render();
+    nodes.push(node,destination);wires.push(wire);drawnLines.push(line);polyRoutes.push(poly);render();
     return {node:node.id,wire:wire.id,line:line.id,poly:poly.id};
   });
   const [appearanceDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#save').click()]);
