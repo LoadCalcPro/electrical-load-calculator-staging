@@ -234,6 +234,13 @@ body:has(.suite-header) main>.center{min-width:0!important}
 .panel-reopen button{font-size:12px;padding:3px 8px;border:1px solid #b9c9db;border-radius:5px;background:#f7f9fc;color:#233e61;cursor:pointer}
 .panel-reopen button[hidden]{display:none!important}
 
+/* Keep the complete editor in the available screen instead of pushing it below the tabs. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main#drawingMain{height:calc(100dvh - 155px)!important;min-height:480px!important;overflow:hidden!important}
+ body:has(.suite-header) main#drawingMain>.center{height:100%!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+ body:has(.suite-header) main#drawingMain>.center>.workspace{flex:1 1 auto!important;min-height:0!important}
+ body:has(.suite-header) main#drawingMain>.panel{min-height:0!important}
+}
 /* Native viewport scrollbars are the sole drawing navigation controls. */
 body:has(.suite-header) .drawing-scroll-h,
 body:has(.suite-header) .drawing-scroll-v{display:none!important}
