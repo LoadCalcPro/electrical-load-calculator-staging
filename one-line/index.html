@@ -235,6 +235,8 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header) #drawingBottomClearance{display:block!important;height:96px!important;min-height:96px!important;flex:none!important;pointer-events:none}
  body:has(.suite-header) main>.center>.workspace>#viewport{overscroll-behavior:contain!important;overflow-y:auto!important}
 }
+/* Allow wheel scroll to reach the outer page after the inner sheet ends. */
+@media screen and (min-width:1000px){body:has(.suite-header) main>.center>.workspace>#viewport{overscroll-behavior-y:auto!important}}
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
  body:has(.suite-header) main{align-items:stretch}\n body:has(.suite-header) main>.center{align-self:stretch;min-height:100%;height:auto;overflow:visible}\n body:has(.suite-header) main>.center>#drawingStickyToolbar{flex-shrink:0}\n .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
@@ -1371,12 +1373,18 @@ $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return
 $('viewport').addEventListener('wheel',e=>{
  if(e.ctrlKey||e.altKey)return;
  const viewport=$('viewport');
- // Ordinary wheel movement always scrolls the sheet within its viewport.
- // Never let wheel events over the drawing move the outer webpage.
- e.preventDefault();
  const multiplier=e.deltaMode===1?16:e.deltaMode===2?viewport.clientHeight:1;
- if(e.shiftKey){viewport.scrollLeft+=e.deltaY*multiplier;}
- else{viewport.scrollTop+=e.deltaY*multiplier;viewport.scrollLeft+=e.deltaX*multiplier;}
+ const delta=e.deltaY*multiplier;
+ const horizontal=e.shiftKey;
+ const current=horizontal?viewport.scrollLeft:viewport.scrollTop;
+ const maximum=horizontal?viewport.scrollWidth-viewport.clientWidth:viewport.scrollHeight-viewport.clientHeight;
+ // Scroll the drawing while it has room. At its edge, let the browser
+ // continue scrolling the outer document instead of trapping the wheel.
+ const canScroll=delta>0?current<maximum-1:delta<0?current>1:false;
+ if(!canScroll)return;
+ e.preventDefault();
+ if(horizontal)viewport.scrollLeft+=delta;
+ else{viewport.scrollTop+=delta;viewport.scrollLeft+=e.deltaX*multiplier;}
 },{passive:false});
 // Drafting zoom changes the viewport only; never the stored size or position of objects.
 const drawingLayers=['sheetLayer','titleblock','personalImages','wires','drawnLines','nodes','annotations'];let printTransforms=null;
