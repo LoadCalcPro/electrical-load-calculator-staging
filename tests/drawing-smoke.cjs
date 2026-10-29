@@ -45,6 +45,23 @@ const fs = require('node:fs');
     assert.ok(layout.widths[1]>layout.widths[0] && layout.widths[1]>layout.widths[2],
       'Drawing must be wider than side panels at '+width+'px');
   }
+  // Scrolling the drawing must not scroll either side panel out of place.
+  await page.setViewportSize({width:1366,height:768});
+  const scrollLayout=await page.evaluate(()=>{
+    const main=document.querySelector('main');
+    const left=main.children[0],center=main.children[1],right=main.children[2];
+    const toolbar=document.getElementById('drawingStickyToolbar');
+    const before=[left,right].map(el=>el.getBoundingClientRect().top);
+    center.scrollTop=Math.max(0,center.scrollHeight-center.clientHeight);
+    const after=[left,right].map(el=>el.getBoundingClientRect().top);
+    const toolbarRect=toolbar.getBoundingClientRect(),centerRect=center.getBoundingClientRect();
+    return {fixedPanels:before.every((top,i)=>Math.abs(top-after[i])<2),
+      stickyToolbar:toolbarRect.top>=centerRect.top-2&&toolbarRect.top<centerRect.bottom,
+      panelOverflow:[left,right].map(el=>getComputedStyle(el).overflowY)};
+  });
+  assert.ok(scrollLayout.fixedPanels,'Side panels moved while drawing scrolled');
+  assert.ok(scrollLayout.stickyToolbar,'Drawing toolbar left visible center workspace');
+  assert.ok(scrollLayout.panelOverflow.every(v=>v==='auto'),'Side panels must scroll internally');
   await page.setViewportSize({width:1440,height:900});
   console.log('PASS: laptop three-panel layout and exclusive grounding accordion');
   checkErrors('laptop layout and library accordion');
