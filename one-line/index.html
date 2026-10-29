@@ -1365,23 +1365,13 @@ $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return
 // At unzoomed 100% (no drawing pan range), retain normal page scrolling.
 $('viewport').addEventListener('wheel',e=>{
  if(e.ctrlKey||e.altKey)return;
- // At 100% use the drawing viewport's own native scrollbars.
- // The sheet stays full-sized and its bottom remains reachable.
- if(zoom<=1.001)return;
- const b=drawingPanBounds();
- const hasX=b.xMax-b.xMin>0.01,hasY=b.yMax-b.yMin>0.01;
- if(!hasX&&!hasY)return;
+ const viewport=$('viewport');
+ // Ordinary wheel movement always scrolls the sheet within its viewport.
+ // Never let wheel events over the drawing move the outer webpage.
  e.preventDefault();
- const r=$('svg').getBoundingClientRect();
- const pixelsPerUnit=Math.max(.001,r.height/sheetHeightUnits()*zoom);
- const factor=e.deltaMode===1?16:e.deltaMode===2?r.height:1;
- if(e.shiftKey||(!hasY&&hasX)){
-  panX=Math.max(b.xMin,Math.min(b.xMax,panX-e.deltaY*factor/pixelsPerUnit));
- }else{
-  panY=Math.max(b.yMin,Math.min(b.yMax,panY-e.deltaY*factor/pixelsPerUnit));
-  if(hasX&&e.deltaX)panX=Math.max(b.xMin,Math.min(b.xMax,panX-e.deltaX*factor/pixelsPerUnit));
- }
- renderCanvasOnly();
+ const multiplier=e.deltaMode===1?16:e.deltaMode===2?viewport.clientHeight:1;
+ if(e.shiftKey){viewport.scrollLeft+=e.deltaY*multiplier;}
+ else{viewport.scrollTop+=e.deltaY*multiplier;viewport.scrollLeft+=e.deltaX*multiplier;}
 },{passive:false});
 // Drafting zoom changes the viewport only; never the stored size or position of objects.
 const drawingLayers=['sheetLayer','titleblock','personalImages','wires','drawnLines','nodes','annotations'];let printTransforms=null;
