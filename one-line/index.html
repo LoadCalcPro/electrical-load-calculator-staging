@@ -337,6 +337,19 @@ body:has(.suite-header) main#drawingMain #panelReopen{display:none!important}
   transform:none!important;
  }
 }
+/* Compact and align the equipment-size selector with the library content. */
+#equipmentLibrary>label.field:has(#newEquipmentSize){
+ display:block!important;box-sizing:border-box!important;
+ margin:0 12px 2px!important;padding:0 2px!important;
+ width:calc(100% - 24px)!important;text-align:center!important;
+}
+#equipmentLibrary #newEquipmentSize{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;margin:6px auto 0!important;
+ padding-left:18px!important;text-align:left!important;
+}
+#equipmentLibrary #library{padding-top:4px!important}
+#equipmentLibrary .equipment-category:first-child{margin-top:0!important}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
