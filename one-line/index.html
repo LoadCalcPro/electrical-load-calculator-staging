@@ -212,6 +212,12 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header){height:auto!important;min-height:100dvh!important;overflow-y:visible!important}
  body:has(.suite-header) main{position:static!important;top:auto!important;height:max(1020px, calc((100vw - 510px) * .70 + 360px))!important;min-height:1020px!important}
 }
+/* Keep the drawing's dedicated scroll controls visible at all zoom levels. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) .drawing-scroll-h,body:has(.suite-header) .drawing-scroll-v{display:flex!important}
+ body:has(.suite-header) main>.center>.workspace{padding-right:17px!important;padding-bottom:19px!important}
+ body:has(.suite-header) main>.center>.workspace>#viewport{overflow:auto!important;min-height:0!important;flex:1 1 0!important}
+}
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
  body:has(.suite-header) main{align-items:stretch}\n body:has(.suite-header) main>.center{align-self:stretch;min-height:100%;height:auto;overflow:visible}\n body:has(.suite-header) main>.center>#drawingStickyToolbar{flex-shrink:0}\n .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
