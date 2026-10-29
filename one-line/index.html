@@ -88,6 +88,12 @@ body:has(.suite-header) main{height:auto;min-height:0;align-items:start}
  .toolbar-drawing{padding-bottom:1px}
  .toolbar-view{row-gap:4px}
 }
+/* Outer document scroll only: preserve the existing internal drawing viewport and controls. */
+@media screen and (min-width:1000px){
+ html{height:auto!important;overflow-y:auto!important}
+ body:has(.suite-header){height:auto!important;min-height:100dvh!important;overflow-y:visible!important}
+ body:has(.suite-header) main{position:relative!important;top:auto!important;height:calc(100dvh + 420px)!important;min-height:1120px!important}
+}
 /* Word-like scrolling: the full-size sheet scrolls within its own viewing pane. */
 @media screen{
  body:has(.suite-header) .viewport{scroll-behavior:auto}
