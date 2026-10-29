@@ -217,7 +217,12 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
 @media screen and (min-width:1000px){
  html{height:auto!important;overflow-y:auto!important}
  body:has(.suite-header){height:auto!important;min-height:100dvh!important;overflow-y:visible!important}
- body:has(.suite-header) main{position:static!important;top:auto!important;height:max(900px, calc((100vw - 510px) * .70 + 240px))!important;min-height:900px!important}
+ body:has(.suite-header) main{position:static!important;top:auto!important;height:max(1020px, calc((100vw - 510px) * .70 + 360px))!important;min-height:1020px!important}
+}
+/* Keep the entire sheet bottom reachable inside its independent scroll pane. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main>.center>.workspace>#viewport{padding-bottom:42px!important;scroll-padding-bottom:42px!important;box-sizing:border-box!important}
+ body:has(.suite-header) main>.center>.workspace>#viewport>#svg{min-height:0!important;max-height:none!important;flex-shrink:0!important}
 }
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
