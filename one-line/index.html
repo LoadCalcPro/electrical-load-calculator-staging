@@ -298,6 +298,14 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
  body:has(.suite-header) main#drawingMain.inspector-collapsed{grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr) 34px!important}
  body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{grid-template-columns:34px minmax(0,1fr) 34px!important}
 }
+/* Reopen from the original sidebar edge, never from a toolbar above Project Information. */
+body:has(.suite-header) main#drawingMain #panelReopen{display:none!important}
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main#drawingMain.library-collapsed #equipmentLibrary>h3,
+ body:has(.suite-header) main#drawingMain.inspector-collapsed #drawingInspector>h3{display:block!important;position:relative!important;overflow:visible!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed #toggleLibrary,
+ body:has(.suite-header) main#drawingMain.inspector-collapsed #toggleInspector{display:block!important;position:absolute!important;top:12px!important;transform:none!important;z-index:5!important;padding:2px 6px!important;font-size:13px!important}
+}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
@@ -1458,7 +1466,7 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 (function(){
  const main=$('drawingMain'),library=$('reopenLibrary'),inspector=$('reopenInspector');
  if(!main||!library||!inspector)return;
- function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));requestAnimationFrame(()=>{const v=$('viewport');const x=v.scrollWidth>v.clientWidth?v.scrollLeft/(v.scrollWidth-v.clientWidth):0;const y=v.scrollHeight>v.clientHeight?v.scrollTop/(v.scrollHeight-v.clientHeight):0;sizeDrawingSheetForScroll();v.scrollLeft=x*Math.max(0,v.scrollWidth-v.clientWidth);v.scrollTop=y*Math.max(0,v.scrollHeight-v.clientHeight);});}
+ function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));if(button){button.textContent=collapsed?(isLibrary?'›':'‹'):(isLibrary?'‹':'›');button.title=(collapsed?'Expand ':'Collapse ')+(isLibrary?'Equipment Library':'Properties');button.setAttribute('aria-label',button.title);}requestAnimationFrame(()=>{const v=$('viewport');const x=v.scrollWidth>v.clientWidth?v.scrollLeft/(v.scrollWidth-v.clientWidth):0;const y=v.scrollHeight>v.clientHeight?v.scrollTop/(v.scrollHeight-v.clientHeight):0;sizeDrawingSheetForScroll();v.scrollLeft=x*Math.max(0,v.scrollWidth-v.clientWidth);v.scrollTop=y*Math.max(0,v.scrollHeight-v.clientHeight);});}
  $('toggleLibrary')?.addEventListener('click',()=>toggle('library'));
  $('toggleInspector')?.addEventListener('click',()=>toggle('inspector'));
  library.addEventListener('click',()=>toggle('library'));
