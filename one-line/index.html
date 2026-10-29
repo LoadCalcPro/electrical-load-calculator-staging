@@ -326,6 +326,17 @@ body:has(.suite-header) main#drawingMain #panelReopen{display:none!important}
   background:#bcd8fc!important;border-color:#3b6fae!important;
  }
 }
+/* Center the library reopen control inside its narrow rail; avoid clipping. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main#drawingMain.library-collapsed #equipmentLibrary>h3{
+  position:relative!important;width:100%!important;box-sizing:border-box!important;
+ }
+ body:has(.suite-header) main#drawingMain.library-collapsed #toggleLibrary{
+  left:3px!important;right:auto!important;top:7px!important;
+  width:26px!important;height:28px!important;box-sizing:border-box!important;
+  transform:none!important;
+ }
+}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
