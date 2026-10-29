@@ -1333,7 +1333,7 @@ function sizeDrawingSheetForScroll(){
  const sheetHeight=sheetHeightUnits();
  // Keep the complete sheet at its correct aspect ratio, but ensure it is
  // taller than the visible pane so the inner scrollbar has real travel.
- const fittedWidth=Math.max(width,(viewport.clientHeight+80)*1000/sheetHeight);
+ const fittedWidth=Math.max(width,1000,(viewport.clientHeight+360)*1000/sheetHeight);
  const fittedHeight=fittedWidth*sheetHeight/1000;
  svg.style.setProperty('width',fittedWidth+'px','important');
  svg.style.setProperty('height',fittedHeight+'px','important');
