@@ -14,6 +14,41 @@ const fs = require('node:fs');
   await page.locator('#library [data-add="panel"]').first().waitFor();
   checkErrors('initial load');
 
+  // Laptop layout and equipment-library accordion regression.
+  const categories=page.locator('#library > details.equipment-category');
+  assert.ok(await categories.count()>=4,'Equipment categories were not rendered');
+  const service=page.locator('#library > details.equipment-category').filter({has:page.locator('summary:text-is("Service & Distribution")')});
+  const grounding=page.locator('#library > details.equipment-category').filter({has:page.locator('summary:text-is("Grounding & Bonding")')});
+  assert.equal(await service.count(),1,'Service category missing');
+  assert.equal(await grounding.count(),1,'Grounding category missing');
+  assert.equal(await service.getAttribute('open'),'','Service should start expanded');
+  await grounding.locator('summary').click();
+  assert.equal(await grounding.getAttribute('open'),'','Grounding should expand');
+  assert.equal(await service.getAttribute('open'),null,'Opening grounding should collapse service');
+  for(const type of ['ground','groundterminal','neutralterminal','electrode'])
+    assert.equal(await grounding.locator('[data-add="'+type+'"]').count(),1,'Grounding item missing: '+type);
+  await grounding.locator('summary').click();
+  assert.equal(await grounding.getAttribute('open'),null,'Clicking expanded category should close it');
+  await service.locator('summary').click();
+  for(const width of [1366,1280]){
+    await page.setViewportSize({width,height:768});
+    const layout=await page.evaluate(()=>{
+      const main=document.querySelector('main');
+      const sections=[...main.children].slice(0,3);
+      const rects=sections.map(e=>e.getBoundingClientRect());
+      return {columns:getComputedStyle(main).gridTemplateColumns.split(' ').length,
+        sideBySide:rects[0].right<=rects[1].left && rects[1].right<=rects[2].left,
+        scrollable:sections[0].scrollHeight>=sections[0].clientHeight,
+        widths:rects.map(r=>r.width)};
+    });
+    assert.ok(layout.columns>=3 && layout.sideBySide,'Laptop three-column layout failed at '+width+'px: '+JSON.stringify(layout));
+    assert.ok(layout.widths[1]>layout.widths[0] && layout.widths[1]>layout.widths[2],
+      'Drawing must be wider than side panels at '+width+'px');
+  }
+  await page.setViewportSize({width:1440,height:900});
+  console.log('PASS: laptop three-panel layout and exclusive grounding accordion');
+  checkErrors('laptop layout and library accordion');
+
   // Audit every equipment type at multiple reduced sizes.
   const typesToAudit = await page.locator('#library [data-add]').evaluateAll(
     elements => [...new Set(elements.map(el => el.dataset.add))].filter(Boolean));
