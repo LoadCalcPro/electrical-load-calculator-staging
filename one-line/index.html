@@ -285,6 +285,19 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 @media screen and (min-width:1000px){
  body:has(.suite-header)::after{content:'';display:block;height:125px;pointer-events:none}
 }
+/* Keep the three editor regions in fixed grid columns even when a sidebar collapses.
+   Prevent auto-placement from moving Properties below the canvas. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main#drawingMain{display:grid!important;grid-template-rows:minmax(0,1fr)!important;grid-auto-flow:row!important}
+ body:has(.suite-header) main#drawingMain>#equipmentLibrary{grid-column:1!important;grid-row:1!important;min-width:0!important}
+ body:has(.suite-header) main#drawingMain>.center{grid-column:2!important;grid-row:1!important;min-width:0!important}
+ body:has(.suite-header) main#drawingMain>#drawingInspector{grid-column:3!important;grid-row:1!important;min-width:0!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed>#equipmentLibrary,
+ body:has(.suite-header) main#drawingMain.inspector-collapsed>#drawingInspector{display:block!important;visibility:visible!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed{grid-template-columns:34px minmax(0,1fr) clamp(195px,19vw,280px)!important}
+ body:has(.suite-header) main#drawingMain.inspector-collapsed{grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr) 34px!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{grid-template-columns:34px minmax(0,1fr) 34px!important}
+}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
