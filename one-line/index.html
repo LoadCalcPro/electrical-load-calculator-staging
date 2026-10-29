@@ -1337,6 +1337,26 @@ function sizeDrawingSheetForScroll(){
  svg.style.setProperty('margin','auto','important');
 }
 window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
+// Track changes in the actual drawing window (including panel collapse), not just browser resize.
+// Preserve the user's position in the sheet when its viewing area changes.
+(function(){
+ const viewport=$('viewport');
+ if(!viewport||typeof ResizeObserver==='undefined')return;
+ let lastWidth=0;
+ const observer=new ResizeObserver(()=>{
+  const width=viewport.clientWidth;
+  if(width<=0||Math.abs(width-lastWidth)<2)return;
+  const oldX=Math.max(0,viewport.scrollWidth-viewport.clientWidth);
+  const oldY=Math.max(0,viewport.scrollHeight-viewport.clientHeight);
+  const fractionX=oldX?viewport.scrollLeft/oldX:0;
+  const fractionY=oldY?viewport.scrollTop/oldY:0;
+  lastWidth=width;
+  sizeDrawingSheetForScroll();
+  viewport.scrollLeft=fractionX*Math.max(0,viewport.scrollWidth-viewport.clientWidth);
+  viewport.scrollTop=fractionY*Math.max(0,viewport.scrollHeight-viewport.clientHeight);
+ });
+ observer.observe(viewport);
+})();
 
 // Panels start open; users can temporarily reclaim drawing space independently.
 (function(){
@@ -1364,7 +1384,7 @@ $('newConnectionStyle').addEventListener('change',e=>{
  render();
  $('status').textContent='Selected connection updated to '+e.target.selectedOptions[0].text+'.';
 });
-$('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(1/1.25);$('fit').onclick=()=>{zoom=1;panX=panY=0;limitDrawingPan();render()};
+$('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(1/1.25);$('fit').onclick=()=>{zoom=1;panX=panY=0;limitDrawingPan();render();const v=$('viewport');if(v){v.scrollTop=0;v.scrollLeft=0;}};
 $('zoomSelection').onclick=()=>{if(!selected){$('status').textContent='Select equipment or a drawing object first.';return;}let cx,cy,wide=100,high=100;if(selected.kind==='node'){const n=nodes.find(n=>n.id===selected.id);if(!n)return;const b=bounds(n);cx=n.x;cy=n.y;wide=b.l+b.r;high=b.t+b.b;}else if(selected.kind==='line'){const l=drawnLines.find(l=>l.id===selected.id);if(!l)return;cx=(Number(l.x1)+Number(l.x2))/2;cy=(Number(l.y1)+Number(l.y2))/2;wide=Math.abs(l.x2-l.x1);high=Math.abs(l.y2-l.y1);}else if(selected.kind==='annotation'){const a=annotations.find(a=>a.id===selected.id);if(!a)return;cx=a.x;cy=a.y;}else{$('status').textContent='Select an equipment item, line, or note to zoom in.';return;}zoom=Math.max(.25,Math.min(8,Math.min(850/Math.max(100,wide*2),560/Math.max(80,high*2))));panX=500/zoom-cx;panY=350/zoom-cy;limitDrawingPan();render();};
 $('svg').addEventListener('wheel',e=>{if(!e.ctrlKey||e.altKey||e.shiftKey)return;e.preventDefault();const r=$('svg').getBoundingClientRect();const h=sheetHeightUnits(),aspect=Math.min(r.width/1000,r.height/h);const ox=(r.width-1000*aspect)/2,oy=(r.height-h*aspect)/2;const cx=(e.clientX-r.left-ox)/aspect,cy=(e.clientY-r.top-oy)/aspect;zoomAt(e.deltaY<0?1.15:1/1.15,cx,cy);},{passive:false});
 // Adobe-style wheel targeting: zoom anywhere over the sheet with Ctrl+wheel,
