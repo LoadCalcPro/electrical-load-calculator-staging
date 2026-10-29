@@ -212,6 +212,13 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header){overflow-y:visible!important;min-height:calc(100dvh + 110px)}
  body:has(.suite-header) main{height:calc(100dvh - 110px)!important}
 }
+/* Outer page must scroll to the actual bottom of the workspace on short screens.
+   Keep the drawing viewport and its own scrolling mechanism unchanged. */
+@media screen and (min-width:1000px){
+ html{height:auto!important;overflow-y:auto!important}
+ body:has(.suite-header){height:auto!important;min-height:100dvh!important;overflow-y:visible!important}
+ body:has(.suite-header) main{position:static!important;top:auto!important;height:max(610px, calc(100dvh - 110px))!important;min-height:610px!important}
+}
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
  body:has(.suite-header) main{align-items:stretch}\n body:has(.suite-header) main>.center{align-self:stretch;min-height:100%;height:auto;overflow:visible}\n body:has(.suite-header) main>.center>#drawingStickyToolbar{flex-shrink:0}\n .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
