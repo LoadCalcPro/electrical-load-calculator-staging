@@ -1374,13 +1374,13 @@ function sizeDrawingSheetForScroll(){
  const width=viewport.clientWidth-4;
  if(width<=0)return;
  const sheetHeight=sheetHeightUnits();
- const fittedWidth=width*zoom;
+ const fittedWidth=Math.max(100,Math.min(width,viewport.clientHeight*1000/sheetHeight))*zoom;
  const fittedHeight=fittedWidth*sheetHeight/1000;
  svg.style.setProperty('width',fittedWidth+'px','important');
  svg.style.setProperty('height',fittedHeight+'px','important');
  svg.style.setProperty('min-height','0','important');
  svg.style.setProperty('max-height','none','important');
- svg.style.setProperty('margin','auto','important');
+ svg.style.setProperty('margin','0 auto','important');
 }
 window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 // Track changes in the actual drawing window (including panel collapse), not just browser resize.
@@ -1414,7 +1414,7 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 (function(){
  const main=$('drawingMain'),library=$('reopenLibrary'),inspector=$('reopenInspector');
  if(!main||!library||!inspector)return;
- function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));requestAnimationFrame(()=>{sizeDrawingSheetForScroll();});}
+ function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));requestAnimationFrame(()=>{const v=$('viewport');const x=v.scrollWidth>v.clientWidth?v.scrollLeft/(v.scrollWidth-v.clientWidth):0;const y=v.scrollHeight>v.clientHeight?v.scrollTop/(v.scrollHeight-v.clientHeight):0;sizeDrawingSheetForScroll();v.scrollLeft=x*Math.max(0,v.scrollWidth-v.clientWidth);v.scrollTop=y*Math.max(0,v.scrollHeight-v.clientHeight);});}
  $('toggleLibrary')?.addEventListener('click',()=>toggle('library'));
  $('toggleInspector')?.addEventListener('click',()=>toggle('inspector'));
  library.addEventListener('click',()=>toggle('library'));
