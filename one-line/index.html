@@ -224,6 +224,12 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header) main>.center>.workspace>#viewport{padding-bottom:42px!important;scroll-padding-bottom:42px!important;box-sizing:border-box!important}
  body:has(.suite-header) main>.center>.workspace>#viewport>#svg{min-height:0!important;max-height:none!important;flex-shrink:0!important}
 }
+/* Inner drawing: preserve native scroll range and visible bottom of sheet.
+   Do not change the independently working outer document scrollbar. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main>.center>.workspace>#viewport{overflow-y:auto!important;overflow-x:auto!important;padding:0!important;scroll-padding:0!important;min-height:0!important;flex:1 1 0!important;height:0!important}
+ body:has(.suite-header) main>.center>.workspace>#viewport>#svg{display:block!important;flex:none!important;min-height:0!important;max-height:none!important;margin:0!important}
+}
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
  body:has(.suite-header) main{align-items:stretch}\n body:has(.suite-header) main>.center{align-self:stretch;min-height:100%;height:auto;overflow:visible}\n body:has(.suite-header) main>.center>#drawingStickyToolbar{flex-shrink:0}\n .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
@@ -1331,7 +1337,7 @@ function sizeDrawingSheetForScroll(){
  svg.style.setProperty('height',fittedHeight+'px','important');
  svg.style.setProperty('min-height','0','important');
  svg.style.setProperty('max-height','none','important');
- svg.style.setProperty('margin','auto','important');
+ svg.style.setProperty('margin','0','important');
 }
 window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 function drawingPanBounds(){const h=sheetHeightUnits();const svg=$('svg'),r=svg.getBoundingClientRect();const unit=Math.min(r.width/1000,r.height/h)||1;const viewW=Math.min(1000,r.width/unit),viewH=Math.min(h,r.height/unit);const spanX=Math.max(0,1000-viewW/zoom),spanY=Math.max(0,h-viewH/zoom);return {xMin:-spanX,xMax:0,yMin:-spanY,yMax:0};}
