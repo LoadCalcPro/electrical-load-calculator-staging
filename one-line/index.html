@@ -234,6 +234,14 @@ body:has(.suite-header) main>.center{min-width:0!important}
 .panel-reopen button{font-size:12px;padding:3px 8px;border:1px solid #b9c9db;border-radius:5px;background:#f7f9fc;color:#233e61;cursor:pointer}
 .panel-reopen button[hidden]{display:none!important}
 
+/* Stable panel grid: never allow an empty zero-width track to displace the editor. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main#drawingMain{grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr) clamp(195px,19vw,280px)!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed{grid-template-columns:minmax(0,1fr) clamp(195px,19vw,280px)!important}
+ body:has(.suite-header) main#drawingMain.inspector-collapsed{grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr)!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{grid-template-columns:minmax(0,1fr)!important}
+ body:has(.suite-header) main#drawingMain>.center{grid-column:auto!important}
+}
 /* Keep the complete editor in the available screen instead of pushing it below the tabs. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 155px)!important;min-height:480px!important;overflow:hidden!important}
@@ -1386,7 +1394,7 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 (function(){
  const main=$('drawingMain'),library=$('reopenLibrary'),inspector=$('reopenInspector');
  if(!main||!library||!inspector)return;
- function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));requestAnimationFrame(()=>{sizeDrawingSheetForScroll();renderCanvasOnly();});}
+ function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));requestAnimationFrame(()=>{sizeDrawingSheetForScroll();});}
  $('toggleLibrary')?.addEventListener('click',()=>toggle('library'));
  $('toggleInspector')?.addEventListener('click',()=>toggle('inspector'));
  library.addEventListener('click',()=>toggle('library'));
