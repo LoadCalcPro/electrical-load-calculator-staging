@@ -1342,18 +1342,24 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 (function(){
  const viewport=$('viewport');
  if(!viewport||typeof ResizeObserver==='undefined')return;
- let lastWidth=0;
+ let lastWidth=0, pending=false;
  const observer=new ResizeObserver(()=>{
-  const width=viewport.clientWidth;
-  if(width<=0||Math.abs(width-lastWidth)<2)return;
-  const oldX=Math.max(0,viewport.scrollWidth-viewport.clientWidth);
-  const oldY=Math.max(0,viewport.scrollHeight-viewport.clientHeight);
-  const fractionX=oldX?viewport.scrollLeft/oldX:0;
-  const fractionY=oldY?viewport.scrollTop/oldY:0;
-  lastWidth=width;
-  sizeDrawingSheetForScroll();
-  viewport.scrollLeft=fractionX*Math.max(0,viewport.scrollWidth-viewport.clientWidth);
-  viewport.scrollTop=fractionY*Math.max(0,viewport.scrollHeight-viewport.clientHeight);
+  // Never mutate observed layout inside ResizeObserver delivery.
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(()=>{
+   pending=false;
+   const width=viewport.clientWidth;
+   if(width<=0||Math.abs(width-lastWidth)<2)return;
+   const oldX=Math.max(0,viewport.scrollWidth-viewport.clientWidth);
+   const oldY=Math.max(0,viewport.scrollHeight-viewport.clientHeight);
+   const fractionX=oldX?viewport.scrollLeft/oldX:0;
+   const fractionY=oldY?viewport.scrollTop/oldY:0;
+   lastWidth=width;
+   sizeDrawingSheetForScroll();
+   viewport.scrollLeft=fractionX*Math.max(0,viewport.scrollWidth-viewport.clientWidth);
+   viewport.scrollTop=fractionY*Math.max(0,viewport.scrollHeight-viewport.clientHeight);
+  });
  });
  observer.observe(viewport);
 })();
