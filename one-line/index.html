@@ -1051,7 +1051,7 @@ function drawEquipmentTextHighlights(){
   }
  }
 }
-function render(skipProperties=false){sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','meterbank','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g=`scale(${zoom}) translate(${panX} ${panY})`;// Keep the physical sheet, grid and title block fixed while zooming drawing objects.
+function render(skipProperties=false){sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','meterbank','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g=zoom<=1?'':`scale(${zoom}) translate(${panX} ${panY})`;// Keep the physical sheet, grid and title block fixed while zooming drawing objects.
 $('sheetLayer').removeAttribute('transform');$('titleblock').removeAttribute('transform');$('personalImages').setAttribute('transform',g);$('personalImages').innerHTML=personalImages.map(im=>`<g data-personal-image="${im.kind}"><image href="${im.src}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="xMidYMid meet" style="pointer-events:${im.locked?'none':'all'}"/><rect x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" fill="transparent" stroke="${selected?.kind==='personalImage'&&selected.id===im.kind?'#168c9a':'none'}" stroke-width="${2.5/zoom}" stroke-dasharray="${5/zoom} ${3/zoom}" style="cursor:${im.locked?'default':'move'};pointer-events:${im.locked?'none':'all'}"/>${!im.locked&&selected?.kind==='personalImage'&&selected.id===im.kind?`<rect data-image-resize="corner" x="${im.x+im.w-4/zoom}" y="${im.y+im.h-4/zoom}" width="${8/zoom}" height="${8/zoom}" fill="white" stroke="#168c9a" stroke-width="${2/zoom}" style="cursor:nwse-resize;pointer-events:all"/>`:``}</g>`).join('');$('wires').setAttribute('transform',g);$('drawnLines').setAttribute('transform',g);$('nodes').setAttribute('transform',g);$('wires').innerHTML=wires.map(w=>{const a=nodes.find(n=>n.id===w.from),b=nodes.find(n=>n.id===w.to);if(!a||!b)return '';const route=feederPath(a,b,w);
 const segments=[...route.d.matchAll(/([MLHV])\s*(-?[\d.]+)(?:[ ,]+(-?[\d.]+))?/g)];
 let px=0,py=0,anchor={x:route.lx,y:route.ly,length:0,vertical:false};
@@ -1328,7 +1328,7 @@ function sizeDrawingSheetForScroll(){
  const width=viewport.clientWidth-4;
  if(width<=0)return;
  const sheetHeight=sheetHeightUnits();
- const fittedWidth=width;
+ const fittedWidth=width*Math.min(1,zoom);
  const fittedHeight=fittedWidth*sheetHeight/1000;
  svg.style.setProperty('width',fittedWidth+'px','important');
  svg.style.setProperty('height',fittedHeight+'px','important');
@@ -1368,11 +1368,11 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
  library.addEventListener('click',()=>toggle('library'));
  inspector.addEventListener('click',()=>toggle('inspector'));
 })();
-function drawingPanBounds(){const h=sheetHeightUnits();const svg=$('svg'),r=svg.getBoundingClientRect();const unit=Math.min(r.width/1000,r.height/h)||1;const viewW=Math.min(1000,r.width/unit),viewH=Math.min(h,r.height/unit);const spanX=Math.max(0,1000-viewW/zoom),spanY=Math.max(0,h-viewH/zoom);return {xMin:-spanX,xMax:0,yMin:-spanY,yMax:0};}
+function drawingPanBounds(){if(zoom<=1)return {xMin:0,xMax:0,yMin:0,yMax:0};const h=sheetHeightUnits();const svg=$('svg'),r=svg.getBoundingClientRect();const unit=Math.min(r.width/1000,r.height/h)||1;const viewW=Math.min(1000,r.width/unit),viewH=Math.min(h,r.height/unit);const spanX=Math.max(0,1000-viewW/zoom),spanY=Math.max(0,h-viewH/zoom);return {xMin:-spanX,xMax:0,yMin:-spanY,yMax:0};}
 function syncDrawingScrollbars(){const b=drawingPanBounds(),x=$('drawingScrollX'),y=$('drawingScrollY');if(!x||!y)return;const visible=(b.xMax-b.xMin>0.01)||(b.yMax-b.yMin>0.01);document.body.classList.toggle('drawing-zoomed',visible);x.value=String(Math.round(1000*(b.xMax-panX)/(b.xMax-b.xMin||1)));y.value=String(Math.round(1000*(b.yMax-panY)/(b.yMax-b.yMin||1)));}
 $('drawingScrollX').addEventListener('input',e=>{const b=drawingPanBounds();panX=b.xMax-(Number(e.target.value)/1000)*(b.xMax-b.xMin);renderCanvasOnly();});
 $('drawingScrollY').addEventListener('input',e=>{const b=drawingPanBounds();panY=b.yMax-(Number(e.target.value)/1000)*(b.yMax-b.yMin);renderCanvasOnly();});
-function limitDrawingPan(){const b=drawingPanBounds();panX=Math.max(b.xMin,Math.min(b.xMax,panX));panY=Math.max(b.yMin,Math.min(b.yMax,panY));}function zoomAt(factor,cx=500,cy=350){const old=zoom;zoom=Math.max(.1,Math.min(16,zoom*factor));panX=cx/zoom-(cx/old-panX);panY=cy/zoom-(cy/old-panY);limitDrawingPan();renderCanvasOnly();}
+function limitDrawingPan(){const b=drawingPanBounds();panX=Math.max(b.xMin,Math.min(b.xMax,panX));panY=Math.max(b.yMin,Math.min(b.yMax,panY));}function zoomAt(factor,cx=500,cy=350){const old=zoom;zoom=Math.max(.1,Math.min(16,zoom*factor));if(zoom<=1){panX=panY=0;}else{panX=cx/zoom-(cx/old-panX);panY=cy/zoom-(cy/old-panY);}limitDrawingPan();renderCanvasOnly();}
 // Apply the toolbar route to the selected existing equipment connection immediately.
 $('newConnectionStyle').addEventListener('change',e=>{
  if(selected?.kind!=='wire')return;
