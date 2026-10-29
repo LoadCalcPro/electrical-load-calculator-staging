@@ -234,6 +234,10 @@ body:has(.suite-header) main>.center{min-width:0!important}
 .panel-reopen button{font-size:12px;padding:3px 8px;border:1px solid #b9c9db;border-radius:5px;background:#f7f9fc;color:#233e61;cursor:pointer}
 .panel-reopen button[hidden]{display:none!important}
 
+/* Native viewport scrollbars are the sole drawing navigation controls. */
+body:has(.suite-header) .drawing-scroll-h,
+body:has(.suite-header) .drawing-scroll-v{display:none!important}
+body:has(.suite-header) main>.center>.workspace{padding-right:0!important;padding-bottom:0!important}
 /* The sheet alone scrolls beneath stationary toolbar and side panels. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main>.center>.workspace{min-height:0!important;overflow:hidden!important}
