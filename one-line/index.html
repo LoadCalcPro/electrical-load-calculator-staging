@@ -1422,27 +1422,16 @@ $('viewport').addEventListener('wheel',e=>{
   if(v.scrollWidth>v.clientWidth){e.preventDefault();v.scrollLeft+=e.deltaY*(e.deltaMode===1?16:1);}
  }
 },{passive:false});
-// When the drawing has its own scroll controls, keep wheel scrolling inside it.
-// At unzoomed 100% (no drawing pan range), retain normal page scrolling.
+// The sheet now uses native viewport scrolling. Do not intercept wheel events
+// for the obsolete drawing-pan sliders: doing so prevents actual scrolling.
 $('viewport').addEventListener('wheel',e=>{
  if(e.ctrlKey||e.altKey)return;
- // At 100% use the drawing viewport's own native scrollbars.
- // The sheet stays full-sized and its bottom remains reachable.
- if(zoom<=1.001)return;
- const b=drawingPanBounds();
- const hasX=b.xMax-b.xMin>0.01,hasY=b.yMax-b.yMin>0.01;
- if(!hasX&&!hasY)return;
+ if(!e.shiftKey)return; // normal wheel: browser scrolls the drawing vertically
+ const v=$('viewport');
+ if(v.scrollWidth<=v.clientWidth)return;
  e.preventDefault();
- const r=$('svg').getBoundingClientRect();
- const pixelsPerUnit=Math.max(.001,r.height/sheetHeightUnits()*zoom);
- const factor=e.deltaMode===1?16:e.deltaMode===2?r.height:1;
- if(e.shiftKey||(!hasY&&hasX)){
-  panX=Math.max(b.xMin,Math.min(b.xMax,panX-e.deltaY*factor/pixelsPerUnit));
- }else{
-  panY=Math.max(b.yMin,Math.min(b.yMax,panY-e.deltaY*factor/pixelsPerUnit));
-  if(hasX&&e.deltaX)panX=Math.max(b.xMin,Math.min(b.xMax,panX-e.deltaX*factor/pixelsPerUnit));
- }
- renderCanvasOnly();
+ const factor=e.deltaMode===1?16:e.deltaMode===2?v.clientHeight:1;
+ v.scrollLeft+=(e.deltaY||e.deltaX)*factor;
 },{passive:false});
 // Drafting zoom changes the viewport only; never the stored size or position of objects.
 const drawingLayers=['sheetLayer','titleblock','personalImages','wires','drawnLines','nodes','annotations'];let printTransforms=null;
