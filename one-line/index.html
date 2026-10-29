@@ -1428,7 +1428,7 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
   toggle.textContent=on?'Drawing View':'Full Page';
   toggle.setAttribute('aria-pressed',String(on));
   requestAnimationFrame(()=>{
-   if(on){const top=main.getBoundingClientRect().top+window.scrollY-8;window.scrollTo({top:Math.max(0,top),behavior:'instant'});}
+   if(on){const top=main.getBoundingClientRect().top+window.scrollY-44;window.scrollTo({top:Math.max(0,top),behavior:'instant'});}
    else window.scrollTo({top:0,behavior:'instant'});
    sizeDrawingSheetForScroll();
   });
