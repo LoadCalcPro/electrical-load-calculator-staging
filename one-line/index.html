@@ -280,6 +280,11 @@ body:has(.suite-header) main#drawingMain.inspector-collapsed{grid-template-colum
 body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{grid-template-columns:34px minmax(0,1fr) 34px!important}
 }
 </style><style>
+/* Allow the page to scroll far enough to align the workspace at the top.
+   Without this space, browser scroll clamping leaves the drawing tabs visible. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header)::after{content:'';display:block;height:125px;pointer-events:none}
+}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
@@ -1425,10 +1430,10 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
  let workspaceMode=false;
  function setWorkspace(on){
   workspaceMode=on;
-  toggle.textContent=on?'Drawing View':'Full Page';
+  toggle.textContent=on?'Full Page':'Drawing View';
   toggle.setAttribute('aria-pressed',String(on));
   requestAnimationFrame(()=>{
-   if(on){const top=main.getBoundingClientRect().top+window.scrollY-44;window.scrollTo({top:Math.max(0,top),behavior:'instant'});}
+   if(on){const top=main.getBoundingClientRect().top+window.scrollY-2;window.scrollTo({top:Math.max(0,top),behavior:'instant'});}
    else window.scrollTo({top:0,behavior:'instant'});
    sizeDrawingSheetForScroll();
   });
