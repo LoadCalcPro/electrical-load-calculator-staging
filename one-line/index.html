@@ -198,6 +198,13 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header) main>.center>.workspace{min-height:0!important;overflow:hidden!important}
  body:has(.suite-header) main>.center>.workspace>.viewport{min-height:0!important;overflow:auto!important;overscroll-behavior:contain}
 }
+/* Restore an independently scrollable full-height sheet, not a clipped flex child. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main>.center{min-height:0!important;overflow:hidden!important}
+ body:has(.suite-header) main>.center>.workspace{display:flex!important;flex-direction:column!important;flex:1 1 0!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+ body:has(.suite-header) main>.center>.workspace>#viewport{display:block!important;flex:1 1 0!important;height:0!important;min-height:0!important;max-height:none!important;overflow-y:scroll!important;overflow-x:auto!important;scrollbar-width:auto;touch-action:pan-y pan-x}
+ body:has(.suite-header) main>.center>.workspace>#viewport>#svg{display:block;width:100%;height:auto!important;max-height:none!important;flex:none!important}
+}
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
  body:has(.suite-header) main{align-items:stretch}\n body:has(.suite-header) main>.center{align-self:stretch;min-height:100%;height:auto;overflow:visible}\n body:has(.suite-header) main>.center>#drawingStickyToolbar{flex-shrink:0}\n .center>#drawingStickyToolbar{position:sticky;top:0;z-index:80;background:#e9eef6;border:1px solid #d7e0ed;border-radius:10px;padding:7px 8px;margin-bottom:0;box-shadow:0 2px 7px rgba(15,35,65,.10)}
