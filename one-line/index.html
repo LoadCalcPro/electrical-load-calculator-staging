@@ -182,7 +182,7 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
 
 /* Laptop-first workspace: fixed-height three columns with independent scroll areas. */
 @media screen and (min-width: 1000px){
- body:has(.suite-header) main{display:grid!important;grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr) clamp(195px,19vw,280px)!important;height:100dvh!important;min-height:0!important;position:sticky;top:0;align-items:stretch!important;overflow:hidden}
+ body:has(.suite-header) main{display:grid!important;grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr) clamp(195px,19vw,280px)!important;height:calc(100dvh - 110px)!important;min-height:0!important;align-items:stretch!important;overflow:hidden}
  body:has(.suite-header) main>.panel{box-sizing:border-box;height:100%;min-height:0;overflow-y:auto!important;overflow-x:hidden}
  body:has(.suite-header) main>.center{box-sizing:border-box;height:100%!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;align-self:stretch!important;overscroll-behavior:contain;scrollbar-gutter:stable}
  /* The toolbar must never scroll above the drawing on laptop screens. */
@@ -192,6 +192,11 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header) main>.center>.workspace{flex:1 1 auto;min-height:0!important;overflow:hidden}
  body:has(.suite-header) main>.center>.workspace>.viewport{flex:1 1 auto;min-height:0;overflow:auto!important;overscroll-behavior:contain}
  body:has(.suite-header) main>.panel{overscroll-behavior:contain;scrollbar-gutter:stable}
+}
+/* Let the drawing viewport scroll to the sheet's true bottom without clipping. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main>.center>.workspace{min-height:0!important;overflow:hidden!important}
+ body:has(.suite-header) main>.center>.workspace>.viewport{min-height:0!important;overflow:auto!important;overscroll-behavior:contain}
 }
 /* Keep drawing controls available while the suite header scrolls away. */
 @media screen{
