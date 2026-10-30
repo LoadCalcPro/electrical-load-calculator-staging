@@ -539,10 +539,14 @@ function preserveEquipmentCircles(markup,n){
  const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;
  if(Math.abs(sx-sy)<.001)return markup;
  const uniform=Math.sqrt(sx*sy);
- return markup.replace(/<circle\b[^>]*>/g,tag=>{
-  const x=Number(tag.match(/\bcx="([^"]+)"/)?.[1]||0),y=Number(tag.match(/\bcy="([^"]+)"/)?.[1]||0);
+ // Apply compensation at the final SVG markup level so it also covers
+ // gutter labels, additional labels and equipment-specific text.
+ return markup.replace(/<(circle|text)\\b[^>]*>/g,(tag,kind)=>{
+  if(/\\btransform=/.test(tag))return tag;
+  const x=Number(tag.match(new RegExp('\\\\b'+(kind==='circle'?'cx':'x')+'="([^"]+)"'))?.[1]||0);
+  const y=Number(tag.match(new RegExp('\\\\b'+(kind==='circle'?'cy':'y')+'="([^"]+)"'))?.[1]||0);
   const transform=`translate(${x} ${y}) scale(${uniform/sx} ${uniform/sy}) translate(${-x} ${-y})`;
-  return tag.replace('<circle','<circle transform="'+transform+'"');
+  return tag.replace('<'+kind,'<'+kind+' transform="'+transform+'"');
  });
 }
 function symbol(n){const t=n.type,ink=inkFor(n),line='stroke="'+ink+'" stroke-width="'+weightFor(n)+'" '+drawingDashAttribute(n)+' fill="none"',txt=(x,y,value,size=10,weight='normal',key='')=>{if(!key && !['normal','bold','lighter','bolder'].includes(weight)){key=weight;weight='normal';}const fixedTextEquipment=[]; /* Preserve text proportions under non-uniform equipment resizing. */const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;const fixedText=Math.abs(sx-sy)>.001;const tx=key?(Number(n.textPositions?.[key]?.x??x)+(Number(n.textOffsets?.[key]?.x)||0)):x;const ty=key?(Number(n.textPositions?.[key]?.y??y)+(Number(n.textOffsets?.[key]?.y)||0)):y;const counterScale=fixedText?`transform="translate(${tx} ${ty}) scale(${Math.sqrt(sx*sy)/sx} ${Math.sqrt(sx*sy)/sy}) translate(${-tx} ${-ty})"`:'';return `<text ${counterScale} ${key?`data-inner-key="${key}"`:''} x="${key?Math.max(24-n.x,Math.min(976-n.x,(n.textPositions?.[key]?.x??x)+(Number(n.textOffsets?.[key]?.x)||0))):x}" y="${key?Math.max(24-n.y,Math.min(sheetDrawingBottom()-12-n.y,(n.textPositions?.[key]?.y??y)+(Number(n.textOffsets?.[key]?.y)||0))):y}" text-anchor="middle" font-size="${key?(Number(n.textSizes?.[key])||size):size}" font-weight="${key?(n.textStyles?.[key]==='bold'?'bold':weight):weight}" font-style="${key&&n.textStyles?.[key]==='italic'?'italic':'normal'}" style="${key?'cursor:grab;pointer-events:all;fill:'+(n.textColors?.[key]||'#111111')+';':''}" fill="${key?(n.textColors?.[key]||'#111'):'#111'}">${esc(key?(n.innerText?.[key]??value):value)}</text>`;}
