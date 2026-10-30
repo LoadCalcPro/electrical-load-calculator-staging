@@ -941,8 +941,8 @@ const fs = require('node:fs');
   await page.evaluate(()=>render());
   assert.equal(await page.locator('#properties [data-line-prop="arrow"]').inputValue(),'both',
     'Line arrow selection reverted after Properties rerender');
-  assert.equal(await page.locator('#svg [data-drawn-line="'+arrowLineId+'"] path').count()>=4,true,
-    'Arrowheads were not drawn at both ends');
+  const arrowSvg=await page.locator('#svg [data-drawn-line="'+arrowLineId+'"] path').count();
+  assert(arrowSvg>=4,'Arrowheads were not drawn at both ends');
   checkErrors('Drawing-line arrow persistence');
 
   // Regression: conductor Properties must initialize parallel-count handlers
