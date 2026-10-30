@@ -981,11 +981,15 @@ function syncEquipmentTextHighlight(info,svg,item,key,defs){
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
  const common=p.querySelector('details.properties-common');if(!common)return;
+ // Equipment designation is already editable below: remove the redundant
+ // selected-equipment title above the information fields.
+ const redundantTitle=p.firstElementChild;
+ if(redundantTitle?.tagName==='B')redundantTitle.remove();
  const heading=common.querySelector('summary');if(heading)heading.textContent='Drawing & Formatting Controls';
  const size=common.querySelector('[data-equipment-size]')?.closest('label');
  const hint=size?.nextElementSibling;
  const info=document.createElement('section');info.className='property-priority';
- const h=document.createElement('h4');h.textContent='Equipment Information';info.appendChild(h);
+ // Keep equipment fields directly under formatting controls; omit redundant heading.
  // Add sizing after the equipment information, without moving the control twice.
  if(hint?.classList.contains('status'))hint.remove();
  const designation=p.querySelector('[data-prop="name"]')?.closest('label')||p.querySelector('[data-prop="label"]')?.closest('label');
