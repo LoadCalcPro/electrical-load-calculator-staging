@@ -1389,6 +1389,7 @@ if(selected.kind==='wire'){
    });
    // Keep configuring the remaining wire controls below.
  }
+ if(String(item.label||'').trim()){
  const mapping=[['[data-shared-size]','labelSize',9],['[data-shared-style]','labelStyle','normal'],['[data-shared-x]','labelDX',0],['[data-shared-y]','labelDY',0],['[data-shared-angle]','labelAngle',0]];
  for(const [sel,key,fallback] of mapping){
   const el=section.querySelector(sel);el.value=item[key]??fallback;
@@ -1399,6 +1400,7 @@ if(selected.kind==='wire'){
    if(key==='labelSize'&&el.value.trim()==='')return;
    item[key]=key==='labelSize'?normalizeDrawingPropertyNumber(el.value,9,5,48):el.value;renderCanvasOnly();
   });
+ }
  }
 
 }
