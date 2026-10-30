@@ -928,6 +928,44 @@ const fs = require('node:fs');
   assert.equal(appearance.newInk,'#123456','New line status changed user-selected colors');
   checkErrors('Line patterns and installation status');
 
+  // Regression: drawing-line arrow selections must survive Properties rerender.
+  const arrowLineId=await page.evaluate(()=>{
+    const id=next++;
+    drawnLines.push({id,x1:230,y1:280,x2:410,y2:280,color:'#222222',width:2});
+    selected={kind:'line',id};selectedLineIds.clear();selectedLineIds.add(id);render();
+    return id;
+  });
+  await page.locator('#properties [data-line-prop="arrow"]').selectOption('both');
+  assert.equal(await page.evaluate(id=>drawnLines.find(l=>l.id===id)?.arrow,arrowLineId),'both',
+    'Line arrow selection was not saved');
+  await page.evaluate(()=>render());
+  assert.equal(await page.locator('#properties [data-line-prop="arrow"]').inputValue(),'both',
+    'Line arrow selection reverted after Properties rerender');
+  assert.equal(await page.locator('#svg [data-drawn-line="'+arrowLineId+'"] path').count()>=4,true,
+    'Arrowheads were not drawn at both ends');
+  checkErrors('Drawing-line arrow persistence');
+
+  // Regression: conductor Properties must initialize parallel-count handlers
+  // even when the wire has no label.
+  const unlabeledWireId=await page.evaluate(()=>{
+    const a=nodes.find(n=>n.type==='panel')||nodes[0];
+    const b=nodes.find(n=>n.id!==a?.id);
+    if(!a||!b)return null;
+    const id=next++;
+    wires.push({id,from:a.id,to:b.id,fromSide:'right',toSide:'left',
+      routeStyle:'straight',label:'',parallelCount:1,parallelSpacing:8});
+    selected={kind:'wire',id};render();
+    return id;
+  });
+  if(unlabeledWireId!==null){
+    const parallelControl=page.locator('#properties [data-parallel-count]');
+    await parallelControl.waitFor();
+    await parallelControl.selectOption('2');
+    assert.equal(await page.evaluate(id=>wires.find(w=>w.id===id)?.parallelCount,unlabeledWireId),2,
+      'Unlabeled conductor lost its parallel-count handler');
+    checkErrors('Unlabeled conductor Properties');
+  }
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
