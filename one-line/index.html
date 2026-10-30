@@ -675,6 +675,24 @@ function feederPath(a,b,w={}){
    }
    return {d:`M${P.x} ${P.y}L${Q.x} ${Q.y}`,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-9,handle:null};
  }
+ // Automatic connections that share an attachment axis are genuinely straight.
+ // Do not send them through the generic orthogonal (90-degree) router.
+ if(style==='auto'){
+   const vertical=dy!==0&&Math.abs(dx)<Math.min(A.l+A.r,B.l+B.r)/2;
+   const horizontal=dx!==0&&Math.abs(dy)<Math.min(A.t+A.b,B.t+B.b)/2;
+   const fs=w.fromSide||(vertical?(dy>0?'bottom':'top'):(dx>0?'right':'left'));
+   const ts=w.toSide||(vertical?(dy>0?'top':'bottom'):(dx>0?'left':'right'));
+   if(vertical&&['top','bottom'].includes(fs)&&['top','bottom'].includes(ts)){
+     const P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
+     const lo=Math.max(a.x-A.l,b.x-B.l),hi=Math.min(a.x+A.r,b.x+B.r);
+     if(lo<=hi){const x=Math.max(lo,Math.min(hi,(P.x+Q.x)/2));return {d:`M${x} ${P.y}L${x} ${Q.y}`,lx:x+8,ly:(P.y+Q.y)/2-9,handle:null};}
+   }
+   if(horizontal&&['left','right'].includes(fs)&&['left','right'].includes(ts)){
+     const P=sidePoint(a,fs,w.fromOffset),Q=sidePoint(b,ts,w.toOffset);
+     const lo=Math.max(a.y-A.t,b.y-B.t),hi=Math.min(a.y+A.b,b.y+B.b);
+     if(lo<=hi){const y=Math.max(lo,Math.min(hi,(P.y+Q.y)/2));return {d:`M${P.x} ${y}L${Q.x} ${y}`,lx:(P.x+Q.x)/2+8,ly:y-9,handle:null};}
+   }
+ }
  // Respect mixed attachment faces: leave the first enclosure normal to its
  // selected side, then approach the second enclosure normal to its own side.
  if(w.fromSide&&w.toSide&&style!=='straight'&&style!=='up'&&style!=='down'){
