@@ -1009,7 +1009,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(additionalLabel){const designationField=info.querySelector('[data-prop="name"]')?.closest('label')||info.querySelector('[data-prop="label"]')?.closest('label');if(designationField)designationField.insertAdjacentElement('afterend',additionalLabel);else info.insertBefore(additionalLabel,info.firstElementChild?.nextElementSibling||null);}
  if(size)info.appendChild(size);
  p.insertBefore(info,p.firstChild?.nextSibling||null);
- const toolbar=$('textInspector');toolbar.replaceChildren();info.insertAdjacentElement('afterend',common);common.open=true;
+ const toolbar=$('textInspector');toolbar.replaceChildren();toolbar.appendChild(common);common.open=true;
  const item=nodes.find(n=>n.id===selected.id);
  if(item){const outline=document.createElement('div');outline.className='equipment-outline-palette';common.appendChild(outline);
  const outlineTarget=document.createElement('label');outlineTarget.className='field';outlineTarget.textContent='Format selected part';
