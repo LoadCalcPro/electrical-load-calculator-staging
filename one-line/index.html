@@ -991,7 +991,7 @@ function selectEquipmentTarget(id,key=null){
 function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[0]),'drawingLabel']:[];}
 function activateEquipmentText(item,key){if(!item||!equipmentTextKeys(item).includes(key))return false;selectEquipmentTarget(item.id,key);$('textInspector').syncSelectedText?.();return true;}
 // One equipment-text alias table shared by focus, pointer and visual selection.
-const EQUIPMENT_TEXT_ALIASES={name:['gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],phase:['panelPhase','generatorPhase','atsPhase','meterPhase','disconnectPhase'],fuseAmps:['disconnectFuse','atsFuse','fuseRating'],fuseRating:['disconnectFuse','atsFuse','fuseRating'],interruptingRating:['disconnectKaic','atsKaic','panelKaic','meterKaic'],kva:['transformerKva','generatorKva'],kw:['generatorKw']};
+const EQUIPMENT_TEXT_ALIASES={name:['symbolDesignation','gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle','transformerTitle','subtypeTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],phase:['panelPhase','generatorPhase','atsPhase','meterPhase','disconnectPhase'],fuseAmps:['disconnectFuse','atsFuse','fuseRating'],fuseRating:['disconnectFuse','atsFuse','fuseRating'],interruptingRating:['disconnectKaic','atsKaic','panelKaic','meterKaic'],kva:['transformerKva','generatorKva'],kw:['generatorKw']};
 function finiteEquipmentOffset(value){if(value===null||String(value).trim()==='')return 0;const number=Number(value);return Number.isFinite(number)?number:0;}
 function equipmentFontSize(value,fallback=12){const number=Number(value);return Number.isFinite(number)&&number>0?Math.max(5,Math.min(48,number)):fallback;}
 function equipmentTextStyle(value){return ['normal','bold','italic'].includes(value)?value:'normal';}
@@ -1015,7 +1015,7 @@ function equipmentTextKeyForControl(el,defs){
  if(el.hasAttribute('data-common-label'))return defs.some(def=>def[0]==='drawingLabel')?'drawingLabel':null;
  if(raw&&defs.some(def=>def[0]===raw))return raw;
  const field=el.dataset.prop||el.dataset.field||(el.hasAttribute('data-main-type')?'mainType':null);
- const fallback={name:'name',voltage:'voltage',phase:'phase',amps:'amps',rating:'rating',mainType:'panelMain',kaic:'panelKaic',interruptingRating:'interruptingRating',kva:'kva',kw:'kw',fuseAmps:'fuseAmps',fuseRating:'fuseRating'};
+ const fallback={name:'symbolDesignation',voltage:'voltage',phase:'phase',amps:'amps',rating:'rating',mainType:'panelMain',kaic:'panelKaic',interruptingRating:'interruptingRating',kva:'kva',kw:'kw',fuseAmps:'fuseAmps',fuseRating:'fuseRating'};
  return (EQUIPMENT_TEXT_ALIASES[field]||[fallback[field]||field]).find(key=>defs.some(def=>def[0]===key))||null;
 }
 function syncEquipmentTextHighlight(info,svg,item,key,defs){
