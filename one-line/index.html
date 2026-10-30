@@ -950,6 +950,14 @@ function moveEquipmentTarget(n,dragState,point){
    n.textOffsets[key]={x:Math.round(dragState.comboLabelStart.x+point.x-dragState.startPoint.x),y:Math.round(dragState.comboLabelStart.y+point.y-dragState.startPoint.y)};
    return true;
   }
+  if(n.type==='meterbank'&&key==='symbolDesignation'){
+   n.textPositions??={};
+   n.textOffsets??={};
+   const current=n.textPositions[key]||defaultLabelPosition(n.type,key,n);
+   n.textPositions[key]={x:Math.round((point.x-n.x)/sx-dragState.dx),y:Math.round((point.y-n.y)/sy-dragState.dy)};
+   n.textOffsets[key]={x:0,y:0};
+   return true;
+  }
   n.textOffsets??={};
   const base=defaultLabelPosition(n.type,key,n);
   const position=n.textPositions?.[key]||base;
