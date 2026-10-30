@@ -1086,6 +1086,9 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    makeStackControl('meterBankRows','Meters per stack (high)',[1,2,3,4,5,6,7,8],Number(itemForInfo.metersHigh)||3)
   );
   info.appendChild(pair);
+  // Controls are created after props() binds its events; bind them here.
+  pair.querySelector('#meterBankColumns').addEventListener('change',e=>{itemForInfo.meterColumns=Number(e.target.value);renderCanvasOnly();});
+  pair.querySelector('#meterBankRows').addEventListener('change',e=>{itemForInfo.metersHigh=Number(e.target.value);renderCanvasOnly();});
  }
  p.insertBefore(info,p.firstChild?.nextSibling||null);
  const toolbar=$('textInspector');toolbar.replaceChildren();toolbar.appendChild(common);common.open=true;
