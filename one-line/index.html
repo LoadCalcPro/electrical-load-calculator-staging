@@ -1353,25 +1353,42 @@ const inspector=$('textInspector');inspector.replaceChildren();const section=doc
 if(selected.kind==='wire'){
  const inspector=$('textInspector');inspector.replaceChildren();
  const section=document.createElement('details');section.className='equipment-category properties-common';section.open=true;
- section.innerHTML='<summary>Drawing & Formatting Controls</summary><div class="shared-text-editor feeder-label-editor"><div class="shared-selected-label">Selected: Feeder Label</div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal<input data-shared-x type="number" step="1"></label><label class="field">Vertical<input data-shared-y type="number" step="1"></label><label class="field">Rotation (degrees)<input data-shared-angle type="number" min="-360" max="360" step="1"></label></div></div>';
+ section.innerHTML='<summary>Drawing & Formatting Controls</summary><div class="shared-text-editor feeder-label-editor"><div class="shared-selected-label">Selected: Connection conductor</div><div class="shared-text-grid"><label class="field">Font size<input data-shared-size type="number" min="5" max="48"></label><label class="field">Style<select data-shared-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal<input data-shared-x type="number" step="1"></label><label class="field">Vertical<input data-shared-y type="number" step="1"></label><label class="field">Rotation (degrees)<input data-shared-angle type="number" min="-360" max="360" step="1"></label></div></div>';
  inspector.appendChild(section);
  const from=nodes.find(n=>n.id===item.from),to=nodes.find(n=>n.id===item.to);
  const isOldGroundDefault=(from?.type==='groundterminal'||to?.type==='groundterminal')&&item.parallelColors?.length===1&&item.parallelColors[0]?.toLowerCase()==='#16a34a';
  if(isOldGroundDefault)item.parallelColors=['#111111'];
  const paletteRoot=section.querySelector('.shared-text-editor');
- const targetField=document.createElement('label');targetField.className='field';targetField.textContent='Format selected part';
- const targetSelect=document.createElement('select');targetSelect.innerHTML='<option value="label">Feeder label</option><option value="conductor">Connection conductor</option>';
- targetSelect.value=item.label?'label':'conductor';targetSelect.querySelector('option[value="label"]').disabled=!item.label;targetField.appendChild(targetSelect);
- const paletteGrid=paletteRoot.querySelector('.shared-text-grid');if(paletteGrid&&paletteGrid.parentNode===paletteRoot)paletteRoot.insertBefore(targetField,paletteGrid);else paletteRoot.prepend(targetField);
- const syncColors=makeColorRows(paletteRoot,()=>targetSelect.value==='label'?(item.labelColor||'#111111'):(item.parallelColors?.[0]||'#111111'),
- v=>{if(selected?.kind!=='wire'||selected.id!==item.id||!paletteRoot.isConnected)return;if(targetSelect.value==='label'){if(!item.label)return;item.labelColor=v;}else item.parallelColors=Array.from({length:Math.max(1,Number(item.parallelCount)||1)},()=>v);renderCanvasOnly()},
+ const syncColors=makeColorRows(paletteRoot,()=>item.parallelColors?.[0]||'#111111',
+ v=>{if(selected?.kind!=='wire'||selected.id!==item.id||!paletteRoot.isConnected)return;item.parallelColors=Array.from({length:Math.max(1,Number(item.parallelCount)||1)},()=>v);renderCanvasOnly()},
  ()=>'',
  ()=>{},
- {colorLabel:'Color',noHighlight:true});
- targetSelect.onchange=()=>{if(selected?.kind!=='wire'||selected.id!==item.id||!paletteRoot.isConnected)return;syncColors();};
- const feederText=p.querySelector('[data-prop="label"]');if(feederText)feederText.addEventListener('input',()=>{const option=targetSelect.querySelector('option[value="label"]');option.disabled=!feederText.value.trim();if(option.disabled&&targetSelect.value==='label')targetSelect.value='conductor';syncColors();});
+ {colorLabel:'Conductor Color',noHighlight:true});
  const field=(key)=>p.querySelector('[data-prop="'+key+'"]');
  for(const key of ['labelSize','labelStyle','labelColor','labelDX','labelDY','labelAngle'])field(key)?.closest('label')?.remove();
+ // For an unlabeled conductor, the position controls adjust the conductor itself.
+ // Keep label formatting available only when a feeder label exists.
+ if(!String(item.label||'').trim()){
+   section.querySelector('[data-shared-size]')?.closest('label')?.remove();
+   section.querySelector('[data-shared-style]')?.closest('label')?.remove();
+   section.querySelector('[data-shared-angle]')?.closest('label')?.remove();
+   const x=section.querySelector('[data-shared-x]'),y=section.querySelector('[data-shared-y]');
+   const route=feederPath(from,to,item);
+   const horizontal=['left','right'].includes(item.fromSide)&&['left','right'].includes(item.toSide);
+   const vertical=['top','bottom'].includes(item.fromSide)&&['top','bottom'].includes(item.toSide);
+   x.closest('label').querySelector('label')?.remove();
+   x.closest('label').firstChild.textContent='Horizontal conductor position';
+   y.closest('label').firstChild.textContent='Vertical conductor position';
+   x.value=horizontal?0:(route.handle?.axis==='x'?Math.round(route.handle.x):0);
+   y.value=vertical?0:(route.handle?.axis==='y'?Math.round(route.handle.y):0);
+   x.disabled=horizontal;y.disabled=vertical;
+   for(const [input,axis] of [[x,'x'],[y,'y']])input.addEventListener('input',()=>{
+     if(input.value.trim()===''||!Number.isFinite(Number(input.value)))return;
+     if(route.handle?.axis!==axis)return;
+     item.routeOffset=Number(input.value);renderCanvasOnly();
+   });
+   return;
+ }
  const mapping=[['[data-shared-size]','labelSize',9],['[data-shared-style]','labelStyle','normal'],['[data-shared-x]','labelDX',0],['[data-shared-y]','labelDY',0],['[data-shared-angle]','labelAngle',0]];
  for(const [sel,key,fallback] of mapping){
   const el=section.querySelector(sel);el.value=item[key]??fallback;
