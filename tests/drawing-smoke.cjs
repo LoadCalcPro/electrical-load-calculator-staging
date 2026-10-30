@@ -948,16 +948,17 @@ const fs = require('node:fs');
   // Regression: conductor Properties must initialize parallel-count handlers
   // even when the wire has no label.
   const unlabeledWireId=await page.evaluate(()=>{
-    const a=nodes.find(n=>n.type==='panel')||nodes[0];
-    const b=nodes.find(n=>n.id!==a?.id);
-    if(!a||!b)return null;
+    // Create known equipment so this regression cannot silently skip itself.
+    const a={id:next++,type:'panel',x:200,y:410,scaleX:1,scaleY:1};
+    const b={id:next++,type:'panel',x:520,y:410,scaleX:1,scaleY:1};
+    nodes.push(a,b);
     const id=next++;
     wires.push({id,from:a.id,to:b.id,fromSide:'right',toSide:'left',
       routeStyle:'straight',label:'',parallelCount:1,parallelSpacing:8});
     selected={kind:'wire',id};render();
     return id;
   });
-  if(unlabeledWireId!==null){
+  {
     const parallelControl=page.locator('#properties [data-parallel-count]');
     await parallelControl.waitFor();
     await parallelControl.selectOption('2');
