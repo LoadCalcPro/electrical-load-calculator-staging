@@ -721,11 +721,11 @@ function feederPath(a,b,w={}){
    const endVertical=w.toSide==='top'||w.toSide==='bottom';
    let middle;
    if(startVertical&&endVertical)middle=`V${(S.y+T.y)/2}H${T.x}V${T.y}`;
-   else if(!startVertical&&!endVertical)middle=`H${(S.x+T.x)/2}V${T.y}H${T.x}`;
+   else if(!startVertical&&!endVertical)middle=`H${w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2}V${T.y}H${T.x}`;
    else if(startVertical)middle=`V${T.y}H${T.x}`;
    else middle=`H${T.x}V${T.y}`;
    const d=`M${P.x} ${P.y}L${S.x} ${S.y}${middle}L${Q.x} ${Q.y}`;
-   return {d,lx:(S.x+T.x)/2+8,ly:(S.y+T.y)/2-8,handle:null};
+   return {d,lx:(S.x+T.x)/2+8,ly:(S.y+T.y)/2-8,handle:!startVertical&&!endVertical?{x:w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2,y:(S.y+T.y)/2,axis:'x'}:null};
  }
  const gutterPair=a.type==='gutter'||b.type==='gutter';
  if(gutterPair && (style==='auto'||style==='straight'||style==='bend')){
