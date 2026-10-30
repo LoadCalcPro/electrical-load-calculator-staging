@@ -1628,16 +1628,10 @@ function syncDrawingScrollbars(){const b=drawingPanBounds(),x=$('drawingScrollX'
 $('drawingScrollX').addEventListener('input',e=>{const b=drawingPanBounds();panX=b.xMax-(Number(e.target.value)/1000)*(b.xMax-b.xMin);renderCanvasOnly();});
 $('drawingScrollY').addEventListener('input',e=>{const b=drawingPanBounds();panY=b.yMax-(Number(e.target.value)/1000)*(b.yMax-b.yMin);renderCanvasOnly();});
 function limitDrawingPan(){const b=drawingPanBounds();panX=Math.max(b.xMin,Math.min(b.xMax,panX));panY=Math.max(b.yMin,Math.min(b.yMax,panY));}function zoomAt(factor,cx=500,cy=350){const v=$('viewport'),old=zoom;const focusX=(v.scrollLeft+v.clientWidth/2)/Math.max(1,v.scrollWidth),focusY=(v.scrollTop+v.clientHeight/2)/Math.max(1,v.scrollHeight);zoom=Math.max(.1,Math.min(16,zoom*factor));panX=panY=0;renderCanvasOnly();v.scrollLeft=focusX*v.scrollWidth-v.clientWidth/2;v.scrollTop=focusY*v.scrollHeight-v.clientHeight/2;}
-// Apply the toolbar route to the selected existing equipment connection immediately.
+// The toolbar route chooses how the NEXT connection will be drawn.
+// Editing an existing connection belongs in its Properties, never in this selector.
 $('newConnectionStyle').addEventListener('change',e=>{
- if(selected?.kind!=='wire')return;
- const wire=wires.find(w=>w.id===selected.id);if(!wire)return;
- wire.routeStyle=e.target.value;
- wire.routeOffset=null;
- // A new route starts with its natural attachment sides; manual sides can be chosen afterward.
- // Preserve user-selected connection sides and attachment offsets.
- render();
- $('status').textContent='Selected connection updated to '+e.target.selectedOptions[0].text+'.';
+ $('status').textContent='Route selected for the next connection: '+e.target.selectedOptions[0].text+'. Click Connect and select two equipment symbols.';
 });
 $('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(1/1.25);$('fit').onclick=()=>{zoom=1;panX=panY=0;limitDrawingPan();render();const v=$('viewport');if(v){v.scrollTop=0;v.scrollLeft=0;}};
 $('zoomSelection').onclick=()=>{if(!selected){$('status').textContent='Select equipment or a drawing object first.';return;}let cx,cy,wide=100,high=100;if(selected.kind==='node'){const n=nodes.find(n=>n.id===selected.id);if(!n)return;const b=bounds(n);cx=n.x;cy=n.y;wide=b.l+b.r;high=b.t+b.b;}else if(selected.kind==='line'){const l=drawnLines.find(l=>l.id===selected.id);if(!l)return;cx=(Number(l.x1)+Number(l.x2))/2;cy=(Number(l.y1)+Number(l.y2))/2;wide=Math.abs(l.x2-l.x1);high=Math.abs(l.y2-l.y1);}else if(selected.kind==='annotation'){const a=annotations.find(a=>a.id===selected.id);if(!a)return;cx=a.x;cy=a.y;}else{$('status').textContent='Select an equipment item, line, or note to zoom in.';return;}zoom=Math.max(.25,Math.min(8,Math.min(850/Math.max(100,wide*2),560/Math.max(80,high*2))));panX=500/zoom-cx;panY=350/zoom-cy;limitDrawingPan();render();};
