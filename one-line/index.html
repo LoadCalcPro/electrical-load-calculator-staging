@@ -1102,9 +1102,11 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const toolbar=$('textInspector');toolbar.replaceChildren();toolbar.appendChild(common);common.open=true;
  const item=nodes.find(n=>n.id===selected.id);
  if(item){const outline=document.createElement('div');outline.className='equipment-outline-palette';common.appendChild(outline);
- const outlineTarget=document.createElement('label');outlineTarget.className='field';outlineTarget.textContent='Format selected part';
- const outlineSelect=document.createElement('select');outlineSelect.setAttribute('aria-label','Choose equipment label or outline color target');outlineSelect.innerHTML='<option value="label">Selected equipment label</option><option value="outline">Equipment outline</option>';
- outlineSelect.value=activeInnerKey?'label':'outline';outlineTarget.appendChild(outlineSelect);outline.appendChild(outlineTarget);
+ const outlineTarget=document.createElement('div');outlineTarget.className='field';
+ const targetCaption=document.createElement('div');targetCaption.textContent='Format selected part';outlineTarget.appendChild(targetCaption);
+ const outlineSelect=document.createElement('div');outlineSelect.className='equipment-format-targets';outlineSelect.setAttribute('role','group');outlineSelect.setAttribute('aria-label','Choose part to format');
+ const outlineButtons={};for(const [value,label] of [['outline','Equipment outline'],['label','Selected equipment label']]){const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.formatTarget=value;button.style.cssText='flex:1;min-width:0;padding:9px 7px;border:1px solid #b8cbe3;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer;';outlineSelect.appendChild(button);outlineButtons[value]=button;}
+ outlineSelect.style.cssText='display:flex;gap:8px;margin-top:8px;';let outlineTargetValue=activeInnerKey?'label':'outline';Object.defineProperty(outlineSelect,'value',{get:()=>outlineTargetValue,set:v=>{outlineTargetValue=v;}});outlineTarget.appendChild(outlineSelect);outline.appendChild(outlineTarget);
  const hasTextTarget=()=>activeInnerKey==='drawingLabel'||(item._labelDefs||[]).some(d=>d[0]===activeInnerKey);
  const labelColor=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelColor||'#111111'):(item.textColors?.[activeInnerKey]||'#111111');
  const labelHighlight=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelHighlight||''):(item.textHighlights?.[activeInnerKey]||'');
@@ -1113,8 +1115,8 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  ()=>outlineSelect.value==='label'?labelHighlight():'',
  v=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
  {colorLabel:'Color'});
- const syncTarget=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;const canFormatLabel=hasTextTarget();outlineSelect.querySelector('option[value="label"]').disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';syncOutlinePalette();};
- outlineSelect.onchange=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;if(outlineSelect.value==='label'&&!hasTextTarget())outlineSelect.value='outline';syncOutlinePalette();};outline.addEventListener('pointerdown',event=>event.stopPropagation());
+ const syncTarget=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;const canFormatLabel=hasTextTarget();outlineButtons.label.disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';for(const [value,button] of Object.entries(outlineButtons)){const active=outlineSelect.value===value;button.setAttribute('aria-pressed',String(active));button.style.background=active?'#d9edf5':'transparent';button.style.borderColor=active?'#16869b':'#b8cbe3';button.style.boxShadow=active?'inset 0 0 0 1px #16869b':'none';button.style.opacity=button.disabled?'.45':'1';}syncOutlinePalette();};
+ for(const [value,button] of Object.entries(outlineButtons))button.addEventListener('click',()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected||button.disabled)return;outlineSelect.value=value;syncTarget();});outline.addEventListener('pointerdown',event=>event.stopPropagation());
  outline.syncSelectedColor=syncTarget;
  outline.syncSelectedColor?.();
 }
