@@ -1074,7 +1074,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Build Meter Bank stack controls directly in their final location.
  // They are not created elsewhere in Properties or moved by a later repair pass.
  if(itemForInfo?.type==='meterbank'){
-  const pair=document.createElement('div');pair.className='meterbank-layout-pair';
+  const pair=document.createElement('div');pair.className='meterbank-layout-fields';
   const makeStackControl=(id,caption,values,current)=>{
    const label=document.createElement('label');label.className='field';label.textContent=caption;
    const select=document.createElement('select');select.id=id;
@@ -1083,7 +1083,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   };
   pair.append(
    makeStackControl('meterBankColumns','Vertical stacks (side by side)',[1,2,3,4],Number(itemForInfo.meterColumns)||2),
-   makeStackControl('meterBankRows','Meters high per stack',[1,2,3,4,5,6,7,8],Number(itemForInfo.metersHigh)||3)
+   makeStackControl('meterBankRows','Meters per stack (high)',[1,2,3,4,5,6,7,8],Number(itemForInfo.metersHigh)||3)
   );
   info.appendChild(pair);
  }
