@@ -359,6 +359,27 @@ body:has(.suite-header) main#drawingMain #panelReopen{display:none!important}
 #properties .properties-common{margin-bottom:0!important}
 #properties .properties-common+.property-priority{margin-top:0!important}
 #properties .property-priority input,#properties .property-priority select{margin-top:2px!important}
+/* Shared compact spacing for every selected equipment type, including
+   meter, generator, panel, transformer, and equipment-specific controls. */
+#properties .property-priority,
+#properties .property-priority .meter-combo-layout,
+#properties .property-priority .section{
+ box-sizing:border-box!important;
+ padding:8px 10px!important;
+ margin:0!important;
+}
+#properties .property-priority>.field,
+#properties .property-priority label.field,
+#properties .property-priority .meter-combo-layout label{
+ margin:5px 0!important;
+ gap:4px!important;
+}
+#properties .property-priority h4{margin:6px 0!important}
+#properties .property-priority input:not([type=checkbox]),
+#properties .property-priority select,
+#properties .property-priority textarea{box-sizing:border-box!important;width:100%!important}
+#properties .property-priority+.section,
+#properties .property-priority+details{margin-top:6px!important}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
