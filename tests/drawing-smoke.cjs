@@ -952,6 +952,17 @@ const fs = require('node:fs');
   const arrowSvg=await page.locator('#svg [data-drawn-line="'+arrowLineId+'"] path').count();
   assert(arrowSvg>=4,'Arrowheads were not drawn at both ends');
   checkErrors('Drawing-line arrow persistence');
+  // Exercise a second Properties rebuild and switching between selected
+  // object kinds; this used to expose invalid insertBefore references.
+  await page.evaluate(id=>{
+    selected={kind:'line',id};render();
+    selected=null;render();
+    selected={kind:'line',id};render();
+  },arrowLineId);
+  assert.equal(await page.locator('#properties [data-line-prop="arrow"]').inputValue(),'both',
+    'Line arrow selection was lost after clearing and restoring selection');
+  checkErrors('Drawing-line Properties selection transitions');
+
 
   // Regression: conductor Properties must initialize parallel-count handlers
   // even when the wire has no label.
