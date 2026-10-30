@@ -1138,8 +1138,8 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   for(const [sel,handler] of [
    ['[data-shared-size]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelSize=equipmentFontSize(v,12);else{item.textSizes??={};item.textSizes[activeInnerKey]=equipmentFontSize(v,10);}}],
    ['[data-shared-style]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelStyle=equipmentTextStyle(v);else{item.textStyles??={};item.textStyles[activeInnerKey]=equipmentTextStyle(v);}}],
-   ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=finiteEquipmentOffset(v);}}],
-   ['[data-shared-y]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelY=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].y=finiteEquipmentOffset(v);}}]
+   ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=finiteEquipmentOffset(v);if(item.type==='meterbank'&&activeInnerKey==='symbolDesignation'){item.textPositions??={};item.textPositions.symbolDesignation=defaultLabelPosition(item.type,'symbolDesignation',item);}}}],
+   ['[data-shared-y]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelY=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].y=finiteEquipmentOffset(v);if(item.type==='meterbank'&&activeInnerKey==='symbolDesignation'){item.textPositions??={};item.textPositions.symbolDesignation=defaultLabelPosition(item.type,'symbolDesignation',item);}}}]
   ]){const control=get(sel);
    // Formatting controls must not replace the selected equipment text target.
    control.addEventListener('pointerdown',e=>e.stopPropagation());
