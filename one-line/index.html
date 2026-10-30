@@ -691,7 +691,7 @@ function feederPath(a,b,w={}){
    if(verticalStart&&!verticalEnd)middle=`V${T.y}H${T.x}`;
    else if(!verticalStart&&verticalEnd)middle=`H${T.x}V${T.y}`;
    else if(verticalStart)middle=`V${(S.y+T.y)/2}H${T.x}V${T.y}`;
-   else middle=`H${(S.x+T.x)/2}V${T.y}H${T.x}`;
+   else middle=`H${w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2}V${T.y}H${T.x}`;
    return {d:`M${P.x} ${P.y}L${S.x} ${S.y}${middle}L${Q.x} ${Q.y}`,lx:(S.x+T.x)/2+8,ly:(S.y+T.y)/2-8,handle:null};
  }
  // Above/below routes take precedence over generic attachment-side routing.
@@ -1531,26 +1531,9 @@ const ng=directConductorHit?null:e.target.closest('[data-node]'),wg=wireHit,ag=e
  const hit=segments.find(v=>pt.x>=Math.min(v.x1,v.x2)-tolerance&&pt.x<=Math.max(v.x1,v.x2)+tolerance&&Math.abs(pt.y-v.y)<tolerance);
  const verticalHit=Math.abs(pt.x-xMid)<tolerance&&pt.y>=Math.min(from.y,to.y)-tolerance&&pt.y<=Math.max(from.y,to.y)+tolerance;
  if(hit||verticalHit){
-  if(verticalHit&&!hit)drag={route:true,id:w.id,axis:'x',pt,initialOffset:xMid};
+  if(verticalHit)drag={route:true,id:w.id,axis:'x',pt,initialOffset:xMid};
   else drag={bendSection:true,id:w.id,end:hit.part,pt,initialOffset:hit.part==='from'?(Number(w.fromOffset)||0):(Number(w.toOffset)||0)};
   $('svg').setPointerCapture(e.pointerId);$('status').textContent='Drag the selected bend section independently.';render();return;
- }
-}
-if(w.routeStyle==='bend'&&['left','right'].includes(w.fromSide)&&['left','right'].includes(w.toSide)){
- const from=wirePortHandle(a,b,w,'from'),to=wirePortHandle(b,a,w,'to');
- const sx=from.x+(w.fromSide==='left'?-22:22),tx=to.x+(w.toSide==='left'?-22:22);
- const mx=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(sx+tx)/2;
- const tolerance=12/Math.max(.5,zoom);
- const near=(v,l,h)=>v>=Math.min(l,h)-tolerance&&v<=Math.max(l,h)+tolerance;
- let part=null;
- if(Math.abs(pt.x-mx)<=tolerance&&near(pt.y,from.y,to.y))part='middle';
- else if(Math.abs(pt.y-from.y)<=tolerance&&near(pt.x,from.x,mx))part='from';
- else if(Math.abs(pt.y-to.y)<=tolerance&&near(pt.x,mx,to.x))part='to';
- if(part){
-  drag=part==='middle'?{route:true,id:w.id,axis:'x',pt,initialOffset:mx}:{bendSection:true,id:w.id,end:part,pt,initialOffset:part==='from'?(Number(w.fromOffset)||0):(Number(w.toOffset)||0)};
-  $('svg').setPointerCapture(e.pointerId);
-  $('status').textContent=part==='middle'?'Drag the middle section left or right.':'Drag this horizontal section up or down.';
-  render();return;
  }
 }
 if(w.routeStyle==='straight'&&!e.altKey&&Math.abs(a.x-b.x)<Math.abs(a.y-b.y)){const path=e.target.closest('[data-wire]')?.querySelector('path.wire');const length=path?.getTotalLength?.()||0;let near=false;for(let i=0;length&&i<=30;i++){const point=path.getPointAtLength(length*i/30);if(Math.hypot(pt.x-point.x)<12/Math.max(.5,zoom)&&Math.abs(pt.y-point.y)<12/Math.max(.5,zoom)){near=true;break;}}if(near){const from=wirePortHandle(a,b,w,'from'),to=wirePortHandle(b,a,w,'to');if(['top','bottom'].includes(from.side)&&['top','bottom'].includes(to.side)){drag={slideVerticalConnection:true,id:w.id,pt,fromX:from.x,toX:to.x,fromSide:from.side,toSide:to.side};$('svg').setPointerCapture(e.pointerId);render();return;}}}if(r.d.includes('H')&&!e.altKey){/* The full rendered route, including both vertical legs, is a valid drag target. */{const facingHorizontal=Math.abs(a.y-b.y)<18&&Math.abs(a.x-b.x)>Math.abs(a.y-b.y)&&(!w.routeStyle||w.routeStyle==='auto'||w.routeStyle==='straight')&&(!w.fromSide||['left','right'].includes(w.fromSide))&&(!w.toSide||['left','right'].includes(w.toSide));if(facingHorizontal && (a.type==='gutter'||b.type==='gutter')){const initial=r.handle?.axis==='y'?r.handle.y:pt.y;w.routeOffset=initial;drag={route:true,id:w.id,axis:'y',pt,initialOffset:initial};}else if(facingHorizontal){const from=wirePortHandle(a,b,w,'from'),to=wirePortHandle(b,a,w,'to');drag={slideConnection:true,id:w.id,pt,fromY:from.y,toY:to.y,fromSide:from.side,toSide:to.side};}else if(r.handle?.axis==='x'){drag={route:true,id:w.id,axis:'x',pt,initialOffset:r.handle.x};}else{const initial=r.handle?.axis==='y'?r.handle.y:pt.y;w.routeOffset=initial;drag={route:true,id:w.id,axis:'y',pt,initialOffset:initial};} $('svg').setPointerCapture(e.pointerId);$('status').textContent='Drag this connection segment to adjust its route.';render();return;}}const match=r.d.match(/^M(-?[\d.]+) (-?[\d.]+)V(-?[\d.]+)/);if(match){const x=Number(match[1]),y1=Number(match[2]),y2=Number(match[3]);if(Math.abs(pt.x-x)<13&&pt.y>=Math.min(y1,y2)-8&&pt.y<=Math.max(y1,y2)+8){const h=wirePortHandle(a,b,w,'from');if(h.side==='top'||h.side==='bottom'){drag={port:true,id:w.id,end:'from'};$('svg').setPointerCapture(e.pointerId);$('status').textContent='Drag horizontally to slide this connection along the equipment edge.';render();return;}}}}
