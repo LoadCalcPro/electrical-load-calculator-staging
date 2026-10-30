@@ -350,6 +350,15 @@ body:has(.suite-header) main#drawingMain #panelReopen{display:none!important}
 }
 #equipmentLibrary #library{padding-top:4px!important}
 #equipmentLibrary .equipment-category:first-child{margin-top:0!important}
+/* Compact equipment properties directly below formatting controls. */
+#properties .property-priority{
+ margin:0!important;padding:8px 10px!important;
+ border-radius:8px!important;
+}
+#properties .property-priority>.field{margin:5px 0!important;gap:4px!important}
+#properties .properties-common{margin-bottom:0!important}
+#properties .properties-common+.property-priority{margin-top:0!important}
+#properties .property-priority input,#properties .property-priority select{margin-top:2px!important}
 /* Drawing-focused layout: site navigation scrolls above the workspace. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 18px)!important;min-height:480px!important}
