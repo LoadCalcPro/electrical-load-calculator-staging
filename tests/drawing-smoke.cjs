@@ -935,6 +935,14 @@ const fs = require('node:fs');
     selected={kind:'line',id};selectedLineIds.clear();selectedLineIds.add(id);render();
     return id;
   });
+  // The line label must be moved only relative to direct Properties children.
+  // Previously a nested label was passed to insertBefore, crashing the editor.
+  const lineLabelField=page.locator('#properties > label.field:has([data-line-prop="label"])');
+  assert.equal(await lineLabelField.count(),1,
+    'Drawing-line label was not placed as a direct Properties field');
+  assert.equal(await page.locator('#properties [data-line-prop="arrow"]').count(),1,
+    'Drawing-line Properties did not initialize after label reordering');
+  checkErrors('Drawing-line Properties startup and label ordering');
   await page.locator('#properties [data-line-prop="arrow"]').selectOption('both');
   assert.equal(await page.evaluate(id=>drawnLines.find(l=>l.id===id)?.arrow,arrowLineId),'both',
     'Line arrow selection was not saved');
