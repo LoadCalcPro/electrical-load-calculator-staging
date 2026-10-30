@@ -539,8 +539,8 @@ function preserveEquipmentCircles(markup,n){
  const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;
  if(Math.abs(sx-sy)<.001)return markup;
  const uniform=Math.sqrt(sx*sy);
- return markup.replace(/<circle\\b[^>]*\\/?>(?![^<]*<\\/circle>)/g,tag=>{
-  const x=Number(tag.match(/\\bcx="([^"]+)"/)?.[1]||0),y=Number(tag.match(/\\bcy="([^"]+)"/)?.[1]||0);
+ return markup.replace(/<circle\b[^>]*>/g,tag=>{
+  const x=Number(tag.match(/\bcx="([^"]+)"/)?.[1]||0),y=Number(tag.match(/\bcy="([^"]+)"/)?.[1]||0);
   const transform=`translate(${x} ${y}) scale(${uniform/sx} ${uniform/sy}) translate(${-x} ${-y})`;
   return tag.replace('<circle','<circle transform="'+transform+'"');
  });
