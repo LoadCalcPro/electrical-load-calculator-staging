@@ -1146,6 +1146,26 @@ const fs = require('node:fs');
     'Background calibration activated without an imported background');
   checkErrors('Plan View calibration requires a selected background');
 
+  // Persistent wall joints: moving one joined wall should move its neighbor,
+  // and an attached opening must continue to follow the neighbor.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch();
+    const first={id:next++,type:'planwall',x:350,y:400,wallLengthIn:120,wallAngle:0};
+    const second={id:next++,type:'planwall',x:350+60*px,y:400+60*px,wallLengthIn:120,wallAngle:90};
+    const door={id:next++,type:'plandoor',x:second.x,y:second.y,doorWidthIn:36,doorAngle:90,attachedWallId:second.id,wallOffset:0};
+    nodes.push(first,second,door);
+    registerPlanWallJoint(first,second,1,-1);
+    const before={x:second.x,y:second.y};
+    first.x+=20;first.y+=10;syncPlanWallJoints(first);
+    if(Math.abs(second.x-before.x-20)>0.001||Math.abs(second.y-before.y-10)>0.001)
+      throw Error('Connected wall did not follow moved wall');
+    if(Math.abs(door.x-second.x)>0.001||Math.abs(door.y-second.y)>0.001)
+      throw Error('Attached door did not follow connected wall');
+    nodes=nodes.filter(n=>![first.id,second.id,door.id].includes(n.id));
+    render();
+  });
+  checkErrors('Plan View persistent wall joints');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
