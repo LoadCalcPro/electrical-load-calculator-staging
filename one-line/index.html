@@ -530,17 +530,39 @@ function removeInvalidPlanWallJoints(){
 }
 function syncPlanWallJoints(source){
  if(source.type!=='planwall'||!source.wallJoints?.length)return;
- const visited=new Set([source.id]),queue=[source];
+ const visited=new Set([source.id]),queue=[source],walls=new Map(nodes.filter(n=>n.type==='planwall').map(n=>[n.id,n]));
+ // A rigid translation is the only movement that can preserve every joint
+ // in a closed room without silently stretching or rotating other walls.
+ // First propagate through a spanning tree, then verify all remaining edges.
+ const original=new Map([...walls].map(([id,w])=>[id,{x:w.x,y:w.y}]));
  while(queue.length){
   const wall=queue.shift();
   for(const joint of wall.wallJoints||[]){
-   const other=nodes.find(n=>n.type==='planwall'&&n.id===joint.wallId);
+   const other=walls.get(joint.wallId);
    if(!other||visited.has(other.id))continue;
    const target=planWallEndpoint(wall,joint.side),current=planWallEndpoint(other,joint.otherSide);
    other.x+=target.x-current.x;other.y+=target.y-current.y;
-   visited.add(other.id);moveAttachedPlanOpenings(other);queue.push(other);
+   visited.add(other.id);queue.push(other);
   }
  }
+ let consistent=true;
+ for(const id of visited){
+  const wall=walls.get(id);
+  for(const joint of wall.wallJoints||[]){
+   const other=walls.get(joint.wallId);
+   if(!other||!visited.has(other.id))continue;
+   const a=planWallEndpoint(wall,joint.side),b=planWallEndpoint(other,joint.otherSide);
+   if(Math.hypot(a.x-b.x,a.y-b.y)>0.75){consistent=false;break;}
+  }
+  if(!consistent)break;
+ }
+ if(!consistent){
+  for(const id of visited){if(id===source.id)continue;const wall=walls.get(id),before=original.get(id);wall.x=before.x;wall.y=before.y;}
+  $('status').textContent='Connected walls cannot preserve all corners with this edit. Undo or adjust the wall geometry.';
+  return false;
+ }
+ for(const id of visited)if(id!==source.id)moveAttachedPlanOpenings(walls.get(id));
+ return true;
 }
 // Revalidate an attached opening after its dimensions or rotation change.
 function reconcilePlanOpeningAttachment(opening){
