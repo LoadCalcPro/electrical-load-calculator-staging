@@ -675,6 +675,9 @@ $('svg').addEventListener('pointerdown',e=>{
   add('plandimension',(p.x+planTwoPointStart.x)/2,(p.y+planTwoPointStart.y)/2);
   const n=nodes[nodes.length-1];n.dimensionLengthIn=Math.round(length/planUnitsPerInch()*100)/100;
   n.dimensionAngle=Math.atan2(dy,dx)*180/Math.PI;n.dimensionOffset=25;
+  // The default dimension is created before its measured length is known.
+  // Recheck its real extents once both endpoints have been captured.
+  clampEquipmentToSheet(n);
   delete n.dimensionWallId;
  }
  planTwoPointStart=null;mode='select';$('status').textContent='Two-point dimension created.';render();
