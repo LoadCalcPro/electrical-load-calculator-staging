@@ -1140,6 +1140,25 @@ const fs = require('node:fs');
     'Escape did not cancel two-point measurement');
   checkErrors('Plan View two-point dimension mode');
 
+  // Exercise the real two-click measurement path in the drawing's coordinate system.
+  await page.locator('#planTwoPointDimension').click();
+  const measured=await page.evaluate(()=>{
+    const svg=document.querySelector('#svg'),matrix=svg.getScreenCTM();
+    const toClient=(x,y)=>{const p=svg.createSVGPoint();p.x=x;p.y=y;const q=p.matrixTransform(matrix);return {clientX:q.x,clientY:q.y};};
+    const before=new Set(nodes.map(n=>n.id));
+    for(const [x,y] of [[300,250],[420,250]]){
+      svg.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,button:0,...toClient(x,y)}));
+    }
+    const n=nodes.find(n=>n.type==='plandimension'&&!before.has(n.id));
+    return {created:!!n,length:n?.dimensionLengthIn,angle:n?.dimensionAngle,mode};
+  });
+  assert.equal(measured.created,true,'Two clicks did not create a dimension');
+  assert.ok(Math.abs(measured.length-120*await page.evaluate(()=>1/planUnitsPerInch()))<0.02,
+    'Two-point dimension did not convert drawing units to inches');
+  assert.ok(Math.abs(measured.angle)<0.01,'Horizontal two-point dimension has incorrect angle');
+  assert.equal(measured.mode,'select','Two-point measurement did not return to selection mode');
+  checkErrors('Plan View two-point measurement with real pointer events');
+
   // Background calibration must refuse to start without a selected imported plan.
   await page.locator('#calibrateBackground').click();
   assert.equal(await page.evaluate(()=>mode),'select',
