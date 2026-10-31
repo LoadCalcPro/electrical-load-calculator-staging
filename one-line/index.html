@@ -3,6 +3,11 @@
 #properties label.field:has(>#polyArrow),#properties label.field:has(>#polyCurved),#properties label.field:has(>#polyLabel){display:none!important}
 .polyline-quick-controls{display:flex;flex-direction:column;gap:10px;margin-top:12px}
 .polyline-quick-controls .field{margin:0}
+/* Match the initial New Polyline rounded-path row in selected Properties. */
+#textInspector .polyline-quick-controls label.poly-rounded-option{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex-wrap:nowrap!important;margin:0 0 10px!important}
+#textInspector .polyline-quick-controls label.poly-rounded-option input[type="checkbox"]{appearance:auto!important;position:static!important;display:block!important;flex:0 0 24px!important;width:24px!important;height:24px!important;margin:0!important;cursor:pointer}
+#textInspector .polyline-quick-controls label.poly-rounded-option span{display:inline!important;flex:1;min-width:0}
+
 
 /* Keep the rounded-path checkbox large and at the start of its label. */
 #properties label.poly-rounded-option{display:flex!important;flex-direction:row!important;align-items:center;justify-content:flex-start;gap:12px;flex-wrap:nowrap}
