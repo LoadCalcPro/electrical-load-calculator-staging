@@ -928,6 +928,21 @@ const fs = require('node:fs');
   assert.equal(appearance.newInk,'#123456','New line status changed user-selected colors');
   checkErrors('Line patterns and installation status');
 
+  // New-line Properties must expose settings before drawing, and new
+  // segments must inherit those settings instead of resetting to defaults.
+  await page.evaluate(()=>{mode='line';selected=null;render();});
+  await page.locator('#newLineArrow').selectOption('both');
+  await page.locator('#newLineWeight').fill('3');
+  await page.locator('#newLineWeight').dispatchEvent('change');
+  await page.locator('#newLinePattern').selectOption('dashed');
+  const newLineDefaults=await page.evaluate(()=>({
+    arrow:newDrawingLineArrow,weight:newDrawingLineWeight,pattern:newDrawingLinePattern
+  }));
+  assert.deepEqual(newLineDefaults,{arrow:'both',weight:3,pattern:'dashed'},
+    'Add Line Properties did not save pre-drawing settings');
+  await page.evaluate(()=>{mode='select';selected=null;render();});
+  checkErrors('Pre-drawing line defaults');
+
   // Regression: drawing-line arrow selections must survive Properties rerender.
   const arrowLineId=await page.evaluate(()=>{
     const id=next++;
