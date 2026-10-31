@@ -1140,6 +1140,12 @@ const fs = require('node:fs');
     'Escape did not cancel two-point measurement');
   checkErrors('Plan View two-point dimension mode');
 
+  // Background calibration must refuse to start without a selected imported plan.
+  await page.locator('#calibrateBackground').click();
+  assert.equal(await page.evaluate(()=>mode),'select',
+    'Background calibration activated without an imported background');
+  checkErrors('Plan View calibration requires a selected background');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
