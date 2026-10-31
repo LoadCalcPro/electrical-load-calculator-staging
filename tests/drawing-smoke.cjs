@@ -1131,6 +1131,15 @@ const fs = require('node:fs');
     'Measure Nearest Wall selected a closer center instead of the closest wall segment');
   checkErrors('Plan View Measure Nearest Wall');
 
+  // Two-point measurement must enter its own Plan View mode and cancel cleanly.
+  await page.locator('#planTwoPointDimension').click();
+  assert.equal(await page.evaluate(()=>mode),'plan-two-point-dimension',
+    'Two-point dimension tool did not activate');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.evaluate(()=>mode),'select',
+    'Escape did not cancel two-point measurement');
+  checkErrors('Plan View two-point dimension mode');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
