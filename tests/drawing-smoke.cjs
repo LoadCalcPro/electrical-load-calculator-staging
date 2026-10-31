@@ -1118,9 +1118,10 @@ const fs = require('node:fs');
   // not only wall centers. The long wall is closest at its far endpoint.
   await page.locator('[data-drawing-tab="plan"]').click();
   const nearestDimensionId=await page.evaluate(()=>{
+    const px=planUnitsPerInch();
     const longWall={id:next++,type:'planwall',x:400,y:300,wallLengthIn:240,wallAngle:0,scaleX:1,scaleY:1};
-    const misleadingWall={id:next++,type:'planwall',x:650,y:360,wallLengthIn:24,wallAngle:0,scaleX:1,scaleY:1};
-    const dimension={id:next++,type:'plandimension',x:625,y:300,dimensionLengthIn:12,dimensionAngle:0,dimensionOffset:25};
+    const dimension={id:next++,type:'plandimension',x:400+100*px,y:300,dimensionLengthIn:12,dimensionAngle:0,dimensionOffset:25};
+    const misleadingWall={id:next++,type:'planwall',x:dimension.x+12,y:dimension.y+40,wallLengthIn:24,wallAngle:0,scaleX:1,scaleY:1};
     nodes.push(longWall,misleadingWall,dimension);
     selected={kind:'node',id:dimension.id};mode='select';render();
     return {dimensionId:dimension.id,longWallId:longWall.id};
