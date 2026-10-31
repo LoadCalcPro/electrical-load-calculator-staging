@@ -569,6 +569,11 @@ function resizeConnectedPlanWallsAxes(root,xPercent,yPercent){
   const wall=byId.get(node.attachedWallId);
   const width=Math.max(1,Number(node.type==='plandoor'?node.doorWidthIn:node.windowWidthIn)||36);
   if(!wall||width>wall.wallLengthIn)valid=false;
+  // A wall opening must remain entirely within its host wall. Never allow
+  // the attachment helper to silently slide it after a resize.
+  const halfWall=Math.max(1,Number(wall?.wallLengthIn)||120)*planUnitsPerInch()/2;
+  const halfOpening=width*planUnitsPerInch()/2;
+  if(Math.abs(Number(node.wallOffset)||0)+halfOpening>halfWall+0.01)valid=false;
  }
  // Reject a resize that pushes any wall endpoint outside the drawing sheet.
  // Do not clamp individual walls: that would separate their shared corners.
