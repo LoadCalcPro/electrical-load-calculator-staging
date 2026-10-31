@@ -519,12 +519,17 @@ function planWallEndpoint(wall,side){
  return {x:wall.x+side*h*Math.cos(a),y:wall.y+side*h*Math.sin(a)};
 }
 function registerPlanWallJoint(wall,other,side,otherSide){
- wall.wallJoints??=[];
- other.wallJoints??=[];
- if(!wall.wallJoints.some(j=>j.wallId===other.id&&j.side===side))
-  wall.wallJoints.push({wallId:other.id,side,otherSide});
- if(!other.wallJoints.some(j=>j.wallId===wall.id&&j.side===otherSide))
-  other.wallJoints.push({wallId:wall.id,side:otherSide,otherSide:side});
+ if(wall.id===other.id||![-1,1].includes(side)||![-1,1].includes(otherSide))return false;
+ wall.wallJoints??=[];other.wallJoints??=[];
+ // A wall endpoint cannot be attached to two unrelated endpoints: this
+ // would create an impossible constraint when the drawing is edited.
+ const existing=wall.wallJoints.find(j=>j.side===side);
+ const reverse=other.wallJoints.find(j=>j.side===otherSide);
+ if(existing&&(existing.wallId!==other.id||existing.otherSide!==otherSide))return false;
+ if(reverse&&(reverse.wallId!==wall.id||reverse.otherSide!==side))return false;
+ if(!existing)wall.wallJoints.push({wallId:other.id,side,otherSide});
+ if(!reverse)other.wallJoints.push({wallId:wall.id,side:otherSide,otherSide:side});
+ return true;
 }
 function removeInvalidPlanWallJoints(){
  const valid=new Set(nodes.filter(n=>n.type==='planwall').map(n=>n.id));
