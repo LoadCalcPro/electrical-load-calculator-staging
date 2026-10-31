@@ -498,6 +498,9 @@ function snapPlanWallEndpoint(n){
   }
  }
  if(!best)return false;
+ // Snapping an already connected wall would drag its other joints out of place.
+ // Only free walls can acquire a new endpoint connection by moving their center.
+ if(n.wallJoints?.length)return false;
  n.x+=best.dx;n.y+=best.dy;
  // Record the snapped endpoints so later moves preserve this joint.
  for(const other of nodes.filter(v=>v.type==='planwall'&&v.id!==n.id&&!v.layerHidden)){
@@ -535,7 +538,6 @@ function syncPlanWallJoints(source){
  // in a closed room without silently stretching or rotating other walls.
  // First propagate through a spanning tree, then verify all remaining edges.
  const original=new Map([...walls].map(([id,w])=>[id,{x:w.x,y:w.y}]));
- const sourceStart={x:source.x,y:source.y};
  while(queue.length){
   const wall=queue.shift();
   for(const joint of wall.wallJoints||[]){
