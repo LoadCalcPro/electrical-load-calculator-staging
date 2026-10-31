@@ -1251,6 +1251,18 @@ function standardizeDrawingProperties(){
  const p=$('properties');if(!p||!selected)return;
  if(['annotation','wire'].includes(selected.kind))return; // Preserve purpose-built Text Leader and Connect layouts.
  p.classList.add('standardized-properties');
+ if(selected.kind==='line'){
+  // Line has a fixed, always-visible sequence beneath its label.
+  const label=p.querySelector('[data-line-prop="label"]')?.closest('label');
+  const arrow=p.querySelector('[data-line-prop="arrow"]')?.closest('label');
+  const status=p.querySelector('[data-installation-status]')?.closest('label')||Array.from(p.querySelectorAll('label.field')).find(el=>el.textContent.trim().startsWith('Installation status'));
+  const pattern=p.querySelector('#linePattern')?.closest('label');
+  if(label){for(const field of [arrow,status,pattern])if(field)label.after(field); // reordered below
+   let previous=label;for(const field of [arrow,status,pattern])if(field){previous.after(field);previous=field;}
+  }
+  p.querySelectorAll('.property-priority').forEach(section=>{const heading=section.querySelector('h4');if(heading?.textContent.trim()==='Label & Information'){while(section.firstChild){if(section.firstChild===heading){heading.remove();continue;}p.insertBefore(section.firstChild,section);}section.remove();}});
+  return;
+ }
  const existing=p.querySelector('.property-priority');
  if(existing){existing.classList.add('property-section');return;}
  // Rebuild only the layout containers: keep each input node and its listeners intact.
