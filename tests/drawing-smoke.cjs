@@ -1228,6 +1228,24 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View persistent wall joints');
 
+  // A three-wall chain must propagate endpoint motion without moving a wall twice.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch(),length=100*px;
+    const a={id:next++,type:'planwall',x:250,y:300,wallLengthIn:100,wallAngle:0};
+    const b={id:next++,type:'planwall',x:250+length,y:300,wallLengthIn:100,wallAngle:0};
+    const d={id:next++,type:'planwall',x:250+2*length,y:300,wallLengthIn:100,wallAngle:0};
+    nodes.push(a,b,d);
+    registerPlanWallJoint(a,b,1,-1);
+    registerPlanWallJoint(b,d,1,-1);
+    const original={bx:b.x,dx:d.x};
+    a.x+=17;syncPlanWallJoints(a);
+    if(Math.abs(b.x-original.bx-17)>0.001||Math.abs(d.x-original.dx-17)>0.001)
+      throw Error('Three-wall joint chain failed to propagate translation');
+    nodes=nodes.filter(n=>![a.id,b.id,d.id].includes(n.id));
+    removeInvalidPlanWallJoints();render();
+  });
+  checkErrors('Plan View three-wall joint chain');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
