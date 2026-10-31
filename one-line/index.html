@@ -483,6 +483,23 @@ function snapPlanOpeningToWall(n){
  else n.windowAngle=Number(best.wall.wallAngle)||0;
  return true;
 }
+// Snap a moved wall endpoint to another wall endpoint without changing wall length or angle.
+function snapPlanWallEndpoint(n){
+ if(n.type!=='planwall')return false;
+ const px=planUnitsPerInch(),angle=(Number(n.wallAngle)||0)*Math.PI/180;
+ const ux=Math.cos(angle),uy=Math.sin(angle),half=Math.max(1,Number(n.wallLengthIn)||120)*px/2;
+ let best=null;
+ for(const other of nodes.filter(v=>v.type==='planwall'&&v.id!==n.id&&!v.layerHidden)){
+  const a=(Number(other.wallAngle)||0)*Math.PI/180,ox=Math.cos(a),oy=Math.sin(a),h=Math.max(1,Number(other.wallLengthIn)||120)*px/2;
+  for(const s of [-1,1])for(const t of [-1,1]){
+   const x=n.x+s*half*ux,y=n.y+s*half*uy,tx=other.x+t*h*ox,ty=other.y+t*h*oy;
+   const distance=Math.hypot(tx-x,ty-y);
+   if(distance<=Math.max(6,px*4)&&(!best||distance<best.distance))best={dx:tx-x,dy:ty-y,distance};
+  }
+ }
+ if(!best)return false;
+ n.x+=best.dx;n.y+=best.dy;return true;
+}
 function moveAttachedPlanOpenings(wall){
  if(wall.type!=='planwall')return;
  const angle=(Number(wall.wallAngle)||0)*Math.PI/180,ux=Math.cos(angle),uy=Math.sin(angle);
@@ -1064,6 +1081,7 @@ function moveEquipmentTarget(n,dragState,point){
  n.x=point.x-dragState.dx;
  n.y=alignedLadderY(n,point.y-dragState.dy);
  snapPlanOpeningToWall(n);
+ snapPlanWallEndpoint(n);
  clampEquipmentToSheet(n);
  moveAttachedPlanOpenings(n);
  syncLadderLines();
