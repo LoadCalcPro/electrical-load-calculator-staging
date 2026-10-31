@@ -555,6 +555,13 @@ function resizeConnectedPlanWalls(root,percent){
  }
  for(const {node,offset} of offsets)node.wallOffset=(Number(offset)||0)*factor;
  let valid=true;
+ // Reject a resize that pushes any wall endpoint outside the drawing sheet.
+ // Do not clamp individual walls: that would separate their shared corners.
+ const bottomLimit=sheetDrawingBottom();
+ for(const wall of group)for(const side of [-1,1]){
+  const point=planWallEndpoint(wall,side);
+  if(point.x<20||point.x>980||point.y<18||point.y>bottomLimit-2)valid=false;
+ }
  for(const wall of group)for(const joint of wall.wallJoints||[]){
   const other=byId.get(joint.wallId);
   if(!other||!seen.has(other.id))continue;
