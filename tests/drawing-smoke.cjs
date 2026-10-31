@@ -1081,8 +1081,16 @@ const fs = require('node:fs');
     'Restored vertical Automatic route is not a single segment');
   checkErrors('Connect Automatic after U-route transitions');
 
-  await page.evaluate(id=>{wires=wires.filter(w=>w.id!==id);render();},routeWireId);
-  checkErrors('Connect removal with stale selection');
+  // Exercise the real Delete key handler, not a direct test-only array edit.
+  await page.locator('#svg').focus();
+  await page.keyboard.press('Delete');
+  assert.equal(await page.evaluate(id=>wires.some(w=>w.id===id),routeWireId),false,
+    'Delete key did not remove the selected Connect wire');
+  assert.equal(await page.evaluate(()=>selected),null,
+    'Delete key left stale Connect selection');
+  assert.equal(await page.locator('#properties').count(),1,
+    'Properties panel disappeared after deleting a Connect wire');
+  checkErrors('Connect deletion through keyboard');
 
   // Regression: conductor Properties must initialize parallel-count handlers
   // even when the wire has no label.
