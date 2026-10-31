@@ -529,12 +529,13 @@ function removeInvalidPlanWallJoints(){
   wall.wallJoints=wall.wallJoints.filter(j=>valid.has(j.wallId)&&j.wallId!==wall.id&&[-1,1].includes(j.side)&&[-1,1].includes(j.otherSide));
 }
 function syncPlanWallJoints(source){
- if(source.type!=='planwall'||!source.wallJoints?.length)return;
+ if(source.type!=='planwall'||!source.wallJoints?.length)return true;
  const visited=new Set([source.id]),queue=[source],walls=new Map(nodes.filter(n=>n.type==='planwall').map(n=>[n.id,n]));
  // A rigid translation is the only movement that can preserve every joint
  // in a closed room without silently stretching or rotating other walls.
  // First propagate through a spanning tree, then verify all remaining edges.
  const original=new Map([...walls].map(([id,w])=>[id,{x:w.x,y:w.y}]));
+ const sourceStart={x:source.x,y:source.y};
  while(queue.length){
   const wall=queue.shift();
   for(const joint of wall.wallJoints||[]){
