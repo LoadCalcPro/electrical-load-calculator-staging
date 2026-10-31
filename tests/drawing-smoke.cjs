@@ -1459,6 +1459,22 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View angled-wall resize rejection');
 
+  // Exercise the independent width/height controls in the Properties panel.
+  const axesIds=await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:450,y:320,wallLengthIn:100,wallAngle:0};
+    nodes.push(wall);selected={kind:'node',id:wall.id};mode='select';render();
+    return wall.id;
+  });
+  await page.locator('#properties [data-wall-group-width]').fill('140');
+  await page.locator('#properties [data-wall-group-height]').fill('80');
+  await page.locator('#properties [data-wall-group-axes]').click();
+  const axesLength=await page.evaluate(id=>{
+    const wall=nodes.find(n=>n.id===id),length=wall.wallLengthIn;
+    nodes=nodes.filter(n=>n.id!==id);selected=null;render();return length;
+  },axesIds);
+  assert.ok(Math.abs(axesLength-140)<0.01,'Properties independent width control did not resize horizontal wall');
+  checkErrors('Plan View independent width and height Properties control');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
