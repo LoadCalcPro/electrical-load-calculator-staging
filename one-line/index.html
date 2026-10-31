@@ -555,6 +555,13 @@ function resizeConnectedPlanWalls(root,percent){
  }
  for(const {node,offset} of offsets)node.wallOffset=(Number(offset)||0)*factor;
  let valid=true;
+ // Do not silently detach a door or window when shrinking a wall below
+ // the opening's actual physical width.
+ for(const {node} of offsets){
+  const wall=byId.get(node.attachedWallId);
+  const width=Math.max(1,Number(node.type==='plandoor'?node.doorWidthIn:node.windowWidthIn)||36);
+  if(!wall||width>wall.wallLengthIn)valid=false;
+ }
  // Reject a resize that pushes any wall endpoint outside the drawing sheet.
  // Do not clamp individual walls: that would separate their shared corners.
  const bottomLimit=sheetDrawingBottom();
