@@ -1367,6 +1367,30 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View connected-room uniform resize');
 
+  // Exercise the actual connected-wall resize button in Properties.
+  const groupIds=await page.evaluate(()=>{
+    const px=planUnitsPerInch(),h=50*px;
+    const a={id:next++,type:'planwall',x:420,y:350,wallLengthIn:100,wallAngle:0};
+    const b={id:next++,type:'planwall',x:420+h,y:350+h,wallLengthIn:100,wallAngle:90};
+    nodes.push(a,b);registerPlanWallJoint(a,b,1,-1);
+    selected={kind:'node',id:a.id};mode='select';render();
+    return {a:a.id,b:b.id};
+  });
+  await page.locator('#properties [data-wall-group-percent]').fill('150');
+  await page.locator('#properties [data-wall-group-resize]').click();
+  const resized=await page.evaluate(ids=>{
+    const a=nodes.find(n=>n.id===ids.a),b=nodes.find(n=>n.id===ids.b);
+    const result={lengthA:a.wallLengthIn,lengthB:b.wallLengthIn,
+      gap:Math.hypot(planWallEndpoint(a,1).x-planWallEndpoint(b,-1).x,
+        planWallEndpoint(a,1).y-planWallEndpoint(b,-1).y)};
+    nodes=nodes.filter(n=>n.id!==ids.a&&n.id!==ids.b);selected=null;render();
+    return result;
+  },groupIds);
+  assert.ok(Math.abs(resized.lengthA-150)<0.01&&Math.abs(resized.lengthB-150)<0.01,
+    'Properties resize did not update both connected walls');
+  assert.ok(resized.gap<0.01,'Properties resize broke the shared wall endpoint');
+  checkErrors('Plan View Properties connected-wall resize');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
