@@ -1306,6 +1306,21 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View free wall geometry');
 
+  // One endpoint must not be joined to two different wall endpoints.
+  await page.evaluate(()=>{
+    const a={id:next++,type:'planwall',x:250,y:300,wallLengthIn:60,wallAngle:0};
+    const b={id:next++,type:'planwall',x:330,y:300,wallLengthIn:60,wallAngle:0};
+    const c={id:next++,type:'planwall',x:330,y:370,wallLengthIn:60,wallAngle:90};
+    nodes.push(a,b,c);
+    if(registerPlanWallJoint(a,b,1,-1)!==true)throw Error('Valid wall joint rejected');
+    if(registerPlanWallJoint(a,c,1,-1)!==false)throw Error('Conflicting wall endpoint joint accepted');
+    if(registerPlanWallJoint(a,b,1,-1)!==true)throw Error('Duplicate existing wall joint rejected');
+    if(a.wallJoints.length!==1||b.wallJoints.length!==1||c.wallJoints?.length)
+      throw Error('Conflicting wall joint mutated the connection graph');
+    nodes=nodes.filter(n=>![a.id,b.id,c.id].includes(n.id));render();
+  });
+  checkErrors('Plan View conflicting wall endpoint prevention');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
