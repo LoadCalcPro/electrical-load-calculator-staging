@@ -1067,6 +1067,20 @@ const fs = require('node:fs');
     assert.equal(await page.evaluate(id=>wires.find(w=>w.id===id)?.routeStyle,routeWireId),style);
     checkErrors('Connect routing transition '+style);
   }
+  // After cycling through U and bend modes, Automatic must restore a single
+  // vertical segment and must not expose the unwanted middle bend handle.
+  const restoredAuto=await page.evaluate(id=>{
+    const w=wires.find(w=>w.id===id);
+    const a=nodes.find(n=>n.id===w.from),b=nodes.find(n=>n.id===w.to);
+    return {path:feederPath(a,b,w),fromSide:w.fromSide,toSide:w.toSide};
+  },routeWireId);
+  assert.equal(restoredAuto.fromSide,'bottom');
+  assert.equal(restoredAuto.toSide,'top');
+  assert.equal(restoredAuto.path.handle,null,'Restored vertical Automatic route has an unwanted bend handle');
+  assert.match(restoredAuto.path.d,/^M[-\\d.]+ [-\\d.]+L[-\\d.]+ [-\\d.]+$/,
+    'Restored vertical Automatic route is not a single segment');
+  checkErrors('Connect Automatic after U-route transitions');
+
   await page.evaluate(id=>{wires=wires.filter(w=>w.id!==id);render();},routeWireId);
   checkErrors('Connect removal with stale selection');
 
