@@ -1131,6 +1131,27 @@ const fs = require('node:fs');
     'Measure Nearest Wall selected a closer center instead of the closest wall segment');
   checkErrors('Plan View Measure Nearest Wall');
 
+  // A diagonal wall must be selected by segment proximity, not center proximity.
+  const diagonalResult=await page.evaluate(()=>{
+    const px=planUnitsPerInch();
+    const wall={id:next++,type:'planwall',x:500,y:460,wallLengthIn:160,wallAngle:45};
+    const offset=65*px/Math.sqrt(2);
+    const dim={id:next++,type:'plandimension',x:500+offset,y:460+offset,dimensionLengthIn:10,dimensionAngle:0};
+    const decoy={id:next++,type:'planwall',x:dim.x+18,y:dim.y+45,wallLengthIn:12,wallAngle:0};
+    nodes.push(wall,decoy,dim);selected={kind:'node',id:dim.id};render();
+    return {wallId:wall.id,dimensionId:dim.id};
+  });
+  await page.locator('#properties [data-dimension-match-wall]').click();
+  const diagonalMeasurement=await page.evaluate(ids=>{
+    const n=nodes.find(v=>v.id===ids.dimensionId);
+    return {wallId:n.dimensionWallId,length:n.dimensionLengthIn,angle:n.dimensionAngle};
+  },diagonalResult);
+  assert.equal(diagonalMeasurement.wallId,diagonalResult.wallId,
+    'Nearest-wall measurement missed a diagonal wall');
+  assert.equal(diagonalMeasurement.length,160);
+  assert.equal(diagonalMeasurement.angle,45);
+  checkErrors('Plan View diagonal nearest-wall measurement');
+
   // Two-point measurement must enter its own Plan View mode and cancel cleanly.
   await page.locator('#planTwoPointDimension').click();
   assert.equal(await page.evaluate(()=>mode),'plan-two-point-dimension',
