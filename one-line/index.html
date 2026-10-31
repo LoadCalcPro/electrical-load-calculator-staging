@@ -1605,7 +1605,7 @@ if((w.routeStyle==='straight'||w.routeStyle==='auto')&&!e.altKey){
  const vertical=['top','bottom'].includes(fs.side)&&['top','bottom'].includes(ts.side);
  const overlap=horizontal?Math.min(a.y+bounds(a).b,b.y+bounds(b).b)-Math.max(a.y-bounds(a).t,b.y-bounds(b).t):
    vertical?Math.min(a.x+bounds(a).r,b.x+bounds(b).r)-Math.max(a.x-bounds(a).l,b.x-bounds(b).l):-1;
- if(overlap>=0&&(horizontal||vertical)){
+ if(overlap>=0&&(horizontal||vertical)&&/^M\s*-?[\d.]+\s+-?[\d.]+L\s*-?[\d.]+\s+-?[\d.]+$/.test(r.d)){
   const routePath=e.target.closest('[data-wire]')?.querySelector('path.wire');
   const length=routePath?.getTotalLength?.()||0;
   let near=false;
