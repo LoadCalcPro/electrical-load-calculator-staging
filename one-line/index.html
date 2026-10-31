@@ -1054,6 +1054,7 @@ function moveEquipmentTarget(n,dragState,point){
  if(dragState.resize)return false;
  n.x=point.x-dragState.dx;
  n.y=alignedLadderY(n,point.y-dragState.dy);
+ snapPlanOpeningToWall(n);
  clampEquipmentToSheet(n);
  syncLadderLines();
  return true;
