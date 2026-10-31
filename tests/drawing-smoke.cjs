@@ -1295,6 +1295,17 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View reject inconsistent closed-room rotation');
 
+  // Free walls should accept geometry changes without a joint graph.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:350,y:380,wallLengthIn:120,wallAngle:0};
+    nodes.push(wall);
+    wall.wallLengthIn=144;wall.wallAngle=30;
+    if(syncPlanWallJoints(wall)!==true)throw Error('Free wall geometry update was rejected');
+    if(wall.wallLengthIn!==144||wall.wallAngle!==30)throw Error('Free wall geometry changed unexpectedly');
+    nodes=nodes.filter(n=>n.id!==wall.id);render();
+  });
+  checkErrors('Plan View free wall geometry');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
