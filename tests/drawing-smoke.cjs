@@ -1445,6 +1445,20 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View independent rectangular room dimensions');
 
+  // Angled walls must not be distorted by independent X/Y scaling.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:470,y:330,wallLengthIn:120,wallAngle:45};
+    nodes.push(wall);
+    const original={x:wall.x,y:wall.y,length:wall.wallLengthIn,angle:wall.wallAngle};
+    if(resizeConnectedPlanWallsAxes(wall,150,75)!==false)
+      throw Error('Non-axis-aligned wall accepted independent X/Y resizing');
+    if(wall.x!==original.x||wall.y!==original.y||
+       wall.wallLengthIn!==original.length||wall.wallAngle!==original.angle)
+      throw Error('Rejected angled-wall resize modified geometry');
+    nodes=nodes.filter(n=>n.id!==wall.id);render();
+  });
+  checkErrors('Plan View angled-wall resize rejection');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
