@@ -990,6 +990,42 @@ const fs = require('node:fs');
   checkErrors('Drawing-line Properties selection transitions');
 
 
+  // Polyline regression: shared pre-draw settings, selected Properties, and
+  // finishing via double-click must not create an extra point.
+  await page.locator('#polyMode').click();
+  assert.equal(await page.locator('#newLineWeight').count(),1,
+    'Polyline thickness is missing before drawing');
+  assert.equal(await page.locator('#newLinePattern').count(),1,
+    'Polyline pattern is missing before drawing');
+  await page.locator('#newLineWeight').fill('2.4');
+  await page.locator('#newLineWeight').dispatchEvent('change');
+  await page.locator('#newLinePattern').selectOption('dotted');
+  const polyId=await page.evaluate(()=>{
+    const id=next++;
+    polyRoutes.push({id,kind:'polyline',points:[{x:160,y:150},{x:260,y:150},{x:260,y:250}],
+      colors:['#111111'],spacing:8,lineStyle:'custom',lineWeight:newDrawingLineWeight,
+      width:newDrawingLineWeight,strokePattern:newDrawingLinePattern});
+    selected={kind:'polyroute',id};mode='select';render();
+    return id;
+  });
+  assert.equal(await page.locator('#properties #polyLabel').count(),1,
+    'Polyline Properties did not render after selection');
+  assert.equal(await page.locator('#properties #polyThickness').count(),0,
+    'Duplicate Polyline thickness field returned');
+  assert.equal(await page.locator('#properties [data-weight-value]').count(),1,
+    'Shared Polyline line-weight field is missing');
+  assert.equal(await page.locator('#properties #polySpacing').count(),0,
+    'Single-conductor Polyline must not show spacing');
+  assert.equal(await page.evaluate(id=>polyRoutes.find(p=>p.id===id)?.lineWeight,polyId),2.4);
+  assert.equal(await page.evaluate(id=>polyRoutes.find(p=>p.id===id)?.strokePattern,polyId),'dotted');
+  await page.evaluate(id=>{
+    const p=polyRoutes.find(p=>p.id===id);
+    p.colors.push('#ff0000');selected={kind:'polyroute',id};render();
+  },polyId);
+  assert.equal(await page.locator('#properties #polySpacing').count(),1,
+    'Multi-conductor Polyline must show spacing');
+  checkErrors('Polyline Properties consistency');
+
   // Regression: conductor Properties must initialize parallel-count handlers
   // even when the wire has no label.
   const unlabeledWireId=await page.evaluate(()=>{
