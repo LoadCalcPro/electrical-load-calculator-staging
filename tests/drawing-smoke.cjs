@@ -1490,6 +1490,22 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View preserve off-center opening on resize');
 
+  // Invalid room scale inputs must not change any wall geometry.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:450,y:300,wallLengthIn:96,wallAngle:0};
+    nodes.push(wall);
+    for(const [x,y] of [[0,100],[100,0],[-50,100],[100,Infinity],[NaN,100],[301,100]]){
+      if(resizeConnectedPlanWallsAxes(wall,x,y)!==false)
+        throw Error('Invalid room scale accepted: '+x+', '+y);
+      if(wall.x!==450||wall.y!==300||wall.wallLengthIn!==96)
+        throw Error('Invalid room scale changed wall geometry');
+    }
+    if(resizeConnectedPlanWallsAxes(wall,100,100)!==true)
+      throw Error('100% resize should be a safe no-op');
+    nodes=nodes.filter(n=>n.id!==wall.id);render();
+  });
+  checkErrors('Plan View invalid and no-op resize percentages');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
