@@ -1046,6 +1046,30 @@ const fs = require('node:fs');
   }
   checkErrors('Connect automatic horizontal and vertical routing');
 
+  // Selected Connect must retain Properties and selection when changing
+  // between all routing modes, including after a vertical U-shape.
+  const routeWireId=await page.evaluate(()=>{
+    const a={id:next++,type:'panel',x:380,y:170,scaleX:1,scaleY:1};
+    const b={id:next++,type:'panel',x:380,y:510,scaleX:1,scaleY:1};
+    nodes.push(a,b);
+    const id=next++;
+    wires.push({id,from:a.id,to:b.id,fromSide:'right',toSide:'right',
+      routeStyle:'right',routeOffset:550,label:'vertical test'});
+    selected={kind:'wire',id};mode='select';render();
+    return id;
+  });
+  for(const style of ['auto','straight','bend','up','down','left','right','auto']){
+    await page.locator('#properties [data-route-style]').selectOption(style);
+    assert.deepEqual(await page.evaluate(id=>selected&&{kind:selected.kind,id:selected.id},routeWireId),
+      {kind:'wire',id:routeWireId},'Connect selection disappeared after '+style);
+    assert.equal(await page.locator('#properties [data-route-style]').count(),1,
+      'Connect routing Properties disappeared after '+style);
+    assert.equal(await page.evaluate(id=>wires.find(w=>w.id===id)?.routeStyle,routeWireId),style);
+    checkErrors('Connect routing transition '+style);
+  }
+  await page.evaluate(id=>{wires=wires.filter(w=>w.id!==id);render();},routeWireId);
+  checkErrors('Connect removal with stale selection');
+
   // Regression: conductor Properties must initialize parallel-count handlers
   // even when the wire has no label.
   const unlabeledWireId=await page.evaluate(()=>{
