@@ -1419,6 +1419,32 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View resize smaller than attached door');
 
+  // Independent X/Y room resizing must preserve the four connected corners.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch(),hx=60*px,hy=40*px;
+    const top={id:next++,type:'planwall',x:490,y:320,wallLengthIn:120,wallAngle:0};
+    const right={id:next++,type:'planwall',x:490+hx,y:320+hy,wallLengthIn:80,wallAngle:90};
+    const bottom={id:next++,type:'planwall',x:490,y:320+2*hy,wallLengthIn:120,wallAngle:0};
+    const left={id:next++,type:'planwall',x:490-hx,y:320+hy,wallLengthIn:80,wallAngle:90};
+    const window={id:next++,type:'planwindow',x:top.x,y:top.y,windowWidthIn:30,windowAngle:0,attachedWallId:top.id,wallOffset:0};
+    nodes.push(top,right,bottom,left,window);
+    registerPlanWallJoint(top,right,1,-1);
+    registerPlanWallJoint(right,bottom,1,1);
+    registerPlanWallJoint(bottom,left,-1,1);
+    registerPlanWallJoint(left,top,-1,-1);
+    if(resizeConnectedPlanWallsAxes(top,125,75)!==true)throw Error('Independent rectangular room resize rejected');
+    if(Math.abs(top.wallLengthIn-150)>0.01||Math.abs(bottom.wallLengthIn-150)>0.01||
+       Math.abs(left.wallLengthIn-60)>0.01||Math.abs(right.wallLengthIn-60)>0.01)
+      throw Error('Independent room dimensions incorrect');
+    for(const wall of [top,right,bottom,left])for(const joint of wall.wallJoints){
+      const other=nodes.find(n=>n.id===joint.wallId),a=planWallEndpoint(wall,joint.side),b=planWallEndpoint(other,joint.otherSide);
+      if(Math.hypot(a.x-b.x,a.y-b.y)>0.01)throw Error('Independent room resize separated corners');
+    }
+    if(window.windowWidthIn!==30||window.attachedWallId!==top.id)throw Error('Window width or attachment lost');
+    nodes=nodes.filter(n=>![top.id,right.id,bottom.id,left.id,window.id].includes(n.id));render();
+  });
+  checkErrors('Plan View independent rectangular room dimensions');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
