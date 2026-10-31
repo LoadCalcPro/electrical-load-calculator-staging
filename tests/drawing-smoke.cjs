@@ -1077,7 +1077,7 @@ const fs = require('node:fs');
   assert.equal(restoredAuto.fromSide,'bottom');
   assert.equal(restoredAuto.toSide,'top');
   assert.equal(restoredAuto.path.handle,null,'Restored vertical Automatic route has an unwanted bend handle');
-  assert.match(restoredAuto.path.d,/^M[-\\d.]+ [-\\d.]+L[-\\d.]+ [-\\d.]+$/,
+  assert.match(restoredAuto.path.d,/^M-?[0-9.]+ -?[0-9.]+L-?[0-9.]+ -?[0-9.]+$/,
     'Restored vertical Automatic route is not a single segment');
   checkErrors('Connect Automatic after U-route transitions');
 
