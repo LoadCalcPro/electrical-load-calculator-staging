@@ -1339,6 +1339,34 @@ const fs = require('node:fs');
   assert.deepEqual(disconnected,{a:0,b:0},'Wall disconnect left stale reciprocal joints');
   checkErrors('Plan View disconnect wall joints');
 
+  // Resize a closed rectangular wall group and retain joints and opening sizes.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch(),h=48*px;
+    const top={id:next++,type:'planwall',x:480,y:330,wallLengthIn:96,wallAngle:0};
+    const right={id:next++,type:'planwall',x:480+h,y:330+h,wallLengthIn:96,wallAngle:90};
+    const bottom={id:next++,type:'planwall',x:480,y:330+2*h,wallLengthIn:96,wallAngle:0};
+    const left={id:next++,type:'planwall',x:480-h,y:330+h,wallLengthIn:96,wallAngle:90};
+    const door={id:next++,type:'plandoor',x:top.x,y:top.y,doorWidthIn:36,doorAngle:0,attachedWallId:top.id,wallOffset:0};
+    nodes.push(top,right,bottom,left,door);
+    registerPlanWallJoint(top,right,1,-1);
+    registerPlanWallJoint(right,bottom,1,1);
+    registerPlanWallJoint(bottom,left,-1,1);
+    registerPlanWallJoint(left,top,-1,-1);
+    if(resizeConnectedPlanWalls(top,125)!==true)throw Error('Connected-room resizing failed');
+    for(const wall of [top,right,bottom,left]){
+      if(Math.abs(wall.wallLengthIn-120)>0.001)throw Error('Wall length not resized uniformly');
+      for(const joint of wall.wallJoints){
+        const other=nodes.find(n=>n.id===joint.wallId);
+        const a=planWallEndpoint(wall,joint.side),b=planWallEndpoint(other,joint.otherSide);
+        if(Math.hypot(a.x-b.x,a.y-b.y)>0.01)throw Error('Connected-room resize broke a corner');
+      }
+    }
+    if(door.doorWidthIn!==36||Math.hypot(door.x-top.x,door.y-top.y)>0.01)
+      throw Error('Door changed width or lost wall attachment');
+    nodes=nodes.filter(n=>![top.id,right.id,bottom.id,left.id,door.id].includes(n.id));render();
+  });
+  checkErrors('Plan View connected-room uniform resize');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
