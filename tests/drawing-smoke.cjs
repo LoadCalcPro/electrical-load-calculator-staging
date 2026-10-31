@@ -1114,6 +1114,22 @@ const fs = require('node:fs');
     checkErrors('Unlabeled conductor Properties');
   }
 
+  // Plan View: nearest-wall selection must compare full rotated wall segments,
+  // not only wall centers. The long wall is closest at its far endpoint.
+  await page.locator('[data-drawing-tab="plan"]').click();
+  const nearestDimensionId=await page.evaluate(()=>{
+    const longWall={id:next++,type:'planwall',x:400,y:300,wallLengthIn:240,wallAngle:0,scaleX:1,scaleY:1};
+    const misleadingWall={id:next++,type:'planwall',x:650,y:360,wallLengthIn:24,wallAngle:0,scaleX:1,scaleY:1};
+    const dimension={id:next++,type:'plandimension',x:625,y:300,dimensionLengthIn:12,dimensionAngle:0,dimensionOffset:25};
+    nodes.push(longWall,misleadingWall,dimension);
+    selected={kind:'node',id:dimension.id};mode='select';render();
+    return {dimensionId:dimension.id,longWallId:longWall.id};
+  });
+  await page.locator('#properties [data-dimension-match-wall]').click();
+  assert.equal(await page.evaluate(ids=>nodes.find(n=>n.id===ids.dimensionId).dimensionWallId,nearestDimensionId),nearestDimensionId.longWallId,
+    'Measure Nearest Wall selected a closer center instead of the closest wall segment');
+  checkErrors('Plan View Measure Nearest Wall');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
