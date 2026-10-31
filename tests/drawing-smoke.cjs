@@ -1026,6 +1026,26 @@ const fs = require('node:fs');
     'Multi-conductor Polyline must show spacing');
   checkErrors('Polyline Properties consistency');
 
+  // Connect routing regression: Automatic must produce a single straight
+  // segment for vertically or horizontally aligned equipment, not a 90 bend.
+  const connectPaths=await page.evaluate(()=>{
+    const upper={id:-11,type:'panel',x:400,y:200,scaleX:1,scaleY:1};
+    const lower={id:-12,type:'panel',x:400,y:500,scaleX:1,scaleY:1};
+    const left={id:-13,type:'panel',x:180,y:350,scaleX:1,scaleY:1};
+    const right={id:-14,type:'panel',x:650,y:350,scaleX:1,scaleY:1};
+    return {
+      vertical:feederPath(upper,lower,{routeStyle:'auto',fromSide:'bottom',toSide:'top'}),
+      horizontal:feederPath(left,right,{routeStyle:'auto',fromSide:'right',toSide:'left'}),
+      straight:feederPath(left,right,{routeStyle:'straight',fromSide:'right',toSide:'left'})
+    };
+  });
+  for(const [name,path] of Object.entries(connectPaths)){
+    assert.equal(path.handle,null,name+' Connect should not have a bend handle');
+    assert.match(path.d,/^M[-\\d.]+ [-\\d.]+L[-\\d.]+ [-\\d.]+$/,
+      name+' Connect should consist of one straight segment');
+  }
+  checkErrors('Connect automatic horizontal and vertical routing');
+
   // Regression: conductor Properties must initialize parallel-count handlers
   // even when the wire has no label.
   const unlabeledWireId=await page.evaluate(()=>{
