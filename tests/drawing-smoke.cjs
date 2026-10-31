@@ -1407,6 +1407,18 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View room resize boundary rollback');
 
+  // Shrinking below an opening's physical width must reject and roll back.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:450,y:300,wallLengthIn:60,wallAngle:0};
+    const door={id:next++,type:'plandoor',x:450,y:300,doorWidthIn:36,doorAngle:0,attachedWallId:wall.id,wallOffset:0};
+    nodes.push(wall,door);
+    if(resizeConnectedPlanWalls(wall,50)!==false)throw Error('Wall resized below attached door width');
+    if(wall.wallLengthIn!==60||door.attachedWallId!==wall.id||door.doorWidthIn!==36)
+      throw Error('Rejected resize changed wall length or detached the door');
+    nodes=nodes.filter(n=>n.id!==wall.id&&n.id!==door.id);render();
+  });
+  checkErrors('Plan View resize smaller than attached door');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
