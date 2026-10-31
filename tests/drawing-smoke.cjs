@@ -1475,6 +1475,21 @@ const fs = require('node:fs');
   assert.ok(Math.abs(axesLength-140)<0.01,'Properties independent width control did not resize horizontal wall');
   checkErrors('Plan View independent width and height Properties control');
 
+  // An off-center opening must not be silently moved by a room shrink.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch();
+    const wall={id:next++,type:'planwall',x:450,y:320,wallLengthIn:100,wallAngle:0};
+    const window={id:next++,type:'planwindow',x:450+35*px,y:320,windowWidthIn:30,windowAngle:0,attachedWallId:wall.id,wallOffset:35*px};
+    nodes.push(wall,window);
+    const before={length:wall.wallLengthIn,offset:window.wallOffset,x:window.x};
+    if(resizeConnectedPlanWalls(wall,50)!==false)throw Error('Resize accepted an opening that no longer fits at its position');
+    if(wall.wallLengthIn!==before.length||window.wallOffset!==before.offset||
+       window.x!==before.x||window.attachedWallId!==wall.id)
+      throw Error('Rejected resize moved or detached the off-center window');
+    nodes=nodes.filter(n=>n.id!==wall.id&&n.id!==window.id);render();
+  });
+  checkErrors('Plan View preserve off-center opening on resize');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
