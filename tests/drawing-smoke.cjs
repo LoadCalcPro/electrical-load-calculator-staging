@@ -1165,6 +1165,28 @@ const fs = require('node:fs');
     'Background calibration activated without an imported background');
   checkErrors('Plan View calibration requires a selected background');
 
+  // Calibrate a synthetic imported background against a known 120-inch span.
+  const calibration=await page.evaluate(()=>{
+    const im={kind:'calibration-smoke',src:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E',x:200,y:200,w:200,h:100,locked:false,opacity:1};
+    personalImages.push(im);selected={kind:'personalImage',id:im.kind};render();
+    document.querySelector('#calibrationInches').value='120';
+    document.querySelector('#calibrateBackground').click();
+    const svg=document.querySelector('#svg'),matrix=svg.getScreenCTM();
+    for(const [x,y] of [[220,220],[320,220]]){
+      const p=svg.createSVGPoint();p.x=x;p.y=y;const q=p.matrixTransform(matrix);
+      svg.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,button:0,clientX:q.x,clientY:q.y}));
+    }
+    const result={mode,width:im.w,height:im.h,expectedWidth:200*120*planUnitsPerInch()/100};
+    personalImages=personalImages.filter(v=>v.kind!==im.kind);selected=null;render();
+    return result;
+  });
+  assert.equal(calibration.mode,'select','Calibration did not return to select mode');
+  assert.ok(Math.abs(calibration.width-calibration.expectedWidth)<0.01,
+    'Background calibration did not scale by the known distance');
+  assert.ok(Math.abs(calibration.width/calibration.height-2)<0.001,
+    'Background calibration distorted image aspect ratio');
+  checkErrors('Plan View known-distance calibration');
+
   // Persistent wall joints: moving one joined wall should move its neighbor,
   // and an attached opening must continue to follow the neighbor.
   await page.evaluate(()=>{
