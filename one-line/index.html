@@ -2088,7 +2088,7 @@ function pasteDrawingObject(){
  if(kind==='personalImage'){item.kind='clipboard-'+next++;item.locked=false;item.x+=offset;item.y+=offset;personalImages.push(item);selected={kind,id:item.kind};}
  else if(kind==='wire'){item.id=next++;item.routeOffset=(Number(item.routeOffset)||0)+offset;wires.push(item);selected={kind,id:item.id};}
  else if(kind==='line'){item.id=next++;item.x1+=offset;item.y1+=offset;item.x2+=offset;item.y2+=offset;delete item.shapeConnection;drawnLines.push(item);selected={kind,id:item.id};selectedLineIds.clear();selectedLineIds.add(item.id);}
- else {item.id=next++;item.x+=offset;item.y+=offset;if(kind==='node')nodes.push(item);else annotations.push(item);selected={kind,id:item.id};}
+ else {item.id=next++;item.x+=offset;item.y+=offset;if(kind==='node'){if(item.type==='planwall')delete item.wallJoints;nodes.push(item);}else annotations.push(item);selected={kind,id:item.id};}
  mode='select';render();
  $('status').textContent='Object pasted. Drag it to position.';
 }
