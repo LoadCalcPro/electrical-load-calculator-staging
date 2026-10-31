@@ -1246,6 +1246,30 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View three-wall joint chain');
 
+  // A closed rectangular wall loop must remain joined under translation.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch(),half=60*px;
+    const top={id:next++,type:'planwall',x:480,y:350,wallLengthIn:120,wallAngle:0};
+    const right={id:next++,type:'planwall',x:480+half,y:350+half,wallLengthIn:120,wallAngle:90};
+    const bottom={id:next++,type:'planwall',x:480,y:350+2*half,wallLengthIn:120,wallAngle:0};
+    const left={id:next++,type:'planwall',x:480-half,y:350+half,wallLengthIn:120,wallAngle:90};
+    nodes.push(top,right,bottom,left);
+    registerPlanWallJoint(top,right,1,-1);
+    registerPlanWallJoint(right,bottom,1,1);
+    registerPlanWallJoint(bottom,left,-1,1);
+    registerPlanWallJoint(left,top,-1,-1);
+    const before=[right,bottom,left].map(w=>({x:w.x,y:w.y}));
+    top.x+=13;top.y+=9;
+    if(syncPlanWallJoints(top)!==true)throw Error('Closed room rejected a rigid translation');
+    [right,bottom,left].forEach((w,i)=>{
+      if(Math.abs(w.x-before[i].x-13)>0.01||Math.abs(w.y-before[i].y-9)>0.01)
+        throw Error('Closed room translation did not preserve all corners');
+    });
+    nodes=nodes.filter(n=>![top.id,right.id,bottom.id,left.id].includes(n.id));
+    removeInvalidPlanWallJoints();render();
+  });
+  checkErrors('Plan View closed wall loop translation');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
