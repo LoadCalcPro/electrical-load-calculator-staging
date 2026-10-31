@@ -1270,6 +1270,31 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View closed wall loop translation');
 
+  // A closed room must reject a one-wall rotation instead of shifting other
+  // walls into a broken loop.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch(),h=40*px;
+    const top={id:next++,type:'planwall',x:420,y:260,wallLengthIn:80,wallAngle:0};
+    const right={id:next++,type:'planwall',x:420+h,y:260+h,wallLengthIn:80,wallAngle:90};
+    const bottom={id:next++,type:'planwall',x:420,y:260+2*h,wallLengthIn:80,wallAngle:0};
+    const left={id:next++,type:'planwall',x:420-h,y:260+h,wallLengthIn:80,wallAngle:90};
+    nodes.push(top,right,bottom,left);
+    registerPlanWallJoint(top,right,1,-1);
+    registerPlanWallJoint(right,bottom,1,1);
+    registerPlanWallJoint(bottom,left,-1,1);
+    registerPlanWallJoint(left,top,-1,-1);
+    const original=[right,bottom,left].map(w=>({x:w.x,y:w.y}));
+    top.wallAngle=15;
+    if(syncPlanWallJoints(top)!==false)throw Error('Inconsistent closed-room rotation was accepted');
+    [right,bottom,left].forEach((w,i)=>{
+      if(Math.hypot(w.x-original[i].x,w.y-original[i].y)>0.001)
+        throw Error('Rejected closed-room edit still moved adjoining walls');
+    });
+    nodes=nodes.filter(n=>![top.id,right.id,bottom.id,left.id].includes(n.id));
+    removeInvalidPlanWallJoints();render();
+  });
+  checkErrors('Plan View reject inconsistent closed-room rotation');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
