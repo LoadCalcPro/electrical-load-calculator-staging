@@ -1391,6 +1391,22 @@ const fs = require('node:fs');
   assert.ok(resized.gap<0.01,'Properties resize broke the shared wall endpoint');
   checkErrors('Plan View Properties connected-wall resize');
 
+  // A room resize extending outside the sheet must roll back every wall and opening.
+  await page.evaluate(()=>{
+    const px=planUnitsPerInch(),half=40*px;
+    const a={id:next++,type:'planwall',x:950-half,y:260,wallLengthIn:80,wallAngle:0};
+    const b={id:next++,type:'planwall',x:950,y:260+half,wallLengthIn:80,wallAngle:90};
+    const opening={id:next++,type:'planwindow',x:a.x,y:a.y,windowWidthIn:24,windowAngle:0,attachedWallId:a.id,wallOffset:0};
+    nodes.push(a,b,opening);registerPlanWallJoint(a,b,1,-1);
+    const original=[a.x,a.y,a.wallLengthIn,b.x,b.y,b.wallLengthIn,opening.wallOffset];
+    if(resizeConnectedPlanWalls(a,200)!==false)throw Error('Out-of-bounds resize was accepted');
+    const after=[a.x,a.y,a.wallLengthIn,b.x,b.y,b.wallLengthIn,opening.wallOffset];
+    if(original.some((value,i)=>value!==after[i]))throw Error('Failed room resize did not roll back all changes');
+    if(opening.attachedWallId!==a.id||opening.windowWidthIn!==24)throw Error('Failed resize detached or resized window');
+    nodes=nodes.filter(n=>![a.id,b.id,opening.id].includes(n.id));render();
+  });
+  checkErrors('Plan View room resize boundary rollback');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
