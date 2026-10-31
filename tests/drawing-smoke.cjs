@@ -1321,6 +1321,24 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View conflicting wall endpoint prevention');
 
+  // Disconnecting a wall from Properties must clear both ends of the joint.
+  const disconnectIds=await page.evaluate(()=>{
+    const a={id:next++,type:'planwall',x:320,y:380,wallLengthIn:100,wallAngle:0};
+    const b={id:next++,type:'planwall',x:320+100*planUnitsPerInch(),y:380,wallLengthIn:100,wallAngle:0};
+    nodes.push(a,b);registerPlanWallJoint(a,b,1,-1);
+    selected={kind:'node',id:a.id};render();
+    return {a:a.id,b:b.id};
+  });
+  await page.locator('#properties [data-wall-disconnect]').click();
+  const disconnected=await page.evaluate(ids=>{
+    const a=nodes.find(n=>n.id===ids.a),b=nodes.find(n=>n.id===ids.b);
+    const result={a:a.wallJoints?.length||0,b:b.wallJoints?.length||0};
+    nodes=nodes.filter(n=>n.id!==ids.a&&n.id!==ids.b);selected=null;render();
+    return result;
+  },disconnectIds);
+  assert.deepEqual(disconnected,{a:0,b:0},'Wall disconnect left stale reciprocal joints');
+  checkErrors('Plan View disconnect wall joints');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
