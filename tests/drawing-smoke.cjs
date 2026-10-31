@@ -949,8 +949,19 @@ const fs = require('node:fs');
   await page.evaluate(()=>render());
   assert.equal(await page.locator('#properties [data-line-prop="arrow"]').inputValue(),'both',
     'Line arrow selection reverted after Properties rerender');
-  const arrowSvg=await page.locator('#svg [data-drawn-line="'+arrowLineId+'"] path').count();
-  assert(arrowSvg>=4,'Arrowheads were not drawn at both ends');
+  const arrows=page.locator('#svg [data-drawn-line="'+arrowLineId+'"] [data-line-arrow]');
+  assert.equal(await arrows.count(),2,'Both ends must render two actual arrowheads');
+  assert.equal(await arrows.nth(0).getAttribute('data-line-arrow'),'start');
+  assert.equal(await arrows.nth(1).getAttribute('data-line-arrow'),'end');
+  // Vertical lines must render arrowheads too; a horizontal-only test missed
+  // the reported failure.
+  await page.evaluate(id=>{const l=drawnLines.find(x=>x.id===id);l.x2=l.x1;l.y2=l.y1+300;render();},arrowLineId);
+  assert.equal(await arrows.count(),2,'Vertical line lost one or both arrowheads');
+  for(const end of ['start','end']){
+    const arrow=page.locator('#svg [data-drawn-line="'+arrowLineId+'"] [data-line-arrow="'+end+'"]');
+    assert((await arrow.getAttribute('d'))?.includes(' Z'),'Vertical arrowhead is not a closed shape');
+    assert.notEqual(await arrow.getAttribute('fill'),'none','Vertical arrowhead is not filled');
+  }
   checkErrors('Drawing-line arrow persistence');
   // Exercise a second Properties rebuild and switching between selected
   // object kinds; this used to expose invalid insertBefore references.
