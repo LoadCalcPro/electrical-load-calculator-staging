@@ -1085,6 +1085,15 @@ function organizeEquipmentProperties(){
   symbolInput.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText.generatorLetter=symbolInput.value;activateEquipmentText(itemForInfo,'generatorLetter');renderCanvasOnly();toolbar.syncSelectedText?.();});
   symbolField.appendChild(symbolInput);info.appendChild(symbolField);
 }
+if(itemForInfo?.type==='surge'){
+ const symbolField=document.createElement('label');symbolField.className='field';symbolField.textContent='SPD lettering (inside enclosure)';
+ const symbolInput=document.createElement('input');symbolInput.type='text';symbolInput.dataset.innerText='surgeSymbol';symbolInput.value=itemForInfo.innerText?.surgeSymbol??'SPD';
+ symbolInput.placeholder='Leave blank to remove SPD';
+ symbolInput.addEventListener('focus',()=>{activateEquipmentText(itemForInfo,'surgeSymbol');toolbar.syncSelectedText?.();});
+ symbolInput.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText.surgeSymbol=symbolInput.value;activeInnerKey='surgeSymbol';renderCanvasOnly();toolbar.syncSelectedText?.();});
+ symbolField.appendChild(symbolInput);info.appendChild(symbolField);
+ const positionHint=document.createElement('p');positionHint.className='status';positionHint.textContent='To move SPD: select the lettering on the drawing and drag it, or select SPD lettering above and use the text position controls in Formatting. Clear the field to remove the lettering.';info.appendChild(positionHint);
+}
 if(itemForInfo?.type==='metercombo'){
  const layout=p.querySelector('.section:has(#comboBays)');
  if(layout){const layoutHome=document.createElement('section');layoutHome.className='meter-combo-layout';const heading=document.createElement('h4');heading.textContent='Bay and Compartment Layout';layoutHome.appendChild(heading);while(layout.firstChild){const child=layout.firstChild;if(child.tagName==='B'){child.remove();continue;}layoutHome.appendChild(child);}layout.remove();info.appendChild(layoutHome);}
