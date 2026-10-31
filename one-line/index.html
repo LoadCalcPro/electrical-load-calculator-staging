@@ -1278,7 +1278,7 @@ function standardizeDrawingProperties(){
  for(const field of fields){if(field.parentElement===p)advanced.appendChild(field);}
  // Insert the three standard sections together, ahead of advanced settings.
  for(const section of sections){if(section.children.length>1)p.appendChild(section);}
- if(advanced.children.length>1)p.appendChild(advanced);
+ if(advanced.children.length>1){p.appendChild(advanced);if(selected.kind==='polyroute'&&polyRoutes.find(route=>route.id===selected.id)?.kind==='polyline'){advanced.open=true;summary.style.cursor='default';summary.addEventListener('click',event=>event.preventDefault());advanced.addEventListener('toggle',()=>{if(!advanced.open)advanced.open=true;});}} 
 }
 const projectTextStyles={};let activeProjectText=null;
 function projectTextAttrs(key,size,x,y){
