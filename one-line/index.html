@@ -1246,7 +1246,13 @@ function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight,option
 // for rectangular enclosures; other symbols retain proportional resizing.
 function resizeEquipmentTarget(n,dragState,point){
  if(!n||!dragState?.resize)return false;
- const b=baseBounds(n),dx=Math.abs(point.x-dragState.originX),dy=Math.abs(point.y-dragState.originY);
+ const b=baseBounds(n);
+ // Convert the pointer into the same local coordinate system as the rotated
+ // selection handle. Screen-axis distances otherwise reverse at 90 degrees.
+ const angle=(n.type==='planwall'?Number(planWallGeometry(n).angle):Number(n.drawingRotation))||0;
+ const radians=angle*Math.PI/180,cos=Math.cos(radians),sin=Math.sin(radians);
+ const offsetX=point.x-dragState.originX,offsetY=point.y-dragState.originY;
+ const dx=Math.abs(offsetX*cos+offsetY*sin),dy=Math.abs(-offsetX*sin+offsetY*cos);
  const limit=v=>Math.max(.15,Math.min(4,v));
  const independent=['gutter','metercombo','panel','switchboard','disconnect','ats','meter','generator'];
  if(independent.includes(n.type)){
