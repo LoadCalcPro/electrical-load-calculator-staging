@@ -1566,6 +1566,27 @@ const fs = require('node:fs');
   },wallLabelId);
   checkErrors('Plan View independent wall label formatting');
 
+  // Wall symbol and teal outline must use identical rotation and physical dimensions.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:450,y:330,wallLengthIn:132,wallThicknessIn:8,wallAngle:0,name:'Wall'};
+    nodes.push(wall);selected={kind:'node',id:wall.id};mode='select';
+    for(const angle of [0,30,90,135,270]){
+      wall.wallAngle=angle;render();
+      const group=document.querySelector('#nodes [data-node="'+wall.id+'"]');
+      const symbol=group?.querySelector('.equipment-symbol > g');
+      const outline=group?.querySelector('rect[data-resize]')?.parentElement;
+      if(symbol?.getAttribute('transform')!=='rotate('+angle+')'||
+         outline?.getAttribute('transform')!=='rotate('+angle+')')
+        throw Error('Wall and selection rotations disagree at '+angle);
+      const g=planWallGeometry(wall),rect=outline.querySelector('rect');
+      if(Math.abs(Number(rect.getAttribute('width'))-(2*g.halfLength+4))>0.01||
+         Math.abs(Number(rect.getAttribute('height'))-(2*g.halfThickness+4))>0.01)
+        throw Error('Wall outline dimensions disagree with geometry at '+angle);
+    }
+    nodes=nodes.filter(n=>n.id!==wall.id);selected=null;render();
+  });
+  checkErrors('Plan View wall renderer and selection alignment');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
