@@ -1605,6 +1605,29 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View architectural window symbol');
 
+  // Architectural door: retain swing hand, angle and measured leaf length.
+  await page.evaluate(()=>{
+    const door={id:next++,type:'plandoor',x:470,y:330,doorWidthIn:36,doorAngle:0,doorHand:'left',name:'Door'};
+    nodes.push(door);selected={kind:'node',id:door.id};mode='select';
+    for(const angle of [0,90,180]){
+      for(const hand of ['left','right']){
+        door.doorAngle=angle;door.doorHand=hand;render();
+        const symbol=document.querySelector('#nodes [data-node="'+door.id+'"] [data-plan-door-symbol]');
+        if(!symbol||symbol.getAttribute('transform')!=='rotate('+angle+')')
+          throw Error('Architectural door rotation mismatch');
+        const paths=symbol.querySelectorAll('path');
+        const width=36*planUnitsPerInch()/(Number(door.scaleX)||1);
+        if(paths.length!==3||!paths[1].getAttribute('d').includes('H'+width))
+          throw Error('Architectural door leaf width mismatch');
+        const arc=paths[2].getAttribute('d');
+        if(!arc.includes('0 '+(hand==='right'?-width:width)))
+          throw Error('Architectural door swing hand mismatch');
+      }
+    }
+    nodes=nodes.filter(n=>n.id!==door.id);selected=null;render();
+  });
+  checkErrors('Plan View architectural door symbol');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
