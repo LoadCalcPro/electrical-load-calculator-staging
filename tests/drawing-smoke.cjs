@@ -1632,8 +1632,8 @@ const fs = require('node:fs');
   await page.mouse.down();
   await page.mouse.move(hx-20,hy+18,{steps:6});
   await page.mouse.up();
-  const resized=await page.evaluate(id=>{const n=nodes.find(n=>n.id===id);return {sx:n.scaleX,sy:n.scaleY}},pointerNodeId);
-  assert.ok(Math.abs(resized.sx-1)>.03||Math.abs(resized.sy-1)>.03,'Rotated panel resize should respond to pointer');
+  const rotatedPanelResized=await page.evaluate(id=>{const n=nodes.find(n=>n.id===id);return {sx:n.scaleX,sy:n.scaleY}},pointerNodeId);
+  assert.ok(Math.abs(rotatedPanelResized.sx-1)>.03||Math.abs(rotatedPanelResized.sy-1)>.03,'Rotated panel resize should respond to pointer');
   await page.evaluate(id=>{nodes=nodes.filter(n=>n.id!==id);selected=null;render()},pointerNodeId);
   checkErrors('Rotated equipment pointer drag and resize');
 
