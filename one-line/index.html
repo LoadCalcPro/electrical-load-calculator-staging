@@ -1250,6 +1250,21 @@ function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight,option
 // for rectangular enclosures; other symbols retain proportional resizing.
 function resizeEquipmentTarget(n,dragState,point){
  if(!n||!dragState?.resize)return false;
+ if(n.type==='planroom'){
+  // Room resizing changes real measured dimensions, not a visual-only SVG scale.
+  const angle=(Number(n.drawingRotation)||0)*Math.PI/180;
+  const ox=point.x-n.x,oy=point.y-n.y;
+  const localX=ox*Math.cos(angle)+oy*Math.sin(angle);
+  const localY=-ox*Math.sin(angle)+oy*Math.cos(angle);
+  const inchesPerUnit=Math.max(1,Number(n.roomLengthIn)||240)/320;
+  const width=Math.max(12,Math.round(2*Math.abs(localX)*inchesPerUnit));
+  const depth=Math.max(12,Math.round(2*Math.abs(localY)*inchesPerUnit));
+  n.roomLengthIn=width;
+  n.roomWidthIn=depth;
+  n.scaleX=1;n.scaleY=1;
+  clampEquipmentToSheet(n);
+  return true;
+ }
  if(n.type==='planwall'){
   // Wall grips edit measured length, not SVG scale or the wall's text size.
   const g=planWallGeometry(n),px=planUnitsPerInch();
