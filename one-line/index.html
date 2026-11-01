@@ -287,6 +287,16 @@ body:has(.suite-header) main>.center{min-width:0!important}
  body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{grid-template-columns:minmax(0,1fr)!important}
  body:has(.suite-header) main#drawingMain>.center{grid-column:auto!important}
 }
+/* Keep a visible, clickable reopen rail on either collapsed sidebar. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main#drawingMain.library-collapsed{grid-template-columns:34px minmax(0,1fr) clamp(195px,19vw,280px)!important}
+ body:has(.suite-header) main#drawingMain.inspector-collapsed{grid-template-columns:clamp(160px,16vw,225px) minmax(0,1fr) 34px!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{grid-template-columns:34px minmax(0,1fr) 34px!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed>#equipmentLibrary,
+ body:has(.suite-header) main#drawingMain.inspector-collapsed>#drawingInspector{display:block!important;visibility:visible!important;overflow:visible!important;min-width:0!important}
+ body:has(.suite-header) main#drawingMain.library-collapsed #toggleLibrary,
+ body:has(.suite-header) main#drawingMain.inspector-collapsed #toggleInspector{display:block!important;visibility:visible!important;position:absolute!important;z-index:3!important}
+}
 /* Keep the complete editor in the available screen instead of pushing it below the tabs. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main#drawingMain{height:calc(100dvh - 155px)!important;min-height:480px!important;overflow:hidden!important}
