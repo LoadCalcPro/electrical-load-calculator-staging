@@ -2057,7 +2057,8 @@ function sizeDrawingSheetForScroll(){
  const width=viewport.clientWidth-4;
  if(width<=0)return;
  const sheetHeight=sheetHeightUnits();
- const fittedWidth=Math.max(100,Math.min(width,viewport.clientHeight*1000/sheetHeight))*zoom;
+ // Use the available horizontal workspace; allow vertical scrolling instead of shrinking the sheet to fit the viewport height.
+ const fittedWidth=Math.max(100,width)*zoom;
  const fittedHeight=fittedWidth*sheetHeight/1000;
  svg.style.setProperty('width',fittedWidth+'px','important');
  svg.style.setProperty('height',fittedHeight+'px','important');
