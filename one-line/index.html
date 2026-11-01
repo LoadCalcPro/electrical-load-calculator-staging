@@ -799,16 +799,63 @@ $('svg').addEventListener('pointerdown',e=>{
 },true);
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='calibrate-background'){backgroundCalibration=null;mode='select';$('status').textContent='Background calibration cancelled.';render();}},true);
 let planTwoPointStart=null;
+let planDimensionSnapPreview=null;
+function planDimensionSnap(point,free=false){
+ if(free)return {...point,label:'Free Point',snapped:false};
+ const px=planUnitsPerInch(),candidates=[];
+ const offer=(x,y,label)=>{if(Number.isFinite(x)&&Number.isFinite(y))candidates.push({x,y,label,snapped:true});};
+ for(const n of nodes){
+  if(n.layerHidden||n.type==='plandimension')continue;
+  if(n.type==='planroom'){
+   const w=Math.max(1,Number(n.roomLengthIn??240))*px/2,h=Math.max(1,Number(n.roomWidthIn??144))*px/2,t=Math.max(0,Number(n.wallInches??6))*px;
+   for(const [halfW,halfH,label] of [[w,h,'Inside Wall Corner'],[w+t,h+t,'Outside Wall Corner']]){
+    for(const sx of [-1,1])for(const sy of [-1,1])offer(n.x+sx*halfW,n.y+sy*halfH,label);
+   }
+   for(const [y,label] of [[n.y-h,'Inside Wall Face'],[n.y+h,'Inside Wall Face'],[n.y-h-t,'Outside Wall Face'],[n.y+h+t,'Outside Wall Face']])offer(Math.max(n.x-w,Math.min(n.x+w,point.x)),y,label);
+   for(const [x,label] of [[n.x-w,'Inside Wall Face'],[n.x+w,'Inside Wall Face'],[n.x-w-t,'Outside Wall Face'],[n.x+w+t,'Outside Wall Face']])offer(x,Math.max(n.y-h,Math.min(n.y+h,point.y)),label);
+  }else if(n.type==='planwall'){
+   const g=planWallGeometry(n),ux=g.cos,uy=g.sin,vx=-uy,vy=ux;
+   for(const end of [-1,1]){
+    offer(n.x+end*g.halfLength*ux,n.y+end*g.halfLength*uy,'Wall Endpoint');
+    for(const face of [-1,1])offer(n.x+end*g.halfLength*ux+face*g.halfThickness*vx,n.y+end*g.halfLength*uy+face*g.halfThickness*vy,'Wall Corner');
+   }
+   const along=Math.max(-g.halfLength,Math.min(g.halfLength,(point.x-n.x)*ux+(point.y-n.y)*uy));
+   for(const face of [-1,1])offer(n.x+along*ux+face*g.halfThickness*vx,n.y+along*uy+face*g.halfThickness*vy,'Wall Face');
+  }else if(['plandoor','planwindow'].includes(n.type)){
+   const width=Math.max(1,Number(n.type==='plandoor'?n.doorWidthIn:n.windowWidthIn)||36)*px/2,angle=(Number(n.type==='plandoor'?n.doorAngle:n.windowAngle)||0)*Math.PI/180;
+   for(const side of [-1,1])offer(n.x+side*width*Math.cos(angle),n.y+side*width*Math.sin(angle),n.type==='plandoor'?'Door Edge':'Window Edge');
+  }else if(['planpanel','plantransformer','plangenerator','plansymbol'].includes(n.type)){
+   const b=baseBounds(n),sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;
+   for(const [x,y,label] of [[-b.l*sx,0,'Equipment Edge'],[b.r*sx,0,'Equipment Edge'],[0,-b.t*sy,'Equipment Edge'],[0,b.b*sy,'Equipment Edge'],[0,0,'Equipment Center']])offer(n.x+x,n.y+y,label);
+  }
+ }
+ let best=null,dist=14/Math.max(.25,zoom);
+ for(const c of candidates){const d=Math.hypot(c.x-point.x,c.y-point.y);if(d<dist){dist=d;best=c;}}
+ return best||{...point,label:'Free Point',snapped:false};
+}
+function showPlanDimensionSnap(point){
+ let marker=document.getElementById('planDimensionSnapMarker');
+ if(!marker){marker=document.createElementNS('http://www.w3.org/2000/svg','g');marker.id='planDimensionSnapMarker';marker.setAttribute('pointer-events','none');$('svg').appendChild(marker);}
+ const x=point.x,y=point.y,z=Math.max(.25,zoom),r=6/z;
+ marker.innerHTML='<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="white" stroke="#168c9a" stroke-width="'+2/z+'"/><path d="M'+(x-r*1.6)+' '+y+'h'+(r*3.2)+'M'+x+' '+(y-r*1.6)+'v'+(r*3.2)+'" stroke="#168c9a" stroke-width="'+1.5/z+'"/><text x="'+(x+10/z)+'" y="'+(y-12/z)+'" font-size="'+12/z+'" fill="#168c9a" stroke="white" stroke-width="'+3/z+'" paint-order="stroke">'+point.label+'</text>';
+}
+function clearPlanDimensionSnap(){document.getElementById('planDimensionSnapMarker')?.remove();planDimensionSnapPreview=null;}
+$('svg').addEventListener('pointermove',e=>{
+ if(mode!=='plan-two-point-dimension'||drawingView!=='plan')return;
+ planDimensionSnapPreview=planDimensionSnap(xy(e),e.altKey);
+ showPlanDimensionSnap(planDimensionSnapPreview);
+},true);
+
 document.addEventListener('click',e=>{
  if(!e.target.closest('#planTwoPointDimension'))return;
  mode='plan-two-point-dimension';planTwoPointStart=null;selected=null;
- $('status').textContent='Two-Point Dimension: click the first point, then the second point. Escape cancels.';
+ $('status').textContent='Two-Point Dimension: hover for Smart Snap, click two points. Hold Alt for Free Point; Escape cancels.';
  render();
 },true);
 $('svg').addEventListener('pointerdown',e=>{
  if(mode!=='plan-two-point-dimension'||drawingView!=='plan'||e.button!==0)return;
  e.preventDefault();e.stopImmediatePropagation();
- const p=xy(e);
+ const p=planDimensionSnap(xy(e),e.altKey);
  if(!planTwoPointStart){planTwoPointStart=p;$('status').textContent='Click the second measurement point.';return;}
  const dx=p.x-planTwoPointStart.x,dy=p.y-planTwoPointStart.y,length=Math.hypot(dx,dy);
  if(length>=1){
@@ -820,9 +867,9 @@ $('svg').addEventListener('pointerdown',e=>{
   clampEquipmentToSheet(n);
   delete n.dimensionWallId;
  }
- planTwoPointStart=null;mode='select';$('status').textContent='Two-point dimension created.';render();
+ planTwoPointStart=null;mode='select';clearPlanDimensionSnap();$('status').textContent='Two-point dimension created.';render();
 },true);
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='plan-two-point-dimension'){mode='select';planTwoPointStart=null;$('status').textContent='Two-point measurement cancelled.';render();}},true);
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='plan-two-point-dimension'){mode='select';planTwoPointStart=null;clearPlanDimensionSnap();$('status').textContent='Two-point measurement cancelled.';render();}},true);
 function xy(evt){const svg=$('svg'),matrix=svg.getScreenCTM();if(matrix){const point=svg.createSVGPoint();point.x=evt.clientX;point.y=evt.clientY;const local=point.matrixTransform(matrix.inverse());return {x:local.x,y:local.y};}const r=svg.getBoundingClientRect(),sheetH=1000/(sheetDimensions[$('paper').value]||sheetDimensions.letter)[0]*(sheetDimensions[$('paper').value]||sheetDimensions.letter)[1],scale=Math.min(r.width/1000,r.height/sheetH),ox=(r.width-1000*scale)/2,oy=(r.height-sheetH*scale)/2;return {x:((evt.clientX-r.left-ox)/scale)/zoom-panX,y:((evt.clientY-r.top-oy)/scale)/zoom-panY}}let snapOn=true;
  function ladderAttachment(pt){
  let best=null,dist=16;
