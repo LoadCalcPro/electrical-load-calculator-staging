@@ -1545,6 +1545,27 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View shared wall geometry across rotations');
 
+  // Wall label font and placement must not change physical wall geometry.
+  const wallLabelId=await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:450,y:330,wallLengthIn:120,wallThicknessIn:6,wallAngle:90,name:'Wall'};
+    nodes.push(wall);selected={kind:'node',id:wall.id};mode='select';render();return wall.id;
+  });
+  await page.locator('#properties [data-wall-name]').fill('EXTERIOR WALL');
+  await page.locator('#properties [data-wall-name-size]').fill('24');
+  await page.locator('#properties [data-wall-name-x]').fill('30');
+  await page.locator('#properties [data-wall-name-y]').fill('-20');
+  await page.evaluate(id=>{
+    const wall=nodes.find(n=>n.id===id),text=document.querySelector('#nodes [data-plan-name="'+id+'"]');
+    if(!text||text.textContent!=='EXTERIOR WALL'||text.getAttribute('font-size')!=='24'||
+       text.getAttribute('x')!=='30'||text.getAttribute('y')!=='-20')
+      throw Error('Wall label formatting was not applied');
+    if(wall.wallAngle!==90||wall.wallLengthIn!==120||wall.wallThicknessIn!==6)
+      throw Error('Wall label editing changed physical geometry');
+    if(text.hasAttribute('transform'))throw Error('Wall label rotated or scaled with wall');
+    nodes=nodes.filter(n=>n.id!==id);selected=null;render();
+  },wallLabelId);
+  checkErrors('Plan View independent wall label formatting');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
