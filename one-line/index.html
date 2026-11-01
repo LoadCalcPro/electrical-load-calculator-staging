@@ -2059,7 +2059,8 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
   });
  }
  toggle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setWorkspace(!workspaceMode);});
- if(window.matchMedia('(min-width:1000px)').matches)window.addEventListener('load',()=>setWorkspace(true),{once:true});
+ // Open in Full Page by default at every screen width. Drawing View remains available via the toggle.
+ window.addEventListener('load',()=>setWorkspace(false),{once:true});
 })();
 // Panels start open; users can temporarily reclaim drawing space independently.
 (function(){
