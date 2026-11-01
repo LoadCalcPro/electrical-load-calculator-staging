@@ -1522,6 +1522,29 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View rotated wall selection outline');
 
+  // Wall outline, hit bounds and endpoints must share one geometry model.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:450,y:330,wallLengthIn:120,wallThicknessIn:6,wallAngle:0};
+    nodes.push(wall);selected={kind:'node',id:wall.id};mode='select';
+    for(const angle of [0,45,90,180,270]){
+      wall.wallAngle=angle;render();
+      const geometry=planWallGeometry(wall),boundsValue=bounds(wall);
+      const expectedWidth=2*(Math.abs(geometry.cos)*geometry.halfLength+Math.abs(geometry.sin)*geometry.halfThickness);
+      const expectedHeight=2*(Math.abs(geometry.sin)*geometry.halfLength+Math.abs(geometry.cos)*geometry.halfThickness);
+      if(Math.abs(boundsValue.l+boundsValue.r-expectedWidth)>0.01||
+         Math.abs(boundsValue.t+boundsValue.b-expectedHeight)>0.01)
+        throw Error('Wall hit bounds mismatch at '+angle+' degrees');
+      const selection=document.querySelector('#nodes [data-node="'+wall.id+'"] rect[data-resize]')?.parentElement;
+      if(selection?.getAttribute('transform')!=='rotate('+angle+')')
+        throw Error('Wall selection rotation mismatch at '+angle+' degrees');
+      const left=planWallEndpoint(wall,-1),right=planWallEndpoint(wall,1);
+      if(Math.abs(Math.hypot(right.x-left.x,right.y-left.y)-2*geometry.halfLength)>0.01)
+        throw Error('Wall endpoint length mismatch at '+angle+' degrees');
+    }
+    nodes=nodes.filter(n=>n.id!==wall.id);selected=null;render();
+  });
+  checkErrors('Plan View shared wall geometry across rotations');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
