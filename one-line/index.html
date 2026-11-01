@@ -2059,8 +2059,20 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
   });
  }
  toggle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setWorkspace(!workspaceMode);});
- // Open in Full Page by default at every screen width. Drawing View remains available via the toggle.
- window.addEventListener('load',()=>setWorkspace(false),{once:true});
+ // Always restore the document to its top-level Full Page position at startup,
+ // including browser back/forward cache restores. Browsers may otherwise
+ // restore the previous Drawing View scroll position after the load event.
+ if('scrollRestoration' in history)history.scrollRestoration='manual';
+ const openFullPage=()=>{
+  workspaceMode=false;
+  toggle.textContent='Drawing View';
+  toggle.setAttribute('aria-pressed','false');
+  window.scrollTo(0,0);
+  requestAnimationFrame(()=>{window.scrollTo(0,0);sizeDrawingSheetForScroll();});
+ };
+ openFullPage();
+ window.addEventListener('load',openFullPage,{once:true});
+ window.addEventListener('pageshow',openFullPage);
 })();
 // Panels start open; users can temporarily reclaim drawing space independently.
 (function(){
