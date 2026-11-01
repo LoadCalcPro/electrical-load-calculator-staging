@@ -304,6 +304,8 @@ body:has(.suite-header) main>.center{min-width:0!important}
  body:has(.suite-header) main#drawingMain>.center>.workspace{flex:1 1 auto!important;min-height:0!important}
  body:has(.suite-header) main#drawingMain>.panel{min-height:0!important}
 }
+/* Prevent resize/scrollbar feedback when switching Full Page and Drawing View. */
+body:has(.suite-header) #viewport{scrollbar-gutter:stable!important;}
 /* Native viewport scrollbars are the sole drawing navigation controls. */
 body:has(.suite-header) .drawing-scroll-h,
 body:has(.suite-header) .drawing-scroll-v{display:none!important}
@@ -2064,6 +2066,7 @@ function updateSheetProportions(){const [w,h]=sheetDimensions[$('paper').value]|
 $('paper').addEventListener('change',updateSheetProportions);
 function sizeDrawingSheetForScroll(){
  const viewport=$('viewport'),svg=$('svg');if(!viewport||!svg)return;
+ // Reserve scrollbar space consistently so vertical overflow cannot toggle the usable width between frames.
  const width=viewport.clientWidth-4;
  if(width<=0)return;
  const sheetHeight=sheetHeightUnits();
@@ -2090,7 +2093,7 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
   requestAnimationFrame(()=>{
    pending=false;
    const width=viewport.clientWidth;
-   if(width<=0||Math.abs(width-lastWidth)<2)return;
+   if(width<=0||Math.abs(width-lastWidth)<4)return;
    const oldX=Math.max(0,viewport.scrollWidth-viewport.clientWidth);
    const oldY=Math.max(0,viewport.scrollHeight-viewport.clientHeight);
    const fractionX=oldX?viewport.scrollLeft/oldX:0;
