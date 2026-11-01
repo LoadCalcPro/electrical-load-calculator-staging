@@ -1587,6 +1587,24 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View wall renderer and selection alignment');
 
+  // Architectural window symbol keeps its measured width and orientation.
+  await page.evaluate(()=>{
+    const windowNode={id:next++,type:'planwindow',x:470,y:330,windowWidthIn:48,windowAngle:0,name:'Window'};
+    nodes.push(windowNode);selected={kind:'node',id:windowNode.id};mode='select';
+    for(const angle of [0,90,180]){
+      windowNode.windowAngle=angle;render();
+      const symbol=document.querySelector('#nodes [data-node="'+windowNode.id+'"] [data-plan-window-symbol]');
+      if(!symbol||symbol.getAttribute('transform')!=='rotate('+angle+')')
+        throw Error('Architectural window symbol rotation mismatch');
+      const path=symbol.querySelector('path');
+      const expected=48*planUnitsPerInch()/(Number(windowNode.scaleX)||1);
+      if(!path?.getAttribute('d')?.includes(String(-expected/2)))
+        throw Error('Architectural window width no longer follows scale');
+    }
+    nodes=nodes.filter(n=>n.id!==windowNode.id);selected=null;render();
+  });
+  checkErrors('Plan View architectural window symbol');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
