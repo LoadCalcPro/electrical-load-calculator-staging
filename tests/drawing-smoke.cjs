@@ -24,6 +24,7 @@ const fs = require('node:fs');
   assert.equal(await service.getAttribute('open'),'','Service should start expanded');
   await grounding.locator('summary').click();
   assert.equal(await grounding.getAttribute('open'),'','Grounding should expand');
+  await page.waitForFunction(()=>!document.querySelector('#library > details.equipment-category[open] summary')?.textContent?.includes('Service & Distribution'),null,{timeout:3000});
   assert.equal(await service.getAttribute('open'),null,'Opening grounding should collapse service');
   for(const type of ['ground','groundterminal','neutralterminal','electrode'])
     assert.equal(await grounding.locator('[data-add="'+type+'"]').count(),1,'Grounding item missing: '+type);
