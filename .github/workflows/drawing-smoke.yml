@@ -29,6 +29,8 @@ jobs:
           });
           if (!process.exitCode) console.log('All ' + scripts.length + ' inline editor scripts passed syntax validation.');
           NODE
+      - name: Check browser smoke test JavaScript syntax before installing Chromium
+        run: node --check tests/drawing-smoke.cjs
       - run: npm install --no-save playwright
       - name: Install Chromium with bounded runtime
         timeout-minutes: 8
