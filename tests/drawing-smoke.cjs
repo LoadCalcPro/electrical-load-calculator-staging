@@ -1587,6 +1587,25 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View wall renderer and selection alignment');
 
+  // Regression: hit targets and resize controls follow the visual rotation.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:480,y:330,wallLengthIn:120,wallThicknessIn:6,wallAngle:90,name:'Wall'};
+    const equipment={id:next++,type:'panel',x:600,y:350,drawingRotation:90,scaleX:1,scaleY:1,name:'Panel'};
+    nodes.push(wall,equipment);
+    for(const item of [wall,equipment]){
+      selected={kind:'node',id:item.id};render();
+      const node=document.querySelector('#nodes [data-node="'+item.id+'"]');
+      const hit=node?.querySelector(':scope > g > rect[fill="transparent"]');
+      const outline=node?.querySelector('[data-resize="'+item.id+'"]')?.parentElement;
+      if(!hit||!outline)throw Error('Missing transformed selection or hit target: '+item.type);
+      const transform=hit.parentElement.getAttribute('transform')||'';
+      if(!transform.includes('rotate(90)'))throw Error('Hit target did not rotate: '+item.type);
+      if(!(outline.getAttribute('transform')||'').includes('rotate(90)'))throw Error('Resize handle did not rotate: '+item.type);
+    }
+    nodes=nodes.filter(n=>n.id!==wall.id&&n.id!==equipment.id);selected=null;render();
+  });
+  checkErrors('Rotated selection hit targets and resize handles');
+
   // Architectural window symbol keeps its measured width and orientation.
   await page.evaluate(()=>{
     const windowNode={id:next++,type:'planwindow',x:470,y:330,windowWidthIn:48,windowAngle:0,name:'Window'};
