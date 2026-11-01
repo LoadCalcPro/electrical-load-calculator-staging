@@ -1607,6 +1607,36 @@ const fs = require('node:fs');
   });
   checkErrors('Rotated selection hit targets and resize handles');
 
+  // Real pointer regression: a rotated panel must move and resize at its
+  // visible handle, not merely display the correct selection outline.
+  const pointerNodeId=await page.evaluate(()=>{
+    const item={id:next++,type:'panel',name:'Panel',x:530,y:340,drawingRotation:90,scaleX:1,scaleY:1};
+    nodes.push(item);selected={kind:'node',id:item.id};mode='select';render();
+    return item.id;
+  });
+  const pointerNode=page.locator('#nodes [data-node="'+pointerNodeId+'"]');
+  const pointerHit=pointerNode.locator('g > rect[fill="transparent"]').first();
+  const hitBox=await pointerHit.boundingBox();
+  assert.ok(hitBox&&hitBox.height>hitBox.width,'Rotated panel hit target should be vertical');
+  const center={x:hitBox.x+hitBox.width/2,y:hitBox.y+hitBox.height/2};
+  await page.mouse.move(center.x,center.y);
+  await page.mouse.down();
+  await page.mouse.move(center.x+24,center.y+17,{steps:6});
+  await page.mouse.up();
+  const moved=await page.evaluate(id=>{const n=nodes.find(n=>n.id===id);return {x:n.x,y:n.y}},pointerNodeId);
+  assert.ok(Math.abs(moved.x-554)<3&&Math.abs(moved.y-357)<3,'Rotated panel should follow pointer movement');
+  const handleBox=await pointerNode.locator('[data-resize="'+pointerNodeId+'"]').boundingBox();
+  assert.ok(handleBox,'Rotated panel resize handle should exist');
+  const hx=handleBox.x+handleBox.width/2,hy=handleBox.y+handleBox.height/2;
+  await page.mouse.move(hx,hy);
+  await page.mouse.down();
+  await page.mouse.move(hx-20,hy+18,{steps:6});
+  await page.mouse.up();
+  const resized=await page.evaluate(id=>{const n=nodes.find(n=>n.id===id);return {sx:n.scaleX,sy:n.scaleY}},pointerNodeId);
+  assert.ok(Math.abs(resized.sx-1)>.03||Math.abs(resized.sy-1)>.03,'Rotated panel resize should respond to pointer');
+  await page.evaluate(id=>{nodes=nodes.filter(n=>n.id!==id);selected=null;render()},pointerNodeId);
+  checkErrors('Rotated equipment pointer drag and resize');
+
   // Architectural window symbol keeps its measured width and orientation.
   await page.evaluate(()=>{
     const windowNode={id:next++,type:'planwindow',x:470,y:330,windowWidthIn:48,windowAngle:0,name:'Window'};
