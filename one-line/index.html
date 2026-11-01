@@ -1507,8 +1507,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  }
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
- const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';
- const summary=document.createElement('summary');summary.textContent='Advanced Drawing Settings';advanced.appendChild(summary);
+ const advanced=document.createElement('div');advanced.className='properties-advanced-inline';
  const weight=p.querySelector('[data-weight-status]')?.closest('label');
  if(weight)advanced.appendChild(weight);
  const top=p.querySelector('[data-enclosure-top]')?.closest('label');
@@ -1523,7 +1522,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(weightStyle&&customThickness){const syncThickness=()=>{customThickness.hidden=weightStyle.value!=='custom';customThickness.style.display=weightStyle.value==='custom'?'':'none';};weightStyle.addEventListener('change',syncThickness);syncThickness();}
  const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
  if(drawingHint)advanced.appendChild(drawingHint);
- if(advanced.children.length>1){p.appendChild(advanced);advanced.open=false;}
+ if(advanced.children.length){p.appendChild(advanced);}
 }
 
 // Shared property layout: keep existing inputs/listeners intact while organizing tool controls.
