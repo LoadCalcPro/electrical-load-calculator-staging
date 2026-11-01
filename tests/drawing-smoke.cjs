@@ -1506,6 +1506,22 @@ const fs = require('node:fs');
   });
   checkErrors('Plan View invalid and no-op resize percentages');
 
+  // A rotated wall's teal selection outline and handle must rotate together.
+  await page.evaluate(()=>{
+    const wall={id:next++,type:'planwall',x:470,y:330,wallLengthIn:120,wallThicknessIn:6,wallAngle:90,name:'Wall'};
+    nodes.push(wall);selected={kind:'node',id:wall.id};mode='select';render();
+    const g=document.querySelector('#nodes [data-node="'+wall.id+'"]');
+    const selection=g?.querySelector('rect[data-resize]')?.parentElement;
+    if(!selection||selection.tagName.toLowerCase()!=='g'||selection.getAttribute('transform')!=='rotate(90)')
+      throw Error('Wall selection outline and handle do not rotate with wall');
+    wall.wallAngle=0;render();
+    const reset=document.querySelector('#nodes [data-node="'+wall.id+'"] rect[data-resize]')?.parentElement;
+    if(!reset||reset.getAttribute('transform')!=='rotate(0)')
+      throw Error('Wall selection did not return to horizontal');
+    nodes=nodes.filter(n=>n.id!==wall.id);selected=null;render();
+  });
+  checkErrors('Plan View rotated wall selection outline');
+
   await page.locator('[data-drawing-tab="ladder"]').click();
   assert.equal(await page.locator('body').getAttribute('data-drawing-view'), 'ladder');
   await page.locator('#svg').waitFor();
