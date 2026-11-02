@@ -2645,7 +2645,7 @@ function projectTextHandles(){
  root.appendChild(group);
 }
 document.querySelectorAll('[data-project-show]').forEach(box=>box.addEventListener('change',()=>render(true)));
-$('titleblock').addEventListener('pointerdown',e=>{
+window.addEventListener('pointerdown',e=>{
  if(e.button!==0||mode!=='select')return;
  const handle=e.target.closest('[data-project-handle][data-project-key]');
  const t=handle?null:e.target.closest('[data-project-text]');
@@ -2659,18 +2659,19 @@ $('titleblock').addEventListener('pointerdown',e=>{
  projectTextHandles();
  const panel=$('drawingInspector');if(panel?.classList.contains('collapsed'))$('toggleInspector')?.click();
 },true);
-document.addEventListener('pointermove',e=>{
+window.addEventListener('pointermove',e=>{
  if(!projectTextDrag)return;
+ e.stopImmediatePropagation();
  const d=projectTextDrag,p=xy(e),dx=p.x-d.start.x,dy=p.y-d.start.y;
  const st=projectTextStyles[d.key]??={};
- if(d.kind==='move'){st.x=Math.round(d.x+dx);st.y=Math.round(d.y+dy);}
+ if(d.kind==='move'){st.x=Math.max(24,Math.min(976,Math.round(d.x+dx)));st.y=Math.max(24,Math.min(sheetHeightUnits()-24,Math.round(d.y+dy)));}
  else if(d.kind==='size'){st.size=Math.max(5,Math.min(96,Math.round(d.size+dx/5+dy/5)));}
  else{st.rotation=Math.round((d.rotation+Math.atan2(dy,dx)*180/Math.PI)/5)*5;}
  render(true);projectTextHandles();
  const section=$('textInspector');for(const prop of ['x','y','size','rotation']){const field=section?.querySelector('[data-pt-'+prop+']');if(field&&st[prop]!==undefined)field.value=st[prop];}
 },true);
-document.addEventListener('pointerup',()=>{projectTextDrag=null;},true);
-document.addEventListener('pointercancel',()=>{projectTextDrag=null;},true);
+window.addEventListener('pointerup',()=>{projectTextDrag=null;},true);
+window.addEventListener('pointercancel',()=>{projectTextDrag=null;},true);
 $('sheetPicker').addEventListener('change',e=>loadSheet(Number(e.target.value)));
 $('previousSheet').onclick=()=>{const i=projectSheets.findIndex(s=>s.id===currentSheetId);if(i>0)loadSheet(projectSheets[i-1].id);};
 $('nextSheet').onclick=()=>{const i=projectSheets.findIndex(s=>s.id===currentSheetId);if(i>=0&&i<projectSheets.length-1)loadSheet(projectSheets[i+1].id);};
