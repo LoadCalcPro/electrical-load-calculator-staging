@@ -268,6 +268,24 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
   max-height:none!important;
  }
 }
+/* Desktop sheet workspace: grow with the actual rendered sheet instead of
+   clipping the sheet at the viewport's old flex height. Keep a little
+   workspace below it, as in the fitted drawing view. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main{height:auto!important;min-height:max(1120px,calc(100dvh + 420px))!important;align-items:stretch!important}
+ body:has(.suite-header) main>.center{height:auto!important;min-height:0!important;overflow:visible!important}
+ body:has(.suite-header) main>.center>.workspace{
+  flex:0 0 auto!important;height:auto!important;min-height:0!important;
+  overflow:visible!important;padding-bottom:80px!important;
+ }
+ body:has(.suite-header) main>.center>.workspace>.viewport{
+  flex:0 0 auto!important;height:auto!important;min-height:0!important;
+  max-height:none!important;overflow:visible!important;
+ }
+ body:has(.suite-header) main>.center>.workspace>.viewport>svg{
+  height:auto!important;max-height:none!important;
+ }
+}
 /* Optional side panels; both are expanded when the editor first opens. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main.library-collapsed{grid-template-columns:0 minmax(0,1fr) clamp(195px,19vw,280px)!important}
