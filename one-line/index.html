@@ -2639,7 +2639,7 @@ function clampProjectTextToSheet(key){
  // Same principle as clampEquipmentToSheet: use the item's full bounds,
  // not its origin. Reject the proposed movement when the object is too wide.
  const width=right-left,height=bottom-top;
- const dx=width>hiX-loX?0:(left<loX?loX-left:right>hiX?hiX-right:0);
+ const dx=width>hiX-loX?loX-left:(right>hiX?hiX-right:left<loX?loX-left:0);
  const dy=height>hiY-loY?0:(top<loY?loY-top:bottom>hiY?hiY-bottom:0);
  if(dx||dy){st.x=(Number(t.getAttribute('x'))||0)+dx;st.y=(Number(t.getAttribute('y'))||0)+dy;render(true);}
 }
