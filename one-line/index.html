@@ -260,14 +260,6 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header) main{position:relative!important;top:auto!important;height:calc(100dvh + 420px)!important;min-height:1120px!important}
 }
 
-/* Let the outer page expose the full drawing workspace at its bottom.
-   The viewport remains independently scrollable for zoomed sheets, but is
-   no longer capped to a single screen height on desktop. */
-@media screen and (min-width:1000px){
- body:has(.suite-header) main>.center>.workspace>.viewport{
-  max-height:none!important;
- }
-}
 /* Keep the internal drawing scrollbars and scrollable viewport intact.
    Reserve extra page space below the fixed-height drawing editor so the
    outer page scrollbar can move its bottom into view. */
