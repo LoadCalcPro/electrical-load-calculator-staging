@@ -2627,23 +2627,21 @@ let projectTextDrag=null;
 function clampProjectTextToSheet(key){
  const t=[...$('titleblock').querySelectorAll('text[data-project-text]')].find(n=>n.dataset.projectText===key);
  if(!t)return;
- let b;try{b=t.getBBox()}catch{return}
  const st=projectTextStyles[key]??={};
- // Use the SVG text's transformed bounding box, rather than its insertion point.
- const matrix=t.getCTM();if(!matrix)return;
- const corners=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>{const p=$('svg').createSVGPoint();p.x=x;p.y=y;return p.matrixTransform(matrix)});
- const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);
- const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
- const minX=24,maxX=976,minY=24,maxY=sheetHeightUnits()-24;
- let dx=left<minX?minX-left:right>maxX?maxX-right:0;
- let dy=top<minY?minY-top:bottom>maxY?maxY-bottom:0;
- // Never change a user-selected font size during dragging.
- // Constrain the bounding box by translating the text only.
- if(right-left>maxX-minX)dx=minX-left;
- if(bottom-top>maxY-minY)dy=minY-top;
- if(Math.abs(dx)>.01||Math.abs(dy)>.01){
-  st.x=Number(t.getAttribute('x'))+dx;st.y=Number(t.getAttribute('y'))+dy;render(true);
- }
+ let b;try{b=t.getBBox()}catch{return}
+ // getBBox is in the text's own coordinate system. Its transformed corners
+ // must be measured in the sheet SVG's coordinate system.
+ const m=t.getCTM();if(!m)return;
+ const corners=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>{const p=$('svg').createSVGPoint();p.x=x;p.y=y;return p.matrixTransform(m)});
+ const left=Math.min(...corners.map(p=>p.x)),right=Math.max(...corners.map(p=>p.x));
+ const top=Math.min(...corners.map(p=>p.y)),bottom=Math.max(...corners.map(p=>p.y));
+ const loX=24,hiX=976,loY=24,hiY=sheetHeightUnits()-24;
+ // Same principle as clampEquipmentToSheet: use the item's full bounds,
+ // not its origin. Reject the proposed movement when the object is too wide.
+ const width=right-left,height=bottom-top;
+ const dx=width>hiX-loX?0:(left<loX?loX-left:right>hiX?hiX-right:0);
+ const dy=height>hiY-loY?0:(top<loY?loY-top:bottom>hiY?hiY-bottom:0);
+ if(dx||dy){st.x=(Number(t.getAttribute('x'))||0)+dx;st.y=(Number(t.getAttribute('y'))||0)+dy;render(true);}
 }
 function projectTextHandles(){
  const root=$('titleblock');root.querySelectorAll('[data-project-handle]').forEach(n=>n.remove());
