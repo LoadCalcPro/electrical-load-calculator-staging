@@ -344,6 +344,21 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 .equipment-category.plan-category .plan-door-subcategory>summary{cursor:pointer;padding:9px 10px;font-weight:600;font-size:14px;line-height:1.35}
 .equipment-category.plan-category .plan-door-options{display:flex;flex-direction:column;gap:5px;padding:7px}
 .equipment-category.plan-category .plan-door-options button{display:block;width:100%;min-width:0;min-height:36px;height:auto;padding:8px 10px;text-align:left;font-size:13px;line-height:1.3;white-space:normal;overflow-wrap:normal;word-break:normal;box-sizing:border-box}
+
+/* Print only the active drawing sheet. Other application views are stored in
+   project state, not separate printed pages. Prevent editor chrome/overflow
+   from creating extra pages in the browser print layout. */
+@media print {
+ html,body{width:100%!important;height:auto!important;overflow:hidden!important;margin:0!important;padding:0!important}
+ body > :not(#drawingMain):not(.drawing-tabs):not(.suite-header){break-after:auto}
+ .drawing-tabs,.suite-header,.project-meta-collapse,.drawing-secondary-actions{display:none!important}
+ #drawingMain{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important}
+ #drawingMain > :not(.center){display:none!important}
+ #drawingMain > .center{display:block!important;width:100%!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;overflow:visible!important}
+ #drawingMain > .center > :not(.workspace){display:none!important}
+ #drawingMain .workspace,#drawingMain .viewport{display:block!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;overflow:hidden!important;break-inside:avoid!important;page-break-inside:avoid!important}
+ #drawingMain #svg{display:block!important;break-inside:avoid!important;page-break-inside:avoid!important}
+}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
