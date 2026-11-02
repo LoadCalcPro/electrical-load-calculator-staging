@@ -388,6 +388,10 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 .meta .project-info-field input:not([type=checkbox]),.meta .project-info-field textarea,.meta .project-info-field select{background:#fff;width:100%;box-sizing:border-box}
 .meta .image-project-tools{grid-column:1/-1;background:#fff;border:1px solid #d6e0ee;border-radius:9px;padding:8px}
 @media(max-width:900px){.meta:has(.project-info-field){grid-template-columns:repeat(6,minmax(0,1fr))}.meta .project-name-field,.meta .project-address-field,.meta .drawing-title-field{grid-column:span 3}.meta .sheet-number-field,.meta .drawing-scale-field,.meta .title-block-position-field{grid-column:span 2}}
+/* Match Logo / Signature grouping to the highlighted project information fields. */
+.meta .image-project-tools{background:#e7eef7!important;border:1px solid #cbd9ea!important;border-radius:9px;padding:8px!important}
+.meta .image-project-tools>span{color:#284c75;font-weight:700}
+.meta .image-project-buttons button{background:#fff;border:1px solid #cbd9ea}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
