@@ -396,6 +396,9 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #workspaceViewToggle{background:#176b80!important;color:#fff!important;border:1px solid #11596b!important;font-weight:700!important;box-shadow:0 1px 3px rgba(15,75,90,.18)}
 #workspaceViewToggle:hover{background:#11596b!important;border-color:#0c4757!important}
 #workspaceViewToggle:focus-visible{outline:3px solid #7ccbd7!important;outline-offset:2px}
+/* Give title-block text a forgiving hit target without changing printed appearance. */
+#titleblock text[data-project-text]{pointer-events:visiblePainted;cursor:move;paint-order:stroke fill}
+#titleblock text[data-project-text]:hover{stroke:rgba(23,107,128,.15);stroke-width:9px;stroke-linejoin:round}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
@@ -1904,6 +1907,14 @@ return `<g data-wire="${w.id}" style="cursor:pointer">${Array.from({length:Math.
  for(const key of ['project','address','drawingTitle','sheetNumber']){const box=document.querySelector('[data-project-show="'+key+'"]');if(box&&!box.checked)$('titleblock').querySelectorAll('[data-project-text="'+key+'"]').forEach(el=>el.style.display='none');}
  const titleBlockShow=document.querySelector('[data-project-show="titleBlockPosition"]');if(titleBlockShow&&!titleBlockShow.checked)$('titleblock').style.display='none';else $('titleblock').style.display='';
  const scaleShow=document.querySelector('[data-project-show="drawingScale"]');if(scaleShow&&!scaleShow.checked)$('titleblock').querySelectorAll('text:not([data-project-text])').forEach(el=>{if(el.textContent.trim().startsWith('SCALE:'))el.style.display='none';});
+ // Invisible expanded hit area for selecting small project text.
+ for(const node of $('titleblock').querySelectorAll('text[data-project-text]')){
+  node.style.pointerEvents='visiblePainted';
+  node.style.cursor='move';
+  node.setAttribute('stroke','transparent');
+  node.setAttribute('stroke-width','12');
+  node.setAttribute('paint-order','stroke fill');
+ }
  // Render entered line breaks as SVG tspans while keeping one selectable, draggable text block.
  for(const key of ['project','address','drawingTitle']){
   const source=$(key);if(!source)continue;
