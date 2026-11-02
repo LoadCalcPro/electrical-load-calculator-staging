@@ -2637,15 +2637,8 @@ function clampProjectTextToSheet(key){
  const minX=24,maxX=976,minY=24,maxY=sheetHeightUnits()-24;
  let dx=left<minX?minX-left:right>maxX?maxX-right:0;
  let dy=top<minY?minY-top:bottom>maxY?maxY-bottom:0;
- // When the text is wider than the usable sheet, reduce its font size
- // before positioning it. Moving the anchor alone cannot prevent right overflow.
- if(right-left>maxX-minX||bottom-top>maxY-minY){
-  const current=Number(t.getAttribute('font-size'))||14;
-  const factor=Math.min((maxX-minX)/Math.max(1,right-left),(maxY-minY)/Math.max(1,bottom-top),1);
-  const next=Math.max(5,Math.floor(current*factor*0.98));
-  if(next<current){st.size=next;render(true);clampProjectTextToSheet(key);return;}
- }
- // If even the minimum font size is too wide, keep the left edge visible.
+ // Never change a user-selected font size during dragging.
+ // Constrain the bounding box by translating the text only.
  if(right-left>maxX-minX)dx=minX-left;
  if(bottom-top>maxY-minY)dy=minY-top;
  if(Math.abs(dx)>.01||Math.abs(dy)>.01){
