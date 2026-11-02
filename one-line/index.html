@@ -266,6 +266,15 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
 @media screen and (min-width:1000px){
  body:has(.suite-header) main{padding-bottom:160px!important;box-sizing:content-box!important}
 }
+/* Ensure the native drawing scrollbar can travel past the sheet's bottom
+   edge in either view. This spacer is inside the scrollable viewport,
+   not below the editor or on the drawing SVG. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) #viewport::after{
+  content:"";display:block;height:120px;min-height:120px;
+  pointer-events:none;background:#fff;
+ }
+}
 /* Optional side panels; both are expanded when the editor first opens. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main.library-collapsed{grid-template-columns:0 minmax(0,1fr) clamp(195px,19vw,280px)!important}
