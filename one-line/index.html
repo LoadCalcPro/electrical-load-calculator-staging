@@ -260,6 +260,14 @@ body:not(.drawing-zoomed) .workspace{padding-right:0;padding-bottom:0}
  body:has(.suite-header) main{position:relative!important;top:auto!important;height:calc(100dvh + 420px)!important;min-height:1120px!important}
 }
 
+/* Let the outer page expose the full drawing workspace at its bottom.
+   The viewport remains independently scrollable for zoomed sheets, but is
+   no longer capped to a single screen height on desktop. */
+@media screen and (min-width:1000px){
+ body:has(.suite-header) main>.center>.workspace>.viewport{
+  max-height:none!important;
+ }
+}
 /* Optional side panels; both are expanded when the editor first opens. */
 @media screen and (min-width:1000px){
  body:has(.suite-header) main.library-collapsed{grid-template-columns:0 minmax(0,1fr) clamp(195px,19vw,280px)!important}
