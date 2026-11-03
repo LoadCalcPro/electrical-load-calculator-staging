@@ -2797,12 +2797,15 @@ window.addEventListener('pointerdown',e=>{
  const t=handle?null:e.target.closest('[data-project-text]');
  const key=handle?.dataset.projectKey||t?.dataset.projectText;if(!key)return;
  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
- if(e.target.setPointerCapture)try{e.target.setPointerCapture(e.pointerId)}catch(_){}
- selected=null;selectedNodeIds.clear();selectedLineIds.clear();activeInnerKey=null;
- showProjectTextEditor(key);$('properties').replaceChildren();
+ // Record the drag origin BEFORE opening Properties. The inspector can resize
+ // the drawing viewport, changing getScreenCTM and causing a huge first-move jump.
  const target=[...$('titleblock').querySelectorAll('[data-project-text]')].find(n=>n.dataset.projectText===key);
  const p=xy(e),x=Number(target?.getAttribute('x')||0),y=Number(target?.getAttribute('y')||0);
- projectTextDrag={key,kind:handle?.dataset.projectHandle||'move',start:p,x,y,size:Number(target?.getAttribute('font-size')||9),rotation:Number(projectTextStyles[key]?.rotation||0)};
+ const matrix=$('svg').getScreenCTM();
+ const unitsPerPixel=matrix?{x:1/Math.hypot(matrix.a,matrix.b),y:1/Math.hypot(matrix.c,matrix.d)}:{x:1,y:1};
+ projectTextDrag={key,kind:handle?.dataset.projectHandle||'move',start:p,x,y,clientX:e.clientX,clientY:e.clientY,unitsPerPixel,size:Number(target?.getAttribute('font-size')||9),rotation:Number(projectTextStyles[key]?.rotation||0)};
+ selected=null;selectedNodeIds.clear();selectedLineIds.clear();activeInnerKey=null;
+ showProjectTextEditor(key);$('properties').replaceChildren();
  projectTextHandles();
  const panel=$('drawingInspector');if(panel?.classList.contains('collapsed'))$('toggleInspector')?.click();
 },true);
@@ -2817,7 +2820,10 @@ if(d.kind==='move'&&viewport){
  if(e.clientX>rect.right-edge)viewport.scrollLeft+=Math.min(26,Math.max(0,(e.clientX-(rect.right-edge))*.6));
  else if(e.clientX<rect.left+edge)viewport.scrollLeft-=Math.min(26,Math.max(0,((rect.left+edge)-e.clientX)*.6));
 }
-const p=xy(e),dx=p.x-d.start.x,dy=p.y-d.start.y;
+// Client-space deltas stay stable when a panel opens or the SVG is
+// reflowed. Do not subtract SVG positions measured under different CTMs.
+const dx=(e.clientX-d.clientX)*d.unitsPerPixel.x;
+const dy=(e.clientY-d.clientY)*d.unitsPerPixel.y;
  const st=projectTextStyles[d.key]??={};
  if(d.kind==='move'){st.x=Math.max(4,Math.min(996,Math.round(d.x+dx)));st.y=Math.max(24,Math.min(sheetHeightUnits()-24,Math.round(d.y+dy)));}
  else if(d.kind==='size'){st.size=Math.max(5,Math.min(96,Math.round(d.size+dx/5+dy/5)));}
