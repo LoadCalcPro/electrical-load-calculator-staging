@@ -590,18 +590,23 @@ function storeCurrentSheet(){if(!projectSheets.length)return;viewState[drawingVi
 function emptySheetState(){return {one:null,plan:null,ladder:null};}
 function defaultSheetNumber(view){const prefix=view==='plan'?'E-1':view==='ladder'?'E-2':'E-0';let i=1,n;do{n=prefix+String(i++).padStart(2,'0')}while(projectSheets.some(s=>s.meta.number===n));return n;}
 function refreshSheetPicker(){const p=$('sheetPicker');if(!p)return;p.replaceChildren();for(const sh of projectSheets){const o=document.createElement('option');o.value=String(sh.id);o.textContent=(sh.id===currentSheetId?$('sheetNumber').value:sh.meta.number)+' · '+({one:'One-Line',plan:'Plan View',ladder:'Ladder'}[sh.view]||'Drawing');p.appendChild(o);}p.value=String(currentSheetId);refreshViewportSheetPages();}
-function loadSheet(id){if(id===currentSheetId)return;const sh=projectSheets.find(s=>s.id===id);if(!sh)return;captureCurrentSheetPage();storeCurrentSheet();currentSheetId=id;viewState=sh.views||emptySheetState();drawingView=sh.view||'one';const st=viewState[drawingView]||{nodes:[],wires:[],annotations:[],drawnLines:[],polyRoutes:[],personalImages:[],next:1};nodes=st.nodes||[];wires=st.wires||[];annotations=st.annotations||[];drawnLines=st.drawnLines||[];polyRoutes=st.polyRoutes||[];personalImages=st.personalImages||[];next=st.next||1;selected=null;selectedLineIds.clear();selectedNodeIds.clear();const m=sh.meta||{};$('sheetNumber').value=m.number||'';$('drawingTitle').value=m.title||'';$('drawingScale').value=m.scale||'NTS';if(m.voltage)$('voltage').value=m.voltage;if(m.planScale)$('planScaleSelect').value=m.planScale;if(m.paper)$('paper').value=m.paper;$('showTitleDivider').checked=m.showTitleDivider!==false;$('titleBlockPosition').value=m.titleBlockPosition==='right'?'right':'bottom';activateDrawingView(drawingView,true);refreshSheetPicker();render();$('status').textContent='Sheet '+$('sheetNumber').value+' selected.';}
+function loadSheet(id){if(id===currentSheetId)return;const sh=projectSheets.find(s=>s.id===id);if(!sh)return;storeCurrentSheet();captureCurrentSheetPage();currentSheetId=id;viewState=sh.views||emptySheetState();drawingView=sh.view||'one';const st=viewState[drawingView]||{nodes:[],wires:[],annotations:[],drawnLines:[],polyRoutes:[],personalImages:[],next:1};nodes=st.nodes||[];wires=st.wires||[];annotations=st.annotations||[];drawnLines=st.drawnLines||[];polyRoutes=st.polyRoutes||[];personalImages=st.personalImages||[];next=st.next||1;selected=null;selectedLineIds.clear();selectedNodeIds.clear();const m=sh.meta||{};$('sheetNumber').value=m.number||'';$('drawingTitle').value=m.title||'';$('drawingScale').value=m.scale||'NTS';if(m.voltage)$('voltage').value=m.voltage;if(m.planScale)$('planScaleSelect').value=m.planScale;if(m.paper)$('paper').value=m.paper;$('showTitleDivider').checked=m.showTitleDivider!==false;$('titleBlockPosition').value=m.titleBlockPosition==='right'?'right':'bottom';activateDrawingView(drawingView,true);refreshSheetPicker();render();$('status').textContent='Sheet '+$('sheetNumber').value+' selected.';}
 // Stage 1 of continuous sheets: keep a visible, scrollable page navigator inside the
 // drawing viewport. This does not replace the active SVG or its editing handlers.
 // Keep inactive pages as SVG snapshots; only the selected page owns editor events.
 const sheetPageSnapshots=new Map();
 function captureCurrentSheetPage(){
  const svg=$('svg');if(!svg||!projectSheets.length)return;
+ // Flush the live sheet's drawing state before capturing its preview.
+ // Snapshotting while dragging would otherwise preserve selection artifacts.
+ if(sheetPointerDown)return;
  const clone=svg.cloneNode(true);
  clone.removeAttribute('id');
  // Editor-only selection controls must never appear on printed-looking
  // inactive sheet previews.
- clone.querySelectorAll('[data-project-handle],[data-image-resize],[data-resize-handle],[data-rotate-handle]').forEach(n=>n.remove());
+ clone.querySelectorAll('[data-project-handle],[data-image-resize],[data-resize-handle],[data-rotate-handle],.selection-handle,.selection-box').forEach(n=>n.remove());
+ // Strip focus and editing affordances from a noninteractive page preview.
+ clone.querySelectorAll('[contenteditable],[tabindex]').forEach(n=>{n.removeAttribute('contenteditable');n.removeAttribute('tabindex');});
 // Namespace copied SVG definition IDs so clipping, gradients, and patterns
 // continue to resolve on inactive sheets without colliding with the editor.
 const prefix='sheet-preview-'+currentSheetId+'-';
