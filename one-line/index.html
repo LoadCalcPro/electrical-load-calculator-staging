@@ -2048,9 +2048,9 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // description fields in every drawing mode (including Plan View).
  const appearance=document.createElement('section');
  appearance.className='equipment-appearance-section';
- const heading=document.createElement('h4');
- heading.textContent='Equipment Appearance';
- appearance.appendChild(heading);
+ const appearanceHeading=document.createElement('h4');
+ appearanceHeading.textContent='Equipment Appearance';
+ appearance.appendChild(appearanceHeading);
  // Move the existing size control, not a clone: its event handlers remain intact.
  const sizeControl=common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl)appearance.appendChild(sizeControl);
