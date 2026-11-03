@@ -511,6 +511,11 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
  }
 }
 
+/* Reduce unnecessary space in descriptive equipment sections. */
+#properties .property-priority{margin-top:4px!important;padding-top:6px!important}
+#properties .property-priority .equipment-description-heading{margin:0 0 7px!important}
+#properties .property-priority label.field{margin-bottom:6px!important}
+#properties .property-priority input,#properties .property-priority select{margin-top:4px!important}
 /* Compact equipment appearance controls without altering their behavior. */
 #properties .equipment-appearance-section{margin-top:6px!important;padding:10px 12px!important}
 #properties .equipment-appearance-section>h4{margin:0 0 8px!important}
@@ -1911,7 +1916,7 @@ if(itemForInfo?.type==='surge'){
  symbolInput.addEventListener('focus',()=>{activateEquipmentText(itemForInfo,'surgeSymbol');toolbar.syncSelectedText?.();});
  symbolInput.addEventListener('input',()=>{itemForInfo.innerText??={};itemForInfo.innerText.surgeSymbol=symbolInput.value;activeInnerKey='surgeSymbol';renderCanvasOnly();toolbar.syncSelectedText?.();});
  symbolField.appendChild(symbolInput);info.appendChild(symbolField);
- const positionHint=document.createElement('p');positionHint.className='status';positionHint.textContent='To move SPD: select the lettering on the drawing and drag it, or select SPD lettering above and use the text position controls in Formatting. Clear the field to remove the lettering.';info.appendChild(positionHint);
+
 }
 if(itemForInfo?.type==='metercombo'){
  const layout=p.querySelector('.section:has(#comboBays)');
@@ -2066,7 +2071,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(item&&defs.length){
   const descriptionHeading=document.createElement('h4');
   descriptionHeading.className='equipment-description-heading';
-  descriptionHeading.textContent='Equipment Descriptions & Labels';
+  descriptionHeading.textContent=item.type==='planroom'?'Room label':item.type.startsWith('plan')?'Descriptions & Labels':'Equipment Descriptions & Labels';
   info.prepend(descriptionHeading);
  }
 }
