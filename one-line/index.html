@@ -519,6 +519,10 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #properties .property-priority .equipment-description-heading{margin:0 0 7px!important}
 #properties .property-priority label.field{margin-bottom:6px!important}
 #properties .property-priority input,#properties .property-priority select{margin-top:4px!important}
+
+/* Rotation shares the same typography, width and spacing as text offsets. */
+#properties .shared-text-editor .shared-rotation-field{display:block;margin:6px 0 0!important;font:inherit;color:inherit;font-weight:inherit}
+#properties .shared-text-editor .shared-rotation-field input{display:block;width:100%;box-sizing:border-box;margin-top:4px!important;font:inherit}
 /* Compact equipment appearance controls without altering their behavior. */
 #properties .equipment-appearance-section{margin-top:0!important;padding:6px 12px 10px!important}
 #properties .equipment-appearance-section>h4{margin:0 0 8px!important}
@@ -2052,7 +2056,12 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
  // Keep rotation immediately below the horizontal/vertical offset fields.
  const offsetGrid=common.querySelector('.shared-text-editor .shared-text-grid');
- if(rotation&&offsetGrid)offsetGrid.after(rotation);
+ if(rotation&&offsetGrid){
+  rotation.classList.add('field','shared-rotation-field');
+  const rotationInput=rotation.querySelector('input');
+  if(rotationInput)rotationInput.classList.add('shared-rotation-input');
+  offsetGrid.after(rotation);
+ }
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
  const advanced=document.createElement('div');advanced.className='properties-advanced-inline';
  const weight=p.querySelector('[data-weight-status]')?.closest('label');
