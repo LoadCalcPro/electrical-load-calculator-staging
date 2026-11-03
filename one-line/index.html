@@ -1946,7 +1946,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(additionalLabel){additionalLabel.classList.add('field');const input=additionalLabel.querySelector('[data-common-label]');if(input){input.style.width='100%';input.style.boxSizing='border-box';}info.appendChild(additionalLabel);}
  // Put the external label immediately after designation; keep ratings and dimensions below it.
  if(additionalLabel){const designationField=info.querySelector('[data-prop="name"]')?.closest('label')||info.querySelector('[data-prop="label"]')?.closest('label');if(designationField)designationField.insertAdjacentElement('afterend',additionalLabel);else info.insertBefore(additionalLabel,info.firstElementChild?.nextElementSibling||null);}
- if(size)info.appendChild(size);
+ // Equipment size belongs with Scaling behavior in Equipment Appearance.
  // Build Meter Bank stack controls directly in their final location.
  // They are not created elsewhere in Properties or moved by a later repair pass.
  if(itemForInfo?.type==='meterbank'){
@@ -2072,7 +2072,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const appearance=document.createElement('section');
  appearance.className='equipment-appearance-section';
  // Move the existing size control, not a clone: its event handlers remain intact.
- const sizeControl=common.querySelector('[data-equipment-size]')?.closest('label');
+ const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl)appearance.appendChild(sizeControl);
  const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
  if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);}
