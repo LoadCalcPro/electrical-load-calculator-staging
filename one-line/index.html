@@ -628,6 +628,12 @@ function refreshViewportSheetPages(){
  if(!rail){rail=document.createElement('div');rail.id='viewportSheetPages';rail.setAttribute('aria-label','Drawing sheets');viewport.appendChild(rail);}
  const priorTop=viewport.scrollTop;
  const priorLeft=viewport.scrollLeft;
+ const anchor=[...rail.querySelectorAll('.viewport-sheet-page')].find(page=>{
+  const b=page.getBoundingClientRect(),v=viewport.getBoundingClientRect();
+  return b.bottom>v.top+40&&b.top<v.bottom;
+ });
+ const anchorId=anchor?.dataset.sheetId;
+ const anchorOffset=anchor?anchor.getBoundingClientRect().top-viewport.getBoundingClientRect().top:null;
 // The live SVG lives inside the rail. Detach it BEFORE clearing page nodes;
 // otherwise replaceChildren destroys the only interactive drawing canvas.
 if(svg.parentNode)svg.parentNode.removeChild(svg);
@@ -660,7 +666,10 @@ rail.replaceChildren();
   }
   rail.appendChild(page);
  }
- viewport.scrollTop=priorTop;
+ if(anchorId&&anchorOffset!==null){
+  const newAnchor=[...rail.querySelectorAll('.viewport-sheet-page')].find(p=>p.dataset.sheetId===anchorId);
+  viewport.scrollTop=newAnchor?priorTop+(newAnchor.getBoundingClientRect().top-viewport.getBoundingClientRect().top-anchorOffset):priorTop;
+ }else viewport.scrollTop=priorTop;
  viewport.scrollLeft=priorLeft;
 }
 function addProjectSheet(duplicate=false){captureCurrentSheetPage();storeCurrentSheet();const sourceId=currentSheetId,old=projectSheets.find(s=>s.id===currentSheetId),view=drawingView,id=nextSheetId++,number=defaultSheetNumber(view),meta={...sheetMetadata(),number,title:duplicate?$('drawingTitle').value:({one:'ONE-LINE DIAGRAM',plan:'PLAN VIEW',ladder:'LADDER DIAGRAM'}[view])},views=duplicate?JSON.parse(JSON.stringify(old.views)):emptySheetState();projectSheets.push({id,view,meta,views});
