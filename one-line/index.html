@@ -2797,6 +2797,42 @@ const p=xy(e),dx=p.x-d.start.x,dy=p.y-d.start.y;
 },true);
 window.addEventListener('pointerup',()=>{projectTextDrag=null;},true);
 window.addEventListener('pointercancel',()=>{projectTextDrag=null;},true);
+// Activate the sheet occupying the center of the drawing viewport after
+// scrolling settles. Keep the existing SVG editor as the only live editor.
+let sheetScrollFrame=0,sheetScrollSettling=0,sheetSwitchInProgress=false;
+function syncActiveSheetToViewport(){
+ const viewport=$('viewport'),rail=$('viewportSheetPages');
+ if(!viewport||!rail||sheetSwitchInProgress||projectTextDrag||!projectSheets.length)return;
+ const pages=[...rail.querySelectorAll('.viewport-sheet-page')];
+ if(pages.length<2)return;
+ const view=viewport.getBoundingClientRect(),focus=view.top+Math.min(view.height*.45,260);
+ let best=null,bestDistance=Infinity;
+ for(const page of pages){
+  const bounds=page.getBoundingClientRect();
+  const distance=focus<bounds.top?bounds.top-focus:focus>bounds.bottom?focus-bounds.bottom:0;
+  if(distance<bestDistance){bestDistance=distance;best=page;}
+ }
+ const id=Number(best?.dataset.sheetId);
+ if(!id||id===currentSheetId)return;
+ const before=best.getBoundingClientRect().top-view.top;
+ sheetSwitchInProgress=true;
+ try{
+  loadSheet(id);
+  // Rebuilding page previews must not jump the scrollbar away from the
+  // page that was underneath the user's pointer.
+  const updated=rail.querySelector('[data-sheet-id="'+id+'"]');
+  if(updated)viewport.scrollTop+=updated.getBoundingClientRect().top-viewport.getBoundingClientRect().top-before;
+ }finally{sheetSwitchInProgress=false;}
+}
+$('viewport').addEventListener('scroll',()=>{
+ if(sheetSwitchInProgress)return;
+ if(sheetScrollFrame)cancelAnimationFrame(sheetScrollFrame);
+ sheetScrollFrame=requestAnimationFrame(()=>{
+  sheetScrollFrame=0;
+  if(sheetScrollSettling)clearTimeout(sheetScrollSettling);
+  sheetScrollSettling=setTimeout(()=>{sheetScrollSettling=0;syncActiveSheetToViewport();},140);
+ });
+},{passive:true});
 // Sheet selector jumps to the selected page, without adding a toolbar row.
 function scrollSelectedSheetIntoView(id){
  requestAnimationFrame(()=>{
