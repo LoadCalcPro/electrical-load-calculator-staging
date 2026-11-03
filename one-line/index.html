@@ -533,6 +533,12 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #textInspector .feeder-label-editor .shared-drawing-color-targets button{flex:1;min-width:0;min-height:44px;border:1px solid #b8cbe3;border-radius:8px;background:white;color:inherit;font:inherit;font-weight:700;cursor:pointer}
 #textInspector .feeder-label-editor .shared-drawing-color-targets button[aria-pressed="true"]{background:#d9edf5;border:2px solid #16869b}
 #textInspector .feeder-label-editor .shared-drawing-color-targets button:disabled{opacity:.5;cursor:default}
+
+/* Same visual hierarchy for One-Line, Plan View, and Ladder equipment. */
+#properties .equipment-appearance-section{display:flex;flex-direction:column;gap:7px;padding:10px 8px;margin:8px 0;border:1px solid #d4e1ee;border-radius:8px;background:#f7fafd}
+#properties .equipment-appearance-section>h4{margin:0 0 4px}
+#properties .equipment-appearance-section>.field{margin:0}
+#properties .equipment-appearance-section .properties-advanced-inline{display:flex;flex-direction:column;gap:7px}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
@@ -2038,15 +2044,19 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(weightStyle&&customThickness){const syncThickness=()=>{customThickness.hidden=weightStyle.value!=='custom';customThickness.style.display=weightStyle.value==='custom'?'':'none';};weightStyle.addEventListener('change',syncThickness);syncThickness();}
  const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
  if(drawingHint)advanced.appendChild(drawingHint);
- if(advanced.children.length){
-  const appearance=document.createElement('section');
-  appearance.className='equipment-appearance-section';
-  const heading=document.createElement('h4');
-  heading.textContent='Equipment Appearance';
-  appearance.appendChild(heading);
-  appearance.appendChild(advanced);
-  p.appendChild(appearance);
- }
+ // Keep appearance directly after shared Formatting and before the
+ // description fields in every drawing mode (including Plan View).
+ const appearance=document.createElement('section');
+ appearance.className='equipment-appearance-section';
+ const heading=document.createElement('h4');
+ heading.textContent='Equipment Appearance';
+ appearance.appendChild(heading);
+ // Move the existing size control, not a clone: its event handlers remain intact.
+ const sizeControl=common.querySelector('[data-equipment-size]')?.closest('label');
+ if(sizeControl)appearance.appendChild(sizeControl);
+ if(advanced.children.length)appearance.appendChild(advanced);
+ if(appearance.children.length>1)p.insertBefore(appearance,info);
+
  // Existing equipment text inputs remain editable; give their section a
  // consistent heading rather than introducing another set of format controls.
  if(item&&defs.length){
