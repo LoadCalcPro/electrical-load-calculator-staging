@@ -1851,7 +1851,7 @@ function sharedEquipmentTextEditorMarkup(){
    : '<input '+control.attribute+' type="'+control.type+'" '+control.extra+'>';
   return '<label class="field">'+control.label+input+'</label>';
  }).join('');
- return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><label class="field">Description text<input type="text" data-shared-text aria-label="Edit selected equipment description"></label><div class="shared-text-grid">'+fields+'</div>';
+ return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><div class="shared-text-grid">'+fields+'</div>';
 }
 function equipmentTextKeyForControl(el,defs){
  const raw=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;
@@ -1985,39 +1985,13 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   editor.innerHTML=sharedEquipmentTextEditorMarkup();
   // Every equipment text part is selectable from one list, regardless of
   // whether its visible glyph is small or difficult to click on the sheet.
-  const labelChooser=document.createElement('label');
-  labelChooser.className='field equipment-label-chooser';
-  labelChooser.textContent='Description / label to edit';
-  const labelSelect=document.createElement('select');
-  labelSelect.setAttribute('aria-label','Choose equipment description or label');
-  const none=document.createElement('option');
-  none.value='';none.textContent='Select a label';labelSelect.appendChild(none);
-  for(const [key,title] of defs){const option=document.createElement('option');option.value=key;option.textContent=title;labelSelect.appendChild(option);}
-  labelChooser.appendChild(labelSelect);
-  editor.insertBefore(labelChooser,editor.firstChild);
-  labelSelect.addEventListener('pointerdown',event=>event.stopPropagation());
-  labelSelect.addEventListener('change',()=>{
-   if(selected?.kind!=='node'||selected.id!==item.id)return;
-   if(labelSelect.value){
-    activateEquipmentText(item,labelSelect.value);
-    // Choosing a description also targets its color/highlight controls.
-    // Otherwise the palette silently continues changing the enclosure outline.
-    common.querySelector('.equipment-outline-palette [data-format-target="label"]')?.click();
-   }else{
-    activeInnerKey=null;
-    common.querySelector('.equipment-outline-palette [data-format-target="outline"]')?.click();
-   }
-   toolbar.syncSelectedText?.();
-   renderCanvasOnly();
-  });
   // Shared layout lives in CSS so all equipment editors use one consistent grid.
   common.appendChild(editor);
   const syncPalettes=()=>{if(selected?.kind==='node'&&selected.id===item.id)common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();};
   const get=sel=>editor.querySelector(sel);
-  const sync=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;const key=activeInnerKey,def=defs.find(d=>d[0]===key);labelSelect.value=def?key:'';if(!def){const selectedLabel=editor.querySelector('[data-shared-selected]');if(selectedLabel)selectedLabel.textContent='Select a label to format';syncPalettes();syncEquipmentTextHighlight(info,$('svg'),item,null,defs);for(const el of editor.querySelectorAll('input,select,button'))el.disabled=el!==labelSelect;return;}for(const el of editor.querySelectorAll('input,select,button'))el.disabled=false;syncEquipmentTextHighlight(info,$('svg'),item,key,defs);get('[data-shared-selected]').textContent='Selected: '+def[1];get('[data-shared-text]').value=key==='drawingLabel'?(item.drawingLabel??''):(item.innerText?.[key]??def[2]??'');get('[data-shared-size]').value=key==='drawingLabel'?equipmentFontSize(item.drawingLabelSize,12):equipmentFontSize(item.textSizes?.[key]??def[3],def[3]||10);get('[data-shared-style]').value=key==='drawingLabel'?equipmentTextStyle(item.drawingLabelStyle):equipmentTextStyle(item.textStyles?.[key]);syncPalettes();get('[data-shared-x]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelX):finiteEquipmentOffset(item.textOffsets?.[key]?.x);get('[data-shared-y]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelY):finiteEquipmentOffset(item.textOffsets?.[key]?.y);};
+  const sync=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;const key=activeInnerKey,def=defs.find(d=>d[0]===key);if(!def){const selectedLabel=editor.querySelector('[data-shared-selected]');if(selectedLabel)selectedLabel.textContent='Select a label to format';syncPalettes();syncEquipmentTextHighlight(info,$('svg'),item,null,defs);for(const el of editor.querySelectorAll('input,select,button'))el.disabled=true;return;}for(const el of editor.querySelectorAll('input,select,button'))el.disabled=false;syncEquipmentTextHighlight(info,$('svg'),item,key,defs);get('[data-shared-selected]').textContent='Selected: '+def[1];get('[data-shared-size]').value=key==='drawingLabel'?equipmentFontSize(item.drawingLabelSize,12):equipmentFontSize(item.textSizes?.[key]??def[3],def[3]||10);get('[data-shared-style]').value=key==='drawingLabel'?equipmentTextStyle(item.drawingLabelStyle):equipmentTextStyle(item.textStyles?.[key]);syncPalettes();get('[data-shared-x]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelX):finiteEquipmentOffset(item.textOffsets?.[key]?.x);get('[data-shared-y]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelY):finiteEquipmentOffset(item.textOffsets?.[key]?.y);};
   toolbar.syncSelectedText=sync;
   for(const [sel,handler] of [
-   ['[data-shared-text]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabel=v;else{item.innerText??={};item.innerText[activeInnerKey]=v;}}],
    ['[data-shared-size]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelSize=equipmentFontSize(v,12);else{item.textSizes??={};item.textSizes[activeInnerKey]=equipmentFontSize(v,10);}}],
    ['[data-shared-style]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelStyle=equipmentTextStyle(v);else{item.textStyles??={};item.textStyles[activeInnerKey]=equipmentTextStyle(v);}}],
    ['[data-shared-x]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelX=finiteEquipmentOffset(v);else{item.textOffsets??={};item.textOffsets[activeInnerKey]??={x:0,y:0};item.textOffsets[activeInnerKey].x=finiteEquipmentOffset(v);if(item.type==='meterbank'&&activeInnerKey==='symbolDesignation'){item.textPositions??={};item.textPositions.symbolDesignation=defaultLabelPosition(item.type,'symbolDesignation',item);}}}],
@@ -2029,13 +2003,6 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
     if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;
     if(activeInnerKey===null||!defs.some(d=>d[0]===activeInnerKey))return;
     handler(e.target.value);
-    // Keep the original equipment description field in sync without firing
-    // its input handler or rebuilding Properties while the user is typing.
-    if(sel==='[data-shared-text]'){
-     for(const field of info.querySelectorAll('input,textarea')){
-      if(equipmentTextKeyForControl(field,defs)===activeInnerKey&&field!==e.target)field.value=e.target.value;
-     }
-    }
     renderCanvasOnly();toolbar.syncSelectedText?.();
    });
   }
