@@ -663,7 +663,7 @@ body[data-drawing-view="plan"] #equipmentLibrary > label#customEquipmentSizeWrap
  function showEditorError(message){
   var id='drawingStartupError',el=document.getElementById(id);
   if(!el){el=document.createElement('div');el.id=id;el.setAttribute('role','alert');el.style.cssText='position:relative;z-index:1000;padding:12px 18px;background:#fff1f2;color:#881337;border:2px solid #e11d48;font:14px/1.5 Arial,sans-serif;white-space:pre-wrap';document.body.insertBefore(el,document.body.firstChild);}
-  el.textContent='Drawing editor startup error: '+message+'\nPlease copy this message so the underlying problem can be corrected.';
+  el.textContent='Drawing editor startup error [staging build 2026-11-03-diagnostic-1]: '+message+'\nPlease copy this message so the underlying problem can be corrected.';
  }
  window.addEventListener('error',function(e){showEditorError((e.message||'Unknown error')+(e.lineno?' (line '+e.lineno+')':''));});
  window.addEventListener('unhandledrejection',function(e){showEditorError(String(e.reason&&e.reason.message||e.reason||'Unknown rejection'));});
