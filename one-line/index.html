@@ -610,6 +610,7 @@ function refreshViewportSheetPages(){
  let rail=$('viewportSheetPages');
  if(!rail){rail=document.createElement('div');rail.id='viewportSheetPages';rail.setAttribute('aria-label','Drawing sheets');viewport.appendChild(rail);}
  const priorTop=viewport.scrollTop;
+ const priorLeft=viewport.scrollLeft;
 // The live SVG lives inside the rail. Detach it BEFORE clearing page nodes;
 // otherwise replaceChildren destroys the only interactive drawing canvas.
 if(svg.parentNode)svg.parentNode.removeChild(svg);
@@ -625,26 +626,27 @@ rail.replaceChildren();
    content.appendChild(svg);page.classList.add('active');
   }else{
    const snapshot=sheetPageSnapshots.get(sh.id);
-   if(snapshot){const template=document.createElement('template');template.innerHTML=snapshot;const preview=template.content.firstElementChild;if(preview){preview.removeAttribute('style');preview.classList.add('sheet-preview');content.appendChild(preview);}}
+   if(snapshot){const template=document.createElement('template');template.innerHTML=snapshot;const preview=template.content.firstElementChild;if(preview){preview.removeAttribute('style');preview.classList.add('sheet-preview');preview.style.width=Math.max(100,viewport.clientWidth-28)*zoom+'px';preview.style.height='auto';content.appendChild(preview);}}
    else{
    // Unvisited sheets still have a correctly proportioned paper surface.
    const blank=document.createElementNS('http://www.w3.org/2000/svg','svg');
    const paper=sh.meta?.paper||'letter',ratio=paper==='tabloid'?17/11:paper==='archd'?36/24:11/8.5;
    blank.setAttribute('viewBox','0 0 1000 '+Math.round(1000*ratio));
-   blank.classList.add('sheet-preview','sheet-preview-blank');
+   blank.classList.add('sheet-preview','sheet-preview-blank');blank.style.width=Math.max(100,viewport.clientWidth-28)*zoom+'px';blank.style.height='auto';
    const background=document.createElementNS('http://www.w3.org/2000/svg','rect');
    background.setAttribute('width','1000');background.setAttribute('height',String(Math.round(1000*ratio)));background.setAttribute('fill','white');blank.appendChild(background);
    const border=document.createElementNS('http://www.w3.org/2000/svg','rect');
    border.setAttribute('x','18');border.setAttribute('y','18');border.setAttribute('width','964');border.setAttribute('height',String(Math.round(1000*ratio)-36));border.setAttribute('fill','none');border.setAttribute('stroke','#111');border.setAttribute('stroke-width','1.5');blank.appendChild(border);
    content.appendChild(blank);
   }
-   page.addEventListener('click',()=>{const y=page.offsetTop;loadSheet(sh.id);requestAnimationFrame(()=>{const next=rail.querySelector('[data-sheet-id="'+sh.id+'"]');if(next)viewport.scrollTop=next.offsetTop;});});
+   page.addEventListener('click',()=>{loadSheet(sh.id);requestAnimationFrame(()=>{const next=rail.querySelector('[data-sheet-id="'+sh.id+'"]');if(next)viewport.scrollTop=next.offsetTop;});});
   }
   rail.appendChild(page);
  }
  viewport.scrollTop=priorTop;
+ viewport.scrollLeft=priorLeft;
 }
-function addProjectSheet(duplicate=false){storeCurrentSheet();const old=projectSheets.find(s=>s.id===currentSheetId),view=drawingView,id=nextSheetId++,number=defaultSheetNumber(view),meta={...sheetMetadata(),number,title:duplicate?$('drawingTitle').value:({one:'ONE-LINE DIAGRAM',plan:'PLAN VIEW',ladder:'LADDER DIAGRAM'}[view])},views=duplicate?JSON.parse(JSON.stringify(old.views)):emptySheetState();projectSheets.push({id,view,meta,views});loadSheet(id);$('status').textContent=(duplicate?'Duplicated':'Added')+' sheet '+number+'.';}
+function addProjectSheet(duplicate=false){storeCurrentSheet();const old=projectSheets.find(s=>s.id===currentSheetId),view=drawingView,id=nextSheetId++,number=defaultSheetNumber(view),meta={...sheetMetadata(),number,title:duplicate?$('drawingTitle').value:({one:'ONE-LINE DIAGRAM',plan:'PLAN VIEW',ladder:'LADDER DIAGRAM'}[view])},views=duplicate?JSON.parse(JSON.stringify(old.views)):emptySheetState();projectSheets.push({id,view,meta,views});loadSheet(id);requestAnimationFrame(()=>{const page=document.querySelector('#viewportSheetPages [data-sheet-id="'+id+'"]');if(page)$('viewport').scrollTop=page.offsetTop;});$('status').textContent=(duplicate?'Duplicated':'Added')+' sheet '+number+'.';}
 
 
 function initializeSheets(){projectSheets=[{id:1,view:drawingView,meta:sheetMetadata(),views:viewState}];currentSheetId=1;nextSheetId=2;refreshSheetPicker();}
