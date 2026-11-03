@@ -1989,7 +1989,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   common.appendChild(editor);
   const syncPalettes=()=>{if(selected?.kind==='node'&&selected.id===item.id)common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();};
   const get=sel=>editor.querySelector(sel);
-  const sync=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;const key=activeInnerKey,def=defs.find(d=>d[0]===key);if(!def){const selectedLabel=editor.querySelector('[data-shared-selected]');if(selectedLabel)selectedLabel.textContent='Select a label to format';syncPalettes();syncEquipmentTextHighlight(info,$('svg'),item,null,defs);for(const el of editor.querySelectorAll('input,select,button'))el.disabled=true;return;}for(const el of editor.querySelectorAll('input,select,button'))el.disabled=false;syncEquipmentTextHighlight(info,$('svg'),item,key,defs);get('[data-shared-selected]').textContent='Selected: '+def[1];get('[data-shared-size]').value=key==='drawingLabel'?equipmentFontSize(item.drawingLabelSize,12):equipmentFontSize(item.textSizes?.[key]??def[3],def[3]||10);get('[data-shared-style]').value=key==='drawingLabel'?equipmentTextStyle(item.drawingLabelStyle):equipmentTextStyle(item.textStyles?.[key]);syncPalettes();get('[data-shared-x]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelX):finiteEquipmentOffset(item.textOffsets?.[key]?.x);get('[data-shared-y]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelY):finiteEquipmentOffset(item.textOffsets?.[key]?.y);};
+  const sync=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;const key=activeInnerKey,def=defs.find(d=>d[0]===key);if(!def){const selectedLabel=editor.querySelector('[data-shared-selected]');if(selectedLabel)selectedLabel.textContent='Equipment outline selected';syncPalettes();syncEquipmentTextHighlight(info,$('svg'),item,null,defs);for(const el of editor.querySelectorAll('input,select,button'))el.disabled=true;return;}for(const el of editor.querySelectorAll('input,select,button'))el.disabled=false;syncEquipmentTextHighlight(info,$('svg'),item,key,defs);get('[data-shared-selected]').textContent='Selected: '+def[1];get('[data-shared-size]').value=key==='drawingLabel'?equipmentFontSize(item.drawingLabelSize,12):equipmentFontSize(item.textSizes?.[key]??def[3],def[3]||10);get('[data-shared-style]').value=key==='drawingLabel'?equipmentTextStyle(item.drawingLabelStyle):equipmentTextStyle(item.textStyles?.[key]);syncPalettes();get('[data-shared-x]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelX):finiteEquipmentOffset(item.textOffsets?.[key]?.x);get('[data-shared-y]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelY):finiteEquipmentOffset(item.textOffsets?.[key]?.y);};
   toolbar.syncSelectedText=sync;
   for(const [sel,handler] of [
    ['[data-shared-size]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelSize=equipmentFontSize(v,12);else{item.textSizes??={};item.textSizes[activeInnerKey]=equipmentFontSize(v,10);}}],
@@ -2427,7 +2427,14 @@ $('properties').addEventListener('input',e=>{if(selected?.kind!=='line'||e.targe
 $('properties').addEventListener('change',e=>{if(selected?.kind!=='line'||e.target?.dataset?.lineProp!=='arrow')return;const line=drawnLines.find(l=>String(l.id)===String(selected.id));if(!line)return;e.stopImmediatePropagation();line.arrow=e.target.value;renderCanvasOnly();},true);
 function renderCanvasOnly(){render(true);if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}}}
 function selectDrawingText(id,key){if(selectEquipmentTarget(id,key))render();}
-$('svg').addEventListener('click',e=>{const t=e.target.closest('[data-inner-key]');const n=e.target.closest('[data-node]');if(!t||!n||mode!=='select')return;selectDrawingText(Number(n.dataset.node),t.dataset.innerKey);});
+$('svg').addEventListener('click',e=>{
+ if(mode!=='select')return;
+ const t=e.target.closest('[data-inner-key],[data-additional-label]');
+ const n=t?.closest('[data-node]');
+ if(!t||!n)return;
+ const key=t.hasAttribute('data-additional-label')?'drawingLabel':t.dataset.innerKey;
+ if(key)selectDrawingText(Number(n.dataset.node),key);
+});
 // Connect tool: link shape boundaries, retaining anchors as shapes move or resize.
 $('svg').addEventListener('pointerdown',e=>{
  if(mode!=='connect'||e.button!==0)return;
