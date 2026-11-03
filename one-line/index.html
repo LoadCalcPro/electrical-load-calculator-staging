@@ -532,6 +532,13 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 /* Rotation shares the same typography, width and spacing as text offsets. */
 #properties .shared-text-editor .shared-rotation-field{display:block;margin:6px 0 0!important;font:inherit;color:inherit;font-weight:inherit}
 #properties .shared-text-editor .shared-rotation-field input{display:block;width:100%;box-sizing:border-box;margin-top:4px!important;font:inherit}
+/* One continuous Properties scrollbar: no clipped or separately scrolling lower pane. */
+body:has(.suite-header) #drawingInspector.drawing-inspector,
+#drawingInspector.drawing-inspector{display:block!important;overflow-y:auto!important;overflow-x:hidden!important;min-height:0!important;scrollbar-gutter:stable}
+#drawingInspector.drawing-inspector>#textInspector,
+#drawingInspector.drawing-inspector>#properties{display:block;flex:none!important;max-height:none!important;height:auto!important;min-height:0!important;overflow:visible!important}
+#drawingInspector.drawing-inspector>#textInspector:empty{display:none}
+#drawingInspector.drawing-inspector>h3{position:sticky;top:0;z-index:20;background:#f7faff}
 /* Compact equipment appearance controls without altering their behavior. */
 #properties .equipment-appearance-section{margin-top:0!important;padding:6px 12px 10px!important}
 #properties .equipment-appearance-section>h4{margin:0 0 8px!important}
