@@ -1832,7 +1832,7 @@ function selectEquipmentTarget(id,key=null){
  // Selecting the enclosure targets the equipment, not a stale inner label.
  // Selecting a label targets only that label, across all equipment types.
  activeInnerKey=(key===null?null:key);
- activeProjectText=null;const projectInspector=$('textInspector');if(projectInspector)projectInspector.replaceChildren();
+ activeProjectText=null;const projectInspector=$('textInspector');if(projectInspector&&(selected?.kind!=='node'||selected.id!==id))projectInspector.replaceChildren();
  selected={kind:'node',id};
  return item;
 }
