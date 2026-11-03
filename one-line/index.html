@@ -511,7 +511,7 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
  }
 }
 
-#textInspector .selected-equipment-designation{display:block;margin:8px 0 4px!important;padding:0!important}
+#textInspector .selected-equipment-designation{display:block;margin:0 0 6px!important;padding:6px 12px 10px!important;border:1px solid #d0e0f0;border-radius:12px;background:#f5f9fd;box-sizing:border-box}
 #textInspector .selected-equipment-designation>span{display:block;font-weight:700;margin-bottom:4px}
 #textInspector .selected-equipment-designation input{width:100%;min-width:0}
 /* Reduce unnecessary space in descriptive equipment sections. */
@@ -1981,9 +1981,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   const nameInput=designation.querySelector('input,textarea');
   designation.classList.add('selected-equipment-designation');
   if(nameInput){
-   const caption=document.createElement('span');
-   caption.textContent='Equipment designation';
-   designation.prepend(caption);
+   // The original field already contains its Equipment designation label. Do not add a second caption.
    nameInput.setAttribute('aria-label','Equipment designation');
    nameInput.addEventListener('focus',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key)activateEquipmentText(item,key);});
    nameInput.addEventListener('input',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key){activeInnerKey=key;common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();$('textInspector').syncSelectedText?.();}});
