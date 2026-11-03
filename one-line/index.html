@@ -2434,6 +2434,12 @@ function sizeDrawingSheetForScroll(){
  svg.style.setProperty('min-height','0','important');
  svg.style.setProperty('max-height','none','important');
  svg.style.setProperty('margin','0 auto','important');
+ // Keep all stacked pages at the same zoom as the editable page.
+ const rail=$('viewportSheetPages');
+ if(rail)rail.querySelectorAll('svg.sheet-preview').forEach(preview=>{
+  preview.style.width=Math.max(100,viewport.clientWidth-28)*zoom+'px';
+  preview.style.height='auto';
+ });
 }
 window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 // Track changes in the actual drawing window (including panel collapse), not just browser resize.
@@ -2799,10 +2805,13 @@ window.addEventListener('pointerup',()=>{projectTextDrag=null;},true);
 window.addEventListener('pointercancel',()=>{projectTextDrag=null;},true);
 // Activate the sheet occupying the center of the drawing viewport after
 // scrolling settles. Keep the existing SVG editor as the only live editor.
-let sheetScrollFrame=0,sheetScrollSettling=0,sheetSwitchInProgress=false;
+let sheetScrollFrame=0,sheetScrollSettling=0,sheetSwitchInProgress=false,sheetPointerDown=false;
+$('viewport').addEventListener('pointerdown',()=>{sheetPointerDown=true;},true);
+window.addEventListener('pointerup',()=>{sheetPointerDown=false;},true);
+window.addEventListener('pointercancel',()=>{sheetPointerDown=false;},true);
 function syncActiveSheetToViewport(){
  const viewport=$('viewport'),rail=$('viewportSheetPages');
- if(!viewport||!rail||sheetSwitchInProgress||projectTextDrag||!projectSheets.length)return;
+ if(!viewport||!rail||sheetSwitchInProgress||sheetPointerDown||projectTextDrag||!projectSheets.length)return;
  const pages=[...rail.querySelectorAll('.viewport-sheet-page')];
  if(pages.length<2)return;
  const view=viewport.getBoundingClientRect(),focus=view.top+Math.min(view.height*.45,260);
@@ -2830,7 +2839,7 @@ $('viewport').addEventListener('scroll',()=>{
  sheetScrollFrame=requestAnimationFrame(()=>{
   sheetScrollFrame=0;
   if(sheetScrollSettling)clearTimeout(sheetScrollSettling);
-  sheetScrollSettling=setTimeout(()=>{sheetScrollSettling=0;syncActiveSheetToViewport();},140);
+  sheetScrollSettling=setTimeout(()=>{sheetScrollSettling=0;if(!sheetPointerDown)syncActiveSheetToViewport();},200);
  });
 },{passive:true});
 // Sheet selector jumps to the selected page, without adding a toolbar row.
