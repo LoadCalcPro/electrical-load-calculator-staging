@@ -13,6 +13,13 @@ const fs = require('node:fs');
   await page.goto('file://' + path.resolve(__dirname, '../one-line/index.html'));
   await page.locator('#library [data-add="panel"]').first().waitFor();
   checkErrors('initial load');
+  // Fail loudly if the editor catches a startup exception and displays an
+  // error banner rather than letting the exception reach pageerror.
+  const startupError=page.locator('body').getByText(/Drawing editor startup error:/);
+  assert.equal(await startupError.count(),0,'Drawing editor startup error banner must not appear');
+  assert.equal(await page.locator('#svg').count(),1,'The live drawing SVG must be present after startup');
+  assert.equal(await page.locator('#textInspector').count(),1,'Properties formatting inspector must be present');
+
   // Multi-sheet regression: preserve the live SVG while rebuilding pages,
   // and ensure the inside scrollbar can reach the final sheet.
   const sheetTest=await page.evaluate(()=>{
