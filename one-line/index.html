@@ -520,7 +520,7 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #properties .property-priority label.field{margin-bottom:6px!important}
 #properties .property-priority input,#properties .property-priority select{margin-top:4px!important}
 /* Compact equipment appearance controls without altering their behavior. */
-#properties .equipment-appearance-section{margin-top:6px!important;padding:10px 12px!important}
+#properties .equipment-appearance-section{margin-top:0!important;padding:6px 12px 10px!important}
 #properties .equipment-appearance-section>h4{margin:0 0 8px!important}
 #properties .equipment-appearance-section .field{margin-top:4px!important;margin-bottom:6px!important}
 #properties .equipment-appearance-section .section{margin:4px 0!important;padding:0!important}
@@ -2073,9 +2073,6 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // description fields in every drawing mode (including Plan View).
  const appearance=document.createElement('section');
  appearance.className='equipment-appearance-section';
- const appearanceHeading=document.createElement('h4');
- appearanceHeading.textContent='Equipment Appearance';
- appearance.appendChild(appearanceHeading);
  // Move the existing size control, not a clone: its event handlers remain intact.
  const sizeControl=common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl)appearance.appendChild(sizeControl);
