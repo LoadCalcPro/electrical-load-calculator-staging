@@ -1990,7 +1990,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    nameInput.addEventListener('focus',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key)activateEquipmentText(item,key);});
    nameInput.addEventListener('input',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key){activeInnerKey=key;common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();$('textInspector').syncSelectedText?.();}});
   }
-  outline.after(designation);
+  // Designation is placed after rotation alongside the remaining description fields.
  }
  const hasTextTarget=()=>activeInnerKey==='drawingLabel'||(item._labelDefs||[]).some(d=>d[0]===activeInnerKey);
  const labelColor=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelColor||'#111111'):(item.textColors?.[activeInnerKey]||'#111111');
@@ -2090,6 +2090,13 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);}
  if(advanced.children.length)appearance.appendChild(advanced);
  if(appearance.children.length>1)p.insertBefore(appearance,info);
+ // Keep the designation first, then descriptions, immediately after Rotation.
+ // Move existing elements rather than recreating fields or their event handlers.
+ const descriptionAnchor=rotation&&offsetGrid?rotation:common.querySelector('.shared-text-editor');
+ if(descriptionAnchor){
+  if(designation)descriptionAnchor.after(designation);
+  (designation||descriptionAnchor).after(info);
+ }
 
  // Existing equipment text inputs remain editable; give their section a
  // consistent heading rather than introducing another set of format controls.
