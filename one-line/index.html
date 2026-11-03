@@ -2050,6 +2050,9 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   if(key&&defs.some(d=>d[0]===key))input.addEventListener('pointerdown',()=>{if(selected?.kind!=='node'||selected.id!==item.id)return;activateEquipmentText(item,key);toolbar.syncSelectedText?.();});
  }
  const rotation=common.querySelector('[data-common-rotation]')?.closest('label');
+ // Keep rotation immediately below the horizontal/vertical offset fields.
+ const offsetGrid=common.querySelector('.shared-text-editor .shared-text-grid');
+ if(rotation&&offsetGrid)offsetGrid.after(rotation);
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
  const advanced=document.createElement('div');advanced.className='properties-advanced-inline';
  const weight=p.querySelector('[data-weight-status]')?.closest('label');
@@ -2058,7 +2061,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const left=p.querySelector('[data-enclosure-left]')?.closest('label');
  const placementHeading=Array.from(p.querySelectorAll('div.field')).find(el=>el.textContent.trim()==='Enclosure placement (drawing units)');
  // Rotation belongs immediately beneath proportional equipment sizing.
- if(rotation)advanced.appendChild(rotation);
+ if(rotation&&!offsetGrid)advanced.appendChild(rotation);
  if(placementHeading)advanced.appendChild(placementHeading);
  if(top)advanced.appendChild(top);if(left)advanced.appendChild(left);
  for(const key of ['width','height']){const field=p.querySelector('[data-prop="'+key+'"]')?.closest('label');if(field)advanced.appendChild(field);}
