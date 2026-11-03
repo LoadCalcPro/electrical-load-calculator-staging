@@ -598,7 +598,22 @@ const sheetPageSnapshots=new Map();
 function captureCurrentSheetPage(){
  const svg=$('svg');if(!svg||!projectSheets.length)return;
  const clone=svg.cloneNode(true);
- clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+ clone.removeAttribute('id');
+// Namespace copied SVG definition IDs so clipping, gradients, and patterns
+// continue to resolve on inactive sheets without colliding with the editor.
+const prefix='sheet-preview-'+currentSheetId+'-';
+const idMap=new Map();
+clone.querySelectorAll('[id]').forEach(n=>{const oldId=n.id,newId=prefix+oldId;idMap.set(oldId,newId);n.id=newId;});
+clone.querySelectorAll('*').forEach(n=>{
+ for(const attr of [...n.attributes]){
+  let value=attr.value;
+  for(const [from,to] of idMap){
+   value=value.split('url(#'+from+')').join('url(#'+to+')');
+   if(value==='#'+from)value='#'+to;
+  }
+  if(value!==attr.value)n.setAttribute(attr.name,value);
+ }
+});
  clone.querySelectorAll('[data-project-handle]').forEach(n=>n.remove());
  clone.style.pointerEvents='none';
  clone.setAttribute('aria-hidden','true');
@@ -2782,9 +2797,16 @@ const p=xy(e),dx=p.x-d.start.x,dy=p.y-d.start.y;
 },true);
 window.addEventListener('pointerup',()=>{projectTextDrag=null;},true);
 window.addEventListener('pointercancel',()=>{projectTextDrag=null;},true);
-$('sheetPicker').addEventListener('change',e=>loadSheet(Number(e.target.value)));
-$('previousSheet').onclick=()=>{const i=projectSheets.findIndex(s=>s.id===currentSheetId);if(i>0)loadSheet(projectSheets[i-1].id);};
-$('nextSheet').onclick=()=>{const i=projectSheets.findIndex(s=>s.id===currentSheetId);if(i>=0&&i<projectSheets.length-1)loadSheet(projectSheets[i+1].id);};
+// Sheet selector jumps to the selected page, without adding a toolbar row.
+function scrollSelectedSheetIntoView(id){
+ requestAnimationFrame(()=>{
+  const page=document.querySelector('#viewportSheetPages [data-sheet-id="'+id+'"]');
+  if(page)$('viewport').scrollTop=page.offsetTop;
+ });
+}
+$('sheetPicker').addEventListener('change',e=>{const id=Number(e.target.value);loadSheet(id);scrollSelectedSheetIntoView(id);});
+$('previousSheet').onclick=()=>{const i=projectSheets.findIndex(s=>s.id===currentSheetId);if(i>0){loadSheet(projectSheets[i-1].id);scrollSelectedSheetIntoView(projectSheets[i-1].id);}};
+$('nextSheet').onclick=()=>{const i=projectSheets.findIndex(s=>s.id===currentSheetId);if(i>=0&&i<projectSheets.length-1){loadSheet(projectSheets[i+1].id);scrollSelectedSheetIntoView(projectSheets[i+1].id);}};
 $('addSheet').onclick=()=>addProjectSheet(false);
 $('duplicateSheet').onclick=()=>addProjectSheet(true);
 $('removeSheet').onclick=()=>{if(projectSheets.length<2){alert('A project must contain at least one sheet.');return;}if(!confirm('Delete the current sheet and its drawing?'))return;const i=projectSheets.findIndex(s=>s.id===currentSheetId),target=projectSheets[i===0?1:i-1].id;projectSheets.splice(i,1);currentSheetId=-1;loadSheet(target);};
