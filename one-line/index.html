@@ -527,6 +527,12 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #textInspector .shared-drawing-color-targets .equipment-format-targets{display:flex;gap:8px}
 #textInspector .shared-drawing-color-targets .equipment-format-targets button{min-height:46px;font-weight:700;line-height:1.2}
 #textInspector .shared-drawing-color-targets .equipment-format-targets button[aria-pressed="true"]{border:2px solid #16869b!important;background:#d9edf5!important}
+
+#textInspector .feeder-label-editor .shared-drawing-color-targets{order:-2}
+#textInspector .feeder-label-editor .shared-drawing-color-targets .equipment-format-targets{display:flex;gap:8px;margin:8px 0}
+#textInspector .feeder-label-editor .shared-drawing-color-targets button{flex:1;min-width:0;min-height:44px;border:1px solid #b8cbe3;border-radius:8px;background:white;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+#textInspector .feeder-label-editor .shared-drawing-color-targets button[aria-pressed="true"]{background:#d9edf5;border:2px solid #16869b}
+#textInspector .feeder-label-editor .shared-drawing-color-targets button:disabled{opacity:.5;cursor:default}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
@@ -2273,11 +2279,34 @@ if(selected.kind==='wire'){
  const isOldGroundDefault=(from?.type==='groundterminal'||to?.type==='groundterminal')&&item.parallelColors?.length===1&&item.parallelColors[0]?.toLowerCase()==='#16a34a';
  if(isOldGroundDefault)item.parallelColors=['#111111'];
  const paletteRoot=section.querySelector('.shared-text-editor');
- const syncColors=makeColorRows(paletteRoot,()=>item.parallelColors?.[0]||'#111111',
- v=>{if(selected?.kind!=='wire'||selected.id!==item.id||!paletteRoot.isConnected)return;item.parallelColors=Array.from({length:Math.max(1,Number(item.parallelCount)||1)},()=>v);renderCanvasOnly()},
- ()=>'',
- ()=>{},
- {colorLabel:'Conductor Color',noHighlight:true});
+ const targetBar=document.createElement('div');targetBar.className='equipment-outline-palette shared-drawing-color-targets';
+ const targetCaption=document.createElement('div');targetCaption.className='field';targetCaption.textContent='Format selected part';targetBar.appendChild(targetCaption);
+ const targetButtons=document.createElement('div');targetButtons.className='equipment-format-targets';targetBar.appendChild(targetButtons);
+ let wireColorTarget='outline';
+ for(const [value,label] of [['outline','Conductor outline'],['label','Selected conductor label']]){
+  const button=document.createElement('button');button.type='button';button.textContent=label;
+  button.disabled=value==='label'&&!String(item.label||'').trim();
+  button.addEventListener('click',()=>{if(button.disabled)return;wireColorTarget=value;syncWireTargets();});
+  button.dataset.wireTarget=value;targetButtons.appendChild(button);
+ }
+ paletteRoot.prepend(targetBar);
+ const syncColors=makeColorRows(paletteRoot,
+ ()=>wireColorTarget==='label'?(item.labelColor||'#111111'):(item.parallelColors?.[0]||'#111111'),
+ v=>{if(selected?.kind!=='wire'||selected.id!==item.id||!paletteRoot.isConnected)return;
+  if(wireColorTarget==='label')item.labelColor=v;
+  else item.parallelColors=Array.from({length:Math.max(1,Number(item.parallelCount)||1)},()=>v);
+  renderCanvasOnly();},
+ ()=>wireColorTarget==='label'?(item.highlight||''):'',
+ v=>{if(selected?.kind!=='wire'||selected.id!==item.id||!paletteRoot.isConnected||wireColorTarget!=='label')return;item.highlight=v;renderCanvasOnly();},
+ {colorLabel:'Color'});
+ const syncWireTargets=()=>{
+  const labelButton=targetButtons.querySelector('[data-wire-target="label"]');
+  labelButton.disabled=!String(item.label||'').trim();
+  if(labelButton.disabled&&wireColorTarget==='label')wireColorTarget='outline';
+  for(const button of targetButtons.children){const active=button.dataset.wireTarget===wireColorTarget;button.setAttribute('aria-pressed',String(active));button.classList.toggle('format-target-active',active);}
+  syncColors();
+ };
+ syncWireTargets();
  const field=(key)=>p.querySelector('[data-prop="'+key+'"]');
  for(const key of ['labelSize','labelStyle','labelColor','labelDX','labelDY','labelAngle'])field(key)?.closest('label')?.remove();
  // For an unlabeled conductor, the position controls adjust the conductor itself.
