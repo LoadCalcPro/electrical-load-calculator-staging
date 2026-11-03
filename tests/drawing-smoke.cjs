@@ -13,6 +13,31 @@ const fs = require('node:fs');
   await page.goto('file://' + path.resolve(__dirname, '../one-line/index.html'));
   await page.locator('#library [data-add="panel"]').first().waitFor();
   checkErrors('initial load');
+  // Multi-sheet regression: preserve the live SVG while rebuilding pages,
+  // and ensure the inside scrollbar can reach the final sheet.
+  const sheetTest=await page.evaluate(()=>{
+    const svg=document.getElementById('svg'),viewport=document.getElementById('viewport');
+    if(!svg||!viewport)return {missing:true};
+    const first=svg;
+    const addSheet=typeof addProjectSheet==='function'?addProjectSheet:null;
+    if(!addSheet)return {missing:true};
+    addSheet(false);
+    const rail=document.getElementById('viewportSheetPages');
+    const pages=rail?[...rail.querySelectorAll('.viewport-sheet-page')]:[];
+    viewport.scrollTop=viewport.scrollHeight;
+    return {pages:pages.length,svgPreserved:document.getElementById('svg')===first,
+      livePages:rail?.querySelectorAll('.viewport-sheet-page.active #svg').length||0,
+      canReachBottom:Math.abs(viewport.scrollTop-(viewport.scrollHeight-viewport.clientHeight))<3,
+      scrollHeight:viewport.scrollHeight,clientHeight:viewport.clientHeight};
+  });
+  assert.ok(!sheetTest.missing,'Sheet controls missing');
+  assert.equal(sheetTest.pages,2,'Adding a sheet should create two stacked pages');
+  assert.ok(sheetTest.svgPreserved,'Sheet refresh must preserve the interactive SVG element');
+  assert.equal(sheetTest.livePages,1,'Exactly one sheet should contain the live editor');
+  assert.ok(sheetTest.scrollHeight>sheetTest.clientHeight,'Multiple sheets must overflow the drawing viewport');
+  assert.ok(sheetTest.canReachBottom,'Inside scrollbar must reach the bottom of all sheets');
+  checkErrors('multi-sheet creation and scrolling');
+
 
   // Laptop layout and equipment-library accordion regression.
   const categories=page.locator('#library > details.equipment-category');
