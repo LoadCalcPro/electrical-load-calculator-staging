@@ -2028,7 +2028,15 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    control.addEventListener('input',e=>{
     if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;
     if(activeInnerKey===null||!defs.some(d=>d[0]===activeInnerKey))return;
-    handler(e.target.value);renderCanvasOnly();toolbar.syncSelectedText?.();
+    handler(e.target.value);
+    // Keep the original equipment description field in sync without firing
+    // its input handler or rebuilding Properties while the user is typing.
+    if(sel==='[data-shared-text]'){
+     for(const field of info.querySelectorAll('input,textarea')){
+      if(equipmentTextKeyForControl(field,defs)===activeInnerKey&&field!==e.target)field.value=e.target.value;
+     }
+    }
+    renderCanvasOnly();toolbar.syncSelectedText?.();
    });
   }
   sync();
