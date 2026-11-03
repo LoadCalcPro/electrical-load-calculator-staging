@@ -1989,8 +1989,15 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   labelSelect.addEventListener('pointerdown',event=>event.stopPropagation());
   labelSelect.addEventListener('change',()=>{
    if(selected?.kind!=='node'||selected.id!==item.id)return;
-   if(labelSelect.value){activateEquipmentText(item,labelSelect.value);}
-   else activeInnerKey=null;
+   if(labelSelect.value){
+    activateEquipmentText(item,labelSelect.value);
+    // Choosing a description also targets its color/highlight controls.
+    // Otherwise the palette silently continues changing the enclosure outline.
+    common.querySelector('.equipment-outline-palette [data-format-target="label"]')?.click();
+   }else{
+    activeInnerKey=null;
+    common.querySelector('.equipment-outline-palette [data-format-target="outline"]')?.click();
+   }
    toolbar.syncSelectedText?.();
    renderCanvasOnly();
   });
