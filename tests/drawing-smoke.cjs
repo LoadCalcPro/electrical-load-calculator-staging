@@ -20,6 +20,40 @@ const fs = require('node:fs');
   assert.equal(await page.locator('#svg').count(),1,'The live drawing SVG must be present after startup');
   assert.equal(await page.locator('#textInspector').count(),1,'Properties formatting inspector must be present');
 
+  // Equipment Properties regression: choosing a label must keep the chooser
+  // enabled and switch the shared palette from outline to label.
+  const equipmentFormatting=await page.evaluate(()=>{
+    const item={id:next++,type:'panel',x:400,y:300,name:'Panel Test',scaleX:1,scaleY:1};
+    nodes.push(item);selected={kind:'node',id:item.id};mode='select';render();
+    const inspector=document.getElementById('textInspector');
+    const chooser=inspector?.querySelector('.equipment-label-chooser select');
+    const appearance=document.querySelector('#properties .equipment-appearance-section');
+    if(!chooser||!appearance)return {missing:true,chooser:!!chooser,appearance:!!appearance};
+    const enabledBefore=!chooser.disabled;
+    const option=[...chooser.options].find(o=>o.value&&o.value!=='drawingLabel')||[...chooser.options].find(o=>o.value);
+    if(!option)return {missing:true,noLabels:true};
+    chooser.value=option.value;
+    chooser.dispatchEvent(new Event('change',{bubbles:true}));
+    const labelButton=inspector.querySelector('[data-format-target="label"]');
+    const selectedLabel=inspector.querySelector('[data-shared-selected]')?.textContent||'';
+    const result={missing:false,enabledBefore,enabledAfter:!chooser.disabled,
+      selectedKey:activeInnerKey,expectedKey:option.value,
+      labelTarget:labelButton?.getAttribute('aria-pressed'),
+      selectedLabel,rotationUnderAppearance:!!appearance.querySelector('[data-common-rotation]'),
+      sizeEnabled:!inspector.querySelector('[data-shared-size]')?.disabled};
+    nodes=nodes.filter(n=>n.id!==item.id);selected=null;render();
+    return result;
+  });
+  assert.equal(equipmentFormatting.missing,false,'Panel equipment formatting controls missing');
+  assert.ok(equipmentFormatting.enabledBefore,'Label chooser disabled before selecting a label');
+  assert.ok(equipmentFormatting.enabledAfter,'Label chooser disabled after selecting a label');
+  assert.equal(equipmentFormatting.selectedKey,equipmentFormatting.expectedKey,'Label selection did not update active text');
+  assert.equal(equipmentFormatting.labelTarget,'true','Choosing a label did not activate its color palette');
+  assert.match(equipmentFormatting.selectedLabel,/Selected:/,'Selected description not reflected in formatting');
+  assert.ok(equipmentFormatting.rotationUnderAppearance,'Rotation is not under Equipment Appearance');
+  assert.ok(equipmentFormatting.sizeEnabled,'Font size remains disabled after choosing a label');
+  checkErrors('equipment label chooser, palette and appearance layout');
+
   // Multi-sheet regression: preserve the live SVG while rebuilding pages,
   // and ensure the inside scrollbar can reach the final sheet.
   const sheetTest=await page.evaluate(()=>{
