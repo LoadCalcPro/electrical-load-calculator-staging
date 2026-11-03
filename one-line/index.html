@@ -464,6 +464,20 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
  font-size:15px;transition:transform .15s ease;
 }
 .project-meta-collapse:not([open])>summary .project-collapse-chevron{transform:rotate(-90deg)}
+
+/* Compact project information: two short field rows, tools last. */
+.project-meta-collapse>summary{padding:7px 11px!important;min-height:28px}
+.project-meta-collapse>.meta{gap:5px!important;padding:6px!important}
+.project-meta-collapse .project-info-field{padding:4px 6px!important;gap:2px!important;border-radius:6px!important}
+.project-meta-collapse .project-info-heading{font-size:10px!important;line-height:14px!important}
+.project-meta-collapse .project-info-toggle{font-size:10px!important}
+.project-meta-collapse .project-info-field input:not([type=checkbox]),
+.project-meta-collapse .project-info-field select{min-height:27px!important;height:27px!important;padding:3px 6px!important;font-size:12px!important}
+.project-meta-collapse .project-info-field textarea{height:28px!important;min-height:28px!important;max-height:28px!important;padding:4px 6px!important;line-height:18px!important;font-size:12px!important}
+.project-meta-collapse .project-info-field textarea:focus{height:65px!important;max-height:65px!important}
+.project-meta-collapse .image-project-tools{order:99;padding:5px 7px!important;gap:4px!important}
+.project-meta-collapse .image-project-buttons{gap:4px!important}
+.project-meta-collapse .image-project-buttons button{padding:4px 7px!important;font-size:11px!important;min-height:25px!important}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
