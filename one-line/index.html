@@ -532,6 +532,15 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 /* Rotation shares the same typography, width and spacing as text offsets. */
 #properties .shared-text-editor .shared-rotation-field{display:block;margin:6px 0 0!important;font:inherit;color:inherit;font-weight:inherit}
 #properties .shared-text-editor .shared-rotation-field input{display:block;width:100%;box-sizing:border-box;margin-top:4px!important;font:inherit}
+/* Match lower appearance controls to the compact Properties field typography. */
+#properties .equipment-appearance-section,
+#properties .equipment-appearance-section label,
+#properties .equipment-appearance-section .field,
+#properties .equipment-appearance-section .properties-advanced-inline{font-size:14px!important;line-height:1.3!important}
+#properties .equipment-appearance-section input,
+#properties .equipment-appearance-section select{font-size:14px!important;line-height:1.3!important}
+#properties .equipment-appearance-section .properties-advanced-inline>div.field,
+#properties .equipment-appearance-section .properties-advanced-inline>label.field{font-weight:600!important}
 /* One continuous Properties scrollbar: no clipped or separately scrolling lower pane. */
 body:has(.suite-header) #drawingInspector.drawing-inspector,
 #drawingInspector.drawing-inspector{display:block!important;overflow-y:auto!important;overflow-x:hidden!important;min-height:0!important;scrollbar-gutter:stable}
