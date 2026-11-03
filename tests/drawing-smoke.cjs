@@ -20,50 +20,34 @@ const fs = require('node:fs');
   assert.equal(await page.locator('#svg').count(),1,'The live drawing SVG must be present after startup');
   assert.equal(await page.locator('#textInspector').count(),1,'Properties formatting inspector must be present');
 
-  // Equipment Properties regression: choosing a label must keep the chooser
-  // enabled and switch the shared palette from outline to label.
+  // Equipment Properties regression: selection must drive the shared controls.
   const equipmentFormatting=await page.evaluate(()=>{
     const item={id:next++,type:'panel',x:400,y:300,name:'Panel Test',scaleX:1,scaleY:1};
     nodes.push(item);selected={kind:'node',id:item.id};mode='select';render();
     const inspector=document.getElementById('textInspector');
-    const chooser=inspector?.querySelector('.equipment-label-chooser select');
     const appearance=document.querySelector('#properties .equipment-appearance-section');
-    if(!chooser||!appearance)return {missing:true,chooser:!!chooser,appearance:!!appearance};
-    const enabledBefore=!chooser.disabled;
-    const option=[...chooser.options].find(o=>o.value&&o.value!=='drawingLabel')||[...chooser.options].find(o=>o.value);
-    if(!option)return {missing:true,noLabels:true};
-    chooser.value=option.value;
-    chooser.dispatchEvent(new Event('change',{bubbles:true}));
-    const description=inspector.querySelector('[data-shared-text]');
-    const originalText=item.innerText?.[option.value]??'';
-    if(description){description.value='Properties test label';description.dispatchEvent(new Event('input',{bubbles:true}));}
-    const editedText=item.innerText?.[option.value];
-    const matchingFields=[...document.querySelectorAll('#properties input,#properties textarea')].filter(el=>typeof equipmentTextKeyForControl==='function'&&equipmentTextKeyForControl(el,item._labelDefs||[])===option.value);
-    const fieldsSynchronized=matchingFields.every(el=>el.value==='Properties test label');
-    if(originalText==='')delete item.innerText?.[option.value];else item.innerText[option.value]=originalText;
-    const labelButton=inspector.querySelector('[data-format-target="label"]');
-    const selectedLabel=inspector.querySelector('[data-shared-selected]')?.textContent||'';
-    const result={missing:false,enabledBefore,enabledAfter:!chooser.disabled,
-      editedText,fieldsSynchronized,descriptionPresent:!!description,
-      selectedKey:activeInnerKey,expectedKey:option.value,
-      labelTarget:labelButton?.getAttribute('aria-pressed'),
-      selectedLabel,rotationUnderAppearance:!!appearance.querySelector('[data-common-rotation]'),
-      sizeEnabled:!inspector.querySelector('[data-shared-size]')?.disabled};
+    const chooser=inspector?.querySelector('.equipment-label-chooser');
+    const duplicate=inspector?.querySelector('[data-shared-text]');
+    const key=item._labelDefs?.[0]?.[0]||'drawingLabel';
+    activateEquipmentText(item,key);
+    const result={appearance:!!appearance,chooser:!!chooser,duplicate:!!duplicate,
+      selectedKey:activeInnerKey,expectedKey:key,
+      labelTarget:inspector?.querySelector('[data-format-target="label"]')?.getAttribute('aria-pressed'),
+      selectedLabel:inspector?.querySelector('[data-shared-selected]')?.textContent||'',
+      rotationUnderAppearance:!!appearance?.querySelector('[data-common-rotation]'),
+      sizeEnabled:!inspector?.querySelector('[data-shared-size]')?.disabled};
     nodes=nodes.filter(n=>n.id!==item.id);selected=null;render();
     return result;
   });
-  assert.equal(equipmentFormatting.missing,false,'Panel equipment formatting controls missing');
-  assert.ok(equipmentFormatting.enabledBefore,'Label chooser disabled before selecting a label');
-  assert.ok(equipmentFormatting.enabledAfter,'Label chooser disabled after selecting a label');
-  assert.ok(equipmentFormatting.descriptionPresent,'Shared equipment description text editor missing');
-  assert.equal(equipmentFormatting.editedText,'Properties test label','Shared description edit did not update equipment data');
-  assert.ok(equipmentFormatting.fieldsSynchronized,'Original description fields were not synchronized');
-  assert.equal(equipmentFormatting.selectedKey,equipmentFormatting.expectedKey,'Label selection did not update active text');
-  assert.equal(equipmentFormatting.labelTarget,'true','Choosing a label did not activate its color palette');
-  assert.match(equipmentFormatting.selectedLabel,/Selected:/,'Selected description not reflected in formatting');
-  assert.ok(equipmentFormatting.rotationUnderAppearance,'Rotation is not under Equipment Appearance');
-  assert.ok(equipmentFormatting.sizeEnabled,'Font size remains disabled after choosing a label');
-  checkErrors('equipment label chooser, palette and appearance layout');
+  assert.ok(equipmentFormatting.appearance,'Equipment Appearance missing');
+  assert.equal(equipmentFormatting.chooser,false,'Redundant label chooser remains');
+  assert.equal(equipmentFormatting.duplicate,false,'Duplicate description field remains');
+  assert.equal(equipmentFormatting.selectedKey,equipmentFormatting.expectedKey,'Text selection not activated');
+  assert.equal(equipmentFormatting.labelTarget,'true','Label palette not activated');
+  assert.match(equipmentFormatting.selectedLabel,/Selected:/,'Selected label not shown');
+  assert.ok(equipmentFormatting.rotationUnderAppearance,'Rotation missing from appearance');
+  assert.ok(equipmentFormatting.sizeEnabled,'Font size disabled for selected text');
+  checkErrors('streamlined equipment Properties');
 
   // Multi-sheet regression: preserve the live SVG while rebuilding pages,
   // and ensure the inside scrollbar can reach the final sheet.
