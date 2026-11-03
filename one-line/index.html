@@ -419,9 +419,16 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #textInspector .project-text-controls>.shared-text-grid{order:1!important}
 
 /* Multi-sheet stage 1: scrollable sheet navigation below the active canvas. */
-#viewportSheetPages{display:flex;flex-direction:column;gap:12px;padding:16px 12px 90px;background:#e9eef5;min-height:90px}
-#viewportSheetPages .viewport-sheet-page{display:block;width:100%;padding:18px;text-align:left;border:1px solid #aebdd0;background:white;color:#21334d;border-radius:5px;cursor:pointer;font:600 14px system-ui,sans-serif}
-#viewportSheetPages .viewport-sheet-page[aria-current="page"]{border:2px solid #167caa;background:#eaf6fc}
+#viewportSheetPages{display:flex;flex-direction:column;gap:18px;padding:12px 12px 100px;background:#e9eef5}
+#viewportSheetPages .viewport-sheet-page{display:block;width:100%;background:transparent;color:#21334d}
+#viewportSheetPages .viewport-sheet-label{font:600 13px system-ui,sans-serif;padding:4px 0 8px}
+#viewportSheetPages .viewport-sheet-content{background:white;border:1px solid #aebdd0;min-height:160px;overflow:hidden}
+#viewportSheetPages .viewport-sheet-page:not(.active){cursor:pointer}
+#viewportSheetPages .viewport-sheet-page.active .viewport-sheet-content{border:2px solid #167caa}
+#viewportSheetPages .sheet-preview{display:block;width:100%;height:auto;pointer-events:none}
+#viewportSheetPages .sheet-preview-blank{aspect-ratio:1000/700;display:grid;place-items:center;color:#748399}
+#viewport>svg{display:none!important}
+#viewportSheetPages #svg{display:block!important}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
@@ -583,27 +590,47 @@ function storeCurrentSheet(){if(!projectSheets.length)return;viewState[drawingVi
 function emptySheetState(){return {one:null,plan:null,ladder:null};}
 function defaultSheetNumber(view){const prefix=view==='plan'?'E-1':view==='ladder'?'E-2':'E-0';let i=1,n;do{n=prefix+String(i++).padStart(2,'0')}while(projectSheets.some(s=>s.meta.number===n));return n;}
 function refreshSheetPicker(){const p=$('sheetPicker');if(!p)return;p.replaceChildren();for(const sh of projectSheets){const o=document.createElement('option');o.value=String(sh.id);o.textContent=(sh.id===currentSheetId?$('sheetNumber').value:sh.meta.number)+' · '+({one:'One-Line',plan:'Plan View',ladder:'Ladder'}[sh.view]||'Drawing');p.appendChild(o);}p.value=String(currentSheetId);refreshViewportSheetPages();}
-function loadSheet(id){if(id===currentSheetId)return;const sh=projectSheets.find(s=>s.id===id);if(!sh)return;storeCurrentSheet();currentSheetId=id;viewState=sh.views||emptySheetState();drawingView=sh.view||'one';const st=viewState[drawingView]||{nodes:[],wires:[],annotations:[],drawnLines:[],polyRoutes:[],personalImages:[],next:1};nodes=st.nodes||[];wires=st.wires||[];annotations=st.annotations||[];drawnLines=st.drawnLines||[];polyRoutes=st.polyRoutes||[];personalImages=st.personalImages||[];next=st.next||1;selected=null;selectedLineIds.clear();selectedNodeIds.clear();const m=sh.meta||{};$('sheetNumber').value=m.number||'';$('drawingTitle').value=m.title||'';$('drawingScale').value=m.scale||'NTS';if(m.voltage)$('voltage').value=m.voltage;if(m.planScale)$('planScaleSelect').value=m.planScale;if(m.paper)$('paper').value=m.paper;$('showTitleDivider').checked=m.showTitleDivider!==false;$('titleBlockPosition').value=m.titleBlockPosition==='right'?'right':'bottom';activateDrawingView(drawingView,true);refreshSheetPicker();render();$('status').textContent='Sheet '+$('sheetNumber').value+' selected.';}
+function loadSheet(id){if(id===currentSheetId)return;const sh=projectSheets.find(s=>s.id===id);if(!sh)return;captureCurrentSheetPage();storeCurrentSheet();currentSheetId=id;viewState=sh.views||emptySheetState();drawingView=sh.view||'one';const st=viewState[drawingView]||{nodes:[],wires:[],annotations:[],drawnLines:[],polyRoutes:[],personalImages:[],next:1};nodes=st.nodes||[];wires=st.wires||[];annotations=st.annotations||[];drawnLines=st.drawnLines||[];polyRoutes=st.polyRoutes||[];personalImages=st.personalImages||[];next=st.next||1;selected=null;selectedLineIds.clear();selectedNodeIds.clear();const m=sh.meta||{};$('sheetNumber').value=m.number||'';$('drawingTitle').value=m.title||'';$('drawingScale').value=m.scale||'NTS';if(m.voltage)$('voltage').value=m.voltage;if(m.planScale)$('planScaleSelect').value=m.planScale;if(m.paper)$('paper').value=m.paper;$('showTitleDivider').checked=m.showTitleDivider!==false;$('titleBlockPosition').value=m.titleBlockPosition==='right'?'right':'bottom';activateDrawingView(drawingView,true);refreshSheetPicker();render();$('status').textContent='Sheet '+$('sheetNumber').value+' selected.';}
 // Stage 1 of continuous sheets: keep a visible, scrollable page navigator inside the
 // drawing viewport. This does not replace the active SVG or its editing handlers.
+// Keep inactive pages as SVG snapshots; only the selected page owns editor events.
+const sheetPageSnapshots=new Map();
+function captureCurrentSheetPage(){
+ const svg=$('svg');if(!svg||!projectSheets.length)return;
+ const clone=svg.cloneNode(true);
+ clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+ clone.querySelectorAll('[data-project-handle]').forEach(n=>n.remove());
+ clone.style.pointerEvents='none';
+ clone.setAttribute('aria-hidden','true');
+ sheetPageSnapshots.set(currentSheetId,clone.outerHTML);
+}
 function refreshViewportSheetPages(){
  const viewport=$('viewport'),svg=$('svg');
  if(!viewport||!svg||!projectSheets?.length)return;
  let rail=$('viewportSheetPages');
  if(!rail){rail=document.createElement('div');rail.id='viewportSheetPages';rail.setAttribute('aria-label','Drawing sheets');viewport.appendChild(rail);}
+ const priorTop=viewport.scrollTop;
  rail.replaceChildren();
  for(const sh of projectSheets){
-  const button=document.createElement('button');
-  button.type='button';button.className='viewport-sheet-page';
-  button.dataset.sheetId=String(sh.id);
-  const active=sh.id===currentSheetId;
-  button.setAttribute('aria-current',active?'page':'false');
-  button.textContent=(active?'Current sheet: ':'Go to sheet: ')+(active?$('sheetNumber').value:sh.meta?.number||'')+' — '+({one:'One-Line Diagram',plan:'Plan View',ladder:'Ladder Diagram'}[sh.view]||'Drawing');
-  button.addEventListener('click',()=>{if(sh.id!==currentSheetId)loadSheet(sh.id);viewport.scrollTop=0;});
-  rail.appendChild(button);
+  const page=document.createElement('section');page.className='viewport-sheet-page';page.dataset.sheetId=String(sh.id);
+  page.setAttribute('aria-label','Sheet '+(sh.id===currentSheetId?$('sheetNumber').value:sh.meta?.number||''));
+  const label=document.createElement('div');label.className='viewport-sheet-label';
+  label.textContent=(sh.id===currentSheetId?$('sheetNumber').value:sh.meta?.number||'')+' · '+({one:'One-Line Diagram',plan:'Plan View',ladder:'Ladder Diagram'}[sh.view]||'Drawing');
+  page.appendChild(label);
+  const content=document.createElement('div');content.className='viewport-sheet-content';page.appendChild(content);
+  if(sh.id===currentSheetId){
+   content.appendChild(svg);page.classList.add('active');
+  }else{
+   const snapshot=sheetPageSnapshots.get(sh.id);
+   if(snapshot){const template=document.createElement('template');template.innerHTML=snapshot;const preview=template.content.firstElementChild;if(preview){preview.removeAttribute('style');preview.classList.add('sheet-preview');content.appendChild(preview);}}
+   else{const blank=document.createElement('div');blank.className='sheet-preview-blank';blank.textContent='Blank drawing sheet';content.appendChild(blank);}
+   page.addEventListener('click',()=>{const y=page.offsetTop;loadSheet(sh.id);requestAnimationFrame(()=>{const next=rail.querySelector('[data-sheet-id="'+sh.id+'"]');if(next)viewport.scrollTop=next.offsetTop;});});
+  }
+  rail.appendChild(page);
  }
+ viewport.scrollTop=priorTop;
 }
-function addProjectSheet(duplicate=false){storeCurrentSheet();const old=projectSheets.find(s=>s.id===currentSheetId),view=drawingView,id=nextSheetId++,number=defaultSheetNumber(view),meta={...sheetMetadata(),number,title:duplicate?$('drawingTitle').value:({one:'ONE-LINE DIAGRAM',plan:'PLAN VIEW',ladder:'LADDER DIAGRAM'}[view])},views=duplicate?JSON.parse(JSON.stringify(old.views)):emptySheetState();projectSheets.push({id,view,meta,views});loadSheet(id);refreshViewportSheetPages();$('viewport').scrollTop=0;$('status').textContent=(duplicate?'Duplicated':'Added')+' sheet '+number+'.';}
+function addProjectSheet(duplicate=false){storeCurrentSheet();const old=projectSheets.find(s=>s.id===currentSheetId),view=drawingView,id=nextSheetId++,number=defaultSheetNumber(view),meta={...sheetMetadata(),number,title:duplicate?$('drawingTitle').value:({one:'ONE-LINE DIAGRAM',plan:'PLAN VIEW',ladder:'LADDER DIAGRAM'}[view])},views=duplicate?JSON.parse(JSON.stringify(old.views)):emptySheetState();projectSheets.push({id,view,meta,views});loadSheet(id);$('status').textContent=(duplicate?'Duplicated':'Added')+' sheet '+number+'.';}
 
 
 function initializeSheets(){projectSheets=[{id:1,view:drawingView,meta:sheetMetadata(),views:viewState}];currentSheetId=1;nextSheetId=2;refreshSheetPicker();}
