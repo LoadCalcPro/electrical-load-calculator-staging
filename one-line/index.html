@@ -2036,9 +2036,10 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const top=p.querySelector('[data-enclosure-top]')?.closest('label');
  const left=p.querySelector('[data-enclosure-left]')?.closest('label');
  const placementHeading=Array.from(p.querySelectorAll('div.field')).find(el=>el.textContent.trim()==='Enclosure placement (drawing units)');
+ // Rotation belongs immediately beneath proportional equipment sizing.
+ if(rotation)advanced.appendChild(rotation);
  if(placementHeading)advanced.appendChild(placementHeading);
  if(top)advanced.appendChild(top);if(left)advanced.appendChild(left);
- if(rotation)advanced.appendChild(rotation);
  for(const key of ['width','height']){const field=p.querySelector('[data-prop="'+key+'"]')?.closest('label');if(field)advanced.appendChild(field);}
  for(const attr of ['data-weight-style','data-weight-value']){const field=p.querySelector('['+attr+']')?.closest('label');if(field)advanced.appendChild(field);}
  const weightStyle=advanced.querySelector('[data-weight-style]');const customThickness=advanced.querySelector('[data-weight-value]')?.closest('label');
