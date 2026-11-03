@@ -510,6 +510,14 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
   border:2px solid #377bb0!important;background:white!important;
  }
 }
+
+/* Shared property hierarchy: color and selected-label editor precede equipment-specific controls. */
+#textInspector .equipment-outline-palette{order:0}
+#textInspector .equipment-text-editor{order:1}
+#properties .equipment-appearance-section{border-top:1px solid #cfdaea;margin-top:12px;padding-top:9px}
+#properties .equipment-appearance-section>h4,
+#properties .equipment-description-heading{font-size:12px;letter-spacing:.3px;color:#176a80;margin:6px 0 10px;font-weight:750}
+#properties .equipment-appearance-section .properties-advanced-inline{margin-top:0}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
@@ -1928,7 +1936,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  ()=>outlineSelect.value==='label'?labelHighlight():'',
  v=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected||outlineSelect.value!=='label'||!hasTextTarget())return;if(activeInnerKey==='drawingLabel')item.drawingLabelHighlight=v;else{item.textHighlights??={};item.textHighlights[activeInnerKey]=v;}renderCanvasOnly()},
  {colorLabel:'Color'});
- const syncTarget=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;const canFormatLabel=hasTextTarget();if(canFormatLabel)outlineSelect.value='label';else outlineSelect.value='outline';outlineButtons.label.disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';for(const [value,button] of Object.entries(outlineButtons)){const active=outlineSelect.value===value;button.setAttribute('aria-pressed',String(active));button.classList.toggle('format-target-active',active);button.style.background=active?'#d9edf5':'#ffffff';button.style.borderColor=active?'#16869b':'#b8cbe3';button.style.boxShadow=active?'inset 0 0 0 1px #16869b':'none';button.style.opacity=button.disabled?'.55':'1';}syncOutlinePalette();};
+ const syncTarget=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected)return;const canFormatLabel=hasTextTarget();if(!canFormatLabel)outlineSelect.value='outline';outlineButtons.label.disabled=!canFormatLabel;if(!canFormatLabel&&outlineSelect.value==='label')outlineSelect.value='outline';for(const [value,button] of Object.entries(outlineButtons)){const active=outlineSelect.value===value;button.setAttribute('aria-pressed',String(active));button.classList.toggle('format-target-active',active);button.style.background=active?'#d9edf5':'#ffffff';button.style.borderColor=active?'#16869b':'#b8cbe3';button.style.boxShadow=active?'inset 0 0 0 1px #16869b':'none';button.style.opacity=button.disabled?'.55':'1';}syncOutlinePalette();};
  for(const [value,button] of Object.entries(outlineButtons))button.addEventListener('click',()=>{if(selected?.kind!=='node'||selected.id!==item.id||!outline.isConnected||button.disabled)return;outlineSelect.value=value;syncTarget();});outline.addEventListener('pointerdown',event=>event.stopPropagation());
  outline.syncSelectedColor=syncTarget;
  outline.syncSelectedColor?.();
@@ -1995,7 +2003,23 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(weightStyle&&customThickness){const syncThickness=()=>{customThickness.hidden=weightStyle.value!=='custom';customThickness.style.display=weightStyle.value==='custom'?'':'none';};weightStyle.addEventListener('change',syncThickness);syncThickness();}
  const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
  if(drawingHint)advanced.appendChild(drawingHint);
- if(advanced.children.length){p.appendChild(advanced);}
+ if(advanced.children.length){
+  const appearance=document.createElement('section');
+  appearance.className='equipment-appearance-section';
+  const heading=document.createElement('h4');
+  heading.textContent='Equipment Appearance';
+  appearance.appendChild(heading);
+  appearance.appendChild(advanced);
+  p.appendChild(appearance);
+ }
+ // Existing equipment text inputs remain editable; give their section a
+ // consistent heading rather than introducing another set of format controls.
+ if(item&&defs.length){
+  const descriptionHeading=document.createElement('h4');
+  descriptionHeading.className='equipment-description-heading';
+  descriptionHeading.textContent='Equipment Descriptions & Labels';
+  info.prepend(descriptionHeading);
+ }
 }
 
 // Shared property layout: keep existing inputs/listeners intact while organizing tool controls.
