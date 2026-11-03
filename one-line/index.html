@@ -1823,7 +1823,16 @@ function selectEquipmentTarget(id,key=null){
 // Keep formatting selection stable while clicking controls, but never let
 // a stale text key carry over to a different equipment item.
 function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[0]),'drawingLabel']:[];}
-function activateEquipmentText(item,key){if(!item||!equipmentTextKeys(item).includes(key))return false;selectEquipmentTarget(item.id,key);$('textInspector').syncSelectedText?.();return true;}
+function activateEquipmentText(item,key){
+ if(!item||!equipmentTextKeys(item).includes(key))return false;
+ selectEquipmentTarget(item.id,key);
+ const inspector=$('textInspector');
+ // Text selected through a description field must target the same palette
+ // as text selected directly on the drawing or through the label chooser.
+ inspector?.querySelector('.equipment-outline-palette [data-format-target="label"]')?.click();
+ inspector?.syncSelectedText?.();
+ return true;
+}
 // One equipment-text alias table shared by focus, pointer and visual selection.
 const EQUIPMENT_TEXT_ALIASES={name:['symbolDesignation','gutterLabel','atsTitle','generatorTitle','disconnectTitle','equipmentTitle','panelName','mainTitle','transformerTitle','subtypeTitle'],voltage:['gutterVoltage','atsVoltage','generatorVoltage','disconnectVoltage','panelVoltage','meterVoltage'],amps:['gutterRating','atsRating','generatorAmps','disconnectRating','panelRating','mainRating','meterRating'],rating:['atsRating','panelRating'],mainType:['panelMain'],kaic:['gutterKaic','atsKaic','disconnectKaic','panelKaic','meterKaic'],phase:['panelPhase','generatorPhase','atsPhase','meterPhase','disconnectPhase'],fuseAmps:['disconnectFuse','atsFuse','fuseRating'],fuseRating:['disconnectFuse','atsFuse','fuseRating'],interruptingRating:['disconnectKaic','atsKaic','panelKaic','meterKaic'],kva:['transformerKva','generatorKva'],kw:['generatorKw']};
 function finiteEquipmentOffset(value){if(value===null||String(value).trim()==='')return 0;const number=Number(value);return Number.isFinite(number)?number:0;}
