@@ -1877,7 +1877,7 @@ function projectTextAttrs(key,size,x,y){
 }
 function showProjectTextEditor(key){
  activeProjectText=key;const host=$('textInspector');host.replaceChildren();const st=projectTextStyles[key]||{};
- const defaults={project:[14,35,45,'Project Name'],drawingTitle:[12,34,661,'Drawing Title'],sheetNumber:[9,950,660,'Sheet Number'],address:[9,500,45,'Project Address']};
+ const defaults={project:[14,35,45,'Project Name'],drawingTitle:[12,34,661,'Drawing Title'],sheetNumber:[9,950,660,'Sheet Number'],address:[14,500,45,'Project Address']};
  const [size,x,y,label]=defaults[key];const section=document.createElement('section');section.className='project-text-controls shared-text-editor';
  section.innerHTML='<h4>Formatting</h4><div class="shared-selected-label">Selected: '+label+'</div><div class="shared-text-grid"><label class="field">Font size<input data-pt-size type="number" min="5" max="144"></label><label class="field">Style<select data-pt-style><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal<input data-pt-x type="number"></label><label class="field">Vertical<input data-pt-y type="number"></label><label class="field">Rotation (°)<input data-pt-rotation type="number" step="15"></label></div>';
  host.appendChild(section);
@@ -2650,7 +2650,7 @@ function clampProjectTextToSheet(key){
  const corners=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>{const p=$('svg').createSVGPoint();p.x=x;p.y=y;return p.matrixTransform(m)});
  const left=Math.min(...corners.map(p=>p.x)),right=Math.max(...corners.map(p=>p.x));
  const top=Math.min(...corners.map(p=>p.y)),bottom=Math.max(...corners.map(p=>p.y));
- const loX=24,hiX=976,loY=24,hiY=sheetHeightUnits()-24;
+ const loX=4,hiX=996,loY=24,hiY=sheetHeightUnits()-24;
  // Same principle as clampEquipmentToSheet: use the item's full bounds,
  // not its origin. Reject the proposed movement when the object is too wide.
  const width=right-left,height=bottom-top;
@@ -2698,7 +2698,7 @@ window.addEventListener('pointermove',e=>{
  e.stopImmediatePropagation();
  const d=projectTextDrag,p=xy(e),dx=p.x-d.start.x,dy=p.y-d.start.y;
  const st=projectTextStyles[d.key]??={};
- if(d.kind==='move'){st.x=Math.max(24,Math.min(976,Math.round(d.x+dx)));st.y=Math.max(24,Math.min(sheetHeightUnits()-24,Math.round(d.y+dy)));}
+ if(d.kind==='move'){st.x=Math.max(4,Math.min(996,Math.round(d.x+dx)));st.y=Math.max(24,Math.min(sheetHeightUnits()-24,Math.round(d.y+dy)));}
  else if(d.kind==='size'){st.size=Math.max(5,Math.min(96,Math.round(d.size+dx/5+dy/5)));}
  else{st.rotation=Math.round((d.rotation+Math.atan2(dy,dx)*180/Math.PI)/5)*5;}
  render(true);if(d.kind==='move')clampProjectTextToSheet(d.key);projectTextHandles();
