@@ -518,6 +518,10 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #properties .equipment-appearance-section>h4,
 #properties .equipment-description-heading{font-size:12px;letter-spacing:.3px;color:#176a80;margin:6px 0 10px;font-weight:750}
 #properties .equipment-appearance-section .properties-advanced-inline{margin-top:0}
+
+#textInspector .equipment-label-chooser{margin:10px 0 6px!important;font-weight:700;color:#284c75}
+#textInspector .equipment-label-chooser select{width:100%;box-sizing:border-box;min-height:32px;margin-top:4px;background:#fff}
+#textInspector .equipment-text-editor .shared-selected-label{font-size:12px;margin:4px 0}
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
@@ -1952,11 +1956,31 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   if(activeInnerKey!==null&&!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=null;
   const editor=document.createElement('div');editor.className='shared-text-editor equipment-text-editor';
   editor.innerHTML=sharedEquipmentTextEditorMarkup();
+  // Every equipment text part is selectable from one list, regardless of
+  // whether its visible glyph is small or difficult to click on the sheet.
+  const labelChooser=document.createElement('label');
+  labelChooser.className='field equipment-label-chooser';
+  labelChooser.textContent='Description / label to edit';
+  const labelSelect=document.createElement('select');
+  labelSelect.setAttribute('aria-label','Choose equipment description or label');
+  const none=document.createElement('option');
+  none.value='';none.textContent='Select a label';labelSelect.appendChild(none);
+  for(const [key,title] of defs){const option=document.createElement('option');option.value=key;option.textContent=title;labelSelect.appendChild(option);}
+  labelChooser.appendChild(labelSelect);
+  editor.insertBefore(labelChooser,editor.firstChild);
+  labelSelect.addEventListener('pointerdown',event=>event.stopPropagation());
+  labelSelect.addEventListener('change',()=>{
+   if(selected?.kind!=='node'||selected.id!==item.id)return;
+   if(labelSelect.value){activateEquipmentText(item,labelSelect.value);}
+   else activeInnerKey=null;
+   toolbar.syncSelectedText?.();
+   renderCanvasOnly();
+  });
   // Shared layout lives in CSS so all equipment editors use one consistent grid.
   common.appendChild(editor);
   const syncPalettes=()=>{if(selected?.kind==='node'&&selected.id===item.id)common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();};
   const get=sel=>editor.querySelector(sel);
-  const sync=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;const key=activeInnerKey,def=defs.find(d=>d[0]===key);if(!def){const selectedLabel=editor.querySelector('[data-shared-selected]');if(selectedLabel)selectedLabel.textContent='Select a label to format';syncPalettes();syncEquipmentTextHighlight(info,$('svg'),item,null,defs);for(const el of editor.querySelectorAll('input,select,button'))el.disabled=true;return;}for(const el of editor.querySelectorAll('input,select,button'))el.disabled=false;syncEquipmentTextHighlight(info,$('svg'),item,key,defs);get('[data-shared-selected]').textContent='Selected: '+def[1];get('[data-shared-size]').value=key==='drawingLabel'?equipmentFontSize(item.drawingLabelSize,12):equipmentFontSize(item.textSizes?.[key]??def[3],def[3]||10);get('[data-shared-style]').value=key==='drawingLabel'?equipmentTextStyle(item.drawingLabelStyle):equipmentTextStyle(item.textStyles?.[key]);syncPalettes();get('[data-shared-x]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelX):finiteEquipmentOffset(item.textOffsets?.[key]?.x);get('[data-shared-y]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelY):finiteEquipmentOffset(item.textOffsets?.[key]?.y);};
+  const sync=()=>{if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;const key=activeInnerKey,def=defs.find(d=>d[0]===key);labelSelect.value=def?key:'';if(!def){const selectedLabel=editor.querySelector('[data-shared-selected]');if(selectedLabel)selectedLabel.textContent='Select a label to format';syncPalettes();syncEquipmentTextHighlight(info,$('svg'),item,null,defs);for(const el of editor.querySelectorAll('input,select,button'))el.disabled=true;return;}for(const el of editor.querySelectorAll('input,select,button'))el.disabled=false;syncEquipmentTextHighlight(info,$('svg'),item,key,defs);get('[data-shared-selected]').textContent='Selected: '+def[1];get('[data-shared-size]').value=key==='drawingLabel'?equipmentFontSize(item.drawingLabelSize,12):equipmentFontSize(item.textSizes?.[key]??def[3],def[3]||10);get('[data-shared-style]').value=key==='drawingLabel'?equipmentTextStyle(item.drawingLabelStyle):equipmentTextStyle(item.textStyles?.[key]);syncPalettes();get('[data-shared-x]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelX):finiteEquipmentOffset(item.textOffsets?.[key]?.x);get('[data-shared-y]').value=key==='drawingLabel'?finiteEquipmentOffset(item.drawingLabelY):finiteEquipmentOffset(item.textOffsets?.[key]?.y);};
   toolbar.syncSelectedText=sync;
   for(const [sel,handler] of [
    ['[data-shared-size]',v=>{if(activeInnerKey==='drawingLabel')item.drawingLabelSize=equipmentFontSize(v,12);else{item.textSizes??={};item.textSizes[activeInnerKey]=equipmentFontSize(v,10);}}],
