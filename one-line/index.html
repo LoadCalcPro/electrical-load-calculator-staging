@@ -511,6 +511,9 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
  }
 }
 
+#textInspector .selected-equipment-designation{display:block;margin:8px 0 4px!important;padding:0!important}
+#textInspector .selected-equipment-designation>span{display:block;font-weight:700;margin-bottom:4px}
+#textInspector .selected-equipment-designation input{width:100%;min-width:0}
 /* Reduce unnecessary space in descriptive equipment sections. */
 #properties .property-priority{margin-top:4px!important;padding-top:6px!important}
 #properties .property-priority .equipment-description-heading{margin:0 0 7px!important}
@@ -1972,6 +1975,21 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const outlineSelect=document.createElement('div');outlineSelect.className='equipment-format-targets';outlineSelect.setAttribute('role','group');outlineSelect.setAttribute('aria-label','Choose part to format');
  const outlineButtons={};for(const [value,label] of [['outline','Equipment outline'],['label','Selected equipment label']]){const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.formatTarget=value;button.style.cssText='flex:1;min-width:0;padding:9px 7px;border:1px solid #b8cbe3;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer;';outlineSelect.appendChild(button);outlineButtons[value]=button;}
  outlineSelect.style.cssText='display:flex;gap:8px;margin-top:8px;';let outlineTargetValue=activeInnerKey?'label':'outline';Object.defineProperty(outlineSelect,'value',{get:()=>outlineTargetValue,set:v=>{outlineTargetValue=v;}});outlineTarget.appendChild(outlineSelect);outline.appendChild(outlineTarget);
+ // Put the actual equipment designation immediately below the color palette.
+ // Move the original input rather than duplicating its value or event handlers.
+ if(designation){
+  const nameInput=designation.querySelector('input,textarea');
+  designation.classList.add('selected-equipment-designation');
+  if(nameInput){
+   const caption=document.createElement('span');
+   caption.textContent='Equipment designation';
+   designation.prepend(caption);
+   nameInput.setAttribute('aria-label','Equipment designation');
+   nameInput.addEventListener('focus',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key)activateEquipmentText(item,key);});
+   nameInput.addEventListener('input',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key){activeInnerKey=key;common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();$('textInspector').syncSelectedText?.();}});
+  }
+  outline.after(designation);
+ }
  const hasTextTarget=()=>activeInnerKey==='drawingLabel'||(item._labelDefs||[]).some(d=>d[0]===activeInnerKey);
  const labelColor=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelColor||'#111111'):(item.textColors?.[activeInnerKey]||'#111111');
  const labelHighlight=()=>activeInnerKey==='drawingLabel'?(item.drawingLabelHighlight||''):(item.textHighlights?.[activeInnerKey]||'');
