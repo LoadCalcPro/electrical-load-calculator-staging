@@ -599,6 +599,9 @@ function captureCurrentSheetPage(){
  const svg=$('svg');if(!svg||!projectSheets.length)return;
  const clone=svg.cloneNode(true);
  clone.removeAttribute('id');
+ // Editor-only selection controls must never appear on printed-looking
+ // inactive sheet previews.
+ clone.querySelectorAll('[data-project-handle],[data-image-resize],[data-resize-handle],[data-rotate-handle]').forEach(n=>n.remove());
 // Namespace copied SVG definition IDs so clipping, gradients, and patterns
 // continue to resolve on inactive sheets without colliding with the editor.
 const prefix='sheet-preview-'+currentSheetId+'-';
@@ -614,7 +617,6 @@ clone.querySelectorAll('*').forEach(n=>{
   if(value!==attr.value)n.setAttribute(attr.name,value);
  }
 });
- clone.querySelectorAll('[data-project-handle]').forEach(n=>n.remove());
  clone.style.pointerEvents='none';
  clone.setAttribute('aria-hidden','true');
  sheetPageSnapshots.set(currentSheetId,clone.outerHTML);
@@ -2807,11 +2809,17 @@ window.addEventListener('pointercancel',()=>{projectTextDrag=null;},true);
 // scrolling settles. Keep the existing SVG editor as the only live editor.
 let sheetScrollFrame=0,sheetScrollSettling=0,sheetSwitchInProgress=false,sheetPointerDown=false;
 $('viewport').addEventListener('pointerdown',()=>{sheetPointerDown=true;},true);
-window.addEventListener('pointerup',()=>{sheetPointerDown=false;},true);
+window.addEventListener('pointerup',()=>{
+ sheetPointerDown=false;
+ // A scroll may have finished during a drag. Re-evaluate only after
+ // releasing the pointer, never in the middle of editing equipment.
+ if(sheetScrollSettling)clearTimeout(sheetScrollSettling);
+ sheetScrollSettling=setTimeout(()=>{sheetScrollSettling=0;syncActiveSheetToViewport();},220);
+},true);
 window.addEventListener('pointercancel',()=>{sheetPointerDown=false;},true);
 function syncActiveSheetToViewport(){
  const viewport=$('viewport'),rail=$('viewportSheetPages');
- if(!viewport||!rail||sheetSwitchInProgress||sheetPointerDown||projectTextDrag||!projectSheets.length)return;
+ if(!viewport||!rail||sheetSwitchInProgress||sheetPointerDown||projectTextDrag||!projectSheets.length||document.activeElement?.closest?.('#properties'))return;
  const pages=[...rail.querySelectorAll('.viewport-sheet-page')];
  if(pages.length<2)return;
  const view=viewport.getBoundingClientRect(),focus=view.top+Math.min(view.height*.45,260);
