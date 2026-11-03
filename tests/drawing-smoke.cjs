@@ -34,9 +34,17 @@ const fs = require('node:fs');
     if(!option)return {missing:true,noLabels:true};
     chooser.value=option.value;
     chooser.dispatchEvent(new Event('change',{bubbles:true}));
+    const description=inspector.querySelector('[data-shared-text]');
+    const originalText=item.innerText?.[option.value]??'';
+    if(description){description.value='Properties test label';description.dispatchEvent(new Event('input',{bubbles:true}));}
+    const editedText=item.innerText?.[option.value];
+    const matchingFields=[...document.querySelectorAll('#properties input,#properties textarea')].filter(el=>typeof equipmentTextKeyForControl==='function'&&equipmentTextKeyForControl(el,item._labelDefs||[])===option.value);
+    const fieldsSynchronized=matchingFields.every(el=>el.value==='Properties test label');
+    if(originalText==='')delete item.innerText?.[option.value];else item.innerText[option.value]=originalText;
     const labelButton=inspector.querySelector('[data-format-target="label"]');
     const selectedLabel=inspector.querySelector('[data-shared-selected]')?.textContent||'';
     const result={missing:false,enabledBefore,enabledAfter:!chooser.disabled,
+      editedText,fieldsSynchronized,descriptionPresent:!!description,
       selectedKey:activeInnerKey,expectedKey:option.value,
       labelTarget:labelButton?.getAttribute('aria-pressed'),
       selectedLabel,rotationUnderAppearance:!!appearance.querySelector('[data-common-rotation]'),
@@ -47,6 +55,9 @@ const fs = require('node:fs');
   assert.equal(equipmentFormatting.missing,false,'Panel equipment formatting controls missing');
   assert.ok(equipmentFormatting.enabledBefore,'Label chooser disabled before selecting a label');
   assert.ok(equipmentFormatting.enabledAfter,'Label chooser disabled after selecting a label');
+  assert.ok(equipmentFormatting.descriptionPresent,'Shared equipment description text editor missing');
+  assert.equal(equipmentFormatting.editedText,'Properties test label','Shared description edit did not update equipment data');
+  assert.ok(equipmentFormatting.fieldsSynchronized,'Original description fields were not synchronized');
   assert.equal(equipmentFormatting.selectedKey,equipmentFormatting.expectedKey,'Label selection did not update active text');
   assert.equal(equipmentFormatting.labelTarget,'true','Choosing a label did not activate its color palette');
   assert.match(equipmentFormatting.selectedLabel,/Selected:/,'Selected description not reflected in formatting');
