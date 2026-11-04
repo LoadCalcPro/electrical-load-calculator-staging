@@ -3505,7 +3505,9 @@ if(location.protocol==='file:'){
 </script><script>
 // Project settings are moved (not copied) so existing listeners and sheet data remain intact.
 (function initCompactProjectPanels(){
- const settings=document.getElementById('projectMetaSettings'),host=document.getElementById('textInspector');
+ const settings=document.getElementById('projectMetaSettings'),inspectorRoot=document.getElementById('drawingInspector');
+ let host=document.getElementById('projectSettingsInspector');
+ if(!host&&inspectorRoot){host=document.createElement('div');host.id='projectSettingsInspector';inspectorRoot.insertBefore(host,document.getElementById('textInspector'));}
  if(!settings||!host)return;
  const groups={info:['.project-name-field','.project-address-field'],images:['.image-project-tools'],title:['.drawing-title-field','.sheet-number-field','.drawing-scale-field','.title-block-position-field']};
  const titleToggle=document.getElementById('showTitleBlockToolbar');
@@ -3514,7 +3516,7 @@ if(location.protocol==='file:'){
  document.querySelectorAll('[data-open-project-panel]').forEach(button=>button.addEventListener('click',()=>{
   const group=button.dataset.openProjectPanel;
   // Return previously moved settings before replacing the inspector.
-  document.querySelectorAll('.project-inspector-settings > *').forEach(el=>settings.appendChild(el));
+  document.querySelectorAll('#projectSettingsInspector .project-inspector-settings > *').forEach(el=>settings.appendChild(el));
   host.replaceChildren();
   const heading=document.createElement('div');heading.className='project-inspector-heading';heading.textContent=button.textContent;host.appendChild(heading);
   const panel=document.createElement('div');panel.className='project-inspector-settings';host.appendChild(panel);
