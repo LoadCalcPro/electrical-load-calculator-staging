@@ -517,6 +517,9 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 /* Keep equipment designation editable fields full-width like their adjacent rating fields. */
 #properties .property-priority label.field:has(> input[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important}
 #properties .property-priority input[data-prop="name"]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;flex:0 0 auto!important}
+/* Shared multiline equipment designation editor: panel, disconnect, room, wall and other nodes. */
+#properties .property-priority label.field:has(> textarea[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;min-width:0!important;box-sizing:border-box!important}
+#properties .property-priority textarea[data-prop="name"]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;border:1px solid #cbd7e8!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:#fff!important;font:inherit;flex:0 0 auto!important}
 /* Plan View room and wall designation fields match the full-width rounded controls. */
 #properties .property-priority label.field:has(input[data-prop="name"]){min-width:0!important;max-width:100%!important}
 #properties .property-priority input[data-prop="name"]{border:1px solid #cbd7e8!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:#fff!important}
