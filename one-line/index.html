@@ -2232,12 +2232,12 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Move the existing size control, not a clone: its event handlers remain intact.
  const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl)appearance.appendChild(sizeControl);
- // Move the existing live controls into one consistent, visible sequence.
+ // Keep scaling behavior immediately below equipment size.
+ const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
+ if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);}
  const lineWeightControl=advanced.querySelector('[data-weight-style]')?.closest('label')
   ||advanced.querySelector('[data-weight-status]')?.closest('label');
  if(lineWeightControl)appearance.appendChild(lineWeightControl);
- const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
- if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);}
  const outlinePattern=p.querySelector('[data-equipment-pattern]')?.closest('label');
  const installationStatus=p.querySelector('[data-installation-status]')?.closest('label');
  if(outlinePattern)appearance.appendChild(outlinePattern);
