@@ -556,6 +556,15 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #drawingMain #properties [data-room-dim],#drawingMain #properties [data-room-wall],#drawingMain #properties [data-room-wall-custom]{min-height:42px;padding:8px 12px;border:1px solid var(--drawing-properties-border);border-radius:10px;background:var(--drawing-properties-input);font-size:var(--drawing-property-value-size);font-weight:400;line-height:1.35;box-sizing:border-box}
 #drawingMain #properties label.field:has([data-room-dim])>small{font-size:12px;font-weight:400;color:#49617e}
 #drawingMain #properties .field:has(>b):has(+label.field [data-room-dim])>b{font-size:var(--drawing-property-section-size);font-weight:700}
+/* One control height for Disconnect and every Plan View Properties field. */
+:root{--drawing-property-control-height:42px}
+#drawingMain #properties .property-priority :is(select,input:not([type=checkbox]):not([type=color]):not([type=radio]):not([type=hidden])):not([data-room-label-visible]),
+#drawingMain #properties .property-priority .plan-wall-properties :is(select,input:not([type=checkbox]):not([type=color]):not([type=radio]):not([type=hidden])){
+ height:var(--drawing-property-control-height)!important;min-height:var(--drawing-property-control-height)!important;
+ padding:8px 12px!important;font-size:var(--drawing-property-value-size)!important;font-weight:400!important;
+ box-sizing:border-box;border-radius:10px
+}
+#drawingMain #properties .property-priority textarea{height:auto!important;min-height:42px!important}
 /* One shared designation rule for equipment, room and wall text fields. */
 #drawingMain #properties label.field:has(> :is(input,textarea)[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
 #drawingMain #properties :is(input,textarea)[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1px solid var(--drawing-properties-border)!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:var(--drawing-properties-input)!important;font:inherit!important}
