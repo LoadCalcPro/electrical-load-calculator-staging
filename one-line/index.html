@@ -725,6 +725,18 @@ body[data-drawing-view="plan"] #equipmentLibrary > label#customEquipmentSizeWrap
 #properties .equipment-appearance-section p.status{font-size:12px!important;line-height:1.35!important;margin:6px 0!important}
 
 /* Properties layout: fixed formatting area, independently scrolling field list. */
+/* Keep the Properties panel inside the visible viewport even when the
+   drawing workspace is deliberately taller than the browser window. */
+body:has(.suite-header) main > #drawingInspector.drawing-inspector{
+ position:sticky!important;
+ top:8px!important;
+ align-self:start!important;
+ height:calc(100dvh - 16px)!important;
+ max-height:calc(100dvh - 16px)!important;
+ min-height:0!important;
+ overflow:hidden!important;
+}
+
 main > #drawingInspector.drawing-inspector{
  display:flex!important;flex-direction:column!important;
  height:100%!important;max-height:100%!important;min-height:0!important;
