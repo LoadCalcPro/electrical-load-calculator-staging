@@ -2696,7 +2696,15 @@ if(selected.kind==='wire'){p.querySelector('[data-parallel-count]')?.addEventLis
 /* Keep existing Line edits on the stable Properties host, even when sections are rearranged. */
 $('properties').addEventListener('input',e=>{if(selected?.kind!=='line'||e.target?.dataset?.lineProp!=='label')return;const line=drawnLines.find(l=>String(l.id)===String(selected.id));if(!line)return;e.stopImmediatePropagation();line.label=e.target.value;renderCanvasOnly();},true);
 $('properties').addEventListener('change',e=>{if(selected?.kind!=='line'||e.target?.dataset?.lineProp!=='arrow')return;const line=drawnLines.find(l=>String(l.id)===String(selected.id));if(!line)return;e.stopImmediatePropagation();line.arrow=e.target.value;renderCanvasOnly();},true);
-function renderCanvasOnly(){render(true);if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}}}
+function renderCanvasOnly(){render(true);
+ if(selected?.kind==='line'){
+  const line=drawnLines.find(l=>l.id===selected.id);
+  const angleField=document.getElementById('lineExactAngle');
+  if(line&&angleField&&document.activeElement!==angleField){
+   angleField.value=(Math.atan2(line.y2-line.y1,line.x2-line.x1)*180/Math.PI).toFixed(1);
+  }
+ }
+ if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}}}
 function selectDrawingText(id,key){if(selectEquipmentTarget(id,key))render();}
 $('svg').addEventListener('click',e=>{
  if(mode!=='select')return;
