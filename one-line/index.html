@@ -3534,7 +3534,8 @@ if(location.protocol==='file:'){
  const titleToggle=document.getElementById('showTitleBlockToolbar');
  const dividerToggle=document.querySelector('[data-project-show="titleBlockPosition"]');
  if(titleToggle&&dividerToggle){titleToggle.checked=dividerToggle.checked;titleToggle.addEventListener('change',()=>{dividerToggle.checked=titleToggle.checked;dividerToggle.dispatchEvent(new Event('change',{bubbles:true}));});dividerToggle.addEventListener('change',()=>{titleToggle.checked=dividerToggle.checked;});}
- document.querySelectorAll('[data-open-project-panel]').forEach(button=>button.addEventListener('click',()=>{
+ document.querySelectorAll('[data-open-project-panel]').forEach(button=>button.addEventListener('click',(event)=>{
+  event.stopPropagation();
   const group=button.dataset.openProjectPanel;
   // Return previously moved settings before replacing the inspector.
   document.querySelectorAll('#projectSettingsInspector .project-inspector-settings > *').forEach(el=>settings.appendChild(el));
@@ -3544,9 +3545,13 @@ if(location.protocol==='file:'){
   for(const selector of groups[group]||[]){const el=settings.querySelector(selector);if(el)panel.appendChild(el);}
   // Title Block uses the same persistent shared palette as its editable text.
   // Initialize it immediately on opening, without requiring an input click.
-  if(group==='title'&&!document.querySelector('#textInspector .project-title-colors')){
-   // Dispatch focus to the existing field; its listener owns palette setup
-   // in the drawing editor's own lexical scope.
+  if(group==='title'){
+   // Clear any stale Text/Leader or equipment inspector, then initialize the
+   // Title Block palette through the editor's existing scoped focus listener.
+   const textHost=document.getElementById('textInspector');
+   if(textHost)textHost.replaceChildren();
+   const props=document.getElementById('properties');
+   if(props)props.replaceChildren();
    const projectField=panel.querySelector('#project');
    if(projectField)projectField.dispatchEvent(new Event('focus'));
   }
