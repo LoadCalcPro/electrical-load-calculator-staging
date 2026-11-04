@@ -565,6 +565,17 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
  box-sizing:border-box;border-radius:10px
 }
 #drawingMain #properties .property-priority textarea{height:auto!important;min-height:42px!important}
+/* Match the Rotation field's value typography in every Properties dropdown. */
+#drawingMain #properties .property-priority label.field>select,
+#drawingMain #properties .property-priority label.field>input:not([type=checkbox]):not([type=color]),
+#drawingMain #properties .property-priority label.field>span>input:not([type=checkbox]):not([type=color]),
+#drawingMain #properties .property-priority .field select{
+ font-family:inherit!important;font-size:14px!important;font-weight:400!important;
+ line-height:normal!important;letter-spacing:normal!important;
+ height:42px!important;min-height:42px!important;padding:8px 12px!important;
+}
+#drawingMain #properties .property-priority label.field,
+#drawingMain #properties .property-priority .field{font-size:14px;font-weight:600;line-height:1.35}
 /* One shared designation rule for equipment, room and wall text fields. */
 #drawingMain #properties label.field:has(> :is(input,textarea)[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
 #drawingMain #properties :is(input,textarea)[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1px solid var(--drawing-properties-border)!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:var(--drawing-properties-input)!important;font:inherit!important}
