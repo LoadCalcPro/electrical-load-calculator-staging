@@ -3292,6 +3292,16 @@ document.querySelectorAll('[data-project-show]').forEach(box=>box.addEventListen
  }
  render(true);
 }));
+// Clear the divider highlight when selecting another drawing object or empty sheet.
+// Keep the inspector available while interacting with its own controls.
+window.addEventListener('pointerdown',e=>{
+ if(!activeTitleDivider||titleDividerDrag||e.button!==0)return;
+ if(e.target.closest('[data-title-divider]')||e.target.closest('#textInspector')||e.target.closest('#drawingInspector'))return;
+ activeTitleDivider=false;
+ const host=$('textInspector');
+ if(host?.querySelector('[data-divider-size]'))host.replaceChildren();
+ render(true);
+},true);
 window.addEventListener('pointerdown',e=>{
  if(e.button!==0||mode!=='select')return;
  if(e.target.closest('[data-title-divider]')){e.preventDefault();e.stopImmediatePropagation();const p=xy(e);titleDividerDrag={start:p,size:dividerSize(),right:$('titleBlockPosition').value==='right'};showTitleDividerEditor();render(true);return;}
