@@ -2114,7 +2114,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const weightStyle=advanced.querySelector('[data-weight-style]');const customThickness=advanced.querySelector('[data-weight-value]')?.closest('label');
  if(weightStyle&&customThickness){const syncThickness=()=>{customThickness.hidden=weightStyle.value!=='custom';customThickness.style.display=weightStyle.value==='custom'?'':'none';};weightStyle.addEventListener('change',syncThickness);syncThickness();}
  const drawingHint=Array.from(p.querySelectorAll('p.status')).find(el=>el.textContent.includes('Width and Height below control'));
- if(drawingHint)advanced.appendChild(drawingHint);
+ if(drawingHint)drawingHint.remove();
  // Keep appearance directly after shared Formatting and before the
  // description fields in every drawing mode (including Plan View).
  const appearance=document.createElement('section');
@@ -2186,9 +2186,9 @@ function standardizeDrawingProperties(){
  const groups=[
   {title:'Label & Information'},
   {title:'Font & Position'},
-  {title:'Appearance & Dimensions'}
+  {title:''}
  ];
- const sections=groups.map(g=>{const sec=document.createElement('section');sec.className='property-priority property-section';const h=document.createElement('h4');h.textContent=g.title;sec.appendChild(h);return sec;});
+ const sections=groups.map(g=>{const sec=document.createElement('section');sec.className='property-priority property-section';if(g.title){const h=document.createElement('h4');h.textContent=g.title;sec.appendChild(h);}return sec;});
  let used=0;
  for(const field of fields){
   const control=field.querySelector('input,select,textarea');
@@ -2211,12 +2211,11 @@ function standardizeDrawingProperties(){
   if(idx>=0){sections[idx].appendChild(field);used++;}
  }
  if(!used)return;
- const advanced=document.createElement('details');advanced.className='equipment-category properties-advanced';const summary=document.createElement('summary');summary.textContent='Advanced Drawing Settings';advanced.appendChild(summary);
- // Preserve all remaining controls, including their original event listeners.
- for(const field of fields){if(field.parentElement===p)advanced.appendChild(field);}
- // Insert the three standard sections together, ahead of advanced settings.
- for(const section of sections){if(section.children.length>1)p.appendChild(section);}
- if(advanced.children.length>1){p.appendChild(advanced);if(selected.kind==='polyroute'&&polyRoutes.find(route=>route.id===selected.id)?.kind==='polyline'){advanced.open=true;summary.style.cursor='default';summary.addEventListener('click',event=>event.preventDefault());advanced.addEventListener('toggle',()=>{if(!advanced.open)advanced.open=true;});}} 
+ // Do not hide remaining settings in a collapsible Advanced Drawing Settings panel.
+ // Preserve their original input nodes, listeners and ordering.
+ const remaining=fields.filter(field=>field.parentElement===p);
+ for(const section of sections){if(section.querySelector('label.field,div.field'))p.appendChild(section);}
+ for(const field of remaining)p.appendChild(field);
 }
 const projectTextStyles={};let activeProjectText=null;
 function projectTextAttrs(key,size,x,y){
