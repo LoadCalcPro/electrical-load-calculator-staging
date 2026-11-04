@@ -2355,6 +2355,20 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   const wallSection=p.querySelector(':scope > .plan-wall-properties');
   if(wallSection){while(wallSection.firstChild)info.appendChild(wallSection.firstChild);wallSection.remove();}
  }
+ // Door and window settings are architectural Properties, not a second
+ // Font & Position panel. Reparent the live controls to preserve listeners.
+ if(itemForInfo?.type==='plandoor'||itemForInfo?.type==='planwindow'){
+  const attributes=itemForInfo.type==='plandoor'
+   ?['data-door-style','data-slide-config','data-door-width','data-door-angle','data-door-hinge-side','data-door-hand']
+   :['data-window-width','data-window-angle'];
+  for(const attribute of attributes){
+   const field=p.querySelector('['+attribute+']')?.closest('label.field');
+   if(field)info.appendChild(field);
+  }
+  // The placement hint is informational, not another Properties subsection.
+  const doorHint=p.querySelector('[data-door-check]');
+  if(doorHint&&itemForInfo.type==='plandoor')info.appendChild(doorHint);
+ }
  // Keep the designation first, then descriptions, immediately after Rotation.
  // Move existing elements rather than recreating fields or their event handlers.
  const descriptionAnchor=rotation&&offsetGrid?rotation:common.querySelector('.shared-text-editor');
