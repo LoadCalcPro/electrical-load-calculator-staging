@@ -20,6 +20,25 @@ const fs = require('node:fs');
   assert.equal(await page.locator('#svg').count(),1,'The live drawing SVG must be present after startup');
   assert.equal(await page.locator('#textInspector').count(),1,'Properties formatting inspector must be present');
 
+  // Disconnect-reference visual styling: guard shared theme against regressions.
+  const sharedStyle=await page.evaluate(()=>{
+    const style=document.createElement('style');
+    const target=document.createElement('div');
+    target.className='property-priority';
+    target.innerHTML='<label class="field"><input data-prop="name" value="Test"></label>';
+    document.getElementById('properties').appendChild(target);
+    const panel=getComputedStyle(target);
+    const input=getComputedStyle(target.querySelector('input'));
+    const result={panelBackground:panel.backgroundColor,panelRadius:panel.borderRadius,inputBackground:input.backgroundColor,inputRadius:input.borderRadius};
+    target.remove();
+    return result;
+  });
+  assert.equal(sharedStyle.panelBackground,'rgb(243, 247, 253)','Properties section must use shared blue background');
+  assert.equal(sharedStyle.panelRadius,'12px','Properties section must use Disconnect radius');
+  assert.equal(sharedStyle.inputBackground,'rgb(255, 255, 255)','Designation input must remain white');
+  assert.equal(sharedStyle.inputRadius,'10px','Designation input must retain rounded corners');
+  checkErrors('shared Properties appearance');
+
   // Equipment Properties regression: selection must drive the shared controls.
   const equipmentFormatting=await page.evaluate(()=>{
     const item={id:next++,type:'panel',x:400,y:300,name:'Panel Test',scaleX:1,scaleY:1};
