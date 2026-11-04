@@ -2409,7 +2409,10 @@ return `<g data-wire="${w.id}" style="cursor:pointer">${Array.from({length:Math.
  // The footer is only a visible overlay; equipment is allowed beneath it
  // whether it is shown or hidden. The outside border always stays visible.
  if(titleBlockShow&&!titleBlockShow.checked){
-  $('titleblock').querySelectorAll('text,path').forEach(el=>el.style.display='none');
+  // The Title Block Show toggle controls only the divider, never project text.
+  // Drawing title, sheet number, scale, name and address have independent Show toggles.
+  $('titleblock').querySelectorAll('[data-title-divider]').forEach(el=>el.style.display='none');
+  activeTitleDivider=false;
  }
  
  // Invisible expanded hit area for selecting small project text.
