@@ -550,6 +550,12 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #drawingMain #properties label.field:has([data-room-dim]),#drawingMain #properties label.field:has([data-room-wall]){min-width:0;max-width:100%;box-sizing:border-box}
 #drawingMain #properties [data-room-dim]{flex:1 1 0;width:0!important;min-width:0;box-sizing:border-box}
 #drawingMain #properties [data-room-label-visible]{width:auto;flex:none}
+/* Room controls inherit the Disconnect typography and input sizing, without a new panel. */
+#drawingMain #properties label.field:has([data-room-dim]),#drawingMain #properties label.field:has([data-room-wall]){display:flex;flex-direction:column;align-items:stretch;gap:5px;margin:8px 0;font-size:var(--drawing-property-label-size);font-weight:600;line-height:1.35;color:#435b78}
+#drawingMain #properties label.field:has([data-room-dim])>span:first-child{font-size:var(--drawing-property-label-size);font-weight:600;line-height:1.35}
+#drawingMain #properties [data-room-dim],#drawingMain #properties [data-room-wall],#drawingMain #properties [data-room-wall-custom]{min-height:42px;padding:8px 12px;border:1px solid var(--drawing-properties-border);border-radius:10px;background:var(--drawing-properties-input);font-size:var(--drawing-property-value-size);font-weight:400;line-height:1.35;box-sizing:border-box}
+#drawingMain #properties label.field:has([data-room-dim])>small{font-size:12px;font-weight:400;color:#49617e}
+#drawingMain #properties .field:has(>b):has(+label.field [data-room-dim])>b{font-size:var(--drawing-property-section-size);font-weight:700}
 /* One shared designation rule for equipment, room and wall text fields. */
 #drawingMain #properties label.field:has(> :is(input,textarea)[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
 #drawingMain #properties :is(input,textarea)[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1px solid var(--drawing-properties-border)!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:var(--drawing-properties-input)!important;font:inherit!important}
