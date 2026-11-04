@@ -3545,7 +3545,10 @@ if(location.protocol==='file:'){
   // Title Block uses the same persistent shared palette as its editable text.
   // Initialize it immediately on opening, without requiring an input click.
   if(group==='title'&&!document.querySelector('#textInspector .project-title-colors')){
-   showProjectTextEditor(activeProjectText||'project');
+   // Dispatch focus to the existing field; its listener owns palette setup
+   // in the drawing editor's own lexical scope.
+   const projectField=panel.querySelector('#project');
+   if(projectField)projectField.dispatchEvent(new Event('focus'));
   }
   
   const inspector=document.getElementById('drawingInspector');if(inspector?.classList.contains('collapsed'))document.getElementById('toggleInspector')?.click();
