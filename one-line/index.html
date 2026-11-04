@@ -576,6 +576,15 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 }
 #drawingMain #properties .property-priority label.field,
 #drawingMain #properties .property-priority .field{font-size:14px;font-weight:600;line-height:1.35}
+/* Exact border-box height shared by Rotation and all single-line Properties controls. */
+#drawingMain #properties .property-priority :is(input:not([type=checkbox]):not([type=color]):not([type=radio]):not([type=hidden]),select){
+ height:var(--drawing-property-control-height)!important;
+ min-height:var(--drawing-property-control-height)!important;
+ max-height:var(--drawing-property-control-height)!important;
+ box-sizing:border-box!important;
+ padding-block:8px!important;
+}
+#drawingMain #properties .property-priority textarea{height:auto!important;max-height:none!important}
 /* One shared designation rule for equipment, room and wall text fields. */
 #drawingMain #properties label.field:has(> :is(input,textarea)[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
 #drawingMain #properties :is(input,textarea)[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1px solid var(--drawing-properties-border)!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:var(--drawing-properties-input)!important;font:inherit!important}
@@ -2346,11 +2355,8 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   field.style.setProperty('padding','0','important');
  }
  for(const control of appearance.querySelectorAll('input,select')){
-  control.style.setProperty('font-size','var(--drawing-property-value-size)','important');
-  control.style.setProperty('height','42px','important');
-  control.style.setProperty('min-height','42px','important');
-  control.style.setProperty('padding','5px 8px','important');
-  control.style.setProperty('margin-top','4px','important');
+  // Use the shared stylesheet instead of competing per-control inline sizing.
+  for(const property of ['font-size','height','min-height','padding','margin-top'])control.style.removeProperty(property);
  }
  // Use the exact same parent and field styling as the ratings above.
  // A separate appearance container inherited a different layout and caused
