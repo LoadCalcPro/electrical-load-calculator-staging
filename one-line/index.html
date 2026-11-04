@@ -3542,6 +3542,11 @@ if(location.protocol==='file:'){
   const heading=document.createElement('div');heading.className='project-inspector-heading';heading.textContent=button.textContent;host.appendChild(heading);
   const panel=document.createElement('div');panel.className='project-inspector-settings';host.appendChild(panel);
   for(const selector of groups[group]||[]){const el=settings.querySelector(selector);if(el)panel.appendChild(el);}
+  // Title Block uses the same persistent shared palette as its editable text.
+  // Initialize it immediately on opening, without requiring an input click.
+  if(group==='title'&&!document.querySelector('#textInspector .project-title-colors')){
+   showProjectTextEditor(activeProjectText||'project');
+  }
   
   const inspector=document.getElementById('drawingInspector');if(inspector?.classList.contains('collapsed'))document.getElementById('toggleInspector')?.click();
  }));
