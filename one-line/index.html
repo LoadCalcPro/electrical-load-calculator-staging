@@ -727,6 +727,7 @@ body[data-drawing-view="plan"] #equipmentLibrary > label#customEquipmentSizeWrap
 /* Properties layout: fixed formatting area, independently scrolling field list. */
 /* Keep the Properties panel inside the visible viewport even when the
    drawing workspace is deliberately taller than the browser window. */
+body:has(.suite-header) main > #equipmentLibrary,
 body:has(.suite-header) main > #drawingInspector.drawing-inspector{
  position:sticky!important;
  top:8px!important;
@@ -734,6 +735,15 @@ body:has(.suite-header) main > #drawingInspector.drawing-inspector{
  height:calc(100dvh - 16px)!important;
  max-height:calc(100dvh - 16px)!important;
  min-height:0!important;
+ box-sizing:border-box!important;
+}
+body:has(.suite-header) main > #equipmentLibrary{
+ overflow-y:auto!important;
+ overflow-x:hidden!important;
+ overscroll-behavior-y:contain;
+ scrollbar-gutter:stable;
+}
+body:has(.suite-header) main > #drawingInspector.drawing-inspector{
  overflow:hidden!important;
 }
 
