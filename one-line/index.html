@@ -704,6 +704,15 @@ body[data-drawing-view="plan"] #equipmentLibrary > label#customEquipmentSizeWrap
  #workspaceViewToggle{font-size:11px;padding:3px 9px;margin-left:6px;border:1px solid #b9c9db;border-radius:5px;background:#f7f9fc;color:#233e61;cursor:pointer}
 }
 </style></style><style id="sheetNavigatorStyle">#sheetNavigator{display:inline-flex;align-items:center;gap:4px;justify-content:flex-end;padding:0;margin-left:auto;font-size:11px;flex-wrap:nowrap;vertical-align:middle}#sheetNavigator select{max-width:160px;min-width:80px;font-size:11px;padding:3px 4px} .project-meta-collapse>summary{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}#sheetNavigator button{font-size:11px;padding:3px 7px;border:1px solid #b9c9db;border-radius:4px;background:#f7f9fc;color:#233e61;cursor:pointer}
+
+/* Secondary equipment fields use the same visual rhythm as rating fields. */
+#properties .equipment-appearance-compact{margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#properties .equipment-appearance-compact label.field,
+#properties .equipment-appearance-compact>label,
+#properties .equipment-appearance-compact .properties-advanced-inline label.field{display:block!important;margin:0 0 6px!important;padding:0!important;font-size:14px!important;font-weight:600!important;line-height:1.3!important;color:#49617e!important}
+#properties .equipment-appearance-compact input,
+#properties .equipment-appearance-compact select{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;min-height:40px!important;height:40px!important;margin:4px 0 6px!important;padding:6px 10px!important;font-size:14px!important;font-weight:400!important}
+#properties .equipment-appearance-compact .properties-advanced-inline{margin:0!important;padding:0!important;border:0!important;background:transparent!important}
 /* Unified compact sizing for the secondary equipment appearance controls. */
 #properties .equipment-appearance-section{margin:6px 0!important;padding:8px 12px!important;border-radius:10px!important}
 #properties .equipment-appearance-section label,
@@ -2118,12 +2127,20 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Keep appearance directly after shared Formatting and before the
  // description fields in every drawing mode (including Plan View).
  const appearance=document.createElement('section');
- appearance.className='equipment-appearance-section';
+ appearance.className='equipment-appearance-section equipment-appearance-compact';
  // Move the existing size control, not a clone: its event handlers remain intact.
  const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl)appearance.appendChild(sizeControl);
+ // Move the existing live controls into one consistent, visible sequence.
+ const lineWeightControl=advanced.querySelector('[data-weight-style]')?.closest('label')
+  ||advanced.querySelector('[data-weight-status]')?.closest('label');
+ if(lineWeightControl)appearance.appendChild(lineWeightControl);
  const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
  if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);}
+ const outlinePattern=p.querySelector('[data-equipment-pattern]')?.closest('label');
+ const installationStatus=p.querySelector('[data-installation-status]')?.closest('label');
+ if(outlinePattern)appearance.appendChild(outlinePattern);
+ if(installationStatus)appearance.appendChild(installationStatus);
  if(advanced.children.length)appearance.appendChild(advanced);
  // Normalize this secondary group at the element level; older theme rules
  // otherwise give these fields larger typography and excessive spacing.
