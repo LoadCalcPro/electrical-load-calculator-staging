@@ -2162,7 +2162,16 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   control.style.setProperty('padding','5px 8px','important');
   control.style.setProperty('margin-top','4px','important');
  }
- if(appearance.children.length)p.insertBefore(appearance,info);
+ // Use the exact same parent and field styling as the ratings above.
+ // A separate appearance container inherited a different layout and caused
+ // the persistent oversized controls despite CSS overrides.
+ while(appearance.firstChild){
+  const child=appearance.firstChild;
+  if(child.classList?.contains('properties-advanced-inline')){
+   while(child.firstChild)info.appendChild(child.firstChild);
+   child.remove();
+  }else info.appendChild(child);
+ }
  // Keep the designation first, then descriptions, immediately after Rotation.
  // Move existing elements rather than recreating fields or their event handlers.
  const descriptionAnchor=rotation&&offsetGrid?rotation:common.querySelector('.shared-text-editor');
