@@ -3270,9 +3270,9 @@ function projectTextHandles(){
  const frame=document.createElementNS(ns,'rect');
  for(const [k,v] of Object.entries({x:b.x-3,y:b.y-3,width:Math.max(12,b.width+6),height:Math.max(12,b.height+6),fill:'none',stroke:'#168c9a','stroke-dasharray':'4 3','pointer-events':'none'}))frame.setAttribute(k,v);
  group.appendChild(frame);
- for(const [kind,cx,cy] of [['size',b.x+b.width+4,b.y+b.height+4],['rotate',b.x+b.width/2,b.y-17]]){
+ for(const [kind,cx,cy] of [['size',b.x+b.width+3,b.y+b.height+3],['rotate',b.x+b.width/2,b.y-11]]){
   const h=document.createElementNS(ns,kind==='size'?'rect':'circle');
-  const attrs=kind==='size'?{x:cx-5,y:cy-5,width:10,height:10}:{cx,cy,r:6};
+  const attrs=kind==='size'?{x:cx-3.5,y:cy-3.5,width:7,height:7}:{cx,cy,r:4};
   for(const [k,v] of Object.entries({...attrs,fill:'#fff',stroke:'#168c9a','stroke-width':2,'data-project-handle':kind,'data-project-key':activeProjectText}))h.setAttribute(k,v);
   h.style.cursor=kind==='size'?'nwse-resize':'grab';group.appendChild(h);
  }
