@@ -2506,6 +2506,17 @@ function addDrawingLinePalette(item,kind){
  const fields=document.createElement('div');fields.className='shared-text-grid';
  fields.innerHTML='<label class="field">Label size<input type="number" min="6" max="72" data-line-format="labelFontSize"></label><label class="field">Label style<select data-line-format="labelStyle"><option value="normal">Normal</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Label X offset<input type="number" step="1" data-line-format="labelDX"></label><label class="field">Label Y offset<input type="number" step="1" data-line-format="labelDY"></label><label class="field">Label rotation<input type="number" step="1" data-line-format="labelAngle"></label>'+(kind==='line'?'<label class="field">Line rotation<input id="lineExactAngle" type="number" min="-360" max="360" step="1"></label>':'');
  root.appendChild(fields);
+ if(kind==='line'&&drawingView==='plan'){
+  const measurement=document.createElement('div');
+  measurement.className='shared-text-grid';
+  measurement.innerHTML='<label class="field">Line length — Feet<input type="number" min="0" step="1" data-line-feet></label><label class="field">Inches<input type="number" min="0" max="11.999" step="0.125" data-line-inches></label>';
+  fields.prepend(measurement);
+  const feet=measurement.querySelector('[data-line-feet]'),inches=measurement.querySelector('[data-line-inches]');
+  const refresh=()=>{const length=Math.hypot(item.x2-item.x1,item.y2-item.y1)/planUnitsPerInch();feet.value=Math.floor(length/12);inches.value=+(length%12).toFixed(3);};
+  refresh();
+  const setLength=()=>{const length=Math.max(1,(Number(feet.value)||0)*12+(Number(inches.value)||0))*planUnitsPerInch();const angle=Math.atan2(item.y2-item.y1,item.x2-item.x1);item.x2=item.x1+length*Math.cos(angle);item.y2=item.y1+length*Math.sin(angle);renderCanvasOnly();};
+  feet.addEventListener('change',setLength);inches.addEventListener('change',setLength);
+ }
  if(kind==='line'){
   const lineRotation=fields.querySelector('#lineExactAngle');
   if(lineRotation){
