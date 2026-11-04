@@ -1946,6 +1946,10 @@ function resizeEquipmentTarget(n,dragState,point){
  const dx=Math.abs(offsetX*cos+offsetY*sin),dy=Math.abs(-offsetX*sin+offsetY*cos);
  const limit=v=>Math.max(.15,Math.min(4,v));
  const independent=['gutter','metercombo','panel','switchboard','disconnect','ats','meter','generator'];
+ // Anchor the opposite (left/top) edges while dragging the lower-right grip.
+ // Use local rotated coordinates so the fixed edge remains fixed on the sheet.
+ const oldScaleX=Number(n.scaleX)||1,oldScaleY=Number(n.scaleY)||1;
+ const fixedLeft=-b.l*oldScaleX,fixedTop=-b.t*oldScaleY;
  if(independent.includes(n.type)){
   n.scaleX=limit(dx/Math.max(1,b.r));
   n.scaleY=limit(dy/Math.max(1,b.b));
@@ -1953,6 +1957,9 @@ function resizeEquipmentTarget(n,dragState,point){
   const factor=limit(Math.max(dx/Math.max(1,b.r),dy/Math.max(1,b.b)));
   n.scaleX=factor;n.scaleY=factor;
  }
+ const shiftX=fixedLeft+b.l*n.scaleX,shiftY=fixedTop+b.t*n.scaleY;
+ n.x+=shiftX*cos-shiftY*sin;
+ n.y+=shiftX*sin+shiftY*cos;
  clampEquipmentToSheet(n);
  return true;
 }
