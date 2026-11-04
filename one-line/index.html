@@ -529,9 +529,9 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #properties .property-priority input:not([type=checkbox]):not([type=color]):not([type=radio]),#properties .property-priority select,#properties .property-priority textarea{width:100%}
 #properties .property-priority label.field:has(> textarea[data-prop="name"]){width:100%}
 /* Keep lower Plan View wall controls visually unified with upper Properties. */
-#properties .plan-wall-properties{background:#f3f7fd;border:1px solid #cbdcf0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;box-sizing:border-box}
+#properties .plan-wall-properties{background:var(--drawing-properties-surface);border:1px solid var(--drawing-properties-border);border-radius:var(--drawing-properties-radius);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;box-sizing:border-box}
 #properties .plan-wall-properties>.field{display:flex;flex-direction:column;align-items:stretch;width:100%;min-width:0;margin:0;box-sizing:border-box}
-#properties .plan-wall-properties input:not([type=checkbox]),#properties .plan-wall-properties select{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;border:1px solid #cbdcf0;border-radius:10px;background:#fff;min-height:42px;padding:8px 12px;font:inherit}
+#properties .plan-wall-properties input:not([type=checkbox]):not([type=color]),#properties .plan-wall-properties select{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;border:1px solid var(--drawing-properties-border);border-radius:10px;background:var(--drawing-properties-input);min-height:42px;padding:8px 12px;font:inherit}
 #properties .plan-wall-properties [data-wall-feet],#properties .plan-wall-properties [data-wall-inches]{flex:1 1 0;width:0;min-width:0}
 #properties .plan-wall-properties label.field:has([data-wall-dimension]){flex-direction:row;align-items:center;gap:8px}
 #properties .plan-wall-properties button{align-self:flex-start;max-width:100%}
