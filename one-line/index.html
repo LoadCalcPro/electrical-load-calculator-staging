@@ -2342,6 +2342,19 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    child.remove();
   }else info.appendChild(child);
  }
+ // Architectural dimensions belong to the same continuous Properties surface.
+ // Move the existing live controls (and their listeners), not a second card.
+ if(itemForInfo?.type==='planroom'){
+  const roomFields=Array.from(p.children).filter(el=>el.matches?.('label.field,div.field')&&(
+   el.querySelector('[data-room-dim],[data-room-wall]')||el.textContent.trim()==='Room dimensions'
+  ));
+  // The heading is descriptive only; do not introduce another panel or border.
+  for(const field of roomFields)info.appendChild(field);
+ }
+ if(itemForInfo?.type==='planwall'){
+  const wallSection=p.querySelector(':scope > .plan-wall-properties');
+  if(wallSection){while(wallSection.firstChild)info.appendChild(wallSection.firstChild);wallSection.remove();}
+ }
  // Keep the designation first, then descriptions, immediately after Rotation.
  // Move existing elements rather than recreating fields or their event handlers.
  const descriptionAnchor=rotation&&offsetGrid?rotation:common.querySelector('.shared-text-editor');
