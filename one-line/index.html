@@ -3510,6 +3510,18 @@ if(location.protocol==='file:'){
  let host=document.getElementById('projectSettingsInspector');
  if(!host&&inspectorRoot){host=document.createElement('div');host.id='projectSettingsInspector';inspectorRoot.insertBefore(host,document.getElementById('textInspector'));}
  if(!settings||!host)return;
+ // Keep the selected text's existing shared palette above the title fields.
+ const textInspector=document.getElementById('textInspector');
+ if(textInspector)textInspector.after(host);
+ // Clicking outside the title block returns its fields to their original home,
+ // allowing the ordinary equipment/line inspector to take over.
+ document.addEventListener('pointerdown',event=>{
+  if(!host.querySelector('.project-inspector-settings'))return;
+  if(event.target.closest('#drawingInspector, [data-open-project-panel], #titleblock'))return;
+  const panel=host.querySelector('.project-inspector-settings');
+  if(panel)Array.from(panel.children).forEach(el=>{if(el.classList.contains('project-info-field')||el.classList.contains('image-project-tools'))settings.appendChild(el);});
+  host.replaceChildren();
+ },true);
  const groups={images:['.image-project-tools'],title:['.project-name-field','.project-address-field','.drawing-title-field','.sheet-number-field','.drawing-scale-field','.title-block-position-field']};
  const titleToggle=document.getElementById('showTitleBlockToolbar');
  const dividerToggle=document.querySelector('[data-project-show="titleBlockPosition"]');
@@ -3522,8 +3534,14 @@ if(location.protocol==='file:'){
   const heading=document.createElement('div');heading.className='project-inspector-heading';heading.textContent=button.textContent;host.appendChild(heading);
   const panel=document.createElement('div');panel.className='project-inspector-settings';host.appendChild(panel);
   for(const selector of groups[group]||[]){const el=settings.querySelector(selector);if(el)panel.appendChild(el);}
-  if(group==='title'&&titleToggle){const visibility=document.createElement('label');visibility.className='field';visibility.style.gridColumn='1/-1';visibility.append('Title Block Divider ');visibility.appendChild(titleToggle);panel.appendChild(visibility);}
+  
   const inspector=document.getElementById('drawingInspector');if(inspector?.classList.contains('collapsed'))document.getElementById('toggleInspector')?.click();
  }));
 })();
-</script></body></html>
+</script><style id="titleBlockInspectorAlignment">
+#projectSettingsInspector .project-info-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+#projectSettingsInspector .project-info-toggle{display:inline-flex!important;align-items:center!important;flex-direction:row-reverse!important;gap:6px!important;white-space:nowrap!important}
+#projectSettingsInspector .project-info-toggle input{margin:0!important;width:16px!important;height:16px!important;flex:none!important}
+#projectSettingsInspector .project-inspector-settings{grid-template-columns:minmax(0,1fr)!important}
+#projectSettingsInspector .project-inspector-settings .project-info-field{grid-column:1/-1!important}
+</style></body></html>
