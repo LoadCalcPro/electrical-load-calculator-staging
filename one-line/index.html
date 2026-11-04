@@ -514,12 +514,6 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #textInspector .selected-equipment-designation{display:block;margin:4px 0 6px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-sizing:border-box}
 #textInspector .selected-equipment-designation>span{display:block;font-weight:700;margin-bottom:4px}
 #textInspector .selected-equipment-designation input{width:100%;min-width:0}
-/* Keep equipment designation editable fields full-width like their adjacent rating fields. */
-#properties .property-priority label.field:has(> input[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important}
-#properties .property-priority input[data-prop="name"]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;flex:0 0 auto!important}
-/* Apply to the actual designation textarea regardless of the section it is moved into. */
-#drawingMain #properties label.field:has(> textarea[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
-#drawingMain #properties textarea[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1px solid #cbd7e8!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:#fff!important;resize:none!important;font:inherit!important}
 /* Shared Disconnect-reference Properties appearance for all drawing tabs. */
 :root{--drawing-properties-surface:#f3f7fd;--drawing-properties-border:#cbdcf0;--drawing-properties-input:#fff;--drawing-properties-radius:12px}
 #properties .property-priority,#properties .property-section,#properties .properties-common,#properties .plan-wall-properties{background:var(--drawing-properties-surface);border-color:var(--drawing-properties-border);box-sizing:border-box;min-width:0}
@@ -535,14 +529,10 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #properties .plan-wall-properties [data-wall-feet],#properties .plan-wall-properties [data-wall-inches]{flex:1 1 0;width:0;min-width:0}
 #properties .plan-wall-properties label.field:has([data-wall-dimension]){flex-direction:row;align-items:center;gap:8px}
 #properties .plan-wall-properties button{align-self:flex-start;max-width:100%}
-/* Shared multiline equipment designation editor: panel, disconnect, room, wall and other nodes. */
-#properties .property-priority label.field:has(> textarea[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;min-width:0!important;box-sizing:border-box!important}
-#properties .property-priority textarea[data-prop="name"]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;border:1px solid #cbd7e8!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:#fff!important;font:inherit;flex:0 0 auto!important}
-/* Plan View room and wall designation fields match the full-width rounded controls. */
-#properties .property-priority label.field:has(input[data-prop="name"]){min-width:0!important;max-width:100%!important}
-#properties .property-priority input[data-prop="name"]{border:1px solid #cbd7e8!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:#fff!important}
-
-
+/* One shared designation rule for equipment, room and wall text fields. */
+#drawingMain #properties label.field:has(> :is(input,textarea)[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+#drawingMain #properties :is(input,textarea)[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1px solid var(--drawing-properties-border)!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:var(--drawing-properties-input)!important;font:inherit!important}
+#drawingMain #properties textarea[data-prop="name"],#drawingMain #textInspector textarea[data-prop="name"]{resize:none!important}
 /* Description heading is a compact field-group label, not a page title. */
 #properties .property-priority .equipment-description-heading{font-size:14px!important;line-height:1.25!important;font-weight:700!important;letter-spacing:0!important;margin:4px 0 6px!important;padding:0!important;color:#49617e!important}
 /* Compact designation and equipment description fields to match the offset controls. */
