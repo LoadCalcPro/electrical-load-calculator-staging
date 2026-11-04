@@ -514,6 +514,10 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #textInspector .selected-equipment-designation{display:block;margin:4px 0 6px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-sizing:border-box}
 #textInspector .selected-equipment-designation>span{display:block;font-weight:700;margin-bottom:4px}
 #textInspector .selected-equipment-designation input{width:100%;min-width:0}
+/* Keep equipment designation editable fields full-width like their adjacent rating fields. */
+#properties .property-priority label.field:has(> input[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important}
+#properties .property-priority input[data-prop="name"]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;flex:0 0 auto!important}
+
 /* Description heading is a compact field-group label, not a page title. */
 #properties .property-priority .equipment-description-heading{font-size:14px!important;line-height:1.25!important;font-weight:700!important;letter-spacing:0!important;margin:4px 0 6px!important;padding:0!important;color:#49617e!important}
 /* Compact designation and equipment description fields to match the offset controls. */
