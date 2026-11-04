@@ -517,6 +517,10 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 /* Keep equipment designation editable fields full-width like their adjacent rating fields. */
 #properties .property-priority label.field:has(> input[data-prop="name"]){display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important}
 #properties .property-priority input[data-prop="name"]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;flex:0 0 auto!important}
+/* Plan View room and wall designation fields match the full-width rounded controls. */
+#properties .property-priority label.field:has(input[data-prop="name"]){min-width:0!important;max-width:100%!important}
+#properties .property-priority input[data-prop="name"]{border:1px solid #cbd7e8!important;border-radius:10px!important;min-height:40px!important;padding:8px 12px!important;background:#fff!important}
+
 
 /* Description heading is a compact field-group label, not a page title. */
 #properties .property-priority .equipment-description-heading{font-size:14px!important;line-height:1.25!important;font-weight:700!important;letter-spacing:0!important;margin:4px 0 6px!important;padding:0!important;color:#49617e!important}
