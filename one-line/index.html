@@ -1470,6 +1470,23 @@ window.addEventListener('keydown',e=>{
  }
 },true);
 
+// Persistent visible calibration guidance; status text alone can be below the viewport.
+const calibrationNotice=document.createElement('div');
+calibrationNotice.id='calibrationNotice';
+calibrationNotice.setAttribute('role','status');
+calibrationNotice.setAttribute('aria-live','polite');
+calibrationNotice.style.cssText='position:fixed;top:88px;left:50%;transform:translateX(-50%);z-index:99998;background:#102b51;color:white;border:2px solid #6bb4ff;border-radius:9px;padding:11px 18px;max-width:min(90vw,640px);box-shadow:0 5px 18px #0005;font:600 15px Arial;display:none;text-align:center';
+document.body.appendChild(calibrationNotice);
+function showCalibrationNotice(message,keep=true){
+ calibrationNotice.textContent=message;
+ calibrationNotice.style.display='block';
+ if(!keep)calibrationNotice.dataset.dismiss='yes';else delete calibrationNotice.dataset.dismiss;
+}
+$('calibrateBackground').addEventListener('click',()=>showCalibrationNotice('Enter the known wall length in feet and inches, then click Start Calibration.'));
+$('startBackgroundCalibration').addEventListener('click',()=>{
+ const message=$('status')?.textContent||'Calibration not started.';
+ showCalibrationNotice(message);
+});
 let backgroundCalibration=null;
 $('calibrateBackground').addEventListener('click',()=>{const panel=$('calibrationControls');panel.hidden=!panel.hidden;$('calibrateBackground').setAttribute('aria-expanded',String(!panel.hidden));});
 $('startBackgroundCalibration').addEventListener('click',()=>{
@@ -1489,7 +1506,7 @@ $('svg').addEventListener('pointerdown',e=>{
  e.preventDefault();e.stopImmediatePropagation();
  const p=xy(e),cal=backgroundCalibration;
  if(!cal){mode='select';return;}
- if(!cal.start){cal.start=p;$('status').textContent='Calibration: first point set. Click the second end of the known wall.';return;}
+ if(!cal.start){cal.start=p;$('status').textContent='Calibration: first point set. Click the second end of the known wall.';showCalibrationNotice('Point 1 selected. Click the opposite end of the wall.');return;}
  const im=personalImages.find(v=>v.kind===cal.kind),measured=Math.hypot(p.x-cal.start.x,p.y-cal.start.y);
  const expected=cal.inches*planUnitsPerInch();
  if(im&&measured>1&&expected>0){
@@ -1500,9 +1517,9 @@ $('svg').addEventListener('pointerdown',e=>{
   im.y=cal.start.y+(oldY-cal.start.y)*ratio;
   $('status').textContent='Background calibrated to '+cal.inches+' inches. Drawing geometry unchanged.';
  }else $('status').textContent='Calibration requires two distinct points on an imported background.';
- backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';render();
+ showCalibrationNotice($('status').textContent);backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';render();
 },true);
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='calibrate-background'){backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';$('status').textContent='Background calibration cancelled.';render();}},true);
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='calibrate-background'){backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';$('status').textContent='Background calibration cancelled.';calibrationNotice.style.display='none';render();}},true);
 // Precise ceiling fixture placement is measured from the room's inside wall faces.
 $('properties').addEventListener('change',e=>{
  const axis=e.target.getAttribute('data-light-offset');if(!axis||selected?.kind!=='node')return;
