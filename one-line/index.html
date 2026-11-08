@@ -2744,83 +2744,7 @@ function renderPositionSpacingProperties(){
  inspector.append(section);
 }
 
-/* Temporary Plan View position guides; values are physical inches from room inside faces. */
-let planSpacingMode='nearest';
-function planSpacingData(){
- if(drawingView!=='plan'||selected?.kind!=='node')return null;
- const item=nodes.find(n=>n.id===selected.id);
- if(!item||item.type==='planroom')return null;
- const px=planUnitsPerInch();
- const rooms=nodes.filter(n=>n.type==='planroom'&&!n.layerHidden).map(room=>{
-  const wall=Math.max(0,Number(room.wallInches??6))*px;
-  const halfX=Math.max(0,Number(room.roomLengthIn??240))*px/2;
-  const halfY=Math.max(0,Number(room.roomWidthIn??144))*px/2;
-  return {room,left:room.x-halfX+wall,right:room.x+halfX-wall,top:room.y-halfY+wall,bottom:room.y+halfY-wall};
- }).filter(r=>r.left<=item.x&&item.x<=r.right&&r.top<=item.y&&item.y<=r.bottom)
- .sort((a,b)=>(a.right-a.left)*(a.bottom-a.top)-(b.right-b.left)*(b.bottom-b.top));
- if(!rooms.length)return null;
- const r=rooms[0];
- return {...r,item,px,dist:{left:(item.x-r.left)/px,right:(r.right-item.x)/px,top:(item.y-r.top)/px,bottom:(r.bottom-item.y)/px}};
-}
-function planSpacingText(inches){
- const eighths=Math.max(0,Math.round(inches*8)),ft=Math.floor(eighths/96),rem=eighths-ft*96;
- return ft+"' - "+(rem/8)+'"';
-}
-function drawPlanSpacing(){
- let layer=$('planSpacingGuides');
- if(!layer){layer=document.createElementNS('http://www.w3.org/2000/svg','g');layer.id='planSpacingGuides';layer.style.pointerEvents='none';$('drawingGuides').parentNode.appendChild(layer);}
- layer.replaceChildren();
- const c=planSpacingData();if(!c||planSpacingMode==='off')return;
- const dirs=planSpacingMode==='all'?['top','bottom','left','right']:[c.dist.top<=c.dist.bottom?'top':'bottom',c.dist.left<=c.dist.right?'left':'right'];
- const ns='http://www.w3.org/2000/svg';
- for(const dir of dirs){
-  const x2=dir==='left'?c.left:dir==='right'?c.right:c.item.x;
-  const y2=dir==='top'?c.top:dir==='bottom'?c.bottom:c.item.y;
-  const line=document.createElementNS(ns,'line');
-  for(const [k,v] of Object.entries({x1:c.item.x,y1:c.item.y,x2,y2,stroke:'#087f99','stroke-width':1.5,'stroke-dasharray':'5 4'}))line.setAttribute(k,v);
-  layer.appendChild(line);
-  const label=document.createElementNS(ns,'text');
-  label.setAttribute('x',(c.item.x+x2)/2+(dir==='top'||dir==='bottom'?12:0));
-  label.setAttribute('y',(c.item.y+y2)/2+(dir==='left'||dir==='right'?-9:0));
-  label.setAttribute('text-anchor','middle');label.setAttribute('font-size','12');
-  label.setAttribute('fill','#075e75');label.setAttribute('stroke','white');label.setAttribute('stroke-width','3');label.setAttribute('paint-order','stroke');
-  label.textContent=planSpacingText(c.dist[dir]);layer.appendChild(label);
- }
-}
-function planSpacingProperties(){
- const host=$('properties');host.querySelector('#planSpacingPanel')?.remove();
- const c=planSpacingData();if(!c)return;
- const panel=document.createElement('section');panel.id='planSpacingPanel';
- panel.style.cssText='border:1px solid #b8c9dc;border-radius:6px;padding:8px;margin-top:10px;font-size:13px';
- panel.innerHTML='<strong>Position &amp; Spacing</strong><div style="font-size:12px;margin:5px 0">Center to inside face of room wall</div><label>Guides <select id="planSpacingMode"><option value="nearest">Nearest walls</option><option value="all">All four walls</option><option value="off">Hide</option></select></label><div id="planSpacingFields" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px"></div>';
- host.appendChild(panel);
- const selector=panel.querySelector('#planSpacingMode');selector.value=planSpacingMode;
- selector.onchange=()=>{planSpacingMode=selector.value;drawPlanSpacing();};
- const fields=panel.querySelector('#planSpacingFields');
- for(const dir of ['top','bottom','left','right']){
-  const label=document.createElement('label');label.style.fontSize='12px';label.textContent=dir[0].toUpperCase()+dir.slice(1)+' (ft / in)';
-  const feet=document.createElement('input'),inches=document.createElement('input');
-  feet.type=inches.type='number';feet.min=inches.min='0';inches.max='11.875';inches.step='0.125';
-  feet.style.width=inches.style.width='43%';
-  const eighths=Math.round(c.dist[dir]*8);feet.value=String(Math.floor(eighths/96));inches.value=String((eighths%96)/8);
-  const apply=()=>{
-   const f=Number(feet.value),i=Number(inches.value);
-   if(!Number.isFinite(f)||!Number.isFinite(i)||f<0||i<0||i>=12)return;
-   const offset=(f*12+i)*c.px;
-   if(dir==='left')c.item.x=c.left+offset;
-   if(dir==='right')c.item.x=c.right-offset;
-   if(dir==='top')c.item.y=c.top+offset;
-   if(dir==='bottom')c.item.y=c.bottom-offset;
-   c.item.x=Math.max(c.left,Math.min(c.right,c.item.x));
-   c.item.y=Math.max(c.top,Math.min(c.bottom,c.item.y));
-   render();
-  };
-  feet.addEventListener('change',apply);inches.addEventListener('change',apply);
-  label.appendChild(document.createElement('br'));label.append(feet,document.createTextNode(' / '),inches);fields.appendChild(label);
- }
-}
-
-function render(skipProperties=false){const scaleSelect=$('planScaleSelect');if(scaleSelect){if(drawingView!=='plan')scaleSelect.value='nts';else if(scaleSelect.value==='nts')scaleSelect.value='0.25';scaleSelect.disabled=drawingView!=='plan';for(const option of scaleSelect.options)option.hidden=drawingView!=='plan'&&option.value!=='nts';if($('drawingScale'))$('drawingScale').value=scaleSelect.selectedOptions[0].textContent;}removeInvalidPlanWallJoints();syncAssociativePlanDimensions();sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();drawPlanSpacing();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g='';// Zoom the complete SVG sheet uniformly through its layout dimensions, including grid and title block.
+function render(skipProperties=false){const scaleSelect=$('planScaleSelect');if(scaleSelect){if(drawingView!=='plan')scaleSelect.value='nts';else if(scaleSelect.value==='nts')scaleSelect.value='0.25';scaleSelect.disabled=drawingView!=='plan';for(const option of scaleSelect.options)option.hidden=drawingView!=='plan'&&option.value!=='nts';if($('drawingScale'))$('drawingScale').value=scaleSelect.selectedOptions[0].textContent;}removeInvalidPlanWallJoints();syncAssociativePlanDimensions();sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g='';// Zoom the complete SVG sheet uniformly through its layout dimensions, including grid and title block.
 $('sheetLayer').removeAttribute('transform');$('titleblock').removeAttribute('transform');$('personalImages').setAttribute('transform',g);$('personalImages').innerHTML=personalImages.map(im=>`<g data-personal-image="${im.kind}" opacity="${Math.max(.15,Math.min(1,Number(im.opacity??1)))}" style="pointer-events:${im.locked?'none':'auto'}"><image href="${im.src}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="xMidYMid meet" style="pointer-events:${im.locked?'none':'all'}"/><rect x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" fill="transparent" stroke="${selected?.kind==='personalImage'&&selected.id===im.kind?'#168c9a':'none'}" stroke-width="${2.5/zoom}" stroke-dasharray="${5/zoom} ${3/zoom}" style="cursor:${im.locked?'default':'move'};pointer-events:${im.locked?'none':'all'}"/>${!im.locked&&selected?.kind==='personalImage'&&selected.id===im.kind?`<rect data-image-resize="corner" x="${im.x+im.w-4/zoom}" y="${im.y+im.h-4/zoom}" width="${8/zoom}" height="${8/zoom}" fill="white" stroke="#168c9a" stroke-width="${2/zoom}" style="cursor:nwse-resize;pointer-events:all"/>`:``}</g>`).join('');$('wires').setAttribute('transform',g);$('drawnLines').setAttribute('transform',g);$('nodes').setAttribute('transform',g);$('wires').innerHTML=wires.map(w=>{const a=nodes.find(n=>n.id===w.from),b=nodes.find(n=>n.id===w.to);if(!a||!b)return '';const route=feederPath(a,b,w);
 const segments=[...route.d.matchAll(/([MLHV])\s*(-?[\d.]+)(?:[ ,]+(-?[\d.]+))?/g)];
 let px=0,py=0,anchor={x:route.lx,y:route.ly,length:0,vertical:false};
@@ -2879,7 +2803,7 @@ return `<g data-wire="${w.id}" style="cursor:pointer">${Array.from({length:Math.
   for(const [name,value] of Object.entries({x:b.x-2,y:b.y-1,width:Math.max(1,b.width+4),height:Math.max(1,b.height+2),fill:color,'pointer-events':'none',transform:node.getAttribute('transform')||''}))rect.setAttribute(name,value);
   node.parentNode.insertBefore(rect,node);
  }
-renderPositionSpacing();if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();organizeEquipmentProperties();standardizeDrawingProperties();planSpacingProperties();renderPositionSpacingProperties();}else if(selected?.kind==='node'){$('textInspector').syncSelectedText?.();}$('selectMode').classList.toggle('active',mode==='select');$('connectMode').classList.toggle('active',mode==='connect');$('lineMode').classList.toggle('active',mode==='line');$('polyMode').classList.toggle('active',mode==='polyline');$('shapeMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='rectangle');$('cloudMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='cloud');$('switchLegMode').classList.toggle('active',mode==='switch-control');$('modeLabel').textContent='Mode: '+(mode==='connect'?'Connect (select two symbols)':'Select / Move')}
+renderPositionSpacing();if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();organizeEquipmentProperties();standardizeDrawingProperties();renderPositionSpacingProperties();}else if(selected?.kind==='node'){$('textInspector').syncSelectedText?.();}$('selectMode').classList.toggle('active',mode==='select');$('connectMode').classList.toggle('active',mode==='connect');$('lineMode').classList.toggle('active',mode==='line');$('polyMode').classList.toggle('active',mode==='polyline');$('shapeMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='rectangle');$('cloudMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='cloud');$('switchLegMode').classList.toggle('active',mode==='switch-control');$('modeLabel').textContent='Mode: '+(mode==='connect'?'Connect (select two symbols)':'Select / Move')}
 function noteLeaders(a){if(!Array.isArray(a.leaders)){a.leaders=[{id:0,endX:a.endX??a.x+95,endY:a.endY??a.y+30,targetId:a.targetId??null,offsetX:a.offsetX||0,offsetY:a.offsetY||0}]}return a.leaders;}
 function renderAnnotations(){const layer=$('annotations');layer.removeAttribute('transform');layer.innerHTML=annotations.map(a=>{if(a.kind==='group-outline'){const active=selected?.kind==='annotation'&&selected.id===a.id;return `<g data-annotation="${a.id}"><rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="none" stroke="#111" stroke-width="${a.lineWidth||1.5}" ${a.dashed?'stroke-dasharray="8 5"':''} pointer-events="stroke" style="cursor:move"/>${a.text?`<text x="${a.x+8}" y="${a.y-6}" font-size="12" fill="#111" pointer-events="none">${esc(a.text)}</text>`:''}${active?`<rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="none" stroke="#168c9a" stroke-width="1" stroke-dasharray="3 4" pointer-events="none"/>`:''}</g>`;}const size=Math.max(6,Math.min(40,Number(a.fontSize)||12)),lines=String(a.text||'').split('\n'),alignment=['start','middle','end'].includes(a.align)?a.align:'start';const metricsCanvas=renderAnnotations.metricsCanvas||(renderAnnotations.metricsCanvas=document.createElement('canvas'));const metrics=metricsCanvas.getContext('2d');metrics.font=size+'px Arial, sans-serif';const measuredWidth=Math.max(0,...lines.map(line=>metrics.measureText(line).width));const width=Math.max(24,Math.ceil(measuredWidth)+10),height=Math.max(size+8,size*1.25*(lines.length-1)+size+8);const left=alignment==='middle'?a.x-width/2:alignment==='end'?a.x-width:a.x,top=a.y-size-4;const selectedNote=selected?.kind==='annotation'&&selected.id===a.id;const leaders=(a.leader?noteLeaders(a):[]).map((l,i)=>{const target=l.targetId?nodes.find(n=>n.id===Number(l.targetId)):null;const ex=target?target.x+(Number(l.offsetX)||0):Number(l.endX??a.x+95),ey=target?target.y+(Number(l.offsetY)||0):Number(l.endY??a.y+30);let sx=Math.max(left,Math.min(ex,left+width)),sy=Math.max(top,Math.min(ey,top+height));if(a.leaderShape==='bent'){sx=ex<left?left:ex>left+width?left+width:(ex<a.x?left:left+width);sy=top+height/2;}if(a.leaderShape!=='bent'&&ex>=left&&ex<=left+width&&ey>=top&&ey<=top+height){const choices=[{d:Math.abs(ex-left),x:left,y:ey},{d:Math.abs(ex-left-width),x:left+width,y:ey},{d:Math.abs(ey-top),x:ex,y:top},{d:Math.abs(ey-top-height),x:ex,y:top+height}].sort((u,v)=>u.d-v.d);sx=choices[0].x;sy=choices[0].y;}const bend=a.leaderShape==='bent',bx=Number.isFinite(Number(l.bendX))?Number(l.bendX):sx+(ex-sx)*.35,by=Number.isFinite(Number(l.bendY))?Number(l.bendY):sy,fromX=bend?bx:sx,fromY=bend?by:sy;const angle=Math.atan2(ey-fromY,ex-fromX),arrow=a.arrow||'arrow',tip=arrow==='arrow'?`<path d="M${ex} ${ey} l${-7*Math.cos(angle-.45)} ${-7*Math.sin(angle-.45)} M${ex} ${ey} l${-7*Math.cos(angle+.45)} ${-7*Math.sin(angle+.45)}" stroke="#111" fill="none"/>`:arrow==='dot'?`<circle cx="${ex}" cy="${ey}" r="3" fill="${esc(a.boxColor||'#111111')}"/>`:'';const oval=arrow==='oval'?`<ellipse cx="${ex}" cy="${ey}" rx="${Math.max(4,Number(a.ovalWidth)||20)/2}" ry="${Math.max(4,Number(a.ovalHeight)||12)/2}" transform="rotate(${Number(a.ovalRotation)||0} ${ex} ${ey})" fill="none" stroke="${esc(a.boxColor||'#111111')}" stroke-width="${Math.max(.5,Number(a.lineWidth)||1)}"/>`:'';const rx=Math.max(4,Number(a.ovalWidth)||20)/2,ry=Math.max(4,Number(a.ovalHeight)||12)/2,rot=(Number(a.ovalRotation)||0)*Math.PI/180,dx=fromX-ex,dy=fromY-ey,localX=dx*Math.cos(rot)+dy*Math.sin(rot),localY=-dx*Math.sin(rot)+dy*Math.cos(rot),scale=Math.hypot(localX/rx,localY/ry)||1,edgeX=ex+(localX/scale)*Math.cos(rot)-(localY/scale)*Math.sin(rot),edgeY=ey+(localX/scale)*Math.sin(rot)+(localY/scale)*Math.cos(rot);return `<path d="M${sx} ${sy} ${bend?`L${bx} ${by}`:''} L${arrow==='oval'?edgeX:ex} ${arrow==='oval'?edgeY:ey}" stroke="${esc(a.boxColor||'#111111')}" stroke-width="${Math.max(.5,Number(a.lineWidth)||1)}" fill="none"/>${tip}${oval}${selectedNote&&bend?`<circle data-leader-bend="${a.id}" data-leader-index="${i}" cx="${bx}" cy="${by}" r="5" fill="white" stroke="#168c9a"/>`:''}${selectedNote?`<circle class="leader-handle" data-leader-handle="${a.id}" data-leader-index="${i}" cx="${ex}" cy="${ey}" r="5" fill="white" stroke="#168c9a" stroke-width="1"/>`:''}`}).join('');return `<g class="annotation ${selectedNote?'selected':''}" data-annotation="${a.id}">${leaders}<rect class="annotation-text-mask" x="${left-3}" y="${top-3}" width="${width+6}" height="${height+6}" fill="${esc(a.boxFill||'#ffffff')}" stroke="${a.boxed?esc(a.boxColor||'#111111'):'none'}" stroke-width="${Math.max(.5,Number(a.lineWidth)||1)}" pointer-events="none"/>${a.highlight?lines.map((line,i)=>{const lineWidth=metrics.measureText(line).width;const lx=alignment==='middle'?a.x-lineWidth/2:alignment==='end'?a.x-lineWidth:a.x;const ly=a.y-size+size*1.25*i;return '<rect x="'+(lx-2)+'" y="'+(ly-1)+'" width="'+(lineWidth+4)+'" height="'+(size+4)+'" rx="2" fill="'+esc(a.highlight)+'" pointer-events="none"/>';}).join(''):''}<text x="${a.x}" y="${a.y}" text-anchor="${alignment}" font-family="Arial, sans-serif" font-size="${size}" fill="${esc(a.color||'#111111')}">${lines.map((line,i)=>`<tspan x="${a.x}" dy="${i?size*1.25:0}">${esc(line)}</tspan>`).join('')}</text><rect x="${left}" y="${top}" width="${width}" height="${height}" fill="transparent" stroke="none"/>${selectedNote?`<rect class="annotation-select" x="${left-3}" y="${top-3}" width="${width+6}" height="${height+6}" fill="none" stroke="#168c9a" stroke-dasharray="3 3" pointer-events="none"/>`:''}</g>`}).join('');for(const a of annotations){if(a.kind==='group-outline')continue;const g=layer.querySelector('[data-annotation="'+a.id+'"]');if(!g)continue;const text=g.querySelector('text'),mask=g.querySelector('.annotation-text-mask'),outline=g.querySelector('.annotation-select');if(!text||!mask)continue;try{const box=text.getBBox();if(!Number.isFinite(box.width)||box.width<=0)continue;const pad=4,x=box.x-pad,y=box.y-pad,w=box.width+pad*2,h=box.height+pad*2;for(const rect of [mask,outline])if(rect){rect.setAttribute('x',x);rect.setAttribute('y',y);rect.setAttribute('width',w);rect.setAttribute('height',h);}const hit=g.querySelector('rect[fill="transparent"]');if(hit){hit.setAttribute('x',x);hit.setAttribute('y',y);hit.setAttribute('width',w);hit.setAttribute('height',h);}}catch(e){}}}
 function addGroupOutline(){const group=[...selectedNodeIds].map(id=>nodes.find(n=>n.id===id)).filter(Boolean);if(group.length<2){$('status').textContent='Shift-click at least two equipment items first.';return;}const margin=18,left=Math.min(...group.map(n=>n.x-bounds(n).l))-margin,right=Math.max(...group.map(n=>n.x+bounds(n).r))+margin,top=Math.min(...group.map(n=>n.y-bounds(n).t))-margin,bottom=Math.max(...group.map(n=>n.y+bounds(n).b))+margin;const a={id:next++,kind:'group-outline',x:left,y:top,w:right-left,h:bottom-top,dashed:false,lineWidth:1.5,text:''};annotations.push(a);selectedNodeIds.clear();selected={kind:'annotation',id:a.id};mode='select';render();$('status').textContent='Group outline added. Select the outline to change its dimensions, label, or dashed line.';}
