@@ -2762,6 +2762,7 @@ function syncPositionSpacingInputs(){
 // Plan View underground conduit connections are stored as drawnLines, so they travel
 // with each sheet and survive existing JSON save/open without a new file format.
 let pendingPlanConduit=null,planConduitDrag=null;
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='plan-conduit'){pendingPlanConduit=null;mode='select';$('status').textContent='Underground conduit placement finished.';render();}},true);
 function planConduitPanelAt(p){
  return nodes.slice().reverse().find(n=>n.type==='planpanel'&&!n.layerHidden&&!n.locked&&
  Math.abs(p.x-n.x)<=bounds(n).l&&Math.abs(p.y-n.y)<=bounds(n).t);
@@ -2824,8 +2825,8 @@ $('svg').addEventListener('pointerdown',e=>{
  drawnLines.push({id,x1:from.x,y1:from.y,x2:to.x,y2:to.y,
  color:'#087f99',width:2,lineStyle:'dashed',label:designation,
  planConduit:{from:pendingPlanConduit,to:anchor,designation,size:'PVC UG',riseA:0,riseB:0,allowance:0}});
- pendingPlanConduit=null;mode='select';selected={kind:'line',id};
- $('status').textContent='Underground conduit added. Select either circle to reposition it, or edit the measured length in Properties.';render();return;
+ pendingPlanConduit=null;selected={kind:'line',id};
+ $('status').textContent='Underground conduit added. Click the first panel again to start another conduit, or press Escape / Select & Move to finish.';render();return;
  }
  const endpoint=e.target.closest('[data-conduit-end]');
  if(endpoint){
