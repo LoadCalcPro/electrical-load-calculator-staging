@@ -1289,7 +1289,23 @@ function moveAttachedPlanOpenings(wall){
  }
 }
 function clampEquipmentToSheet(n){const b=baseBounds(n),sx=Math.abs(Number(n.scaleX)||1),sy=Math.abs(Number(n.scaleY)||1);let left=b.l*sx,right=b.r*sx,top=b.t*sy,bottom=b.b*sy;if(n.type==='planroom'){const extra=Math.max(0,Number(n.wallInches??6))*planUnitsPerInch()*sx;left+=extra;right+=extra;top+=extra;bottom+=extra;}const margin=2;const bottomLimit=sheetDrawingBottom();const lowX=18+left+margin,highX=982-right-margin,lowY=16+top+margin,highY=bottomLimit-bottom-margin;n.x=lowX>highX?(18+982+left-right)/2:Math.max(lowX,Math.min(highX,n.x));n.y=lowY>highY?(16+sheetDrawingBottom()+top-bottom)/2:Math.max(lowY,Math.min(highY,n.y));return n;}
-function visibleEquipmentPlacement(type,index=0){const svg=$('svg'),rect=svg.getBoundingClientRect();if(!rect.width||!rect.height)return null;const matrix=svg.getScreenCTM();if(!matrix)return null;const inv=matrix.inverse();const corners=[[rect.left+rect.width*.12,rect.top+rect.height*.12],[rect.right-rect.width*.12,rect.bottom-rect.height*.12]].map(([x,y])=>{const p=svg.createSVGPoint();p.x=x;p.y=y;const q=p.matrixTransform(inv);return {x:q.x/zoom-panX,y:q.y/zoom-panY};});const left=Math.min(corners[0].x,corners[1].x),right=Math.max(corners[0].x,corners[1].x),top=Math.min(corners[0].y,corners[1].y),bottom=Math.max(corners[0].y,corners[1].y);const step=20,offset=index%4;return {x:Math.max(left,Math.min(right,(left+right)/2+(offset-1.5)*step)),y:Math.max(top,Math.min(bottom,(top+bottom)/2+(offset-1.5)*step))};}
+function visibleEquipmentPlacement(type,index=0){
+ const svg=$('svg'),viewport=$('viewport'),matrix=svg?.getScreenCTM();
+ if(!svg||!viewport||!matrix)return null;
+ const sheet=svg.getBoundingClientRect(),view=viewport.getBoundingClientRect();
+ // Only the intersection of the actual visible viewport and the SVG sheet is usable.
+ // getScreenCTM().inverse() already accounts for SVG zoom/layout and native scrolling;
+ // applying zoom/pan again incorrectly sends new walls toward the top-left.
+ const leftPx=Math.max(sheet.left,view.left),rightPx=Math.min(sheet.right,view.right);
+ const topPx=Math.max(sheet.top,view.top),bottomPx=Math.min(sheet.bottom,view.bottom);
+ if(rightPx<=leftPx||bottomPx<=topPx)return null;
+ const insetX=Math.min(24,(rightPx-leftPx)*0.08),insetY=Math.min(24,(bottomPx-topPx)*0.08);
+ const screenX=(leftPx+rightPx)/2+(index%3-1)*insetX;
+ const screenY=(topPx+bottomPx)/2+(Math.floor(index%9/3)-1)*insetY;
+ const point=svg.createSVGPoint();point.x=screenX;point.y=screenY;
+ const position=point.matrixTransform(matrix.inverse());
+ return {x:position.x,y:position.y};
+}
 let lastVisiblePlacementCount=0;
 let activeGuideSection=null,activeGuidePlacementCount=0;
 const guideState={visible:false,columns:2,rows:2,vertical:[],horizontal:[]};
