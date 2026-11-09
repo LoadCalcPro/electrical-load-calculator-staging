@@ -2806,15 +2806,19 @@ function conduitScheduleRows(){
 function showPlanConduitSchedule(){
  const rows=conduitScheduleRows(),p=$('properties');
  const groups=new Map();
- for(const r of rows){const g=groups.get(r.size)||{count:0,inches:0};g.count++;g.inches+=r.total;groups.set(r.size,g);}
- const count=rows.length,total=rows.reduce((n,r)=>n+r.total,0);
- p.innerHTML='<b>Underground Conduit Schedule</b><p class="status">All saved Plan View sheets. Lengths are estimated from each sheet scale.</p>'+
- '<div class="field"><b>Total estimated length: '+conduitFeetInches(total)+'</b></div>'+
- '<div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr><th>Sheet</th><th>ID</th><th>Size / Type</th><th>Length</th></tr></thead><tbody>'+
- rows.map(r=>'<tr><td>'+esc(r.sheet)+'</td><td>'+esc(r.id)+'</td><td>'+esc(r.size)+'</td><td>'+conduitFeetInches(r.total)+'</td></tr>').join('')+
- '</tbody></table></div><b>Totals by size / type</b>'+
- [...groups].map(([size,g])=>'<div class="field"><b>'+esc(size)+': '+conduitFeetInches(g.inches)+'</b></div>').join('')+
- '<button type="button" id="conduitScheduleCSV">Export conduit schedule (CSV)</button>';
+ for(const r of rows){const g=groups.get(r.size)||{inches:0};g.inches+=r.total;groups.set(r.size,g);}
+ const tableStyle='width:100%;border-collapse:collapse;font-size:13px;line-height:1.5';
+ const cellStyle='padding:7px 5px;border-bottom:1px solid #d6e0ec;text-align:left';
+ p.innerHTML='<h3 style="margin:0 0 10px">Underground Conduit Schedule</h3>'+
+ '<p class="status">Lengths are calculated from the drawing scale and entered allowances.</p>'+
+ '<h4 style="margin:16px 0 6px">Total length by conduit size / type</h4>'+
+ '<table style="'+tableStyle+'"><thead><tr><th style="'+cellStyle+'">Size / Type</th><th style="'+cellStyle+';text-align:right">Total length</th></tr></thead><tbody>'+
+ [...groups].map(([size,g])=>'<tr><td style="'+cellStyle+'">'+esc(size)+'</td><td style="'+cellStyle+';text-align:right;font-weight:700;white-space:nowrap">'+conduitFeetInches(g.inches)+'</td></tr>').join('')+
+ '</tbody></table>'+
+ '<h4 style="margin:20px 0 6px">Individual conduits</h4>'+
+ '<div style="overflow-x:auto"><table style="'+tableStyle+'"><thead><tr><th style="'+cellStyle+'">Sheet</th><th style="'+cellStyle+'">ID</th><th style="'+cellStyle+'">Size / Type</th><th style="'+cellStyle+';text-align:right">Length</th></tr></thead><tbody>'+
+ rows.map(r=>'<tr><td style="'+cellStyle+'">'+esc(r.sheet)+'</td><td style="'+cellStyle+'">'+esc(r.id)+'</td><td style="'+cellStyle+'">'+esc(r.size)+'</td><td style="'+cellStyle+';text-align:right;white-space:nowrap">'+conduitFeetInches(r.total)+'</td></tr>').join('')+
+ '</tbody></table></div><button type="button" id="conduitScheduleCSV" style="margin-top:14px">Export conduit schedule (CSV)</button>';
  p.querySelector('#conduitScheduleCSV').onclick=()=>{
  const cells=[['Sheet','Conduit ID','Size / Type','Plan length (in)','Estimated total (in)'],...rows.map(r=>[r.sheet,r.id,r.size,r.run.toFixed(3),r.total.toFixed(3)])];
  const csv=cells.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\\r\\n');
@@ -2865,7 +2869,10 @@ $('svg').addEventListener('pointerdown',e=>{
  if(!pendingPlanConduit){pendingPlanConduit=anchor;$('status').textContent='First conduit point placed. Click anywhere on the plan for its second endpoint.';render();return;}
  const from=conduitPoint(pendingPlanConduit),to=conduitPoint(anchor);
  if(!from||!to){pendingPlanConduit=null;return;}
- const id=next++,designation='C-'+id;
+ const id=next++;
+ const used=new Set(drawnLines.filter(v=>v.planConduit).map(v=>v.planConduit.designation||v.label));
+ let conduitNumber=1;while(used.has('C-'+conduitNumber))conduitNumber++;
+ const designation='C-'+conduitNumber;
  drawnLines.push({id,x1:from.x,y1:from.y,x2:to.x,y2:to.y,
  color:'#087f99',width:2,lineStyle:'dashed',label:designation,
  planConduit:{from:pendingPlanConduit,to:anchor,designation,size:'Unspecified inch PVC',diameter:'',material:'PVC',riseA:0,riseB:0,allowance:0}});
