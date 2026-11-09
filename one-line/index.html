@@ -2825,8 +2825,8 @@ $('svg').addEventListener('pointerdown',e=>{
  drawnLines.push({id,x1:from.x,y1:from.y,x2:to.x,y2:to.y,
  color:'#087f99',width:2,lineStyle:'dashed',label:designation,
  planConduit:{from:pendingPlanConduit,to:anchor,designation,size:'PVC UG',riseA:0,riseB:0,allowance:0}});
- pendingPlanConduit=null;selected={kind:'line',id};
- $('status').textContent='Underground conduit added. Click the first panel again to start another conduit, or press Escape / Select & Move to finish.';render();return;
+ pendingPlanConduit=null;mode='select';selected={kind:'line',id};
+ $('status').textContent='Underground conduit added. Select Underground Conduit again to place another connection.';render();return;
  }
  const endpoint=e.target.closest('[data-conduit-end]');
  if(endpoint){
