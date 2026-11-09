@@ -2823,7 +2823,7 @@ function renderPositionSpacing(){
   const x2=horizontal?edges[side]:n.x,y2=horizontal?n.y:edges[side];
   const tx=(n.x+x2)/2,ty=(n.y+y2)/2;
   const label=positionDistanceLabel(distances[side]);
-  return '<line x1="'+n.x+'" y1="'+n.y+'" x2="'+x2+'" y2="'+y2+'" stroke="#087f99" stroke-width="1.3" stroke-dasharray="4 3"/><text x="'+(tx+(horizontal?0:9))+'" y="'+(ty+(horizontal?-7:3))+'" text-anchor="middle" font-size="11" fill="#087f99" stroke="white" stroke-width="3" paint-order="stroke" >'+label+'</text>';
+  const factor=planDimensionVisualFactor();return '<line x1="'+n.x+'" y1="'+n.y+'" x2="'+x2+'" y2="'+y2+'" stroke="#087f99" stroke-width="'+(1.3*factor)+'" stroke-dasharray="'+(4*factor)+' '+(3*factor)+'"/><text x="'+(tx+(horizontal?0:9*factor))+'" y="'+(ty+(horizontal?-7*factor:3*factor))+'" text-anchor="middle" font-size="'+(11*factor)+'" fill="#087f99" stroke="white" stroke-width="'+(3*factor)+'" paint-order="stroke" >'+label+'</text>';
  }).join('');
  layer.innerHTML='<g pointer-events="none">'+lines+'</g>';
 }
