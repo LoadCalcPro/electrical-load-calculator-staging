@@ -3327,8 +3327,7 @@ p.querySelectorAll('[data-voltage-choice]').forEach(sel=>sel.addEventListener('c
   item[key]=value;clampEquipmentToSheet(item);
   if(syncPlanWallJoints(item)===false){
    Object.assign(item,previous);
-   input.value=String(previous[key]??'');
-   $('status').textContent='Wall edit cancelled: connected room corners cannot be preserved. Disconnect a joint or edit the room as a group.';
+   $('status').textContent='Wall length unchanged: connected wall corners would separate. Use the connected-room resize controls, or Disconnect wall joints to resize this wall independently.';
   }
   moveAttachedPlanOpenings(item);renderCanvasOnly();
   const actual=Math.max(1,Number(item.wallLengthIn??120));
