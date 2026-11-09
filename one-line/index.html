@@ -2821,8 +2821,8 @@ function showPlanConduitSchedule(){
  '</tbody></table></div><button type="button" id="conduitScheduleCSV" style="margin-top:14px">Export conduit schedule (CSV)</button>';
  p.querySelector('#conduitScheduleCSV').onclick=()=>{
  const cells=[['Sheet','Conduit ID','Size / Type','Plan length (in)','Estimated total (in)'],...rows.map(r=>[r.sheet,r.id,r.size,r.run.toFixed(3),r.total.toFixed(3)])];
- const csv=cells.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\\r\\n');
- const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),a=document.createElement('a');a.href=url;a.download='conduit-schedule.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ const csv=cells.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const url=URL.createObjectURL(new Blob(['\uFEFF',csv],{type:'text/csv;charset=utf-8;'})),a=document.createElement('a');a.href=url;a.download='conduit-schedule.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  };
 }
 function conduitTradeSize(v){
