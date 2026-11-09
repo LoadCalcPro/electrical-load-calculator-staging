@@ -2848,6 +2848,9 @@ function renderPlanConduitProperties(){
  '<div class="field"><b>Plan distance: '+conduitFeetInches(run)+'</b></div>'+
  '<div class="field"><b>Estimated conduit length: '+conduitFeetInches(run+extra)+'</b></div>'+
  '<small>Plan distance is straight-line and assumes the selected drawing scale is correct. Vertical entries and allowances are added separately; actual routing may differ.</small>';
+ const arrowControl=p.querySelector('[data-line-prop="arrow"]')?.closest('label.field');
+ if(arrowControl)arrowControl.remove();
+ l.arrow='none';
  const duplicateLabel=p.querySelector('[data-line-prop="label"]')?.closest('label.field');
  if(duplicateLabel)duplicateLabel.remove();
  p.prepend(section);
