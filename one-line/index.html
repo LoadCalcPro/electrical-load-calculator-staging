@@ -687,6 +687,35 @@ body:has(.suite-header) #drawingInspector.drawing-inspector,
 #drawingMain #properties.disconnect-visual-preview :is(input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea,button){background:#fff!important;color:#132943!important;border:1px solid #cbd7e5!important;border-radius:9px!important;font-size:14px!important;opacity:1}
 #drawingMain #properties.disconnect-visual-preview :is(input,select,textarea,button):focus-visible{outline:2px solid #168c9a!important;outline-offset:1px}
 #drawingMain #properties.disconnect-visual-preview :is(label.field,.field){color:#526985!important;font-size:13px!important;font-weight:500!important}
+
+/* Plan View library: one compact, readable symbol-and-label row per item. */
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .category-items{
+ display:flex;flex-direction:column;gap:5px;padding:8px;
+}
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .category-items>button,
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .plan-symbol-subcategory .category-items button{
+ display:flex;align-items:center;justify-content:flex-start;text-align:left;
+ width:100%;min-width:0;min-height:38px;height:auto;padding:7px 10px;
+ font-size:14px;line-height:1.35;font-weight:400;white-space:normal;
+ border-radius:7px;box-sizing:border-box;
+}
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .category-items>button span{
+ display:inline;font-size:inherit;line-height:inherit;margin-right:6px;
+}
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .plan-door-subcategory{
+ width:100%;min-width:0;align-self:stretch;
+}
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .plan-door-subcategory>summary{
+ min-height:38px;box-sizing:border-box;padding:8px 10px;
+ display:list-item;font-size:14px;font-weight:400;line-height:1.35;
+}
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .plan-door-options button{
+ min-height:36px;text-align:left;font-size:13px;
+}
+body[data-drawing-view="plan"] #equipmentLibrary .equipment-category.plan-category .plan-symbol-subcategory .category-items{
+ display:flex;flex-direction:column;gap:5px;padding:7px;
+}
+
 </style><style>
 /* Allow the page to scroll far enough to align the workspace at the top.
    Without this space, browser scroll clamping leaves the drawing tabs visible. */
