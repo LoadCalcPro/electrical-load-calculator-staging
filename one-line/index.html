@@ -2605,7 +2605,19 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(rotation&&offsetGrid){
   rotation.classList.add('field','shared-rotation-field');
   const rotationInput=rotation.querySelector('input');
-  if(rotationInput){rotationInput.classList.add('shared-rotation-input');rotationInput.step='1';rotationInput.style.setProperty('appearance','auto','important');rotationInput.style.setProperty('-webkit-appearance','auto','important');rotationInput.classList.add('persistent-native-rotation-spinner');rotationInput.addEventListener('input',()=>{if(selected?.kind!=='node'||selected.id!==item.id||rotationInput.value==='')return;const angle=Number(rotationInput.value);if(!Number.isFinite(angle))return;if(activeInnerKey){if(activeInnerKey==='drawingLabel')item.drawingLabelRotation=angle;else{item.textRotations??={};item.textRotations[activeInnerKey]=angle;}renderCanvasOnly();return;}if(item.type==='planwall'){const previous=item.wallAngle;item.wallAngle=((angle%360)+360)%360;if(syncPlanWallJoints(item)===false)item.wallAngle=previous;else moveAttachedPlanOpenings(item);}else item.drawingRotation=angle;renderCanvasOnly();});}
+  if(rotationInput){rotationInput.classList.add('shared-rotation-input');rotationInput.step='1';rotationInput.style.setProperty('appearance','auto','important');rotationInput.style.setProperty('-webkit-appearance','auto','important');rotationInput.classList.add('persistent-native-rotation-spinner');rotationInput.addEventListener('input',()=>{if(selected?.kind!=='node'||selected.id!==item.id||rotationInput.value==='')return;const angle=Number(rotationInput.value);if(!Number.isFinite(angle))return;if(activeInnerKey){if(activeInnerKey==='drawingLabel')item.drawingLabelRotation=angle;else{item.textRotations??={};item.textRotations[activeInnerKey]=angle;}renderCanvasOnly();return;}if(item.type==='planwall'){const previous=item.wallAngle;item.wallAngle=((angle%360)+360)%360;if(syncPlanWallJoints(item)===false)item.wallAngle=previous;else moveAttachedPlanOpenings(item);}else item.drawingRotation=angle;
+   // Update the selected equipment SVG directly while the number spinner is held.
+   // Rebuilding the SVG on each spinner input interrupts native repeated stepping.
+   if(!activeInnerKey&&item.type!=='planwall'){
+    const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
+    const transform='rotate('+(Number(item.drawingRotation)||0)+') scale('+(Number(item.scaleX)||1)+' '+(Number(item.scaleY)||1)+')';
+    node?.querySelector('.equipment-symbol')?.setAttribute('transform',transform);
+    const selection=node?.querySelector('[data-equipment-selection-rotation]');
+    if(selection)selection.setAttribute('transform',transform);
+   }else renderCanvasOnly();
+  });
+  rotationInput.addEventListener('blur',()=>{if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
+  }
   offsetGrid.after(rotation);
  }
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
