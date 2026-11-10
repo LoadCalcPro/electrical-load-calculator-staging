@@ -3506,7 +3506,7 @@ function renderCanvasOnly(){render(true);
    angleField.value=(Math.atan2(line.y2-line.y1,line.x2-line.x1)*180/Math.PI).toFixed(1);
   }
  }
- if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}
+ if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id);for(const root of [$('properties'),$('textInspector')]){const field=root?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}}
  syncMeasuredFields(n);
  if(n?.type==='planwall'){
   const props=$('properties'),length=Math.max(1,Number(n.wallLengthIn??120));
