@@ -3428,10 +3428,24 @@ function applyMeasuredPropertiesInput(e){
  }
 }
 // Apply a valid wall measurement as it is entered, before a blur or another redraw can restore the old value.
-$('properties').addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
-$('properties').addEventListener('change',applyMeasuredPropertiesInput,true);
-$('properties').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
+document.addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
+document.addEventListener('change',applyMeasuredPropertiesInput,true);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
 
+// The selected node is the single source of truth for both mouse and Properties edits.
+function syncMeasuredFields(node){
+ if(!node)return;
+ const keys=node.type==='planroom'?['roomLengthIn','roomWidthIn']:node.type==='plansymbol'&&(node.equipmentSubtype||node.name)==='Linear Light'?['linearLengthIn','linearWidthIn']:[];
+ const attribute=node.type==='planroom'?'data-room-dim':'data-linear-dim';
+ for(const key of keys){
+  const inches=Math.max(1,Number(node[key]??(key==='roomLengthIn'?240:key==='roomWidthIn'?144:key==='linearLengthIn'?48:6)));
+  for(const [unit,value] of [['ft',String(Math.floor(inches/12))],['in',String(+(inches%12).toFixed(3))]]){
+   for(const field of document.querySelectorAll('['+attribute+'="'+key+'"][data-unit="'+unit+'"]')){
+    if(document.activeElement!==field&&field.value!==value)field.value=value;
+   }
+  }
+ }
+}
 function renderCanvasOnly(){render(true);
  if(selected?.kind==='line'){
   const line=drawnLines.find(l=>l.id===selected.id);
@@ -3441,18 +3455,7 @@ function renderCanvasOnly(){render(true);
   }
  }
  if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}
- if(n?.type==='planroom'||(n?.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')){
-  const props=$('properties');
-  const keys=n.type==='planroom'?['roomLengthIn','roomWidthIn']:['linearLengthIn','linearWidthIn'];
-  const attr=n.type==='planroom'?'data-room-dim':'data-linear-dim';
-  for(const key of keys){
-   const inches=Math.max(1,Number(n[key]??(key==='roomLengthIn'?240:key==='roomWidthIn'?144:key==='linearLengthIn'?48:6)));
-   for(const [unit,value] of [['ft',String(Math.floor(inches/12))],['in',String(+(inches%12).toFixed(3))]]){
-    const field=props?.querySelector('['+attr+'="'+key+'"][data-unit="'+unit+'"]');
-    if(field&&document.activeElement!==field&&field.value!==value)field.value=value;
-   }
-  }
- }
+ syncMeasuredFields(n);
  if(n?.type==='planwall'){
   const props=$('properties'),length=Math.max(1,Number(n.wallLengthIn??120));
   const values=[['[data-wall-feet]',String(Math.floor(length/12))],['[data-wall-inches]',String(+(length%12).toFixed(3))],['[data-wall-angle]',String(Number(n.wallAngle)||0)]];
@@ -3724,7 +3727,7 @@ if(drag.slideConnection){const w=wires.find(v=>v.id===drag.id),a=w&&nodes.find(n
  l[drag.end==='start'?'x1':'x2']=snapped.x;
  l[drag.end==='start'?'y1':'y2']=snapped.y;
  attachLadderEnd(l,drag.end,snapped);
-}else if(drag.group){drag.group.forEach(o=>{const target=drawnLines.find(z=>z.id===o.id);if(target){target.x1=o.x1+dx;target.x2=o.x2+dx;target.y1=o.y1+dy;target.y2=o.y2+dy;}});syncLadderLines();}renderCanvasOnly();if(!l.ladderRail)showAlignmentGuides({x:(l.x1+l.x2)/2,y:(l.y1+l.y2)/2});return;}if(drag.annotation){const a=annotations.find(x=>x.id===drag.id);if(a){if(drag.bend){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.bendX=pt.x;l.bendY=pt.y;}}else if(drag.endpoint){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.endX=pt.x;l.endY=pt.y;l.targetId=null;}}else{a.x=pt.x-drag.dx;a.y=pt.y-drag.dy;}renderCanvasOnly();}return;}const n=nodes.find(n=>n.id===drag.id);if(n&&(drag.additionalLabel||drag.labelKey)){moveEquipmentTarget(n,drag,pt);renderCanvasOnly();return;}if(n&&drag.resize){resizeEquipmentTarget(n,drag,pt);renderCanvasOnly();if(n.type==='planroom'){for(const key of ['roomLengthIn','roomWidthIn']){const value=Math.max(1,Math.round(Number(n[key])||0));const ft=$('properties')?.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]'),inch=$('properties')?.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');if(ft)ft.value=Math.floor(value/12);if(inch)inch.value=value%12;}}return;}if(n&&moveEquipmentTarget(n,drag,pt)){renderCanvasOnly();showEquipmentMoveGuides(n)}});window.addEventListener('pointerup',()=>{if(drag?.id&&!drag.resize&&!drag.additionalLabel&&!drag.labelKey&&!drag.route&&!drag.line&&!drag.annotation&&!drag.branch&&!drag.polyroute&&!drag.multiNodes){const n=nodes.find(z=>z.id===drag.id);if(n&&isLadderSymbol(n)){renderCanvasOnly();}}if(drag?.id&&(drag.additionalLabel||drag.labelKey)&&selected?.kind==='node'&&selected.id===drag.id){$('textInspector')?.syncSelectedText?.();}syncLadderLines();drag=null;showAlignmentGuides(null)});function snapLineAngle(a,b,enabled=true){
+}else if(drag.group){drag.group.forEach(o=>{const target=drawnLines.find(z=>z.id===o.id);if(target){target.x1=o.x1+dx;target.x2=o.x2+dx;target.y1=o.y1+dy;target.y2=o.y2+dy;}});syncLadderLines();}renderCanvasOnly();if(!l.ladderRail)showAlignmentGuides({x:(l.x1+l.x2)/2,y:(l.y1+l.y2)/2});return;}if(drag.annotation){const a=annotations.find(x=>x.id===drag.id);if(a){if(drag.bend){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.bendX=pt.x;l.bendY=pt.y;}}else if(drag.endpoint){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.endX=pt.x;l.endY=pt.y;l.targetId=null;}}else{a.x=pt.x-drag.dx;a.y=pt.y-drag.dy;}renderCanvasOnly();}return;}const n=nodes.find(n=>n.id===drag.id);if(n&&(drag.additionalLabel||drag.labelKey)){moveEquipmentTarget(n,drag,pt);renderCanvasOnly();return;}if(n&&drag.resize){resizeEquipmentTarget(n,drag,pt);renderCanvasOnly();if(n.type==='planroom')syncMeasuredFields(n);return;}if(n&&moveEquipmentTarget(n,drag,pt)){renderCanvasOnly();showEquipmentMoveGuides(n)}});window.addEventListener('pointerup',()=>{if(drag?.id&&!drag.resize&&!drag.additionalLabel&&!drag.labelKey&&!drag.route&&!drag.line&&!drag.annotation&&!drag.branch&&!drag.polyroute&&!drag.multiNodes){const n=nodes.find(z=>z.id===drag.id);if(n&&isLadderSymbol(n)){renderCanvasOnly();}}if(drag?.id&&(drag.additionalLabel||drag.labelKey)&&selected?.kind==='node'&&selected.id===drag.id){$('textInspector')?.syncSelectedText?.();}syncLadderLines();drag=null;showAlignmentGuides(null)});function snapLineAngle(a,b,enabled=true){
  if(!enabled)return b;
  const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
  if(d<3)return b;
