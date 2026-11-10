@@ -3428,7 +3428,7 @@ function applyMeasuredPropertiesInput(e){
  }
 }
 // Apply a valid wall measurement as it is entered, before a blur or another redraw can restore the old value.
-$('properties').addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))applyMeasuredPropertiesInput(e);},true);
+$('properties').addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
 $('properties').addEventListener('change',applyMeasuredPropertiesInput,true);
 $('properties').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
 
@@ -3441,6 +3441,18 @@ function renderCanvasOnly(){render(true);
   }
  }
  if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}
+ if(n?.type==='planroom'||(n?.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')){
+  const props=$('properties');
+  const keys=n.type==='planroom'?['roomLengthIn','roomWidthIn']:['linearLengthIn','linearWidthIn'];
+  const attr=n.type==='planroom'?'data-room-dim':'data-linear-dim';
+  for(const key of keys){
+   const inches=Math.max(1,Number(n[key]??(key==='roomLengthIn'?240:key==='roomWidthIn'?144:key==='linearLengthIn'?48:6)));
+   for(const [unit,value] of [['ft',String(Math.floor(inches/12))],['in',String(+(inches%12).toFixed(3))]]){
+    const field=props?.querySelector('['+attr+'="'+key+'"][data-unit="'+unit+'"]');
+    if(field&&document.activeElement!==field&&field.value!==value)field.value=value;
+   }
+  }
+ }
  if(n?.type==='planwall'){
   const props=$('properties'),length=Math.max(1,Number(n.wallLengthIn??120));
   const values=[['[data-wall-feet]',String(Math.floor(length/12))],['[data-wall-inches]',String(+(length%12).toFixed(3))],['[data-wall-angle]',String(Number(n.wallAngle)||0)]];
