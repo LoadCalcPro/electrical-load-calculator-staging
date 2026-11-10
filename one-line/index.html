@@ -3588,8 +3588,9 @@ function applyMeasuredPropertiesInput(e){
   renderCanvasOnly();
  }
 }
-// Apply a valid wall measurement as it is entered, before a blur or another redraw can restore the old value.
-document.addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
+// Wall feet/inches use a dedicated model-bound handler. Keep edits stable while
+// typing; commit the complete measurement on change/Enter, not on each digit.
+document.addEventListener('input',e=>{if(e.target?.matches?.('[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
 document.addEventListener('change',applyMeasuredPropertiesInput,true);
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
 
