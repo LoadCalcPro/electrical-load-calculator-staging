@@ -1130,6 +1130,9 @@ $('titleBlockPosition').addEventListener('change',()=>{const sh=projectSheets.fi
  const percent=Number(field.value);
  if(!Number.isFinite(percent)||percent<15||percent>400)return;
  const factor=percent/100;
+ // Both input and change fire for a committed number edit. Do not redraw
+ // a second time when the authoritative model already has this scale.
+ if(Math.abs((Number(node.scaleX)||1)-factor)<0.00001&&Math.abs((Number(node.scaleY)||1)-factor)<0.00001)return;
  node.scaleX=factor;
  node.scaleY=factor;
  clampEquipmentToSheet(node);
