@@ -2601,7 +2601,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(rotation&&offsetGrid){
   rotation.classList.add('field','shared-rotation-field');
   const rotationInput=rotation.querySelector('input');
-  if(rotationInput)rotationInput.classList.add('shared-rotation-input');
+  if(rotationInput){rotationInput.classList.add('shared-rotation-input');rotationInput.addEventListener('input',()=>{if(selected?.kind!=='node'||selected.id!==item.id||rotationInput.value==='')return;const angle=Number(rotationInput.value);if(!Number.isFinite(angle))return;if(item.type==='planwall'){const previous=item.wallAngle;item.wallAngle=((angle%360)+360)%360;if(syncPlanWallJoints(item)===false)item.wallAngle=previous;else moveAttachedPlanOpenings(item);}else item.drawingRotation=angle;renderCanvasOnly();});}
   offsetGrid.after(rotation);
  }
  const visibility=common.querySelector('[data-common-label-visible]')?.closest('label');if(visibility)visibility.remove();
