@@ -2314,7 +2314,7 @@ function resizeEquipmentTarget(n,dragState,point){
  // Use local rotated coordinates so the fixed edge remains fixed on the sheet.
  const oldScaleX=Number(n.scaleX)||1,oldScaleY=Number(n.scaleY)||1;
  const fixedLeft=-b.l*oldScaleX,fixedTop=-b.t*oldScaleY;
- if(independent.includes(n.type)){
+ if(independent.includes(n.type)&&n.type!=='disconnect'){
   n.scaleX=limit(dx/Math.max(1,b.r));
   n.scaleY=limit(dy/Math.max(1,b.b));
  }else{
