@@ -2666,7 +2666,17 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    child.remove();
   }else info.appendChild(child);
  }
- // Architectural dimensions belong to the same continuous Properties surface.
+ // Ensure size and appearance are never displayed before equipment selection and palette.
+  // Move existing controls, preserving the listeners attached by props().
+  for(const selector of ['[data-equipment-size]','[data-equipment-appearance]']){
+   const field=common.querySelector(selector)?.closest('label');
+   if(field)info.appendChild(field);
+  }
+  // Rotation stays next to the shared offset fields, not above the color palette.
+  const rotationField=common.querySelector('[data-common-rotation]')?.closest('label');
+  const offsetFields=common.querySelector('.shared-text-editor .shared-text-grid');
+  if(rotationField&&offsetFields)offsetFields.after(rotationField);
+  // Architectural dimensions belong to the same continuous Properties surface.
  // Move the existing live controls (and their listeners), not a second card.
  if(itemForInfo?.type==='planroom'){
   const roomFields=Array.from(p.children).filter(el=>el.matches?.('label.field,div.field')&&(
