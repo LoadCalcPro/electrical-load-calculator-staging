@@ -3507,6 +3507,15 @@ function renderCanvasOnly(){render(true);
   }
  }
  if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id);for(const root of [$('properties'),$('textInspector')]){const field=root?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}}
+ // Keep controls synchronized regardless of whether the layout organizer has
+ // reparented them into the shared text inspector. Never replace the active edit.
+ if(n){
+  const values=[['data-common-rotation',n.type==='planwall'?n.wallAngle:n.drawingRotation],['data-common-label',n.drawingLabel],['data-common-label-x',n.drawingLabelX],['data-common-label-y',n.drawingLabelY],['data-common-label-size',n.drawingLabelSize]];
+  for(const root of [$('properties'),$('textInspector')]){
+   for(const [attr,value] of values){const input=root?.querySelector('['+attr+']');if(input&&document.activeElement!==input&&value!==undefined&&value!==null&&input.value!==String(value))input.value=String(value);}
+   const appearance=root?.querySelector('[data-equipment-appearance]');if(appearance&&document.activeElement!==appearance)appearance.value=n.appearanceMode==='consistent'?'consistent':'proportional';
+  }
+ }
  syncMeasuredFields(n);
  if(n?.type==='planwall'){
   const props=$('properties'),length=Math.max(1,Number(n.wallLengthIn??120));
