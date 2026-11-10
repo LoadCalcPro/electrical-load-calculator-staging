@@ -3441,25 +3441,8 @@ function bindRoomDimensionInputs(){
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
  if(!room)return;
  const panel=$('properties');
- for(const el of panel.querySelectorAll('[data-room-dim]')){
-  el.disabled=false;el.readOnly=false;
-  el.addEventListener('input',()=>{
-   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
-   if(!current)return;
-   const key=el.dataset.roomDim;
-   if(key!=='roomLengthIn'&&key!=='roomWidthIn')return;
-   const ft=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
-   const inch=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
-   if(!ft||!inch||ft.value===''||inch.value==='')return;
-   const feet=Number(ft.value),inches=Number(inch.value),value=feet*12+inches;
-   if(!Number.isFinite(value)||feet<0||inches<0||inches>=12||value<=0)return;
-   current[key]=value;
-   current.scaleX=1;current.scaleY=1;
-   clampEquipmentToSheet(current);
-   renderCanvasOnly();
-   $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
-  });
- }
+ // Dimension fields are committed by the shared capture-phase handler.
+ for(const el of panel.querySelectorAll('[data-room-dim]')){el.disabled=false;el.readOnly=false;}
  for(const el of panel.querySelectorAll('[data-room-label-visible]')){
   el.disabled=false;
   el.addEventListener('change',()=>{
