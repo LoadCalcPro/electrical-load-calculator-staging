@@ -3431,9 +3431,9 @@ function commitMeasuredDimension(node,key,inches){
   const rad=(Number(node.wallAngle)||0)*Math.PI/180,delta=(inches-old)*planUnitsPerInch()/2;
   node.x+=Math.cos(rad)*delta;node.y+=Math.sin(rad)*delta;
  }else if(node.type==='plansymbol'&&['linearLengthIn','linearWidthIn'].includes(key)){
-  const rad=(Number(node.drawingRotation)||0)*Math.PI/180,delta=(inches-old)*planUnitsPerInch()/2;
-  if(key==='linearLengthIn'){node.x+=Math.cos(rad)*delta;node.y+=Math.sin(rad)*delta;}
-  else{node.x-=Math.sin(rad)*delta;node.y+=Math.cos(rad)*delta;}
+  // Properties dimensions resize a linear fixture about its center. Previously
+  // the half-delta translation silently anchored one end, so typing a length
+  // also moved the fixture. Mouse-handle anchoring remains independent.
  }
  node[key]=inches;
  if(node.type==='planroom'||node.type==='plansymbol'){node.scaleX=1;node.scaleY=1;}
