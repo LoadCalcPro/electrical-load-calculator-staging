@@ -3476,7 +3476,20 @@ p.querySelectorAll('[data-voltage-choice]').forEach(sel=>sel.addEventListener('c
    if(syncPlanWallJoints(item)===false)item.wallAngle=previous;
    else moveAttachedPlanOpenings(item);
   };
-  wallAngleControl.addEventListener('input',applyWallAngle);
+  wallAngleControl.addEventListener('input',()=>{
+   applyWallAngle();
+   // Mirror Disconnect: rotate the existing SVG groups directly while the
+   // native number spinner retains focus, instead of rebuilding the sheet.
+   const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
+   if(node){
+    const angle=Number(item.wallAngle)||0;
+    for(const group of Array.from(node.children)){
+     if(group.tagName?.toLowerCase()==='g'&&/^rotate\(/.test(group.getAttribute('transform')||'')){
+      group.setAttribute('transform','rotate('+angle+')');
+     }
+    }
+   }
+  });
   // Rebuild only when editing ends; change can fire on each native arrow step.
   wallAngleControl.addEventListener('blur',()=>{applyWallAngle();if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
   wallAngleControl.addEventListener('keydown',e=>{if(e.key==='Enter'){applyWallAngle();wallAngleControl.blur();}});
