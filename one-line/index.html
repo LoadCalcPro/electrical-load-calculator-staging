@@ -3466,20 +3466,20 @@ p.querySelectorAll('[data-voltage-choice]').forEach(sel=>sel.addEventListener('c
  // but coalesce expensive sheet redraws to one per animation frame.
  const wallAngleControl=p.querySelector('[data-wall-angle]');
  if(wallAngleControl){
-  let wallRotationFrame=0;
-  wallAngleControl.addEventListener('input',e=>{
-   if(e.target.value===''||!Number.isFinite(Number(e.target.value)))return;
-   const next=((Number(e.target.value)%360)+360)%360;
+  // Disconnect keeps the native spinner alive by avoiding full SVG rebuilds
+  // during input. Apply the same rule to a standalone Plan View wall.
+  const applyWallAngle=()=>{
+   if(wallAngleControl.value===''||!Number.isFinite(Number(wallAngleControl.value)))return;
+   const next=((Number(wallAngleControl.value)%360)+360)%360;
    const previous=item.wallAngle;
    item.wallAngle=next;
    if(syncPlanWallJoints(item)===false)item.wallAngle=previous;
    else moveAttachedPlanOpenings(item);
-   if(!wallRotationFrame)wallRotationFrame=requestAnimationFrame(()=>{
-    wallRotationFrame=0;
-    if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();
-   });
-  });
-  wallAngleControl.addEventListener('change',()=>{if(wallRotationFrame){cancelAnimationFrame(wallRotationFrame);wallRotationFrame=0;}renderCanvasOnly();});
+  };
+  wallAngleControl.addEventListener('input',applyWallAngle);
+  // Rebuild only when editing ends; change can fire on each native arrow step.
+  wallAngleControl.addEventListener('blur',()=>{applyWallAngle();if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
+  wallAngleControl.addEventListener('keydown',e=>{if(e.key==='Enter'){applyWallAngle();wallAngleControl.blur();}});
  }const th=p.querySelector('[data-wall-thickness]'),custom=p.querySelector('[data-wall-thickness-custom]');const syncThickness=()=>{if(custom)custom.style.display=th?.value==='custom'?'':'none';};syncThickness();th?.addEventListener('change',()=>{syncThickness();if(th.value!=='custom')custom.value=th.value;item.wallThicknessIn=Math.max(1,Number(custom.value)||1);apply();});custom?.addEventListener('input',()=>{item.wallThicknessIn=Math.max(1,Number(custom.value)||1);apply();});}if(item.type==='plandoor'){const check=()=>{const room=nodes.find(v=>v.type==='planroom');const message=p.querySelector('[data-door-check]');if(message)message.textContent=!room?'Add a room to validate the door size.':Number(item.doorWidthIn)>Math.max(Number(room.roomLengthIn)||0,Number(room.roomWidthIn)||0)?'Door width exceeds the longest room wall.':'Door width fits the room dimensions; verify placement and swing clearance.';};p.querySelector('[data-door-width]')?.addEventListener('input',e=>{item.doorWidthIn=Math.max(12,Number(e.target.value)||36);reconcilePlanOpeningAttachment(item);check();renderCanvasOnly();});p.querySelector('[data-door-angle]')?.addEventListener('input',e=>{item.doorAngle=((Number(e.target.value)||0)%360+360)%360;reconcilePlanOpeningAttachment(item);renderCanvasOnly();});p.querySelector('[data-door-hinge-side]')?.addEventListener('change',e=>{item.doorHingeSide=e.target.value;renderCanvasOnly();});p.querySelector('[data-door-hand]')?.addEventListener('change',e=>{item.doorHand=e.target.value;renderCanvasOnly();});p.querySelector('[data-slide-config]')?.addEventListener('change',e=>{item.slideConfig=e.target.value;renderCanvasOnly();});p.querySelector('[data-door-style]')?.addEventListener('change',e=>{item.doorStyle=e.target.value;renderCanvasOnly();});check();}if(item.type==='plansymbol'){p.querySelector('[data-symbol-angle]')?.addEventListener('input',e=>{item.symbolAngle=((Number(e.target.value)||0)%360+360)%360;renderCanvasOnly();});}if(item.type==='planwindow'){p.querySelector('[data-window-width]')?.addEventListener('input',e=>{item.windowWidthIn=Math.max(12,Number(e.target.value)||36);reconcilePlanOpeningAttachment(item);renderCanvasOnly();});p.querySelector('[data-window-angle]')?.addEventListener('input',e=>{item.windowAngle=((Number(e.target.value)||0)%360+360)%360;reconcilePlanOpeningAttachment(item);renderCanvasOnly();});}if(item.type==='planroom'){
  // Room dimension and visibility events are bound once, after the Properties
  // controls have been moved into their final layout by render().
