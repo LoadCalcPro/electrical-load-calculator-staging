@@ -12,6 +12,12 @@
 #textInspector .polyline-quick-controls label.poly-rounded-option span{display:inline!important;flex:1;min-width:0}
 
 
+/* Wall uses the same 34px shared typography/offset fields as Disconnect. */
+#properties.plan-wall-standardized .equipment-text-editor .shared-text-grid>.field{font-size:14px!important;line-height:1.3!important}
+#properties.plan-wall-standardized .equipment-text-editor .shared-text-grid input,
+#properties.plan-wall-standardized .equipment-text-editor .shared-text-grid select,
+#properties.plan-wall-standardized .equipment-text-editor>label.field:has([data-wall-angle]) input{box-sizing:border-box!important;width:100%!important;height:34px!important;min-height:34px!important;max-height:34px!important;padding:5px 8px!important;font-size:14px!important;line-height:22px!important;border-radius:8px!important}
+#properties.plan-wall-standardized .equipment-text-editor>label.field:has([data-wall-angle]){display:flex;flex-direction:column;gap:4px;margin-top:9px;font-size:14px!important}
 /* Plan View wall: match the established One-Line Properties control sizing without altering wall geometry or listeners. */
 #properties .plan-wall-properties{display:flex;flex-direction:column;gap:8px;margin:8px 0 0;padding:0;background:transparent;border:0}
 #properties .plan-wall-properties label.field{margin:0;font-size:13px;line-height:1.35}
@@ -2742,8 +2748,17 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   for(const field of roomFields)info.appendChild(field);
  }
  if(itemForInfo?.type==='planwall'){
+  p.classList.add('plan-wall-standardized');
   const wallSection=p.querySelector(':scope > .plan-wall-properties');
-  if(wallSection){while(wallSection.firstChild)info.appendChild(wallSection.firstChild);wallSection.remove();}
+  if(wallSection){
+   // Keep the existing bound rotation control, but place it immediately
+   // after the shared font/style and horizontal/vertical offset grid.
+   const wallRotation=wallSection.querySelector('[data-wall-angle]')?.closest('label.field');
+   const sharedGrid=common.querySelector('.equipment-text-editor .shared-text-grid');
+   if(wallRotation&&sharedGrid)sharedGrid.after(wallRotation);
+   while(wallSection.firstChild)info.appendChild(wallSection.firstChild);
+   wallSection.remove();
+  }
  }
  // Door and window settings are architectural Properties, not a second
  // Font & Position panel. Reparent the live controls to preserve listeners.
