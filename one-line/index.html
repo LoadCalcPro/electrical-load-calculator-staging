@@ -3610,8 +3610,10 @@ function applyMeasuredPropertiesInput(e){
 // Wall feet/inches use a dedicated model-bound handler. Keep edits stable while
 // typing; commit the complete measurement on change/Enter, not on each digit.
 document.addEventListener('input',e=>{if(e.target?.matches?.('[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
-document.addEventListener('change',applyMeasuredPropertiesInput,true);
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
+// Wall length has its own bound change handler above; do not also process its blur
+// through the global measurement listener (which can interrupt the next click).
+document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))return;applyMeasuredPropertiesInput(e);},true);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
 
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
