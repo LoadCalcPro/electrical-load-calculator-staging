@@ -2631,10 +2631,8 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const top=p.querySelector('[data-enclosure-top]')?.closest('label');
  const left=p.querySelector('[data-enclosure-left]')?.closest('label');
  const placementHeading=Array.from(p.querySelectorAll('div.field')).find(el=>el.textContent.trim()==='Enclosure placement (drawing units)');
- // Disconnect already uses the shared offset and percentage controls; hide legacy duplicate geometry inputs.
- if(item.type==='disconnect'){
-  for(const field of [top,left,p.querySelector('[data-prop="width"]')?.closest('label'),p.querySelector('[data-prop="height"]')?.closest('label')])field?.remove();
- }
+ // All equipment uses the shared sizing controls and canvas handles; remove legacy drawing-unit geometry fields from Properties.
+ for(const field of [top,left,p.querySelector('[data-prop="width"]')?.closest('label'),p.querySelector('[data-prop="height"]')?.closest('label')])field?.remove();
  // Rotation belongs immediately beneath proportional equipment sizing.
  if(rotation&&!offsetGrid)advanced.appendChild(rotation);
  if(placementHeading)placementHeading.remove(); // Redundant oversized group title; positioning fields remain visible.
