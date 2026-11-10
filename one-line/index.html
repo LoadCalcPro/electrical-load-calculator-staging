@@ -2644,10 +2644,23 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  appearance.className='equipment-appearance-section equipment-appearance-compact';
  // Move the existing size control, not a clone: its event handlers remain intact.
  const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
- if(sizeControl)appearance.appendChild(sizeControl);
+ if(sizeControl){
+  appearance.appendChild(sizeControl);
+  const sizeInput=sizeControl.querySelector('[data-equipment-size]');
+  if(sizeInput){
+   sizeInput.addEventListener('input',()=>{
+    if(selected?.kind!=='node'||selected.id!==item.id||sizeInput.value==='')return;
+    const percentage=Number(sizeInput.value);
+    if(!Number.isFinite(percentage)||percentage<15||percentage>400)return;
+    item.scaleX=percentage/100;item.scaleY=percentage/100;
+    clampEquipmentToSheet(item);
+    renderCanvasOnly();
+   });
+  }
+ }
  // Keep scaling behavior immediately below equipment size.
  const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
- if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);}
+ if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);const modeSelect=appearanceModeControl.querySelector('[data-equipment-appearance]');modeSelect?.addEventListener('change',()=>{if(selected?.kind!=='node'||selected.id!==item.id)return;item.appearanceMode=modeSelect.value==='proportional'?'proportional':'consistent';renderCanvasOnly();});}
  const lineWeightControl=advanced.querySelector('[data-weight-style]')?.closest('label')
   ||advanced.querySelector('[data-weight-status]')?.closest('label');
  if(lineWeightControl)appearance.appendChild(lineWeightControl);
