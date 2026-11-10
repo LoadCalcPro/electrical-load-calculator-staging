@@ -3426,12 +3426,16 @@ p.querySelectorAll('[data-voltage-choice]').forEach(sel=>sel.addEventListener('c
   const ft=Number(wallFeet.value),inch=Number(wallInches.value);
   if(wallFeet.value===''||wallInches.value===''||!Number.isFinite(ft)||!Number.isFinite(inch)||ft<0||inch<0||inch>=12||ft*12+inch<=0)return;
   const target=ft*12+inch;
+  if(Math.abs((Number(current.wallLengthIn)||0)-target)<0.0001)return;
   if(commitMeasuredDimension(current,'wallLengthIn',target)){
    $('status').textContent='Wall length: '+ft+' ft '+inch+' in';
    renderCanvasOnly();
   }
  };
  for(const field of [wallFeet,wallInches]){
+  // Respond immediately to valid inch/foot edits, without rebuilding Properties
+  // or replacing the focused native number input.
+  field?.addEventListener('input',commitWallLength);
   field?.addEventListener('change',commitWallLength);
   field?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commitWallLength();field.blur();}});
  }
