@@ -3302,7 +3302,7 @@ if(selected.kind==='wire'){
  if(String(item.label||'').trim()){
  const mapping=[['[data-shared-size]','labelSize',9],['[data-shared-style]','labelStyle','normal'],['[data-shared-x]','labelDX',0],['[data-shared-y]','labelDY',0],['[data-shared-angle]','labelAngle',0]];
  for(const [sel,key,fallback] of mapping){
-  const el=section.querySelector(sel);el.value=item[key]??fallback;
+  const el=section.querySelector(sel);if(!el)continue;el.value=item[key]??fallback;
   if(key==='labelDX'||key==='labelDY'){bindDrawingLabelOffset(el,item,key);continue;}
   if(key==='labelSize'){el.addEventListener('change',()=>{el.value=normalizeDrawingPropertyNumber(item.labelSize,9,5,48)});}
   if(key==='labelAngle'){el.addEventListener('input',()=>{if(el.value.trim()==='')return;const angle=Number(el.value);if(!Number.isFinite(angle))return;item.labelAngle=Math.max(-360,Math.min(360,angle));renderCanvasOnly();});el.addEventListener('change',()=>{el.value=normalizeDrawingPropertyNumber(item.labelAngle,0,-360,360);});continue;}
