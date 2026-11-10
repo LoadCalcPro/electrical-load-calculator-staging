@@ -3452,7 +3452,7 @@ function bindRoomDimensionInputs(){
  }
 }
 function applyMeasuredPropertiesInput(e){
- const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')||selected?.kind!=='node')return;
+ const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')||!$('properties')?.contains(el)||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
  let key,feetEl,inchEl;
  if(el.matches('[data-wall-feet],[data-wall-inches]')&&node.type==='planwall'){
@@ -3483,7 +3483,7 @@ function syncMeasuredFields(node){
  for(const key of keys){
   const inches=Math.max(1,Number(node[key]??(key==='roomLengthIn'?240:key==='roomWidthIn'?144:key==='linearLengthIn'?48:6)));
   for(const [unit,value] of [['ft',String(Math.floor(inches/12))],['in',String(+(inches%12).toFixed(3))]]){
-   for(const field of document.querySelectorAll('['+attribute+'="'+key+'"][data-unit="'+unit+'"]')){
+   for(const field of $('properties')?.querySelectorAll('['+attribute+'="'+key+'"][data-unit="'+unit+'"]')||[]){
     if(document.activeElement!==field&&field.value!==value)field.value=value;
    }
   }
