@@ -3408,7 +3408,7 @@ function commitMeasuredDimension(node,key,inches){
  $('status').textContent='Dimension updated.';
  return true;
 }
-$('properties').addEventListener('change',e=>{
+function applyMeasuredPropertiesInput(e){
  const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
  let key,feetEl,inchEl;
@@ -3422,8 +3422,16 @@ $('properties').addEventListener('change',e=>{
  if(!feetEl||!inchEl)return;
  const feet=Number(feetEl.value),fraction=Number(inchEl.value),inches=feet*12+fraction;
  if(feetEl.value===''||inchEl.value===''||!Number.isFinite(inches)||feet<0||fraction<0||fraction>=12||inches<=0){$('status').textContent='Enter valid feet and inches (inches below 12).';return;}
- if(commitMeasuredDimension(node,key,inches)){feetEl.value=String(Math.floor(inches/12));inchEl.value=String(+(inches%12).toFixed(3));renderCanvasOnly();}
-},true);
+ if(commitMeasuredDimension(node,key,inches)){
+  if(e.type==='change'){feetEl.value=String(Math.floor(inches/12));inchEl.value=String(+(inches%12).toFixed(3));}
+  renderCanvasOnly();
+ }
+}
+// Apply a valid wall measurement as it is entered, before a blur or another redraw can restore the old value.
+$('properties').addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))applyMeasuredPropertiesInput(e);},true);
+$('properties').addEventListener('change',applyMeasuredPropertiesInput,true);
+$('properties').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
+
 function renderCanvasOnly(){render(true);
  if(selected?.kind==='line'){
   const line=drawnLines.find(l=>l.id===selected.id);
