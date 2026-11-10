@@ -3495,8 +3495,10 @@ function applyMeasuredPropertiesInput(e){
   key=el.dataset.linearDim;feetEl=$('properties').querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');inchEl=$('properties').querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
  }else return;
  if(!feetEl||!inchEl)return;
- const feet=Number(feetEl.value),fraction=Number(inchEl.value),inches=feet*12+fraction;
- if(feetEl.value===''||inchEl.value===''||!Number.isFinite(inches)||feet<0||fraction<0||fraction>=12||inches<=0){$('status').textContent='Enter valid feet and inches (inches below 12).';return;}
+ const feet=feetEl.value.trim()===''?0:Number(feetEl.value),fraction=inchEl.value.trim()===''?0:Number(inchEl.value),inches=feet*12+fraction;
+ // A blank companion field means zero: 20 feet with an empty inches box
+ // is a valid 20'-0\" wall (and likewise for room/fixture dimensions).
+ if(!Number.isFinite(inches)||feet<0||fraction<0||fraction>=12||inches<=0){$('status').textContent='Enter a positive length in feet and inches (inches below 12).';return;}
  if(commitMeasuredDimension(node,key,inches)){
   if(e.type==='change'){feetEl.value=String(Math.floor(inches/12));inchEl.value=String(+(inches%12).toFixed(3));}
   renderCanvasOnly();
