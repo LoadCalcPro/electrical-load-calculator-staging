@@ -3419,41 +3419,36 @@ function commitMeasuredDimension(node,key,inches){
 }
 // Attach after Properties is built and reorganized; retain the exact room ID instead of
 // depending on transient text-inspector selection state during field focus.
+// Room Properties uses the proven Nov 1 direct model update, while mouse resize
+// reads and writes the same roomLengthIn/roomWidthIn values.
 function bindRoomDimensionInputs(){
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
  if(!room)return;
  const panel=$('properties');
- const fields=[...panel.querySelectorAll('[data-room-dim]')];
- for(const field of fields){
-  field.disabled=false;
-  field.removeAttribute('readonly');
-  field.style.pointerEvents='auto';
-  const key=field.dataset.roomDim;
-  if(!['roomLengthIn','roomWidthIn'].includes(key))continue;
-  const apply=()=>{
-   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
-   const feet=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
-   const fractional=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
-   if(!current||!feet||!fractional||feet.value===''||fractional.value==='')return;
-   const ft=Number(feet.value),inch=Number(fractional.value),total=ft*12+inch;
-   if(!Number.isFinite(total)||ft<0||inch<0||inch>=12||total<=0)return;
-   if(commitMeasuredDimension(current,key,total)){
-    renderCanvasOnly();
-    $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated: '+ft+' ft '+inch+' in.';
-   }
-  };
-  field.addEventListener('input',apply);
-  field.addEventListener('change',apply);
-  field.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();apply();field.blur();}});
- }
- for(const checkbox of panel.querySelectorAll('[data-room-label-visible]')){
-  checkbox.disabled=false;
-  checkbox.style.pointerEvents='auto';
-  checkbox.addEventListener('change',()=>{
+ for(const el of panel.querySelectorAll('[data-room-dim]')){
+  el.disabled=false;el.readOnly=false;
+  el.addEventListener('input',()=>{
    const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
    if(!current)return;
-   current[checkbox.dataset.roomLabelVisible]=checkbox.checked;
+   const key=el.dataset.roomDim;
+   if(key!=='roomLengthIn'&&key!=='roomWidthIn')return;
+   const ft=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
+   const inch=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
+   if(!ft||!inch||ft.value===''||inch.value==='')return;
+   const feet=Number(ft.value),inches=Number(inch.value),value=feet*12+inches;
+   if(!Number.isFinite(value)||feet<0||inches<0||inches>=12||value<=0)return;
+   current[key]=value;
+   current.scaleX=1;current.scaleY=1;
+   clampEquipmentToSheet(current);
    renderCanvasOnly();
+   $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
+  });
+ }
+ for(const el of panel.querySelectorAll('[data-room-label-visible]')){
+  el.disabled=false;
+  el.addEventListener('change',()=>{
+   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
+   if(current){current[el.dataset.roomLabelVisible]=el.checked;renderCanvasOnly();}
   });
  }
 }
