@@ -3501,6 +3501,9 @@ function applyMeasuredPropertiesInput(e){
  if(!Number.isFinite(inches)||feet<0||fraction<0||fraction>=12||inches<=0){$('status').textContent='Enter a positive length in feet and inches (inches below 12).';return;}
  if(commitMeasuredDimension(node,key,inches)){
   if(e.type==='change'){feetEl.value=String(Math.floor(inches/12));inchEl.value=String(+(inches%12).toFixed(3));}
+  // This capture-phase handler owns measured dimensions. Do not let legacy
+  // bubbling Properties listeners process the same edit a second time.
+  e.stopPropagation();
   renderCanvasOnly();
  }
 }
