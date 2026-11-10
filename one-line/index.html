@@ -3453,7 +3453,7 @@ function bindRoomDimensionInputs(){
  }
 }
 function applyMeasuredPropertiesInput(e){
- const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')||selected?.kind!=='node')return;
+ const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
  let key,feetEl,inchEl;
  if(el.matches('[data-wall-feet],[data-wall-inches]')&&node.type==='planwall'){
@@ -3472,9 +3472,9 @@ function applyMeasuredPropertiesInput(e){
  }
 }
 // Apply a valid wall measurement as it is entered, before a blur or another redraw can restore the old value.
-document.addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
+document.addEventListener('input',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
 document.addEventListener('change',applyMeasuredPropertiesInput,true);
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-room-dim],[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
 
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
