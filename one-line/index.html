@@ -3802,7 +3802,7 @@ function bindRoomDimensionInputs(){
  const panel=$('properties');
  for(const el of panel.querySelectorAll('[data-room-dim]')){
   el.disabled=false;el.readOnly=false;
-  el.addEventListener('input',()=>{
+  const updateRoomDimension=()=>{
    const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
    if(!current)return;
    const key=el.dataset.roomDim;
@@ -3812,12 +3812,12 @@ function bindRoomDimensionInputs(){
    if(!ft||!inch||ft.value===''||inch.value==='')return;
    const feet=Number(ft.value),inches=Number(inch.value),value=feet*12+inches;
    if(!Number.isFinite(value)||feet<0||inches<0||inches>=12||value<=0)return;
-   current[key]=value;
-   current.scaleX=1;current.scaleY=1;
-   clampEquipmentToSheet(current);
+   if(!commitMeasuredDimension(current,key,value))return;
    renderCanvasOnly();
    $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
-  });
+  };
+  el.addEventListener('input',updateRoomDimension);
+  el.addEventListener('change',updateRoomDimension);
  }
  for(const el of panel.querySelectorAll('[data-room-label-visible]')){
   el.disabled=false;
