@@ -31,6 +31,15 @@
 #properties label.poly-rounded-option span{flex:1;min-width:0}
 #properties label.poly-rounded-option{margin-bottom:10px!important}
 
+/* Suite-wide visual-only Properties standardization. Preserve all controls, handlers, and object geometry. */
+#drawingInspector :is(#properties,#textInspector) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),select,textarea){
+ box-sizing:border-box;min-width:0;max-width:100%;border-radius:8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.3;
+}
+#drawingInspector :is(#properties,#textInspector) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),select):not([type="hidden"]){
+ min-height:34px;
+}
+#drawingInspector :is(#properties,#textInspector) :is(label.field,.shared-text-grid>.field){min-width:0;box-sizing:border-box}
+#drawingInspector :is(#properties,#textInspector) :is(input,select,textarea):focus-visible{outline-offset:1px}
 /* Shared properties typography across One-Line, Plan View, and Ladder. */
 /* Consistent equipment text controls; keep layout out of per-item JavaScript. */
 #properties .equipment-text-editor .shared-text-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
