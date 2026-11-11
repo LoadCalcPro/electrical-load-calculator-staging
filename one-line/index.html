@@ -3798,42 +3798,43 @@ function commitMeasuredDimension(node,key,inches){
 // reads and writes the same roomLengthIn/roomWidthIn values.
 // Room dimensions use the original proven direct node update. Bind after the
 // Properties layout is finalized; avoid competing global dimension listeners.
+// One delegated Room handler survives Properties rebuilds and selection refreshes.
+// Do not attach per-control handlers: their nodes are replaced by props().
 function bindRoomDimensionInputs(){
+ // Binding is installed once below; no work is required on each render.
+}
+function updateSelectedRoomProperty(target){
+ if(!target?.matches?.('[data-room-dim],[data-room-label-visible]'))return;
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
  if(!room)return;
- // Room fields are relocated into #textInspector by organizeEquipmentProperties.
- // Resolve the live controls from the document, not the now-empty #properties subtree.
- const panel=document;
- for(const el of panel.querySelectorAll('[data-room-dim]')){
-  el.disabled=false;el.readOnly=false;
-  const update=()=>{
-   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
-   if(!current)return;
-   const key=el.dataset.roomDim;
-   if(key!=='roomLengthIn'&&key!=='roomWidthIn')return;
-   const ft=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
-   const inch=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
-   if(!ft||!inch||ft.value===''||inch.value==='')return;
-   const feet=Number(ft.value),inches=Number(inch.value);
-   if(!Number.isFinite(feet)||!Number.isFinite(inches)||feet<0||inches<0||inches>=12)return;
-   const value=feet*12+inches;if(value<=0)return;
-   current[key]=value;
-   current.scaleX=1;current.scaleY=1;
-   clampEquipmentToSheet(current);
-   renderCanvasOnly();
-   $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
-  };
-  el.addEventListener('input',update);
-  el.addEventListener('change',update);
+ if(target.matches('[data-room-label-visible]')){
+  const key=target.dataset.roomLabelVisible;
+  if(key!=='showRoomLengthLabel'&&key!=='showRoomWidthLabel')return;
+  room[key]=target.checked;
+  renderCanvasOnly();
+  return;
  }
- for(const el of panel.querySelectorAll('[data-room-label-visible]')){
-  el.disabled=false;
-  el.addEventListener('change',()=>{
-   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
-   if(current){current[el.dataset.roomLabelVisible]=el.checked;renderCanvasOnly();}
-  });
- }
+ const key=target.dataset.roomDim;
+ if(key!=='roomLengthIn'&&key!=='roomWidthIn')return;
+ const host=target.closest('#properties')||target.closest('#textInspector')||document;
+ const ft=host.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
+ const inch=host.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
+ if(!ft||!inch||ft.value===''||inch.value==='')return;
+ const feet=Number(ft.value),inches=Number(inch.value);
+ if(!Number.isFinite(feet)||!Number.isFinite(inches)||feet<0||inches<0||inches>=12)return;
+ const value=feet*12+inches;
+ if(value<=0)return;
+ room[key]=value;
+ room.scaleX=1;room.scaleY=1;
+ clampEquipmentToSheet(room);
+ renderCanvasOnly();
+ $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
 }
+// Capture changes before other Properties listeners can refresh the panel.
+// Input updates the room immediately; change/focusout commit the final edit.
+document.addEventListener('input',e=>{if(e.target?.matches?.('[data-room-dim]'))updateSelectedRoomProperty(e.target);},true);
+document.addEventListener('change',e=>{if(e.target?.matches?.('[data-room-dim],[data-room-label-visible]'))updateSelectedRoomProperty(e.target);},true);
+document.addEventListener('focusout',e=>{if(e.target?.matches?.('[data-room-dim]'))updateSelectedRoomProperty(e.target);},true);
 function applyMeasuredPropertiesInput(e){
  const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
