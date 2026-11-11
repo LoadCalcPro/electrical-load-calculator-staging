@@ -3135,7 +3135,7 @@ function renderPositionSpacingProperties(){
   const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:5px;margin:5px 0';
   const name=document.createElement('label');name.textContent=side[0].toUpperCase()+side.slice(1);name.style.width='55px';row.append(name);
   const feet=document.createElement('input');feet.dataset.spacingSide=side;feet.dataset.spacingUnit='feet';feet.type='number';feet.min='0';feet.step='1';feet.value=Math.floor(Math.max(0,distances[side])/12);feet.style.width='70px';feet.style.minWidth='70px';feet.style.boxSizing='border-box';feet.style.paddingInline='5px';feet.style.flexShrink='0';feet.title='Feet';
-  const inches=document.createElement('input');inches.dataset.spacingSide=side;inches.dataset.spacingUnit='inches';inches.type='number';inches.min='0';inches.max='11.875';inches.step='0.125';inches.value=String((Math.round(Math.max(0,distances[side])*8)%96)/8);inches.style.width='62px';inches.title='Inches';
+  const inches=document.createElement('input');inches.dataset.spacingSide=side;inches.dataset.spacingUnit='inches';inches.type='number';inches.min='0';inches.max='11.875';inches.step='0.125';inches.value=String((Math.round(Math.max(0,distances[side])*8)%96)/8);inches.style.width='82px';inches.style.minWidth='82px';inches.style.boxSizing='border-box';inches.style.paddingInline='5px';inches.style.flexShrink='0';inches.title='Inches';
   const apply=document.createElement('button');apply.type='button';apply.textContent='Set';apply.addEventListener('click',()=>{
    const total=Number(feet.value)*12+Number(inches.value);
    if(!Number.isFinite(total)||total<0||Number(inches.value)<0||Number(inches.value)>=12)return;
