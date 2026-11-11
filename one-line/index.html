@@ -3801,7 +3801,9 @@ function commitMeasuredDimension(node,key,inches){
 function bindRoomDimensionInputs(){
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
  if(!room)return;
- const panel=$('properties');
+ // Room fields are relocated into #textInspector by organizeEquipmentProperties.
+ // Resolve the live controls from the document, not the now-empty #properties subtree.
+ const panel=document;
  for(const el of panel.querySelectorAll('[data-room-dim]')){
   el.disabled=false;el.readOnly=false;
   const update=()=>{
