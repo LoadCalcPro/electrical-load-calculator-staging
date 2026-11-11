@@ -2898,6 +2898,12 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    if(wallRotation&&sharedGrid)sharedGrid.after(wallRotation);
    while(wallSection.firstChild)info.appendChild(wallSection.firstChild);
    wallSection.remove();
+   // The wall controls are now children of info, not wallSection.
+   // Match the actual inset of the upper Rotation field in the live DOM.
+   info.style.setProperty('padding-left','16px','important');
+   info.style.setProperty('padding-right','16px','important');
+   info.style.setProperty('box-sizing','border-box','important');
+
   }
  }
  // Door and window settings are architectural Properties, not a second
