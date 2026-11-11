@@ -854,6 +854,24 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
  margin:0!important;grid-column:auto!important;grid-row:auto!important;
  align-self:center!important;justify-self:auto!important;
 }
+
+/* Consistent field LABEL typography: Rotation / Equipment designation reference.
+   Values inside white controls retain their larger readable font. */
+#drawingMain #properties{
+ --shared-property-label-reference-size:14px;
+ --shared-property-label-reference-weight:600;
+}
+#drawingMain #properties :is(label.field,.equipment-appearance-section label.field,.properties-common label.field,.properties-advanced-inline label.field){
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:var(--shared-property-label-reference-size)!important;
+ font-weight:var(--shared-property-label-reference-weight)!important;
+ line-height:1.3!important;
+ letter-spacing:0!important;
+}
+#drawingMain #properties :is(label.field,.equipment-appearance-section label.field,.properties-common label.field) :is(input,select,textarea){
+ font-size:var(--shared-property-value-font,16px)!important;
+ font-weight:400!important;
+}
 </style><style>
 /* Keep the built-in rotation spinner visible; do not add separate +/- controls. */
 #textInspector input.persistent-native-rotation-spinner::-webkit-inner-spin-button{opacity:1!important;display:block!important;-webkit-appearance:inner-spin-button!important;}
