@@ -4807,6 +4807,19 @@ if(location.protocol==='file:'){
 #drawingMain #properties .wall-length-heading>span{
  font-size:12px!important;font-weight:600!important;color:#526985!important;
 }
+/* Align wall dimension toggle to the left edge of the other Wall fields. */
+#drawingMain #properties .wall-dimension-toggle,
+#drawingMain #properties .plan-wall-properties .wall-dimension-toggle{
+ justify-content:flex-start!important;
+ text-align:left!important;
+ padding-left:0!important;
+ padding-right:0!important;
+}
+#drawingMain #properties .wall-dimension-toggle>label,
+#drawingMain #properties .plan-wall-properties .wall-dimension-toggle>label{
+ text-align:left!important;
+ margin-left:0!important;
+}
 /* Keep the dimension checkbox inline, using the same label typography as Equipment fill. */
 #drawingMain #properties .wall-dimension-toggle,
 #drawingMain #properties .plan-wall-properties .wall-dimension-toggle{
