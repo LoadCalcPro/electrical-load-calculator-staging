@@ -36,7 +36,7 @@
 #properties .equipment-text-editor .shared-text-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
 #properties .equipment-text-editor .shared-text-grid>.field{min-width:0;width:100%}
 
-:root{--drawing-property-heading-size:16px;--drawing-property-section-size:14px;--drawing-property-label-size:14px;--drawing-property-value-size:14px;--drawing-property-gap:9px}
+:root{--drawing-property-heading-size:16px;--drawing-property-section-size:14px;--drawing-property-label-size:12px;--drawing-property-value-size:14px;--drawing-property-gap:9px}
 #properties{gap:var(--drawing-property-gap)}#properties> b{font-size:var(--drawing-property-heading-size)}#properties .field,#properties label.field,#properties .section .field{font-size:var(--drawing-property-label-size);font-weight:600;color:#435b78}#properties input:not([type=checkbox]),#properties select,#properties textarea,#properties button{font-size:var(--drawing-property-value-size);font-weight:400}#properties .section,#properties .section>b,#properties .property-priority h4,#properties .equipment-category summary{font-size:var(--drawing-property-section-size)}#properties .leader-toggle-row{font-size:var(--drawing-property-label-size);font-weight:600}
 
 .leader-toggle-rows{display:grid;gap:6px;margin:8px 0}.leader-toggle-row{display:flex;align-items:center;gap:10px;min-height:32px;font-weight:600;color:#435b78;cursor:pointer}.leader-toggle-row input[type=checkbox]{width:20px;height:20px;min-width:20px;margin:0;accent-color:#168c9a;cursor:pointer}
@@ -722,7 +722,7 @@ body:has(.suite-header) #drawingInspector.drawing-inspector,
  letter-spacing:0!important;color:#526985!important;
 }
 /* Staging-only visual pilot: Disconnect Properties. Other equipment is unchanged. */
-#drawingMain #properties.disconnect-visual-preview{--drawing-properties-surface:#fff;--drawing-properties-input:#fff;--drawing-properties-border:#cbd7e5;--drawing-property-label-size:14px;--drawing-property-value-size:14px}
+#drawingMain #properties.disconnect-visual-preview{--drawing-properties-surface:#fff;--drawing-properties-input:#fff;--drawing-properties-border:#cbd7e5;--drawing-property-label-size:12px;--drawing-property-value-size:14px}
 #drawingMain #properties.disconnect-visual-preview :is(.property-priority,.property-section,.properties-common,.properties-advanced,.section){background:#fff!important;border-color:#cbd7e5!important}
 #drawingMain #properties.disconnect-visual-preview :is(input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea,button){background:#fff!important;color:#132943!important;border:1px solid #cbd7e5!important;border-radius:9px!important;font-size:14px!important;opacity:1}
 #drawingMain #properties.disconnect-visual-preview :is(input,select,textarea,button):focus-visible{outline:2px solid #168c9a!important;outline-offset:1px}
