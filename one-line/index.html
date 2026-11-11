@@ -772,6 +772,46 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 #textInspector .equipment-text-editor .shared-text-grid input,
 #textInspector .equipment-text-editor .shared-text-grid select,
 #textInspector .shared-text-grid .shared-rotation-input{box-sizing:border-box!important;height:34px!important;min-height:34px!important;max-height:34px!important;padding:5px 8px!important;line-height:22px!important;}
+
+/* Shared Properties visual baseline — staging 2026-11-11.
+   Apply Disconnect/Wall control dimensions to inspector controls only.
+   Avoid checkboxes, color pickers, SVG and geometry controls. */
+#drawingMain #properties{
+  --shared-property-control-height:34px;
+  --shared-property-control-font:14px;
+  --shared-property-label-font:13px;
+  --shared-property-control-radius:8px;
+  --shared-property-row-gap:8px;
+}
+#drawingMain #properties :is(input[type="text"],input[type="number"],input[type="search"],input[type="email"],select){
+  box-sizing:border-box!important;
+  min-width:0;
+  height:var(--shared-property-control-height)!important;
+  min-height:var(--shared-property-control-height)!important;
+  max-height:var(--shared-property-control-height)!important;
+  padding:5px 8px!important;
+  border-radius:var(--shared-property-control-radius)!important;
+  font-size:var(--shared-property-control-font)!important;
+  line-height:22px!important;
+}
+#drawingMain #properties textarea{
+  box-sizing:border-box!important;
+  min-width:0;
+  min-height:var(--shared-property-control-height)!important;
+  padding:6px 8px!important;
+  border-radius:var(--shared-property-control-radius)!important;
+  font-size:var(--shared-property-control-font)!important;
+  line-height:1.35!important;
+}
+#drawingMain #properties label.field,
+#drawingMain #properties .equipment-text-editor .shared-text-grid>.field{
+  font-size:var(--shared-property-label-font)!important;
+  line-height:1.3!important;
+}
+#drawingMain #properties .equipment-text-editor .shared-text-grid>.field{
+  min-width:0;
+}
+
 </style><style>
 /* Keep the built-in rotation spinner visible; do not add separate +/- controls. */
 #textInspector input.persistent-native-rotation-spinner::-webkit-inner-spin-button{opacity:1!important;display:block!important;-webkit-appearance:inner-spin-button!important;}
