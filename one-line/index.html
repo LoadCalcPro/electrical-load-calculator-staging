@@ -3800,24 +3800,30 @@ function bindRoomDimensionInputs(){
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
  if(!room)return;
  const panel=$('properties');
- for(const el of panel.querySelectorAll('[data-room-dim]')){
-  el.disabled=false;el.readOnly=false;
-  const updateRoomDimension=()=>{
-   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
-   if(!current)return;
+ // The live Room fields may be moved between layout containers. Bind to the
+ // stable Properties panel instead of binding individual fields after a rebuild.
+ if(panel.dataset.roomDimensionBound!=='true'){
+  panel.dataset.roomDimensionBound='true';
+  const commitRoomField=(el)=>{
+   if(!el?.matches?.('[data-room-dim]'))return;
+   const active=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
+   if(!active)return;
    const key=el.dataset.roomDim;
-   if(key!=='roomLengthIn'&&key!=='roomWidthIn')return;
-   const ft=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
-   const inch=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
-   if(!ft||!inch||ft.value===''||inch.value==='')return;
-   const feet=Number(ft.value),inches=Number(inch.value),value=feet*12+inches;
-   if(!Number.isFinite(value)||feet<0||inches<0||inches>=12||value<=0)return;
-   if(!commitMeasuredDimension(current,key,value))return;
-   renderCanvasOnly();
-   $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
+   if(!['roomLengthIn','roomWidthIn'].includes(key))return;
+   const feetEl=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
+   const inchEl=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
+   if(!feetEl||!inchEl||feetEl.value===''||inchEl.value==='')return;
+   const feet=Number(feetEl.value),inch=Number(inchEl.value);
+   if(!Number.isFinite(feet)||!Number.isFinite(inch)||feet<0||inch<0||inch>=12)return;
+   const total=feet*12+inch;
+   if(total<=0)return;
+   if(commitMeasuredDimension(active,key,total)){
+    renderCanvasOnly();
+    $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
+   }
   };
-  el.addEventListener('input',updateRoomDimension);
-  el.addEventListener('change',updateRoomDimension);
+  panel.addEventListener('input',event=>commitRoomField(event.target),true);
+  panel.addEventListener('change',event=>commitRoomField(event.target),true);
  }
  for(const el of panel.querySelectorAll('[data-room-label-visible]')){
   el.disabled=false;
