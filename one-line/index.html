@@ -4815,6 +4815,28 @@ if(location.protocol==='file:'){
  margin-right:auto!important;
  box-sizing:border-box!important;
 }
+/* Wall joint action uses the same dimensions and typography as adjacent wall inputs. */
+#drawingMain #properties.plan-wall-standardized > .property-priority > button[data-wall-disconnect],
+#drawingMain #properties .plan-wall-properties > button[data-wall-disconnect]{
+ display:block!important;
+ align-self:stretch!important;
+ width:calc(100% - 32px)!important;
+ max-width:calc(100% - 32px)!important;
+ min-width:0!important;
+ height:42px!important;
+ min-height:42px!important;
+ padding:7px 11px!important;
+ font-size:14px!important;
+ font-weight:400!important;
+ line-height:1.35!important;
+ text-align:left!important;
+ border-radius:10px!important;
+ box-sizing:border-box!important;
+}
+#drawingMain #properties.plan-wall-standardized > .property-priority > button[data-wall-disconnect]{
+ margin-left:16px!important;
+ margin-right:16px!important;
+}
 /* Shared inset for nested equipment field groups, independent of equipment type. */
 #drawingMain #properties :is(.plan-wall-properties,.equipment-appearance-section,.equipment-appearance-compact,.property-priority,.property-section){
  box-sizing:border-box;
