@@ -3798,11 +3798,10 @@ function commitMeasuredDimension(node,key,inches){
 // reads and writes the same roomLengthIn/roomWidthIn values.
 // Room dimensions use the original proven direct node update. Bind after the
 // Properties layout is finalized; avoid competing global dimension listeners.
-// One delegated Room handler survives Properties rebuilds and selection refreshes.
-// Do not attach per-control handlers: their nodes are replaced by props().
-function bindRoomDimensionInputs(){
- // Binding is installed once below; no work is required on each render.
-}
+// Room controls live in the inspector after the layout is reorganized.
+// Commit completed edits once, without triggering full canvas redraw on every
+// keystroke or again on focusout. Other equipment handlers are unaffected.
+function bindRoomDimensionInputs(){}
 function updateSelectedRoomProperty(target){
  if(!target?.matches?.('[data-room-dim],[data-room-label-visible]'))return;
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
@@ -3810,6 +3809,7 @@ function updateSelectedRoomProperty(target){
  if(target.matches('[data-room-label-visible]')){
   const key=target.dataset.roomLabelVisible;
   if(key!=='showRoomLengthLabel'&&key!=='showRoomWidthLabel')return;
+  if(room[key]===target.checked)return;
   room[key]=target.checked;
   renderCanvasOnly();
   return;
@@ -3823,18 +3823,18 @@ function updateSelectedRoomProperty(target){
  const feet=Number(ft.value),inches=Number(inch.value);
  if(!Number.isFinite(feet)||!Number.isFinite(inches)||feet<0||inches<0||inches>=12)return;
  const value=feet*12+inches;
- if(value<=0)return;
+ if(value<=0||Math.abs((Number(room[key])||0)-value)<.0001)return;
  room[key]=value;
  room.scaleX=1;room.scaleY=1;
  clampEquipmentToSheet(room);
  renderCanvasOnly();
  $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
 }
-// Capture changes before other Properties listeners can refresh the panel.
-// Input updates the room immediately; change/focusout commit the final edit.
-document.addEventListener('input',e=>{if(e.target?.matches?.('[data-room-dim]'))updateSelectedRoomProperty(e.target);},true);
-document.addEventListener('change',e=>{if(e.target?.matches?.('[data-room-dim],[data-room-label-visible]'))updateSelectedRoomProperty(e.target);},true);
-document.addEventListener('focusout',e=>{if(e.target?.matches?.('[data-room-dim]'))updateSelectedRoomProperty(e.target);},true);
+// Change is the single commit point; Enter commits via blur. No input/focusout
+// duplicate redraws, which previously caused the inspector to appear frozen.
+document.addEventListener('change',e=>{
+ if(e.target?.matches?.('[data-room-dim],[data-room-label-visible]'))updateSelectedRoomProperty(e.target);
+},true);
 function applyMeasuredPropertiesInput(e){
  const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
