@@ -3796,34 +3796,33 @@ function commitMeasuredDimension(node,key,inches){
 // depending on transient text-inspector selection state during field focus.
 // Room Properties uses the proven Nov 1 direct model update, while mouse resize
 // reads and writes the same roomLengthIn/roomWidthIn values.
+// Room dimensions use the original proven direct node update. Bind after the
+// Properties layout is finalized; avoid competing global dimension listeners.
 function bindRoomDimensionInputs(){
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
  if(!room)return;
  const panel=$('properties');
- // The live Room fields may be moved between layout containers. Bind to the
- // stable Properties panel instead of binding individual fields after a rebuild.
- if(panel.dataset.roomDimensionBound!=='true'){
-  panel.dataset.roomDimensionBound='true';
-  const commitRoomField=(el)=>{
-   if(!el?.matches?.('[data-room-dim]'))return;
-   const active=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
-   if(!active)return;
+ for(const el of panel.querySelectorAll('[data-room-dim]')){
+  el.disabled=false;el.readOnly=false;
+  const update=()=>{
+   const current=nodes.find(n=>n.id===room.id&&n.type==='planroom');
+   if(!current)return;
    const key=el.dataset.roomDim;
-   if(!['roomLengthIn','roomWidthIn'].includes(key))return;
-   const feetEl=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
-   const inchEl=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
-   if(!feetEl||!inchEl||feetEl.value===''||inchEl.value==='')return;
-   const feet=Number(feetEl.value),inch=Number(inchEl.value);
-   if(!Number.isFinite(feet)||!Number.isFinite(inch)||feet<0||inch<0||inch>=12)return;
-   const total=feet*12+inch;
-   if(total<=0)return;
-   if(commitMeasuredDimension(active,key,total)){
-    renderCanvasOnly();
-    $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
-   }
+   if(key!=='roomLengthIn'&&key!=='roomWidthIn')return;
+   const ft=panel.querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');
+   const inch=panel.querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
+   if(!ft||!inch||ft.value===''||inch.value==='')return;
+   const feet=Number(ft.value),inches=Number(inch.value);
+   if(!Number.isFinite(feet)||!Number.isFinite(inches)||feet<0||inches<0||inches>=12)return;
+   const value=feet*12+inches;if(value<=0)return;
+   current[key]=value;
+   current.scaleX=1;current.scaleY=1;
+   clampEquipmentToSheet(current);
+   renderCanvasOnly();
+   $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
   };
-  panel.addEventListener('input',event=>commitRoomField(event.target),true);
-  panel.addEventListener('change',event=>commitRoomField(event.target),true);
+  el.addEventListener('input',update);
+  el.addEventListener('change',update);
  }
  for(const el of panel.querySelectorAll('[data-room-label-visible]')){
   el.disabled=false;
@@ -3834,7 +3833,7 @@ function bindRoomDimensionInputs(){
  }
 }
 function applyMeasuredPropertiesInput(e){
- const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim],[data-room-dim]')||selected?.kind!=='node')return;
+ const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
  let key,feetEl,inchEl;
  if(el.matches('[data-wall-feet],[data-wall-inches]')&&node.type==='planwall'){
@@ -3854,11 +3853,11 @@ function applyMeasuredPropertiesInput(e){
 }
 // Wall feet/inches use a dedicated model-bound handler. Keep edits stable while
 // typing; commit the complete measurement on change/Enter, not on each digit.
-document.addEventListener('input',e=>{if(e.target?.matches?.('[data-linear-dim],[data-room-dim]'))applyMeasuredPropertiesInput(e);},true);
+document.addEventListener('input',e=>{if(e.target?.matches?.('[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
 // Wall length has its own bound change handler above; do not also process its blur
 // through the global measurement listener (which can interrupt the next click).
 document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))return;applyMeasuredPropertiesInput(e);},true);
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-linear-dim],[data-room-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
 
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
