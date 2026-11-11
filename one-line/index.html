@@ -3055,6 +3055,7 @@ function drawEquipmentTextHighlights(){
 function syncAssociativePlanDimensions(){for(const dimension of nodes.filter(n=>n.type==='plandimension'&&n.dimensionWallId!=null)){const wall=nodes.find(n=>n.type==='planwall'&&n.id===dimension.dimensionWallId);if(!wall){delete dimension.dimensionWallId;continue;}dimension.dimensionLengthIn=Math.max(1,Number(wall.wallLengthIn)||120);dimension.dimensionAngle=Number(wall.wallAngle)||0;const angle=(Number(wall.wallAngle)||0)*Math.PI/180,along=Number(dimension.dimensionWallAlong)||0,normal=Number(dimension.dimensionWallNormal)||0;if(Number.isFinite(dimension.dimensionWallDx)&&!Number.isFinite(dimension.dimensionWallAlong)){const dx=Number(dimension.dimensionWallDx)||0,dy=Number(dimension.dimensionWallDy)||0;dimension.dimensionWallAlong=dx*Math.cos(angle)+dy*Math.sin(angle);dimension.dimensionWallNormal=-dx*Math.sin(angle)+dy*Math.cos(angle);}const a=Number(dimension.dimensionWallAlong)||0,b=Number(dimension.dimensionWallNormal)||0;dimension.x=wall.x+a*Math.cos(angle)-b*Math.sin(angle);dimension.y=wall.y+a*Math.sin(angle)+b*Math.cos(angle);}}
 // Temporary position measurements for Plan View objects (staging).
 let positionSpacingMode='nearest';
+let positionSpacingReference='face';
 function planPositionContext(){
  if(drawingView!=='plan'||selected?.kind!=='node')return null;
  const n=nodes.find(v=>v.id===selected.id);
@@ -3070,27 +3071,56 @@ function planPositionContext(){
  const halfY=(Math.max(1,Number(room.roomWidthIn)||144)-Math.max(0,Number(room.wallInches??6)))*px/2;
  return {n,room,px,edges:{left:room.x-halfX,right:room.x+halfX,top:room.y-halfY,bottom:room.y+halfY}};
 }
+function positionSpacingGeometry(c){
+ const {n,px,edges}=c;let halfX=0,halfY=0;
+ if(n.type==='planwall'){
+  const length=Math.max(1,Number(n.wallLengthIn??120))/2,thickness=Math.max(1,Number(n.wallThicknessIn??6))/2;
+  const angle=(Number(n.wallAngle)||0)*Math.PI/180;
+  halfX=Math.abs(Math.cos(angle))*length+Math.abs(Math.sin(angle))*thickness;
+  halfY=Math.abs(Math.sin(angle))*length+Math.abs(Math.cos(angle))*thickness;
+ }
+ const mode=n.type==='planwall'?positionSpacingReference:'center';
+ const sign=mode==='face'?-1:mode==='outside'?1:0;
+ const points={left:n.x+sign*halfX*px,right:n.x-sign*halfX*px,top:n.y+sign*halfY*px,bottom:n.y-sign*halfY*px};
+ const distances={left:(points.left-edges.left)/px,right:(edges.right-points.right)/px,top:(points.top-edges.top)/px,bottom:(edges.bottom-points.bottom)/px};
+ return {points,distances,offsets:{left:points.left-n.x,right:points.right-n.x,top:points.top-n.y,bottom:points.bottom-n.y}};
+}
 function positionDistanceLabel(inches){const v=Math.max(0,Math.round(inches*8)/8),feet=Math.floor(v/12),remaining=Math.round((v-feet*12)*8)/8;return feet+'′-'+remaining+'″';}
 function renderPositionSpacing(){
  const layer=$('positionSpacingOverlay');if(!layer)return;
  const c=planPositionContext();if(!c||positionSpacingMode==='off'){layer.innerHTML='';return;}
- const {n,px,edges}=c,distances={left:(n.x-edges.left)/px,right:(edges.right-n.x)/px,top:(n.y-edges.top)/px,bottom:(edges.bottom-n.y)/px};
+ const {n,edges}=c,{points,distances}=positionSpacingGeometry(c);
  const sides=positionSpacingMode==='all'?['left','right','top','bottom']:[distances.left<=distances.right?'left':'right',distances.top<=distances.bottom?'top':'bottom'];
  const lines=sides.map(side=>{
   const horizontal=side==='left'||side==='right';
+  const x1=horizontal?points[side]:n.x,y1=horizontal?n.y:points[side];
   const x2=horizontal?edges[side]:n.x,y2=horizontal?n.y:edges[side];
-  const tx=(n.x+x2)/2,ty=(n.y+y2)/2;
+  const tx=(x1+x2)/2,ty=(y1+y2)/2;
   const label=positionDistanceLabel(distances[side]);
-  const factor=planDimensionVisualFactor();return '<line x1="'+n.x+'" y1="'+n.y+'" x2="'+x2+'" y2="'+y2+'" stroke="#087f99" stroke-width="'+(1.3*factor)+'" stroke-dasharray="'+(4*factor)+' '+(3*factor)+'"/><text x="'+(tx+(horizontal?0:9*factor))+'" y="'+(ty+(horizontal?-7*factor:3*factor))+'" text-anchor="middle" font-size="'+(11*factor)+'" fill="#087f99" stroke="white" stroke-width="'+(3*factor)+'" paint-order="stroke" >'+label+'</text>';
+  const factor=planDimensionVisualFactor();return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#087f99" stroke-width="'+(1.3*factor)+'" stroke-dasharray="'+(4*factor)+' '+(3*factor)+'"/><text x="'+(tx+(horizontal?0:9*factor))+'" y="'+(ty+(horizontal?-7*factor:3*factor))+'" text-anchor="middle" font-size="'+(11*factor)+'" fill="#087f99" stroke="white" stroke-width="'+(3*factor)+'" paint-order="stroke" >'+label+'</text>';
  }).join('');
  layer.innerHTML='<g pointer-events="none">'+lines+'</g>';
+}
+function renderPositionSpacingPropertiesRefresh(){
+ const inspector=$('textInspector');if(!inspector)return;
+ const existing=[...inspector.querySelectorAll('section')].find(section=>section.querySelector('[data-spacing-side]'));
+ if(existing)existing.remove();
+ renderPositionSpacingProperties();
 }
 function renderPositionSpacingProperties(){
  const inspector=$('textInspector'),c=planPositionContext();if(!inspector||!c)return;
  const section=document.createElement('section');section.style.cssText='border:1px solid #cbd5e1;border-radius:6px;padding:9px;margin-top:10px;font:13px Arial,sans-serif';
  const heading=document.createElement('div');heading.textContent='Position & Spacing — inside wall faces';heading.style.cssText='font-weight:600;margin-bottom:8px';section.append(heading);
  const display=document.createElement('select');for(const [value,label] of [['nearest','Nearest walls'],['all','All four walls'],['off','Hide measurements']]){const option=new Option(label,value);display.add(option);}display.value=positionSpacingMode;display.style.cssText='width:100%;margin-bottom:8px';display.addEventListener('change',()=>{positionSpacingMode=display.value;renderPositionSpacing();});section.append(display);
- const distances={left:(c.n.x-c.edges.left)/c.px,right:(c.edges.right-c.n.x)/c.px,top:(c.n.y-c.edges.top)/c.px,bottom:(c.edges.bottom-c.n.y)/c.px};
+ if(c.n.type==='planwall'){
+  const label=document.createElement('label');label.textContent='Measurement reference';label.style.cssText='display:block;font-weight:600;margin-bottom:5px';
+  const reference=document.createElement('select');
+  for(const [value,title] of [['face','Finished face'],['center','Centerline'],['outside','Outside face']])reference.add(new Option(title,value));
+  reference.value=positionSpacingReference;reference.style.cssText='width:100%;min-height:34px;margin-bottom:8px';
+  reference.addEventListener('change',()=>{positionSpacingReference=reference.value;renderPositionSpacingPropertiesRefresh();renderPositionSpacing();});
+  section.append(label,reference);
+ }
+ const {distances}=positionSpacingGeometry(c);
  for(const side of ['left','right','top','bottom']){
   const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:5px;margin:5px 0';
   const name=document.createElement('label');name.textContent=side[0].toUpperCase()+side.slice(1);name.style.width='55px';row.append(name);
@@ -3100,7 +3130,9 @@ function renderPositionSpacingProperties(){
    const total=Number(feet.value)*12+Number(inches.value);
    if(!Number.isFinite(total)||total<0||Number(inches.value)<0||Number(inches.value)>=12)return;
    const current=planPositionContext();if(!current)return;
-   const target=side==='left'?current.edges.left+total*current.px:side==='right'?current.edges.right-total*current.px:side==='top'?current.edges.top+total*current.px:current.edges.bottom-total*current.px;
+   const offset=positionSpacingGeometry(current).offsets[side];
+   const faceTarget=side==='left'?current.edges.left+total*current.px:side==='right'?current.edges.right-total*current.px:side==='top'?current.edges.top+total*current.px:current.edges.bottom-total*current.px;
+   const target=faceTarget-offset;
    const axis=side==='left'||side==='right'?'x':'y';const low=axis==='x'?current.edges.left:current.edges.top,high=axis==='x'?current.edges.right:current.edges.bottom;
    if(target<low||target>high){$('status').textContent='Position must remain within the room.';return;}
    const previous=current.n[axis];current.n[axis]=target;
@@ -3115,7 +3147,7 @@ function renderPositionSpacingProperties(){
 
 function syncPositionSpacingInputs(){
  const c=planPositionContext(),inspector=$('textInspector');if(!c||!inspector)return;
- const distances={left:(c.n.x-c.edges.left)/c.px,right:(c.edges.right-c.n.x)/c.px,top:(c.n.y-c.edges.top)/c.px,bottom:(c.edges.bottom-c.n.y)/c.px};
+ const {distances}=positionSpacingGeometry(c);
  for(const side of ['left','right','top','bottom']){
   const eighths=Math.max(0,Math.round(distances[side]*8));
   const values={feet:String(Math.floor(eighths/96)),inches:String((eighths%96)/8)};
