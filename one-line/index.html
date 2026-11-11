@@ -3757,8 +3757,16 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
  p.querySelector('[data-room-dimension-type]')?.addEventListener('change',e=>{item.roomDimensionType=e.target.value;renderCanvasOnly();});
  p.querySelectorAll('[data-room-label-offset]').forEach(el=>el.addEventListener('input',()=>{item[el.dataset.roomLabelOffset]=Math.max(8,Math.min(300,Number(el.value)||30));renderCanvasOnly();}));
  const wall=p.querySelector('[data-room-wall]'),custom=p.querySelector('[data-room-wall-custom]');
- wall?.addEventListener('change',()=>{custom.style.display=wall.value==='custom'?'':'none';if(wall.value!=='custom'){custom.value=wall.value;item.wallInches=Number(wall.value)||0;renderCanvasOnly();}else custom.focus();});
- custom?.addEventListener('input',()=>{item.wallInches=Math.max(0,Number(custom.value)||0);renderCanvasOnly();});
+ // Wall thickness belongs to the room outline, not the selected text label.
+ // Keep the shared text editor from resynchronizing during this redraw.
+ const commitRoomWallThickness=value=>{
+  if(!Number.isFinite(value)||value<0||Number(item.wallInches)===value)return;
+  item.wallInches=value;
+  roomPropertiesUpdateInProgress=true;
+  try{renderCanvasOnly();}finally{roomPropertiesUpdateInProgress=false;}
+ };
+ wall?.addEventListener('change',()=>{custom.style.display=wall.value==='custom'?'':'none';if(wall.value!=='custom'){custom.value=wall.value;commitRoomWallThickness(Number(wall.value));}else custom.focus();});
+ custom?.addEventListener('change',()=>commitRoomWallThickness(Number(custom.value)));
 }
 p.querySelectorAll('[data-prop]').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{if(selected.kind==='node'&&(el.dataset.prop==='width'||el.dataset.prop==='height')){
  const physicalKey=item.type==='planroom'?(el.dataset.prop==='width'?'roomLengthIn':'roomWidthIn'):(item.type==='plansymbol'&&(item.equipmentSubtype||item.name)==='Linear Light'?(el.dataset.prop==='width'?'linearLengthIn':'linearWidthIn'):null);
