@@ -4740,6 +4740,17 @@ if(location.protocol==='file:'){
  height:auto;
  padding:8px 10px!important;
 }
+/* Visible inset at the FIELD level: earlier width:100%!important rules made
+   the wall's lower controls appear edge-to-edge despite parent padding. */
+#drawingMain #properties .plan-wall-properties > :is(label.field,.field,button[data-wall-disconnect],.wall-dimension-toggle),
+#drawingMain #properties .plan-wall-properties > .equipment-appearance-section,
+#drawingMain #properties .plan-wall-properties > .equipment-appearance-compact{
+ width:calc(100% - 28px)!important;
+ max-width:calc(100% - 28px)!important;
+ margin-left:auto!important;
+ margin-right:auto!important;
+ box-sizing:border-box!important;
+}
 /* Shared inset for nested equipment field groups, independent of equipment type. */
 #drawingMain #properties :is(.plan-wall-properties,.equipment-appearance-section,.equipment-appearance-compact,.property-priority,.property-section){
  box-sizing:border-box;
