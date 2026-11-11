@@ -884,18 +884,6 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
  line-height:1.3!important;
 }
 
-/* Shared 14px field labels throughout the drawing suite inspector. */
-#drawingMain :is(#properties,#textInspector) :is(label.field,.field):not(:is(input,select,textarea,button)){
- font-family:Arial,Helvetica,sans-serif!important;
- font-size:12px!important;
- font-weight:600!important;
- line-height:1.3!important;
- letter-spacing:0!important;
-}
-#drawingMain :is(#properties,#textInspector) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),select,textarea){
- font-size:14px!important;
- font-weight:400!important;
-}
 </style><style>
 /* Keep the built-in rotation spinner visible; do not add separate +/- controls. */
 #textInspector input.persistent-native-rotation-spinner::-webkit-inner-spin-button{opacity:1!important;display:block!important;-webkit-appearance:inner-spin-button!important;}
@@ -4707,35 +4695,40 @@ if(location.protocol==='file:'){
 #projectSettingsInspector .project-inspector-settings{grid-template-columns:minmax(0,1fr)!important}
 #projectSettingsInspector .project-inspector-settings .project-info-field{grid-column:1/-1!important}
 </style><style id="titleMultilineEditor">#projectSettingsInspector textarea#project,#projectSettingsInspector textarea#address,#projectSettingsInspector textarea#drawingTitle{height:auto!important;min-height:86px!important;max-height:none!important;resize:vertical!important;overflow-y:auto!important;white-space:pre-wrap!important;line-height:1.4!important}</style><style id="lineRotationPairStyle">#textInspector .line-rotation-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%}#textInspector .line-rotation-pair>label{min-width:0}#textInspector .line-rotation-pair input{width:100%;box-sizing:border-box}</style><style id="suite-properties-unified-style">
-/* One-Line, Plan View and Ladder: shared Disconnect reference styling.
-   Keep checkboxes, color pickers, action buttons and multiline textareas functional. */
+/* SINGLE MASTER FIELD STYLE — all One-Line, Plan View and Ladder inspectors.
+   Equipment-specific selectors elsewhere control behavior and layout, not these
+   shared visual tokens. The Disconnect controls are the visual reference. */
 #drawingMain :is(#properties,#textInspector){
  --drawing-property-label-size:12px;
  --drawing-property-value-size:14px;
  --shared-property-label-reference-size:12px;
  --shared-property-value-font:14px;
+ --suite-field-height:40px;
+ --suite-field-radius:10px;
+ --suite-field-inset:14px;
+ --suite-field-gap:6px;
 }
 #drawingMain :is(#properties,#textInspector) :is(label.field,.field,.properties-advanced-inline label,.equipment-appearance-section label,.property-priority label,.property-section label){
  font-family:Arial,Helvetica,sans-serif!important;
- font-size:12px!important;
+ font-size:var(--drawing-property-label-size)!important;
  font-weight:600!important;
  line-height:1.3!important;
  letter-spacing:0!important;
 }
 #drawingMain :is(#properties,#textInspector) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),select,textarea){
  font-family:Arial,Helvetica,sans-serif!important;
- font-size:14px!important;
+ font-size:var(--drawing-property-value-size)!important;
  font-weight:400!important;
  font-style:normal!important;
  line-height:1.3!important;
  box-sizing:border-box!important;
  min-width:0;
- border-radius:10px!important;
+ border-radius:var(--suite-field-radius)!important;
 }
 #drawingMain :is(#properties,#textInspector) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),select){
- height:40px!important;
- min-height:40px!important;
- max-height:40px!important;
+ height:var(--suite-field-height)!important;
+ min-height:var(--suite-field-height)!important;
+ max-height:var(--suite-field-height)!important;
  padding:6px 10px!important;
 }
 #drawingMain :is(#properties,#textInspector) :is(label.field,.field) > :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),select,textarea){
@@ -4743,8 +4736,23 @@ if(location.protocol==='file:'){
  max-width:100%!important;
 }
 #drawingMain :is(#properties,#textInspector) textarea{
- min-height:40px!important;
+ min-height:var(--suite-field-height)!important;
  height:auto;
  padding:8px 10px!important;
+}
+/* Shared inset for nested equipment field groups, independent of equipment type. */
+#drawingMain #properties :is(.plan-wall-properties,.equipment-appearance-section,.equipment-appearance-compact,.property-priority,.property-section){
+ box-sizing:border-box;
+ min-width:0;
+ padding-left:var(--suite-field-inset)!important;
+ padding-right:var(--suite-field-inset)!important;
+}
+#drawingMain #properties :is(.plan-wall-properties,.equipment-appearance-section,.equipment-appearance-compact,.property-priority,.property-section) :is(label.field,.field){
+ box-sizing:border-box;
+ min-width:0;
+ max-width:100%;
+}
+#drawingMain #properties :is(.plan-wall-properties,.equipment-appearance-section,.equipment-appearance-compact,.property-priority,.property-section) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),select,textarea){
+ max-width:100%!important;
 }
 </style></body></html>
