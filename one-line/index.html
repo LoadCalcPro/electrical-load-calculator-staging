@@ -3056,6 +3056,7 @@ function syncAssociativePlanDimensions(){for(const dimension of nodes.filter(n=>
 // Temporary position measurements for Plan View objects (staging).
 let positionSpacingMode='nearest';
 let positionSpacingReference='face';
+let linearLightSpacingReference='face';
 function planPositionContext(){
  if(drawingView!=='plan'||selected?.kind!=='node')return null;
  const n=nodes.find(v=>v.id===selected.id);
@@ -3071,6 +3072,7 @@ function planPositionContext(){
  const halfY=(Math.max(1,Number(room.roomWidthIn)||144)-Math.max(0,Number(room.wallInches??6)))*px/2;
  return {n,room,px,edges:{left:room.x-halfX,right:room.x+halfX,top:room.y-halfY,bottom:room.y+halfY}};
 }
+function positionSpacingIsLinearLight(n){return n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light';}
 function positionSpacingGeometry(c){
  const {n,px,edges}=c;let halfX=0,halfY=0;
  if(n.type==='planwall'){
@@ -3079,7 +3081,14 @@ function positionSpacingGeometry(c){
   halfX=Math.abs(Math.cos(angle))*length+Math.abs(Math.sin(angle))*thickness;
   halfY=Math.abs(Math.sin(angle))*length+Math.abs(Math.cos(angle))*thickness;
  }
- const mode=n.type==='planwall'?positionSpacingReference:'center';
+ if(positionSpacingIsLinearLight(n)){
+  const length=Math.max(1,Number(n.linearLengthIn??48))/2*Math.max(.15,Math.min(8,Number(n.scaleX)||1));
+  const width=Math.max(1,Number(n.linearWidthIn??6))/2*Math.max(.15,Math.min(8,Number(n.scaleY)||1));
+  const angle=(Number(n.drawingRotation)||0)*Math.PI/180;
+  halfX=Math.abs(Math.cos(angle))*length+Math.abs(Math.sin(angle))*width;
+  halfY=Math.abs(Math.sin(angle))*length+Math.abs(Math.cos(angle))*width;
+ }
+ const mode=n.type==='planwall'?positionSpacingReference:positionSpacingIsLinearLight(n)?linearLightSpacingReference:'center';
  const sign=mode==='face'?-1:mode==='outside'?1:0;
  const points={left:n.x+sign*halfX*px,right:n.x-sign*halfX*px,top:n.y+sign*halfY*px,bottom:n.y-sign*halfY*px};
  const distances={left:(points.left-edges.left)/px,right:(edges.right-points.right)/px,top:(points.top-edges.top)/px,bottom:(edges.bottom-points.bottom)/px};
@@ -3112,12 +3121,13 @@ function renderPositionSpacingProperties(){
  const section=document.createElement('section');section.style.cssText='border:1px solid #cbd5e1;border-radius:6px;padding:9px;margin-top:10px;font:13px Arial,sans-serif';
  const heading=document.createElement('div');heading.textContent='Position & Spacing — inside wall faces';heading.style.cssText='font-weight:600;margin-bottom:8px';section.append(heading);
  const display=document.createElement('select');for(const [value,label] of [['nearest','Nearest walls'],['all','All four walls'],['off','Hide measurements']]){const option=new Option(label,value);display.add(option);}display.value=positionSpacingMode;display.style.cssText='width:100%;margin-bottom:8px';display.addEventListener('change',()=>{positionSpacingMode=display.value;renderPositionSpacing();});section.append(display);
- if(c.n.type==='planwall'){
+ if(c.n.type==='planwall'||positionSpacingIsLinearLight(c.n)){
+  const isLight=positionSpacingIsLinearLight(c.n);
   const label=document.createElement('label');label.textContent='Measurement reference';label.style.cssText='display:block;font-weight:600;margin-bottom:5px';
   const reference=document.createElement('select');
-  for(const [value,title] of [['face','Finished face'],['center','Centerline'],['outside','Outside face']])reference.add(new Option(title,value));
-  reference.value=positionSpacingReference;reference.style.cssText='width:100%;min-height:34px;margin-bottom:8px';
-  reference.addEventListener('change',()=>{positionSpacingReference=reference.value;renderPositionSpacingPropertiesRefresh();renderPositionSpacing();});
+  for(const [value,title] of (isLight?[['face','Fixture edge'],['center','Fixture centerline'],['outside','Opposite edge']]:[['face','Finished face'],['center','Centerline'],['outside','Outside face']]))reference.add(new Option(title,value));
+  reference.value=isLight?linearLightSpacingReference:positionSpacingReference;reference.style.cssText='width:100%;min-height:34px;margin-bottom:8px';
+  reference.addEventListener('change',()=>{if(isLight)linearLightSpacingReference=reference.value;else positionSpacingReference=reference.value;renderPositionSpacingPropertiesRefresh();renderPositionSpacing();});
   section.append(label,reference);
  }
  const {distances}=positionSpacingGeometry(c);
