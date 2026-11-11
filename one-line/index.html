@@ -3131,8 +3131,12 @@ function renderPositionSpacingProperties(){
   section.append(label,reference);
  }
  const {distances}=positionSpacingGeometry(c);
+ const spacingColumns='46px minmax(0,1fr) minmax(0,1.35fr) 43px';
+ const header=document.createElement('div');header.style.cssText='display:grid;grid-template-columns:'+spacingColumns+';align-items:end;column-gap:5px;width:100%;min-width:0;box-sizing:border-box;margin:3px 0 4px';
+ for(const title of ['','Feet','Inches','']){const cell=document.createElement('span');cell.textContent=title;cell.style.cssText='font-size:12px;font-weight:600;color:#526985';header.append(cell);}
+ section.append(header);
  for(const side of ['left','right','top','bottom']){
-  const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:46px minmax(0,1fr) 12px minmax(0,1.25fr) 12px 43px;align-items:center;column-gap:3px;margin:5px 0;width:100%;min-width:0;box-sizing:border-box';
+  const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:'+spacingColumns+';align-items:center;column-gap:5px;margin:5px 0;width:100%;min-width:0;box-sizing:border-box';
   const name=document.createElement('label');name.textContent=side[0].toUpperCase()+side.slice(1);name.style.cssText='width:auto;min-width:0;font-size:12px';row.append(name);
   const feet=document.createElement('input');feet.dataset.spacingSide=side;feet.dataset.spacingUnit='feet';feet.type='number';feet.min='0';feet.step='1';feet.value=Math.floor(Math.max(0,distances[side])/12);feet.style.cssText='width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:5px 3px;font-size:13px';feet.title='Feet';
   const inches=document.createElement('input');inches.dataset.spacingSide=side;inches.dataset.spacingUnit='inches';inches.type='number';inches.min='0';inches.max='11.875';inches.step='0.125';inches.value=String((Math.round(Math.max(0,distances[side])*8)%96)/8);inches.style.cssText='width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:5px 3px;font-size:13px';inches.title='Inches';
@@ -3150,7 +3154,7 @@ function renderPositionSpacingProperties(){
    render();
   });
   for(const field of [feet,inches])field.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();apply.click();}});
-  row.append(feet,document.createTextNode('ft'),inches,document.createTextNode('in'),apply);section.append(row);
+  row.append(feet,inches,apply);section.append(row);
  }
  inspector.append(section);
 }
