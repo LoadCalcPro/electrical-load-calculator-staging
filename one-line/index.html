@@ -4757,6 +4757,21 @@ if(location.protocol==='file:'){
  max-width:100%!important;
  box-sizing:border-box!important;
 }
+/* Match the Disconnect field inset in the ACTUAL lower Properties container.
+   The wall controls are moved to .property-priority; do not rely on their
+   original .plan-wall-properties wrapper or a padding override. */
+#drawingMain #properties.plan-wall-standardized > .property-priority > :is(label.field,div.field,button[data-wall-disconnect],.wall-dimension-toggle){
+ width:calc(100% - 32px)!important;
+ max-width:calc(100% - 32px)!important;
+ margin-left:16px!important;
+ margin-right:16px!important;
+ box-sizing:border-box!important;
+}
+#drawingMain #properties.plan-wall-standardized > .property-priority > :is(label.field,div.field) > :is(input:not([type=checkbox]):not([type=color]),select,textarea){
+ width:100%!important;
+ max-width:100%!important;
+ box-sizing:border-box!important;
+}
 /* Visible inset at the FIELD level: earlier width:100%!important rules made
    the wall's lower controls appear edge-to-edge despite parent padding. */
 #drawingMain #properties .plan-wall-properties > :is(label.field,.field,button[data-wall-disconnect],.wall-dimension-toggle),
