@@ -4740,6 +4740,17 @@ if(location.protocol==='file:'){
  height:auto;
  padding:8px 10px!important;
 }
+/* Plan Wall controls are MOVED from .plan-wall-properties into
+   .property-priority by JS; style their actual rendered parent. */
+#drawingMain #properties.plan-wall-standardized > .property-priority{
+ padding-left:30px!important;
+ padding-right:30px!important;
+ box-sizing:border-box!important;
+}
+#drawingMain #properties.plan-wall-standardized > .property-priority > :is(label.field,.field,button,.wall-dimension-toggle){
+ max-width:100%!important;
+ box-sizing:border-box!important;
+}
 /* Visible inset at the FIELD level: earlier width:100%!important rules made
    the wall's lower controls appear edge-to-edge despite parent padding. */
 #drawingMain #properties .plan-wall-properties > :is(label.field,.field,button[data-wall-disconnect],.wall-dimension-toggle),
