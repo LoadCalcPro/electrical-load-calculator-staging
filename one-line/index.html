@@ -2731,8 +2731,20 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   if(nameInput){
    // The original field already contains its Equipment designation label. Do not add a second caption.
    nameInput.setAttribute('aria-label','Equipment designation');
-   nameInput.addEventListener('focus',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key)activateEquipmentText(item,key);});
-   nameInput.addEventListener('input',()=>{const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);if(key){activeInnerKey=key;common.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();$('textInspector').syncSelectedText?.();}});
+   const selectDesignationLabel=()=>{
+    if(selected?.kind!=='node'||selected.id!==item.id)return;
+    const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);
+    if(!key)return;
+    // Match the Disconnect label target without simulating a button click,
+    // which can shift focus away from the text field.
+    activeInnerKey=key;
+    outlineSelect.value='label';
+    syncTarget();
+    $('textInspector').syncSelectedText?.();
+   };
+   nameInput.addEventListener('pointerdown',selectDesignationLabel);
+   nameInput.addEventListener('focus',selectDesignationLabel);
+   nameInput.addEventListener('input',selectDesignationLabel);
   }
   // Designation is placed after rotation alongside the remaining description fields.
  }
