@@ -1725,7 +1725,7 @@ const calibrationNotice=document.createElement('div');
 calibrationNotice.id='calibrationNotice';
 calibrationNotice.setAttribute('role','status');
 calibrationNotice.setAttribute('aria-live','polite');
-calibrationNotice.style.cssText='position:fixed;top:88px;left:50%;transform:translateX(-50%);z-index:99998;background:#102b51;color:white;border:2px solid #6bb4ff;border-radius:9px;padding:11px 18px;max-width:min(90vw,640px);box-shadow:0 5px 18px #0005;font:600 15px Arial;display:none;text-align:center';
+calibrationNotice.style.cssText='position:fixed;bottom:18px;right:18px;z-index:99998;pointer-events:none;background:#102b51;color:white;border:1px solid #6bb4ff;border-radius:7px;padding:7px 10px;max-width:min(80vw,340px);box-shadow:0 3px 10px #0003;font:500 12px/1.35 Arial;display:none;text-align:left';
 document.body.appendChild(calibrationNotice);
 function showCalibrationNotice(message,keep=true){
  calibrationNotice.textContent=message;
