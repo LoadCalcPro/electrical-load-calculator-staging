@@ -3620,8 +3620,8 @@ if(item.kind==='polyline'){
   if(removeButton)removeButton.hidden=true;
   // Arrow and curve controls already appear above in the shared quick controls.
   for(const id of ['polyArrow','polyCurved']){
-   const duplicate=details.querySelector('#'+id)?.closest('label.field');
-   if(duplicate)duplicate.hidden=true;
+   const duplicate=details.querySelector('#'+id)?.closest('label.field, label.poly-rounded-option');
+   if(duplicate)duplicate.remove();
   }
   // Remove any stale empty label/information grouping from prior renders.
   for(const section of p.querySelectorAll('.property-priority')){
