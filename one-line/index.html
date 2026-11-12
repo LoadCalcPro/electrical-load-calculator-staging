@@ -2762,6 +2762,8 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  outline.syncSelectedColor?.();
 }
  const defs=item?[...(item._labelDefs||[])]:[];
+ // Room designation is drawn as roomLabel even when the generic equipment definitions omit it.
+ if(item?.type==='planroom'&&!defs.some(def=>def[0]==='roomLabel'))defs.unshift(['roomLabel','Room designation',item.name||'',12]);
  const existing=p.querySelectorAll('[data-inner-text]:not(.property-priority [data-inner-text])');
  existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
  // Remove the now-empty duplicate text editing section, not the equipment's actual properties.
