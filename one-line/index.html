@@ -3747,15 +3747,19 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
  if(wallAngleControl){
   // Disconnect keeps the native spinner alive by avoiding full SVG rebuilds
   // during input. Apply the same rule to a standalone Plan View wall.
+  const wallLabelSelected=()=>activeInnerKey==='wallLabel'||p.querySelector('.equipment-format-targets')?.value==='label';
   const applyWallAngle=()=>{
    if(wallAngleControl.value===''||!Number.isFinite(Number(wallAngleControl.value)))return;
+   if(wallLabelSelected()){item.textRotations??={};item.textRotations.wallLabel=Number(wallAngleControl.value);return;}
    const next=((Number(wallAngleControl.value)%360)+360)%360;
    const previous=item.wallAngle;
    item.wallAngle=next;
    if(syncPlanWallJoints(item)===false)item.wallAngle=previous;
    else moveAttachedPlanOpenings(item);
   };
-  wallAngleControl.addEventListener('input',()=>{
+  wallAngleControl.addEventListener('input',event=>{
+   event.stopPropagation();
+   if(wallLabelSelected()){applyWallAngle();const label=$('svg')?.querySelector('[data-node="'+item.id+'"] [data-inner-key="wallLabel"]');if(label){const x=Number(item.wallNameX||0)+Number(item.textOffsets?.wallLabel?.x||0),y=Number(item.wallNameY||0)+Number(item.textOffsets?.wallLabel?.y||0);label.setAttribute('transform','rotate('+Number(item.textRotations.wallLabel)+' '+x+' '+y+')');}return;}
    applyWallAngle();
    // Mirror Disconnect: rotate the existing SVG groups directly while the
    // native number spinner retains focus, instead of rebuilding the sheet.
