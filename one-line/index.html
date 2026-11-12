@@ -3471,11 +3471,11 @@ function addDrawingLinePalette(item,kind){
  const group=()=>kind==='line'?(item.groupId!=null?drawnLines.filter(z=>z.groupId===item.groupId):[item]):[];
  let activeLineId=item.id,activeConductor=0,target='line';
  const ids=kind==='line'?group().map(z=>z.id):Array.from({length:Math.max(1,item.colors?.length||1)},(_,i)=>i);
- const targetRow=document.createElement('div');targetRow.className='equipment-format-targets';targetRow.style.cssText='display:flex;gap:6px;margin:8px 0';
+ const targetRow=document.createElement('div');targetRow.className='equipment-format-targets';targetRow.style.cssText='display:flex;gap:14px;margin:8px 0 16px';
  const buttons={};
  for(const [value,title] of [['line',kind==='line'?'Line outline':'Polyline outline'],['label','Selected line label']]){
   const button=document.createElement('button');button.type='button';button.textContent=title;button.dataset.formatTarget=value;
-  button.style.cssText='flex:1;min-width:0;padding:7px;border:1px solid #b8cbe3;border-radius:8px';
+  button.style.cssText='flex:1;min-width:0;min-height:88px;padding:9px 7px;border:1px solid #b8cbe3;border-radius:12px;background:#fff;color:#526b89;font:inherit;font-weight:600;cursor:pointer;';
   button.onclick=()=>{if(button.disabled)return;target=value;sync();};
   buttons[value]=button;targetRow.appendChild(button);
  }
@@ -3492,13 +3492,13 @@ function addDrawingLinePalette(item,kind){
  const setHighlight=v=>{if(target!=='label'||!item.label)return;item.highlight=v;renderCanvasOnly();};
  const palette=makeColorRows(root,currentColor,setColor,currentHighlight,setHighlight,{colorLabel:'Color'});
  const fields=document.createElement('div');fields.className='shared-text-grid';
- fields.innerHTML='<label class="field">Label size<input type="number" min="6" max="72" data-line-format="labelFontSize"></label><label class="field">Label style<select data-line-format="labelStyle"><option value="normal">Normal</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Label X offset<input type="number" step="1" data-line-format="labelDX"></label><label class="field">Label Y offset<input type="number" step="1" data-line-format="labelDY"></label><label class="field">Label rotation<input type="number" step="1" data-line-format="labelAngle"></label>'+(kind==='line'?'<label class="field">Line rotation<input id="lineExactAngle" type="number" min="-360" max="360" step="1"></label>':'');
+ fields.innerHTML='<label class="field">Font size<input type="number" min="6" max="72" data-line-format="labelFontSize"></label><label class="field">Style<select data-line-format="labelStyle"><option value="normal">Regular</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Horizontal Offset<input type="number" step="1" data-line-format="labelDX"></label><label class="field">Vertical Offset<input type="number" step="1" data-line-format="labelDY"></label>'+(kind==='line'?'<label class="field" style="grid-column:1/-1">Rotation (degrees)<input id="lineExactAngle" type="number" min="-360" max="360" step="1"></label>':'<label class="field" style="grid-column:1/-1">Rotation (degrees)<input type="number" step="1" data-line-format="labelAngle"></label>');
  root.appendChild(fields);
  if(kind==='line'&&drawingView==='plan'){
   const measurement=document.createElement('div');
   measurement.className='shared-text-grid';
   measurement.innerHTML='<label class="field">Line length — Feet<input type="number" min="0" step="1" data-line-feet></label><label class="field">Inches<input type="number" min="0" max="11.999" step="0.125" data-line-inches></label>';
-  fields.prepend(measurement);
+  fields.after(measurement);
   const feet=measurement.querySelector('[data-line-feet]'),inches=measurement.querySelector('[data-line-inches]');
   const refresh=()=>{const length=Math.hypot(item.x2-item.x1,item.y2-item.y1)/planUnitsPerInch();feet.value=Math.floor(length/12);inches.value=+(length%12).toFixed(3);};
   refresh();
@@ -3509,15 +3509,22 @@ function addDrawingLinePalette(item,kind){
   const lineRotation=fields.querySelector('#lineExactAngle');
   if(lineRotation){
    lineRotation.value=(Math.atan2(item.y2-item.y1,item.x2-item.x1)*180/Math.PI).toFixed(1);
-   lineRotation.addEventListener('change',()=>{
-    const angle=Number(lineRotation.value);if(!Number.isFinite(angle))return;
+   lineRotation.addEventListener('input',()=>{
+    if(lineRotation.value==='')return;const angle=Number(lineRotation.value);if(!Number.isFinite(angle))return;
+    if(target==='label'){item.labelAngle=angle;renderCanvasOnly();return;}
     const members=item.groupId!=null?drawnLines.filter(l=>l.groupId===item.groupId):[item];
     const delta=angle*Math.PI/180-Math.atan2(item.y2-item.y1,item.x2-item.x1);
     const cx=(item.x1+item.x2)/2,cy=(item.y1+item.y2)/2,c=Math.cos(delta),si=Math.sin(delta);
     for(const line of members)for(const k of ['1','2']){const dx=line['x'+k]-cx,dy=line['y'+k]-cy;line['x'+k]=cx+dx*c-dy*si;line['y'+k]=cy+dx*si+dy*c;}
-    render();
+    renderCanvasOnly();
    });
   }
+ }
+ if(kind==='line'){
+  const rotationField=fields.querySelector('#lineExactAngle');
+  const syncRotation=()=>{if(!rotationField||document.activeElement===rotationField)return;rotationField.value=target==='label'?String(Number(item.labelAngle)||0):(Math.atan2(item.y2-item.y1,item.x2-item.x1)*180/Math.PI).toFixed(1);};
+  buttons.line.addEventListener('click',syncRotation);buttons.label.addEventListener('click',syncRotation);
+  rotationField.addEventListener('blur',syncRotation);
  }
  for(const el of fields.querySelectorAll('[data-line-format]')){const key=el.dataset.lineFormat;el.value=item[key]??(key==='labelFontSize'?12:key==='labelStyle'?'normal':0);el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{if(el.value==='')return;item[key]=key==='labelStyle'?el.value:key==='labelFontSize'?normalizeDrawingPropertyNumber(el.value,12,4,72):Number(el.value);renderCanvasOnly();});}
  if(kind==='polyroute'&&item.kind==='polyline'){
@@ -3536,6 +3543,11 @@ function addDrawingLinePalette(item,kind){
   for(const [key,button] of Object.entries(buttons)){const active=target===key;button.setAttribute('aria-pressed',String(active));button.style.background=active?'#d9edf5':'#fff';}
   conductorButtons.forEach(button=>{const active=Number(button.dataset.conductorTarget)===(kind==='line'?activeLineId:activeConductor);button.setAttribute('aria-pressed',String(active));button.style.background=active?'#d9edf5':'#fff';});
   root.querySelector('.shared-selected-label').textContent='Selected: '+(kind==='line'?'Line':'Polyline')+(ids.length>1?' L'+(ids.indexOf(kind==='line'?activeLineId:activeConductor)+1):'');
+  if(kind==='line'){
+   const rotationField=fields.querySelector('#lineExactAngle');
+   if(rotationField&&document.activeElement!==rotationField)rotationField.value=target==='label'?String(Number(item.labelAngle)||0):(Math.atan2(item.y2-item.y1,item.x2-item.x1)*180/Math.PI).toFixed(1);
+   for(const el of fields.querySelectorAll('[data-line-format]')){const key=el.dataset.lineFormat;el.disabled=target==='line';if(target==='label')el.value=item[key]??(key==='labelFontSize'?12:key==='labelStyle'?'normal':0);}
+  }
   if(typeof palette==='function')palette();
  }
  inspector.syncLineColor=sync;
