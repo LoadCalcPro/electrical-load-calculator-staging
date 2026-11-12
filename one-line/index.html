@@ -1693,7 +1693,7 @@ svgPrecision.addEventListener('pointerdown',e=>{
  const p=precisionPoint&&e.shiftKey?precisionPoint:xy(e);
  if(!precisionMeasure.start){precisionMeasure.start=p;$('status').textContent='Measure: select the second point.';return}
  const distance=Math.hypot(p.x-precisionMeasure.start.x,p.y-precisionMeasure.start.y);
- const units=planUnitsPerInch();
+ const units=calibratedUnitsPerInch(calibrationTarget());
  if(!(units>0)){$('status').textContent='No valid Plan View scale. Calibrate the imported drawing first.'}
  else{
   const inches=distance/units;
@@ -1789,6 +1789,14 @@ $('verifyBackgroundCalibration').addEventListener('click',()=>{
  $('calibrationControls').hidden=true;$('calibrateBackground').setAttribute('aria-expanded','false');svgPrecision.classList.add('precision-pick');
  showCalibrationNotice('Verification: select the two endpoints of a DIFFERENT known dimension. The drawing will not be resized.');
 });
+function calibratedUnitsPerInch(im){
+ const ref=im?.calibrationReference;
+ if(ref?.unitsPerInch>0&&ref?.widthAtCalibration>0&&im.w>0){
+  return ref.unitsPerInch*(im.w/ref.widthAtCalibration);
+ }
+ // Legacy calibrated files were already physically resized to Plan View scale.
+ return planUnitsPerInch();
+}
 function calibrationTarget(){
  const selectedImage=selected?.kind==='personalImage'?personalImages.find(v=>v.kind===selected.id):null;
  if(selectedImage&&selectedImage.kind!=='logo'&&selectedImage.kind!=='sign')return selectedImage;
@@ -1830,7 +1838,7 @@ $('svg').addEventListener('pointerdown',e=>{
  const expected=cal.inches*planUnitsPerInch();
  if(mode==='verify-background'){
   if(im&&im.calibrationReference&&measured>1&&expected>0){
-   const actualInches=measured/planUnitsPerInch(),difference=actualInches-cal.inches,percent=100*difference/cal.inches;
+   const actualInches=measured/calibratedUnitsPerInch(im),difference=actualInches-cal.inches,percent=100*difference/cal.inches;
    im.calibrationVerification={referenceInches:cal.inches,measuredInches:actualInches,differenceInches:difference,percentDifference:percent};
    const message='Calibration verified against second reference (not guaranteed exact): measured '+actualInches.toFixed(2)+' in vs known '+cal.inches.toFixed(2)+' in; difference '+(difference>=0?'+':'')+difference.toFixed(2)+' in ('+(percent>=0?'+':'')+percent.toFixed(2)+'%).';
    $('status').textContent=message;$('calibrationResult').textContent=message;
@@ -1838,15 +1846,13 @@ $('svg').addEventListener('pointerdown',e=>{
   showCalibrationNotice($('status').textContent);backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';render();return;
  }
  if(im&&measured>1&&expected>0){
-  const ratio=expected/measured;
-  previousBackgroundResize={kind:im.kind,geometry:{x:im.x,y:im.y,w:im.w,h:im.h}};
-  const oldX=im.x,oldY=im.y;
-  im.calibrationReference={knownInches:cal.inches,scaleFactor:ratio};delete im.calibrationVerification;
-  im.w*=ratio;im.h*=ratio;
-  im.x=cal.start.x+(oldX-cal.start.x)*ratio;
-  im.y=cal.start.y+(oldY-cal.start.y)*ratio;
-  $('status').textContent='Calibrated — Approximate Scale. Reference '+cal.inches+' inches; drawing geometry unchanged. Verify critical dimensions.';
-  $('calibrationResult').textContent='Calibrated — Approximate Scale. Reference '+conduitFeetInches(cal.inches)+'. Background resized '+(ratio*100).toFixed(1)+'%. Additional verification: Not performed. Measurements are estimates; verify critical dimensions.';
+  // Store the measurement conversion on the imported image, not its geometry.
+  // widthAtCalibration lets a later uniform fit/resize preserve the scale ratio.
+  im.calibrationReference={knownInches:cal.inches,unitsPerInch:measured/cal.inches,widthAtCalibration:im.w};
+  delete im.calibrationVerification;
+  previousBackgroundResize=null;
+  $('status').textContent='Calibrated — Approximate Scale. Reference '+cal.inches+' inches; imported drawing size unchanged.';
+  $('calibrationResult').textContent='Calibrated — Approximate Scale. Reference '+conduitFeetInches(cal.inches)+'. No background resize. Additional verification: Not performed. Measurements are estimates; verify critical dimensions.';
  }else $('status').textContent='Calibration requires two distinct points on an imported background.';
  showCalibrationNotice($('status').textContent);backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';render();
 },true);
