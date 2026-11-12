@@ -2585,7 +2585,7 @@ function selectEquipmentTarget(id,key=null){
 }
 // Keep formatting selection stable while clicking controls, but never let
 // a stale text key carry over to a different equipment item.
-function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[0]),'drawingLabel']:[];}
+function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[0]),...(item.type==='planroom'?['roomLabel']:[]),'drawingLabel']:[];}
 function activateEquipmentText(item,key){
  if(!item||!equipmentTextKeys(item).includes(key))return false;
  selectEquipmentTarget(item.id,key);
