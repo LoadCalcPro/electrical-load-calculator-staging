@@ -3614,7 +3614,10 @@ if(item.kind==='polyline'){
   const controls=[...p.children].filter(el=>el!==labelInput&&el!==labelGrid&&el!==offsets);
   for(const el of controls)details.appendChild(el);
   editor.appendChild(details);
-  if(labelInput){labelInput.style.marginTop='12px';editor.appendChild(labelInput);}
+  // The label is already editable through the unified label controls above.
+  if(labelInput)labelInput.hidden=true;
+  const removeButton=details.querySelector('#polyRemove');
+  if(removeButton)removeButton.hidden=true;
  }
 }
 if(selected.kind==='polyroute'&&item.planConduit){const c=item.planConduit;const run=aboveConduitLength(item.points)/planUnitsPerInch();const section=document.createElement('section');section.className='field';section.innerHTML='<b>Above-Ground Conduit — EMT</b><label class="field">Conduit ID<input data-above-field="designation"></label><label class="field">Trade size (inches)<input data-above-field="diameter" list="aboveConduitSizes"></label><datalist id="aboveConduitSizes"><option value="½"><option value="¾"><option value="1"><option value="1¼"><option value="1½"><option value="2"><option value="2½"><option value="3"><option value="4"></datalist><label class="field">Material / Type<input data-above-field="material"></label><label class="field">Start rise (inches)<input type="number" min="0" step=".125" data-above-field="riseA"></label><label class="field">End rise (inches)<input type="number" min="0" step=".125" data-above-field="riseB"></label><label class="field">Bend allowance (inches)<input type="number" min="0" step=".125" data-above-field="allowance"></label><p class="status">Plan route: '+conduitFeetInches(run)+'; estimated total: '+conduitFeetInches(run+(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0))+'. Drag the teal vertex handles to adjust 90° bends. Lengths depend on drawing calibration; bend allowances are entered separately.</p>';p.prepend(section);section.querySelectorAll('[data-above-field]').forEach(el=>{const key=el.dataset.aboveField;el.value=c[key]??'';el.onchange=()=>{c[key]=el.type==='number'?Math.max(0,Number(el.value)||0):el.value;if(key==='designation')item.label=c[key];render();};});}
