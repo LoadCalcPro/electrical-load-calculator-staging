@@ -2821,7 +2821,12 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   if(rotationInput){rotationInput.classList.add('shared-rotation-input');rotationInput.step='1';rotationInput.style.setProperty('appearance','auto','important');rotationInput.style.setProperty('-webkit-appearance','auto','important');rotationInput.classList.add('persistent-native-rotation-spinner');rotationInput.addEventListener('input',event=>{event.stopPropagation();if(selected?.kind!=='node'||selected.id!==item.id||rotationInput.value==='')return;const angle=Number(rotationInput.value);if(!Number.isFinite(angle))return;const rotationTarget=common.querySelector('.equipment-format-targets')?.value;const rotationTextKey=rotationTarget==='outline'?null:rotationTarget==='label'?(item.type==='planwall'?'wallLabel':item.type==='planroom'?'roomLabel':activeInnerKey):activeInnerKey;if(rotationTextKey){if(rotationTextKey==='drawingLabel')item.drawingLabelRotation=angle;else{item.textRotations??={};item.textRotations[rotationTextKey]=angle;}renderCanvasOnly();return;}if(item.type==='planwall'){const previous=item.wallAngle;item.wallAngle=((angle%360)+360)%360;if(syncPlanWallJoints(item)===false)item.wallAngle=previous;else moveAttachedPlanOpenings(item);}else item.drawingRotation=angle;
    // Update the selected equipment SVG directly while the number spinner is held.
    // Rebuilding the SVG on each spinner input interrupts native repeated stepping.
-   if(!activeInnerKey&&item.type!=='planwall'){
+   if(!activeInnerKey&&item.type==='planroom'){
+    // Room outlines must redraw their complete geometry and selection after
+    // switching back from room-label formatting; a symbol-only transform
+    // leaves the room-specific outline/selection in the previous state.
+    renderCanvasOnly();
+   }else if(!activeInnerKey&&item.type!=='planwall'){
     const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
     const transform='rotate('+(Number(item.drawingRotation)||0)+') scale('+(Number(item.scaleX)||1)+' '+(Number(item.scaleY)||1)+')';
     node?.querySelector('.equipment-symbol')?.setAttribute('transform',transform);
