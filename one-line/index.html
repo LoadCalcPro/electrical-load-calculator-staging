@@ -3576,7 +3576,7 @@ function addDrawingLinePalette(item,kind){
  }
  function sync(){
   if(!root.isConnected)return;
-  buttons.label.disabled=kind!=='line'&&!item.label?.trim();if(buttons.label.disabled&&target==='label')target='line';
+  buttons.label.disabled=kind==='line'?false:kind==='polyroute'?false:!item.label?.trim();if(buttons.label.disabled&&target==='label')target='line';
   for(const [key,button] of Object.entries(buttons)){const active=target===key;button.setAttribute('aria-pressed',String(active));button.style.background=active?'#d9edf5':'#fff';}
   conductorButtons.forEach(button=>{const active=Number(button.dataset.conductorTarget)===(kind==='line'?activeLineId:activeConductor);button.setAttribute('aria-pressed',String(active));button.style.background=active?'#d9edf5':'#fff';});
   root.querySelector('.shared-selected-label').textContent='Selected: '+(kind==='line'?'Line':'Polyline')+(ids.length>1?' L'+(ids.indexOf(kind==='line'?activeLineId:activeConductor)+1):'');
