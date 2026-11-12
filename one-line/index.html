@@ -2757,7 +2757,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
 
  if(item&&defs.length){
   // Do not silently select the first label when the user selected the enclosure.
-  if(activeInnerKey!==null&&!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=null;
+  if(activeInnerKey!==null&&activeInnerKey!=='drawingLabel'&&!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=null;
   const editor=document.createElement('div');editor.className='shared-text-editor equipment-text-editor';
   editor.innerHTML=sharedEquipmentTextEditorMarkup();
   // Every equipment text part is selectable from one list, regardless of
