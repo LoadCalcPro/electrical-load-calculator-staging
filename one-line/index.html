@@ -3817,6 +3817,45 @@ function commitMeasuredDimension(node,key,inches){
 // keystroke or again on focusout. Other equipment handlers are unaffected.
 let roomPropertiesUpdateInProgress=false;
 function bindRoomDimensionInputs(){}
+// Keep Room Properties attached to the selected room, even when a PDF is behind it.
+// Handle these controls once in capture phase; legacy per-control listeners must not
+// re-enter the inspector or apply a second, conflicting update.
+function commitSelectedRoomControl(e){
+ const control=e.target;
+ if(!control?.matches?.('[data-room-dim],[data-room-label-visible],[data-room-wall],[data-room-wall-custom],[data-weight-style],[data-weight-value],[data-equipment-pattern],[data-installation-status],[data-equipment-fill]'))return;
+ if(!control.closest('#properties'))return;
+ const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
+ if(!room)return;
+ if(e.type==='input'&&!control.matches('[data-weight-value]'))return;
+ if(e.type==='change'&&control.matches('[data-weight-value]'))return;
+ e.stopImmediatePropagation();
+ if(control.matches('[data-room-dim],[data-room-label-visible]')){updateSelectedRoomProperty(control);return;}
+ if(control.matches('[data-room-wall]')){
+  const custom=control.closest('#properties')?.querySelector('[data-room-wall-custom]');
+  if(custom)custom.style.display=control.value==='custom'?'':'none';
+  if(control.value==='custom'){custom?.focus();return;}
+  room.wallInches=Number(control.value);
+ }else if(control.matches('[data-room-wall-custom]')){
+  const v=Number(control.value);if(!Number.isFinite(v)||v<0)return;room.wallInches=v;
+ }else if(control.matches('[data-weight-style]')){
+  room.lineStyle=control.value;
+  const thickness=control.closest('#properties')?.querySelector('[data-weight-value]');
+  if(thickness)thickness.disabled=control.value!=='custom';
+ }else if(control.matches('[data-weight-value]')){
+  const v=Number(control.value);if(!Number.isFinite(v)||v<=0)return;
+  room.lineWeight=normalizeDrawingPropertyNumber(v,1,.4,8);
+ }else if(control.matches('[data-equipment-pattern]')){
+  room.strokePattern=control.value;room.dashed=control.value==='dashed';
+ }else if(control.matches('[data-installation-status]')){
+  room.installationStatus=control.value;
+ }else if(control.matches('[data-equipment-fill]')){
+  room.fillMode=control.value;
+ }else return;
+ roomPropertiesUpdateInProgress=true;
+ try{renderCanvasOnly();}finally{roomPropertiesUpdateInProgress=false;}
+}
+document.addEventListener('change',commitSelectedRoomControl,true);
+document.addEventListener('input',commitSelectedRoomControl,true);
 function updateSelectedRoomProperty(target){
  if(!target?.matches?.('[data-room-dim],[data-room-label-visible]'))return;
  const room=selected?.kind==='node'?nodes.find(n=>n.id===selected.id&&n.type==='planroom'):null;
