@@ -2825,7 +2825,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
     const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
     const transform='rotate('+(Number(item.drawingRotation)||0)+') scale('+(Number(item.scaleX)||1)+' '+(Number(item.scaleY)||1)+')';
     node?.querySelector('.equipment-symbol')?.setAttribute('transform',transform);
-    const selection=node?.querySelector('[data-equipment-selection-rotation]');
+    const selection=node?.querySelector('[data-equipment-selection-rotation]')||node?.querySelector('[data-resize="'+item.id+'"]')?.parentElement;
     if(selection)selection.setAttribute('transform',transform);
    }else renderCanvasOnly();
   });
