@@ -2822,10 +2822,15 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    // Update the selected equipment SVG directly while the number spinner is held.
    // Rebuilding the SVG on each spinner input interrupts native repeated stepping.
    if(!activeInnerKey&&item.type==='planroom'){
-    // Room outlines must redraw their complete geometry and selection after
-    // switching back from room-label formatting; a symbol-only transform
-    // leaves the room-specific outline/selection in the previous state.
-    renderCanvasOnly();
+    // Keep the native spinner mounted during repeated arrow presses. Rotate
+    // the room symbol, hit area and selection together, then redraw on blur.
+    const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
+    const transform='rotate('+(Number(item.drawingRotation)||0)+') scale('+(Number(item.scaleX)||1)+' '+(Number(item.scaleY)||1)+')';
+    node?.querySelector('.equipment-symbol')?.setAttribute('transform',transform);
+    const hit=node?.firstElementChild;
+    if(hit?.tagName?.toLowerCase()==='g')hit.setAttribute('transform',transform);
+    const selection=node?.querySelector('[data-equipment-selection-rotation]');
+    if(selection)selection.setAttribute('transform',transform);
    }else if(!activeInnerKey&&item.type!=='planwall'){
     const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
     const transform='rotate('+(Number(item.drawingRotation)||0)+') scale('+(Number(item.scaleX)||1)+' '+(Number(item.scaleY)||1)+')';
