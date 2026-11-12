@@ -3747,7 +3747,7 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
  if(wallAngleControl){
   // Disconnect keeps the native spinner alive by avoiding full SVG rebuilds
   // during input. Apply the same rule to a standalone Plan View wall.
-  const wallLabelSelected=()=>activeInnerKey==='wallLabel'||p.querySelector('.equipment-format-targets')?.value==='label';
+  const wallLabelSelected=()=>{const target=p.querySelector('.equipment-format-targets');return target?target.value==='label':activeInnerKey==='wallLabel';};
   const applyWallAngle=()=>{
    if(wallAngleControl.value===''||!Number.isFinite(Number(wallAngleControl.value)))return;
    if(wallLabelSelected()){item.textRotations??={};item.textRotations.wallLabel=Number(wallAngleControl.value);return;}
