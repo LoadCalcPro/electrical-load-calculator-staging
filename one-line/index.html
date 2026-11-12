@@ -2733,7 +2733,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    nameInput.setAttribute('aria-label','Equipment designation');
    const selectDesignationLabel=()=>{
     if(selected?.kind!=='node'||selected.id!==item.id)return;
-    const key=equipmentTextKeyForControl(nameInput,item._labelDefs||[]);
+    const key=item.type==='planwall'?'wallLabel':equipmentTextKeyForControl(nameInput,item._labelDefs||[]);
     if(!key)return;
     // Match the Disconnect label target without simulating a button click,
     // which can shift focus away from the text field.
