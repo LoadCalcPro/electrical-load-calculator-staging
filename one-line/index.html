@@ -3313,43 +3313,30 @@ function renderLinearLightDimensions(){
   field.appendChild(pair);section.appendChild(field);
  }
  p.appendChild(section);
-
- // Input handling is delegated below so it survives selection and Properties refreshes.
-
-}
-// Single source of truth for Linear Light dimension edits, including spinner arrows.
-// Capture phase ensures the model is updated before any other Properties listeners.
-function commitLinearLightDimensionInput(field){
- if(!field?.matches?.('#properties [data-linear-dim]'))return;
- const key=field.dataset.linearDim;
- if(key!=='linearLengthIn'&&key!=='linearWidthIn')return;
- const section=field.closest('.linear-light-dimensions');
- const feet=section?.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
- const inches=section?.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
- const node=nodes.find(n=>String(n.id)===section?.dataset.fixtureId);
- if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light'||!feet||!inches)return;
- if(feet.value===''||inches.value==='')return;
- const ft=Number(feet.value),inch=Number(inches.value),value=ft*12+inch;
- if(!Number.isFinite(value)||ft<0||inch<0||inch>=12||value<=0)return;
- if(Math.abs(Number(node[key]??(key==='linearLengthIn'?48:6))-value)<.0001)return;
- node[key]=value;
- node.scaleX=1;node.scaleY=1;
- clampEquipmentToSheet(node);
- // Update the live SVG immediately, independently of selection or panel refresh.
- const fixture=$('svg')?.querySelector('[data-node="'+node.id+'"]');
- const shape=fixture?.querySelector('rect:not([data-resize])');
- if(shape){
-  const g=linearLightGeometry(node);
-  shape.setAttribute('x',String(-g.halfLength));
-  shape.setAttribute('y',String(-g.halfWidth));
-  shape.setAttribute('width',String(g.halfLength*2));
-  shape.setAttribute('height',String(g.halfWidth*2));
+ // Match the working Wall Properties binding: keep live controls and update
+ // the physical model on input/change without replacing the focused field.
+ for(const key of ['linearLengthIn','linearWidthIn']){
+  const feet=section.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
+  const inches=section.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
+  const commit=()=>{
+   const current=nodes.find(n=>n.id===node.id&&n.type==='plansymbol');
+   if(!current||!feet||!inches||feet.value===''||inches.value==='')return;
+   const ft=Number(feet.value),inch=Number(inches.value),target=ft*12+inch;
+   if(!Number.isFinite(target)||ft<0||inch<0||inch>=12||target<=0)return;
+   if(Math.abs(Number(current[key]??(key==='linearLengthIn'?48:6))-target)<.0001)return;
+   if(commitMeasuredDimension(current,key,target)){
+    renderCanvasOnly();
+    $('status').textContent='Linear Light '+(key==='linearLengthIn'?'length':'width')+': '+ft+' ft '+inch+' in';
+   }
+  };
+  for(const field of [feet,inches]){
+   field.addEventListener('input',commit);
+   field.addEventListener('change',commit);
+   field.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();field.blur();}});
+  }
  }
- renderCanvasOnly();
- $('status').textContent='Linear Light '+(key==='linearLengthIn'?'length':'width')+' updated.';
+
 }
-document.addEventListener('input',e=>commitLinearLightDimensionInput(e.target),true);
-document.addEventListener('change',e=>commitLinearLightDimensionInput(e.target),true);
 function renderPositionSpacingPropertiesRefresh(){
  const inspector=$('textInspector');if(!inspector)return;
  const existing=[...inspector.querySelectorAll('section')].find(section=>section.querySelector('[data-spacing-side]'));
@@ -4304,7 +4291,7 @@ function applyMeasuredPropertiesInput(e){
 // Wall length has its own bound change handler above; do not also process its blur
 // through the global measurement listener (which can interrupt the next click).
 document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]'))return;applyMeasuredPropertiesInput(e);},true);
-document.addEventListener('keydown',e=>{if(false&&e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){e.preventDefault();}},true);
+
 
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
