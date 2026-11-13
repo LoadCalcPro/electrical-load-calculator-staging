@@ -2405,17 +2405,37 @@ function revisionCloudPath(x,y,w,h){const d=['M'+x+' '+y];const edge=(ax,ay,bx,b
 function revisionShapePoints(route){if(route.shape==='cloud'&&Array.isArray(route.cloudPoints)&&route.cloudPoints.length>=3)return route.cloudPoints;const valid=Array.isArray(route.points)&&route.points.length>=2&&route.points[0]&&route.points[1];const a=valid?route.points[0]:{x:0,y:0},b=valid?route.points[1]:{x:100,y:70},x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),r=Math.max(a.x,b.x),bt=Math.max(a.y,b.y);return [{x,y},{x:(x+r)/2,y},{x:r,y},{x:r,y:(y+bt)/2},{x:r,y:bt},{x:(x+r)/2,y:bt},{x,y:bt},{x,y:(y+bt)/2}];}
 function irregularCloudPath(points){if(!points||points.length<3)return '';const d=['M'+points[0].x+' '+points[0].y];let area=0;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length];area+=a.x*b.y-b.x*a.y;}const sign=area>=0?1:-1;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),steps=Math.max(1,Math.round(len/19));for(let j=0;j<steps;j++){const t=(j+.5)/steps,ex=a.x+dx*(j+1)/steps,ey=a.y+dy*(j+1)/steps;d.push('Q'+(a.x+dx*t+sign*dy/Math.max(1,len)*7)+' '+(a.y+dy*t-sign*dx/Math.max(1,len)*7)+' '+ex+' '+ey);}}return d.join(' ')+' Z';}
 function conduitElbowPath(points,radius=12){
- if(!points?.length)return '';let d='M'+points[0].x+' '+points[0].y;
- for(let i=1;i<points.length-1;i++){
-  const a=points[i-1],b=points[i],c=points[i+1],u={x:a.x-b.x,y:a.y-b.y},v={x:c.x-b.x,y:c.y-b.y},la=Math.hypot(u.x,u.y),lb=Math.hypot(v.x,v.y);
-  if(la<.01||lb<.01){d+=' L'+b.x+' '+b.y;continue;}
-  const dot=(u.x*v.x+u.y*v.y)/(la*lb),angle=Math.acos(Math.max(-1,Math.min(1,dot)));
-  if(angle<.1||Math.abs(Math.PI-angle)<.1){d+=' L'+b.x+' '+b.y;continue;}
-  const dist=Math.min(radius,la*.42,lb*.42);
-  const p={x:b.x+u.x/la*dist,y:b.y+u.y/la*dist},q={x:b.x+v.x/lb*dist,y:b.y+v.y/lb*dist};
-  d+=' L'+p.x.toFixed(2)+' '+p.y.toFixed(2)+' Q'+b.x+' '+b.y+' '+q.x.toFixed(2)+' '+q.y.toFixed(2);
+ if(!points?.length)return '';
+ // Normalize redundant click points before calculating elbow tangents.
+ // Tiny segments otherwise shrink the bend radius to almost zero, making
+ // some 90-degree corners appear square while others are rounded.
+ const pts=[];
+ for(const point of points){
+  if(!pts.length||Math.hypot(point.x-pts[pts.length-1].x,point.y-pts[pts.length-1].y)>4)pts.push(point);
  }
- const last=points[points.length-1];return d+' L'+last.x+' '+last.y;
+ if(pts.length===1)return 'M'+pts[0].x+' '+pts[0].y;
+ const clean=[pts[0]];
+ for(let i=1;i<pts.length-1;i++){
+  const a=clean[clean.length-1],p=pts[i],b=pts[i+1];
+  const ux=p.x-a.x,uy=p.y-a.y,vx=b.x-p.x,vy=b.y-p.y;
+  const cross=Math.abs(ux*vy-uy*vx),length=Math.hypot(ux,uy)*Math.hypot(vx,vy);
+  if(length>0&&cross/length<.035&&ux*vx+uy*vy>=0)continue;
+  clean.push(p);
+ }
+ clean.push(pts[pts.length-1]);
+ let d='M'+clean[0].x+' '+clean[0].y;
+ for(let i=1;i<clean.length-1;i++){
+  const a=clean[i-1],p=clean[i],b=clean[i+1];
+  const ux=a.x-p.x,uy=a.y-p.y,vx=b.x-p.x,vy=b.y-p.y;
+  const la=Math.hypot(ux,uy),lb=Math.hypot(vx,vy);
+  if(la<.01||lb<.01){d+=' L'+p.x+' '+p.y;continue;}
+  const dot=(ux*vx+uy*vy)/(la*lb),angle=Math.acos(Math.max(-1,Math.min(1,dot)));
+  if(angle<.08||Math.abs(Math.PI-angle)<.08){d+=' L'+p.x+' '+p.y;continue;}
+  const dist=Math.min(radius,la*.42,lb*.42);
+  d+=' L'+(p.x+ux/la*dist).toFixed(2)+' '+(p.y+uy/la*dist).toFixed(2)+
+     ' Q'+p.x+' '+p.y+' '+(p.x+vx/lb*dist).toFixed(2)+' '+(p.y+vy/lb*dist).toFixed(2);
+ }
+ const last=clean[clean.length-1];return d+' L'+last.x+' '+last.y;
 }
 function roundedControlPath(points){
  if(!points?.length)return '';
