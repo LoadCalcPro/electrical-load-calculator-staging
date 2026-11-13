@@ -920,6 +920,23 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 }
 
 </style><style>
+/* Keep native number steppers available in every Properties panel after redraws. */
+#drawingInspector #properties input[type="number"],
+#drawingInspector #textInspector input[type="number"]{
+ appearance:auto!important;
+ -webkit-appearance:auto!important;
+ -moz-appearance:auto!important;
+}
+#drawingInspector #properties input[type="number"]::-webkit-inner-spin-button,
+#drawingInspector #properties input[type="number"]::-webkit-outer-spin-button,
+#drawingInspector #textInspector input[type="number"]::-webkit-inner-spin-button,
+#drawingInspector #textInspector input[type="number"]::-webkit-outer-spin-button{
+ -webkit-appearance:inner-spin-button!important;
+ appearance:auto!important;
+ opacity:1!important;
+ display:block!important;
+ cursor:pointer;
+}
 /* Keep the built-in rotation spinner visible; do not add separate +/- controls. */
 #textInspector input.persistent-native-rotation-spinner::-webkit-inner-spin-button{opacity:1!important;display:block!important;-webkit-appearance:inner-spin-button!important;}
 #textInspector input.persistent-native-rotation-spinner{appearance:auto!important;-webkit-appearance:auto!important;}
