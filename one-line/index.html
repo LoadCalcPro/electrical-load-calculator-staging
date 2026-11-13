@@ -3384,7 +3384,7 @@ function renderAboveConduitProperties(){
  '<label class="field">Conduit ID<input data-above-conduit="designation"></label>'+
  '<label class="field">Conduit trade size<input data-above-conduit="diameter" list="aboveConduitSizes" placeholder="Select or type a size"></label>'+
  '<datalist id="aboveConduitSizes"><option value="½"><option value="¾"><option value="1"><option value="1¼"><option value="1½"><option value="2"><option value="2½"><option value="3"><option value="3½"><option value="4"><option value="5"><option value="6"></datalist>'+
- '<label class="field">Conduit material / type<input data-above-conduit="material" placeholder="EMT, RMC, PVC, etc."></label>'+
+ '<label class="field">Conduit material / type<select data-above-conduit="material"><option value="EMT">EMT</option><option value="IMC">IMC</option><option value="RMC">RMC</option><option value="PVC">PVC</option><option value="FMC">FMC</option><option value="LFMC">LFMC</option><option value="LFNC">LFNC</option><option value="ENT">ENT</option><option value="RTRC">RTRC</option><option value="custom">Custom / Other</option></select><input data-above-conduit-custom placeholder="Enter conduit type" style="display:none;margin-top:5px"></label>'+
  '<label class="field">Vertical entry at first endpoint (inches)<input type="number" min="0" step=".125" data-above-conduit="riseA"></label>'+
  '<label class="field">Vertical entry at second endpoint (inches)<input type="number" min="0" step=".125" data-above-conduit="riseB"></label>'+
  '<label class="field">Additional bends / allowance (inches)<input type="number" min="0" step=".125" data-above-conduit="allowance"></label>'+
@@ -3395,7 +3395,8 @@ function renderAboveConduitProperties(){
  for(const field of section.querySelectorAll('[data-above-conduit]')){
   const key=field.dataset.aboveConduit;
   field.value=key==='diameter'?(c.diameter?conduitTradeSize(c.diameter).replace(/″$/,''):''):key==='designation'?(c.designation||route.label||''):c[key]??'';
-  field.onchange=()=>{c[key]=field.type==='number'?Math.max(0,Number(field.value)||0):field.value;
+  if(key==='material'){const custom=section.querySelector('[data-above-conduit-custom]');const known=[...field.options].some(o=>o.value===c.material);field.value=known?c.material:'custom';custom.style.display=known?'none':'block';custom.value=known?'':c.material;custom.onchange=()=>{c.material=custom.value;render();};}
+  field.onchange=()=>{c[key]=field.type==='number'?Math.max(0,Number(field.value)||0):field.value;if(key==='material'&&field.value==='custom')c.material=section.querySelector('[data-above-conduit-custom]').value;
    if(key==='designation')route.label=c[key]||'';
    if(key==='diameter'||key==='material')c.size=((c.diameter?conduitTradeSize(c.diameter):'Unspecified size')+' '+(c.material||'')).trim();
    render();};
@@ -3681,14 +3682,14 @@ function props(){const p=$('properties');p.classList.remove('text-leader-propert
  '<label class="field">Line pattern<select id="newConduitPattern"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="dashdot">Dash-dot</option></select></label>'+
  '<label class="field">Conduit trade size<input id="newConduitSize" list="newConduitSizes" placeholder="Select or type a size"></label>'+
  '<datalist id="newConduitSizes"><option value="½"><option value="¾"><option value="1"><option value="1¼"><option value="1½"><option value="2"><option value="2½"><option value="3"><option value="3½"><option value="4"><option value="5"><option value="6"></datalist>'+
- '<label class="field">Conduit material / type<input id="newConduitMaterial"></label>'+
+ '<label class="field">Conduit material / type<select id="newConduitMaterial"><option value="EMT">EMT</option><option value="IMC">IMC</option><option value="RMC">RMC</option><option value="PVC">PVC</option><option value="FMC">FMC</option><option value="LFMC">LFMC</option><option value="LFNC">LFNC</option><option value="ENT">ENT</option><option value="RTRC">RTRC</option><option value="custom">Custom / Other</option></select><input id="newConduitMaterialCustom" placeholder="Enter conduit type" style="display:none;margin-top:5px"></label>'+
  '<label class="field">Vertical entry at first endpoint (inches)<input id="newConduitRiseA" type="number" min="0" step=".125"></label>'+
  '<label class="field">Vertical entry at second endpoint (inches)<input id="newConduitRiseB" type="number" min="0" step=".125"></label>'+
  '<label class="field">Additional bends / allowance (inches)<input id="newConduitAllowance" type="number" min="0" step=".125"></label>'+
  '<p class="status">Conduit ID and measured length are assigned when the run is completed. Select the completed conduit to review its total length.</p>';
  const bind=(id,key,numeric=false)=>{const el=p.querySelector('#'+id);el.value=c[key];el.onchange=()=>{c[key]=numeric?Math.max(0,Number(el.value)||0):el.value;};};
  const rounded=p.querySelector('#newConduitRounded');rounded.checked=c.rounded;rounded.onchange=()=>{c.rounded=rounded.checked;if(activePoly)activePoly.conduitRounded=c.rounded;renderCanvasOnly();};
- bind('newConduitSize','diameter');bind('newConduitMaterial','material');bind('newConduitRiseA','riseA',true);bind('newConduitRiseB','riseB',true);bind('newConduitAllowance','allowance',true);
+ bind('newConduitSize','diameter');const materialSelect=p.querySelector('#newConduitMaterial'),customMaterial=p.querySelector('#newConduitMaterialCustom');materialSelect.value=[...materialSelect.options].some(o=>o.value===c.material)?c.material:'custom';customMaterial.style.display=materialSelect.value==='custom'?'block':'none';customMaterial.value=materialSelect.value==='custom'?c.material:'';materialSelect.onchange=()=>{customMaterial.style.display=materialSelect.value==='custom'?'block':'none';c.material=materialSelect.value==='custom'?customMaterial.value:materialSelect.value;};customMaterial.onchange=()=>{c.material=customMaterial.value;};bind('newConduitRiseA','riseA',true);bind('newConduitRiseB','riseB',true);bind('newConduitAllowance','allowance',true);
  const weight=p.querySelector('#newConduitWeight');weight.value=newDrawingLineWeight;weight.onchange=()=>{newDrawingLineWeight=Math.max(.4,Math.min(8,Number(weight.value)||1));if(activePoly)activePoly.lineWeight=newDrawingLineWeight;};
  const pattern=p.querySelector('#newConduitPattern');pattern.value=newDrawingLinePattern;pattern.onchange=()=>{newDrawingLinePattern=pattern.value;if(activePoly)activePoly.strokePattern=pattern.value;};
  const inspector=$('textInspector');inspector.replaceChildren();const section=document.createElement('details');section.className='equipment-category properties-common';section.open=true;section.innerHTML='<summary>Formatting</summary><div class="shared-text-editor"><div class="shared-selected-label">New Above-Ground Conduit</div></div>';inspector.appendChild(section);
