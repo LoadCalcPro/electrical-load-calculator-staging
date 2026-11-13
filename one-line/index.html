@@ -3926,22 +3926,7 @@ if(selected.kind==='wire'){p.querySelector('[data-parallel-count]')?.addEventLis
   input.focus();
  });
 });
-p.querySelectorAll('[data-voltage-choice]').forEach(sel=>sel.addEventListener('change',()=>{if(!sel.value)return;const input=p.querySelector('[data-prop="'+sel.dataset.voltageChoice+'"]');if(input){input.value=sel.value;input.dispatchEvent(new Event('input',{bubbles:true}));}}));if(['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){p.querySelector('[data-plan-inside-label]')?.addEventListener('input',e=>{item.planInsideLabel=e.target.value;renderCanvasOnly();});p.querySelector('[data-plan-outside-label]')?.addEventListener('input',e=>{item.planOutsideLabel=e.target.value;renderCanvasOnly();});p.querySelector('[data-plan-outside-visible]')?.addEventListener('change',e=>{item.showPlanOutsideLabel=e.target.checked;renderCanvasOnly();});const room=nodes.find(v=>v.type==='planroom');const px=planUnitsPerInch();if(room){item.planOffsetXIn=(item.x-room.x)/px+Number(room.roomLengthIn)/2;item.planOffsetYIn=(item.y-room.y)/px+Number(room.roomWidthIn)/2;}const update=()=>{if(room){item.x=room.x+(Number(item.planOffsetXIn)-Number(room.roomLengthIn)/2)*px;item.y=room.y+(Number(item.planOffsetYIn)-Number(room.roomWidthIn)/2)*px;}const msg=p.querySelector('[data-plan-fit]');if(msg)msg.textContent=!room?'Add a room to establish a drawing scale.':Number(item.planOffsetXIn)+Number(item.planWidthIn)>Number(room.roomLengthIn)||Number(item.planOffsetYIn)+Number(item.planDepthIn)>Number(room.roomWidthIn)?'Warning: footprint extends beyond the inside room dimensions.':'Footprint fits within room dimensions.';renderCanvasOnly();};p.querySelectorAll('[data-plan-measure]').forEach(el=>el.addEventListener('change',()=>{
- const key=el.dataset.planMeasure;
- const feetField=p.querySelector('[data-plan-measure="'+key+'"][data-unit="ft"]');
- const inchesField=p.querySelector('[data-plan-measure="'+key+'"][data-unit="in"]');
- // Match the working Room controls: never interpret a blank field as zero.
- if(!feetField||!inchesField||feetField.value===''||inchesField.value==='')return;
- const ft=Number(feetField.value),inch=Number(inchesField.value);
- if(!Number.isFinite(ft)||!Number.isFinite(inch)||ft<0||inch<0||inch>=12)return;
- const value=ft*12+inch;
- if(!key.startsWith('planOffset')&&value<=0)return;
- if(Math.abs(Number(item[key])-value)<.0001)return;
- item[key]=value;
- // Actual dimensions are authoritative, not compounded with prior manual scaling.
- if(!key.startsWith('planOffset')){item.scaleX=1;item.scaleY=1;}
- update();
-}));}if(item.type==='plandimension'){p.querySelector('[data-dimension-match-wall]')?.addEventListener('click',()=>{const walls=nodes.filter(v=>v.type==='planwall'&&!v.layerHidden);if(!walls.length){$('status').textContent='Add a wall before measuring it.';return;}const wall=walls.reduce((best,v)=>{const angle=(Number(v.wallAngle)||0)*Math.PI/180;const half=Math.max(1,Number(v.wallLengthIn??120))*planUnitsPerInch()/2;const ux=Math.cos(angle),uy=Math.sin(angle);const along=Math.max(-half,Math.min(half,(item.x-v.x)*ux+(item.y-v.y)*uy));const distance=Math.hypot(item.x-(v.x+along*ux),item.y-(v.y+along*uy));return !best||distance<best.distance?{wall:v,distance}:best;},null).wall;item.dimensionWallId=wall.id;item.dimensionWallAlong=0;item.dimensionWallNormal=0;delete item.dimensionWallDx;delete item.dimensionWallDy;item.dimensionLengthIn=Math.max(1,Number(wall.wallLengthIn)||120);item.dimensionAngle=Number(wall.wallAngle)||0;item.x=wall.x;item.y=wall.y;clampEquipmentToSheet(item);render();});for(const [selector,key] of [['[data-dimension-length]','dimensionLengthIn'],['[data-dimension-angle]','dimensionAngle'],['[data-dimension-offset]','dimensionOffset']])p.querySelector(selector)?.addEventListener('input',e=>{const value=Number(e.target.value);if(!Number.isFinite(value))return;item[key]=key==='dimensionLengthIn'?Math.max(1,value):value;if(key!=='dimensionOffset')delete item.dimensionWallId;clampEquipmentToSheet(item);renderCanvasOnly();});}if(item.type==='planwall'){p.querySelector('[data-wall-dimension]')?.addEventListener('change',e=>{item.showWallDimension=e.target.checked;renderCanvasOnly();});
+p.querySelectorAll('[data-voltage-choice]').forEach(sel=>sel.addEventListener('change',()=>{if(!sel.value)return;const input=p.querySelector('[data-prop="'+sel.dataset.voltageChoice+'"]');if(input){input.value=sel.value;input.dispatchEvent(new Event('input',{bubbles:true}));}}));if(['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){p.querySelector('[data-plan-inside-label]')?.addEventListener('input',e=>{item.planInsideLabel=e.target.value;renderCanvasOnly();});p.querySelector('[data-plan-outside-label]')?.addEventListener('input',e=>{item.planOutsideLabel=e.target.value;renderCanvasOnly();});p.querySelector('[data-plan-outside-visible]')?.addEventListener('change',e=>{item.showPlanOutsideLabel=e.target.checked;renderCanvasOnly();});const room=nodes.find(v=>v.type==='planroom');const px=planUnitsPerInch();if(room){item.planOffsetXIn=(item.x-room.x)/px+Number(room.roomLengthIn)/2;item.planOffsetYIn=(item.y-room.y)/px+Number(room.roomWidthIn)/2;}const update=()=>{if(room){item.x=room.x+(Number(item.planOffsetXIn)-Number(room.roomLengthIn)/2)*px;item.y=room.y+(Number(item.planOffsetYIn)-Number(room.roomWidthIn)/2)*px;}const msg=p.querySelector('[data-plan-fit]');if(msg)msg.textContent=!room?'Add a room to establish a drawing scale.':Number(item.planOffsetXIn)+Number(item.planWidthIn)>Number(room.roomLengthIn)||Number(item.planOffsetYIn)+Number(item.planDepthIn)>Number(room.roomWidthIn)?'Warning: footprint extends beyond the inside room dimensions.':'Footprint fits within room dimensions.';renderCanvasOnly();};}if(item.type==='plandimension'){p.querySelector('[data-dimension-match-wall]')?.addEventListener('click',()=>{const walls=nodes.filter(v=>v.type==='planwall'&&!v.layerHidden);if(!walls.length){$('status').textContent='Add a wall before measuring it.';return;}const wall=walls.reduce((best,v)=>{const angle=(Number(v.wallAngle)||0)*Math.PI/180;const half=Math.max(1,Number(v.wallLengthIn??120))*planUnitsPerInch()/2;const ux=Math.cos(angle),uy=Math.sin(angle);const along=Math.max(-half,Math.min(half,(item.x-v.x)*ux+(item.y-v.y)*uy));const distance=Math.hypot(item.x-(v.x+along*ux),item.y-(v.y+along*uy));return !best||distance<best.distance?{wall:v,distance}:best;},null).wall;item.dimensionWallId=wall.id;item.dimensionWallAlong=0;item.dimensionWallNormal=0;delete item.dimensionWallDx;delete item.dimensionWallDy;item.dimensionLengthIn=Math.max(1,Number(wall.wallLengthIn)||120);item.dimensionAngle=Number(wall.wallAngle)||0;item.x=wall.x;item.y=wall.y;clampEquipmentToSheet(item);render();});for(const [selector,key] of [['[data-dimension-length]','dimensionLengthIn'],['[data-dimension-angle]','dimensionAngle'],['[data-dimension-offset]','dimensionOffset']])p.querySelector(selector)?.addEventListener('input',e=>{const value=Number(e.target.value);if(!Number.isFinite(value))return;item[key]=key==='dimensionLengthIn'?Math.max(1,value):value;if(key!=='dimensionOffset')delete item.dimensionWallId;clampEquipmentToSheet(item);renderCanvasOnly();});}if(item.type==='planwall'){p.querySelector('[data-wall-dimension]')?.addEventListener('change',e=>{item.showWallDimension=e.target.checked;renderCanvasOnly();});
 // Bind Wall Length directly to this wall's ID, like the working Room fields.
 // The controls may be moved during Properties layout, so retain the live elements.
  const wallFeet=p.querySelector('[data-wall-feet]'),wallInches=p.querySelector('[data-wall-inches]');
@@ -4135,6 +4120,34 @@ function updateSelectedRoomProperty(target){
  try{renderCanvasOnly();}finally{roomPropertiesUpdateInProgress=false;}
  $('status').textContent='Room '+(key==='roomLengthIn'?'length':'width')+' updated.';
 }
+// Use the same delegated, capture-phase commit pattern as Room dimensions.
+// The Properties panel may be rebuilt while editing, so listeners attached
+// directly to individual fields are not reliable.
+document.addEventListener('change',e=>{
+ const field=e.target;
+ if(!field?.matches?.('[data-plan-measure]')||selected?.kind!=='node')return;
+ const node=nodes.find(n=>n.id===selected.id);
+ if(!node||!['planpanel','plantransformer','plangenerator','planclearance'].includes(node.type))return;
+ const key=field.dataset.planMeasure;
+ if(!['planWidthIn','planDepthIn','planOffsetXIn','planOffsetYIn'].includes(key))return;
+ const host=field.closest('#properties')||document;
+ const feet=host.querySelector('[data-plan-measure="'+key+'"][data-unit="ft"]');
+ const inches=host.querySelector('[data-plan-measure="'+key+'"][data-unit="in"]');
+ if(!feet||!inches||feet.value===''||inches.value==='')return;
+ const ft=Number(feet.value),inch=Number(inches.value);
+ if(!Number.isFinite(ft)||!Number.isFinite(inch)||ft<0||inch<0||inch>=12)return;
+ const value=ft*12+inch;
+ if(!key.startsWith('planOffset')&&value<=0)return;
+ if(Math.abs(Number(node[key])-value)<.0001)return;
+ node[key]=value;
+ if(key.startsWith('planOffset')){
+  const room=nodes.find(n=>n.type==='planroom');
+  if(room){const px=planUnitsPerInch();node.x=room.x+(Number(node.planOffsetXIn)-Number(room.roomLengthIn)/2)*px;node.y=room.y+(Number(node.planOffsetYIn)-Number(room.roomWidthIn)/2)*px;}
+ }else{node.scaleX=1;node.scaleY=1;}
+ clampEquipmentToSheet(node);
+ renderCanvasOnly();
+ $('status').textContent='Equipment '+(key==='planWidthIn'?'width':key==='planDepthIn'?'depth':'location')+' updated.';
+},true);
 // Change is the single commit point; Enter commits via blur. No input/focusout
 // duplicate redraws, which previously caused the inspector to appear frozen.
 document.addEventListener('change',e=>{
