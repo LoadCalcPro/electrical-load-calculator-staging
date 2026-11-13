@@ -3292,9 +3292,36 @@ function renderLinearLightDimensions(){
  if(!p||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);
  if(node?.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
- // Reuse the ORIGINAL dimension fields in the equipment section. Do not append
- // a second section below Panel/Circuit Number and Description.
- p.querySelectorAll('.linear-light-dimensions').forEach(section=>section.remove());
+ // Keep the original position but replace its controls with the proven working
+ // self-contained dimension section. Never leave a second section at the bottom.
+ const original=p.querySelector('[data-linear-dim]')?.closest('label.field');
+ const anchor=original?.previousElementSibling?.matches('.field')?original.previousElementSibling:original;
+ if(!anchor)return;
+ const section=document.createElement('section');
+ section.className='linear-light-dimensions';
+ section.style.cssText='width:100%;min-width:0;box-sizing:border-box;margin:0;padding:0';
+ for(const [key,label,defaultValue] of [['linearLengthIn','Length',48],['linearWidthIn','Width',6]]){
+  const v=Math.max(1,Number(node[key]??defaultValue));
+  const field=document.createElement('label');
+  field.className='field';
+  field.style.cssText='display:block;width:100%;margin:0 0 10px;box-sizing:border-box';
+  const caption=document.createElement('span');caption.textContent=label;field.appendChild(caption);
+  const pair=document.createElement('div');
+  pair.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:6px';
+  for(const [unit,value,unitLabel] of [['ft',Math.floor(v/12),'Feet'],['in',+(v%12).toFixed(3),'Inches']]){
+   const wrap=document.createElement('label');wrap.style.cssText='display:flex;flex-direction:column;gap:3px;min-width:0';
+   const small=document.createElement('small');small.textContent=unitLabel;
+   const input=document.createElement('input');input.type='number';input.min='0';input.step=unit==='ft'?'1':'0.125';
+   input.value=String(value);input.dataset.linearDim=key;input.dataset.unit=unit;
+   input.style.cssText='box-sizing:border-box;width:100%;min-width:0';
+   wrap.append(small,input);pair.append(wrap);
+  }
+  field.append(pair);section.append(field);
+ }
+ anchor.parentNode.insertBefore(section,anchor.nextSibling);
+ // Remove the old nonworking Length/Width controls, wherever reorganization placed them.
+ [...p.querySelectorAll('[data-linear-dim]')].filter(el=>!section.contains(el)).forEach(el=>el.closest('label.field')?.remove());
+ p.querySelectorAll('.linear-light-dimensions').forEach(el=>{if(el!==section)el.remove();});
  for(const key of ['linearLengthIn','linearWidthIn']){
   const feet=p.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
   const inches=p.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
