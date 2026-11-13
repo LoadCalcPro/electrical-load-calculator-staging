@@ -3312,6 +3312,24 @@ function renderLinearLightDimensions(){
   field.appendChild(pair);section.appendChild(field);
  }
  p.appendChild(section);
+ // Mirror the working Wall dimension controls: bind to the actual node ID,
+ // update on input without rebuilding the Properties panel or losing focus.
+ for(const key of ['linearLengthIn','linearWidthIn']){
+  const feet=section.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
+  const inches=section.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
+  const commit=()=>{
+   const current=nodes.find(n=>n.id===node.id&&n.type==='plansymbol');
+   if(!current||!feet||!inches||feet.value===''||inches.value==='')return;
+   const ft=Number(feet.value),inch=Number(inches.value);
+   if(!Number.isFinite(ft)||!Number.isFinite(inch)||ft<0||inch<0||inch>=12||ft*12+inch<=0)return;
+   if(commitMeasuredDimension(current,key,ft*12+inch))renderCanvasOnly();
+  };
+  for(const field of [feet,inches]){
+   field.addEventListener('input',commit);
+   field.addEventListener('change',commit);
+   field.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();field.blur();}});
+  }
+ }
 }
 function renderPositionSpacingPropertiesRefresh(){
  const inspector=$('textInspector');if(!inspector)return;
@@ -4266,8 +4284,8 @@ function applyMeasuredPropertiesInput(e){
 // Commit on change/Enter rather than on every digit so feet/inches can be typed safely.
 // Wall length has its own bound change handler above; do not also process its blur
 // through the global measurement listener (which can interrupt the next click).
-document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))return;applyMeasuredPropertiesInput(e);},true);
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){e.preventDefault();applyMeasuredPropertiesInput(e);e.target.blur();}},true);
+document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]'))return;applyMeasuredPropertiesInput(e);},true);
+document.addEventListener('keydown',e=>{if(false&&e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){e.preventDefault();}},true);
 
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
