@@ -3302,6 +3302,15 @@ $('svg').addEventListener('pointerleave',()=>document.getElementById('conduitCro
 function aboveConduitLength(points){return (points||[]).slice(1).reduce((sum,p,i)=>sum+Math.hypot(p.x-points[i].x,p.y-points[i].y),0);}
 function finishAboveConduit(){if(pendingAboveConduit.length<2){pendingAboveConduit=[];mode='select';render();return;}const used=new Set([...drawnLines.filter(l=>l.planConduit).map(l=>l.planConduit.designation),...polyRoutes.filter(l=>l.planConduit).map(l=>l.planConduit.designation)]);let number=1;while(used.has('C-'+number))number++;const id=next++;polyRoutes.push({id,kind:'polyline',points:pendingAboveConduit.map(p=>({...p})),colors:['#087f99'],spacing:8,width:2,lineWeight:2,lineStyle:'custom',strokePattern:'solid',arrow:'none',label:'C-'+number,labelFontSize:10,planConduit:{designation:'C-'+number,diameter:'',material:'EMT',riseA:0,riseB:0,allowance:0,location:'Above Ground'}});pendingAboveConduit=[];mode='select';selected={kind:'polyroute',id};render();$('status').textContent='Above-ground EMT run created. Drag its corner handles to adjust the route.';}
 window.addEventListener('keydown',e=>{if(window.creatingAboveConduit&&mode==='polyline'&&e.key==='Enter'){e.preventDefault();$('svg').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));}if(window.creatingAboveConduit&&e.key==='Escape')window.creatingAboveConduit=false;if(mode==='plan-above-conduit'&&e.key==='Enter'){e.preventDefault();finishAboveConduit();}else if(mode==='plan-above-conduit'&&e.key==='Escape'){pendingAboveConduit=[];mode='select';render();}},true);
+// Complete above-ground conduit at the second click even over an equipment SVG hit area.
+// Capture before equipment handlers can consume the event; Escape remains a fallback.
+$('svg').addEventListener('pointerdown',e=>{
+ if(drawingView!=='plan'||mode!=='polyline'||!window.creatingAboveConduit||!activePoly||e.button!==0||e.detail<2)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ const p=xy(e),last=activePoly.points[activePoly.points.length-1];
+ if(last&&Math.hypot(p.x-last.x,p.y-last.y)>3)activePoly.points.push(p);
+ $('svg').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
+},true);
 $('svg').addEventListener('pointerdown',e=>{if(mode!=='plan-above-conduit'||drawingView!=='plan'||e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();const p=xy(e);const last=pendingAboveConduit[pendingAboveConduit.length-1];const snapped=last?{x:Math.abs(p.x-last.x)>=Math.abs(p.y-last.y)?p.x:last.x,y:Math.abs(p.x-last.x)>=Math.abs(p.y-last.y)?last.y:p.y}:p;if(!last||Math.hypot(snapped.x-last.x,snapped.y-last.y)>2)pendingAboveConduit.push(snapped);if(e.detail>=2)finishAboveConduit();else{$('status').textContent='Click next 90° turn. Double-click final point or press Enter to finish.';renderCanvasOnly();}},true);
 
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='plan-conduit'){pendingPlanConduit=null;mode='select';$('status').textContent='Underground conduit placement finished.';render();}},true);
