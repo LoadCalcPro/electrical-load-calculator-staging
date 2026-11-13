@@ -3098,7 +3098,7 @@ function showTitleDividerEditor(){if(!document.querySelector('#projectSettingsIn
 function projectTextLines(value,x){
  return String(value??'').split(/\r?\n/).map((line,i)=>'<tspan x="'+x+'" dy="'+(i?'1.25em':'0')+'">'+esc(line)+'</tspan>').join('');
 }
-function titleTextLayout(key,position=$('titleBlockPosition')?.value){const h=sheetHeightUnits(),d=dividerSize();if(position==='right'){const left=982-d+12,center=982-d/2;return {drawingTitle:[left,76],drawingScale:[left,116],sheetNumber:[970,154],project:[center,216],address:[center,262]}[key];}return {drawingTitle:[34,h-65+26],drawingScale:[34,h-65+41],sheetNumber:[950,h-65+25],project:[670,h-65+22],address:[670,h-65+43]}[key];}
+function titleTextLayout(key,position=$('titleBlockPosition')?.value){const h=sheetHeightUnits(),d=dividerSize();if(position==='right'){const left=982-d+12,center=982-d/2;return {drawingTitle:[left,76],drawingScale:[left,116],sheetNumber:[950,h-65+25],project:[center,216],address:[center,262]}[key];}return {drawingTitle:[34,h-65+26],drawingScale:[34,h-65+41],sheetNumber:[950,h-65+25],project:[670,h-65+22],address:[670,h-65+43]}[key];}
 function projectTextAttrs(key,size,x,y){
  const st=projectTextStyles[key]||{},px=Number.isFinite(Number(st.x))&&st.x!==undefined?Number(st.x):x,py=Number.isFinite(Number(st.y))&&st.y!==undefined?Number(st.y):y;
  return 'data-project-text="'+key+'" x="'+px+'" y="'+py+'" font-family="'+esc(drawingFontChoices.includes(st.fontFamily)?st.fontFamily:'Arial')+'" font-size="'+Math.max(5,Math.min(144,Number(st.size)||size))+'" font-weight="'+(st.style==='bold'?'bold':'normal')+'" font-style="'+(st.style==='italic'?'italic':'normal')+'" fill="'+(st.color||'#111111')+'" transform="rotate('+Number(st.rotation||0)+' '+px+' '+py+')"';
