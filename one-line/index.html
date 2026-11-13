@@ -2546,6 +2546,22 @@ function resizeEquipmentTarget(n,dragState,point){
   clampEquipmentToSheet(n);
   return true;
  }
+ if(['planpanel','plantransformer','plangenerator','planclearance'].includes(n.type)){
+  // Plan equipment grips edit the real footprint, exactly as Room grips do.
+  // Do not store a second, unrelated visual scale.
+  const px=planUnitsPerInch();
+  const angle=(Number(n.drawingRotation)||0)*Math.PI/180;
+  const ox=point.x-n.x,oy=point.y-n.y;
+  const localX=ox*Math.cos(angle)+oy*Math.sin(angle);
+  const localY=-ox*Math.sin(angle)+oy*Math.cos(angle);
+  const width=Math.max(1,Math.round(2*Math.abs(localX)/px));
+  const depth=Math.max(1,Math.round(2*Math.abs(localY)/px));
+  if(!Number.isFinite(width)||!Number.isFinite(depth))return false;
+  n.planWidthIn=width;n.planDepthIn=depth;
+  n.scaleX=1;n.scaleY=1;
+  clampEquipmentToSheet(n);
+  return true;
+ }
  if(n.type==='planwall'){
   // Wall grips edit measured length, not SVG scale or the wall's text size.
   const g=planWallGeometry(n),px=planUnitsPerInch();
@@ -4154,10 +4170,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target?.matches?.(
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
  if(!node)return;
- const keys=node.type==='planroom'?['roomLengthIn','roomWidthIn']:node.type==='plansymbol'&&(node.equipmentSubtype||node.name)==='Linear Light'?['linearLengthIn','linearWidthIn']:[];
- const attribute=node.type==='planroom'?'data-room-dim':'data-linear-dim';
+ const isPlanFootprint=['planpanel','plantransformer','plangenerator','planclearance'].includes(node.type);
+ const keys=isPlanFootprint?['planWidthIn','planDepthIn','planOffsetXIn','planOffsetYIn']:node.type==='planroom'?['roomLengthIn','roomWidthIn']:node.type==='plansymbol'&&(node.equipmentSubtype||node.name)==='Linear Light'?['linearLengthIn','linearWidthIn']:[];
+ const attribute=isPlanFootprint?'data-plan-measure':node.type==='planroom'?'data-room-dim':'data-linear-dim';
  for(const key of keys){
-  const inches=Math.max(1,Number(node[key]??(key==='roomLengthIn'?240:key==='roomWidthIn'?144:key==='linearLengthIn'?48:6)));
+  const inches=Math.max(key.startsWith('planOffset')?0:1,Number(node[key]??(key==='roomLengthIn'?240:key==='roomWidthIn'?144:key==='planWidthIn'?36:key==='planDepthIn'?24:key==='linearLengthIn'?48:6)));
   for(const [unit,value] of [['ft',String(Math.floor(inches/12))],['in',String(+(inches%12).toFixed(3))]]){
    for(const field of document.querySelectorAll('['+attribute+'="'+key+'"][data-unit="'+unit+'"]')){
     if(document.activeElement!==field&&field.value!==value)field.value=value;
@@ -4446,7 +4463,7 @@ if(drag.slideConnection){const w=wires.find(v=>v.id===drag.id),a=w&&nodes.find(n
  l[drag.end==='start'?'x1':'x2']=snapped.x;
  l[drag.end==='start'?'y1':'y2']=snapped.y;
  attachLadderEnd(l,drag.end,snapped);
-}else if(drag.group){drag.group.forEach(o=>{const target=drawnLines.find(z=>z.id===o.id);if(target){target.x1=o.x1+dx;target.x2=o.x2+dx;target.y1=o.y1+dy;target.y2=o.y2+dy;}});syncLadderLines();}renderCanvasOnly();if(!l.ladderRail)showAlignmentGuides({x:(l.x1+l.x2)/2,y:(l.y1+l.y2)/2});return;}if(drag.annotation){const a=annotations.find(x=>x.id===drag.id);if(a){if(drag.bend){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.bendX=pt.x;l.bendY=pt.y;}}else if(drag.endpoint){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.endX=pt.x;l.endY=pt.y;l.targetId=null;}}else{a.x=pt.x-drag.dx;a.y=pt.y-drag.dy;}renderCanvasOnly();}return;}const n=nodes.find(n=>n.id===drag.id);if(n&&(drag.additionalLabel||drag.labelKey)){moveEquipmentTarget(n,drag,pt);renderCanvasOnly();return;}if(n&&drag.resize){resizeEquipmentTarget(n,drag,pt);renderCanvasOnly();if(n.type==='planroom')syncMeasuredFields(n);return;}if(n&&moveEquipmentTarget(n,drag,pt)){renderCanvasOnly();showEquipmentMoveGuides(n)}});window.addEventListener('pointerup',()=>{if(drag?.id&&!drag.resize&&!drag.additionalLabel&&!drag.labelKey&&!drag.route&&!drag.line&&!drag.annotation&&!drag.branch&&!drag.polyroute&&!drag.multiNodes){const n=nodes.find(z=>z.id===drag.id);if(n&&isLadderSymbol(n)){renderCanvasOnly();}}if(drag?.id&&(drag.additionalLabel||drag.labelKey)&&selected?.kind==='node'&&selected.id===drag.id){$('textInspector')?.syncSelectedText?.();}syncLadderLines();drag=null;showAlignmentGuides(null)});function snapLineAngle(a,b,enabled=true){
+}else if(drag.group){drag.group.forEach(o=>{const target=drawnLines.find(z=>z.id===o.id);if(target){target.x1=o.x1+dx;target.x2=o.x2+dx;target.y1=o.y1+dy;target.y2=o.y2+dy;}});syncLadderLines();}renderCanvasOnly();if(!l.ladderRail)showAlignmentGuides({x:(l.x1+l.x2)/2,y:(l.y1+l.y2)/2});return;}if(drag.annotation){const a=annotations.find(x=>x.id===drag.id);if(a){if(drag.bend){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.bendX=pt.x;l.bendY=pt.y;}}else if(drag.endpoint){const l=noteLeaders(a)[drag.leaderIndex];if(l){l.endX=pt.x;l.endY=pt.y;l.targetId=null;}}else{a.x=pt.x-drag.dx;a.y=pt.y-drag.dy;}renderCanvasOnly();}return;}const n=nodes.find(n=>n.id===drag.id);if(n&&(drag.additionalLabel||drag.labelKey)){moveEquipmentTarget(n,drag,pt);renderCanvasOnly();return;}if(n&&drag.resize){resizeEquipmentTarget(n,drag,pt);renderCanvasOnly();if(['planroom','planpanel','plantransformer','plangenerator','planclearance'].includes(n.type))syncMeasuredFields(n);return;}if(n&&moveEquipmentTarget(n,drag,pt)){renderCanvasOnly();showEquipmentMoveGuides(n)}});window.addEventListener('pointerup',()=>{if(drag?.id&&!drag.resize&&!drag.additionalLabel&&!drag.labelKey&&!drag.route&&!drag.line&&!drag.annotation&&!drag.branch&&!drag.polyroute&&!drag.multiNodes){const n=nodes.find(z=>z.id===drag.id);if(n&&isLadderSymbol(n)){renderCanvasOnly();}}if(drag?.id&&(drag.additionalLabel||drag.labelKey)&&selected?.kind==='node'&&selected.id===drag.id){$('textInspector')?.syncSelectedText?.();}syncLadderLines();drag=null;showAlignmentGuides(null)});function snapLineAngle(a,b,enabled=true){
  if(!enabled)return b;
  const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
  if(d<3)return b;
