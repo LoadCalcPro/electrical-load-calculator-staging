@@ -3525,6 +3525,9 @@ $('svg').addEventListener('pointerdown',e=>{
  pendingPlanConduit=null;mode='select';selected={kind:'line',id};
  $('status').textContent='Underground conduit added. Select Underground Conduit again to place another connection.';render();return;
  }
+ // Let the shared drawing-text drag handler own underground conduit labels.
+ // Otherwise this capture-phase conduit handler selects the line first and blocks label dragging.
+ if(mode==='select'&&e.target.closest('[data-line-text]'))return;
  const conduitLine=e.target.closest('[data-drawn-line]');
  const conduitSelected=drawnLines.find(v=>v.id===Number(conduitLine?.dataset.drawnLine));
  if(mode==='select'&&conduitSelected?.planConduit&&!e.target.closest('[data-conduit-end]')){
