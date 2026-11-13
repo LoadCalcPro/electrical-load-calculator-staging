@@ -4094,9 +4094,7 @@ function commitMeasuredDimension(node,key,inches){
   const rad=(Number(node.wallAngle)||0)*Math.PI/180,delta=(inches-old)*planUnitsPerInch()/2;
   node.x+=Math.cos(rad)*delta;node.y+=Math.sin(rad)*delta;
  }else if(node.type==='plansymbol'&&['linearLengthIn','linearWidthIn'].includes(key)){
-  const rad=(Number(node.drawingRotation)||0)*Math.PI/180,delta=(inches-old)*planUnitsPerInch()/2;
-  if(key==='linearLengthIn'){node.x+=Math.cos(rad)*delta;node.y+=Math.sin(rad)*delta;}
-  else{node.x-=Math.sin(rad)*delta;node.y+=Math.cos(rad)*delta;}
+  // Linear fixtures resize about their center; do not shift position when edited.
  }
  node[key]=inches;
  if(node.type==='planroom'||node.type==='plansymbol'){node.scaleX=1;node.scaleY=1;}
@@ -4203,7 +4201,7 @@ function applyMeasuredPropertiesInput(e){
 }
 // Wall feet/inches use a dedicated model-bound handler. Keep edits stable while
 // typing; commit the complete measurement on change/Enter, not on each digit.
-document.addEventListener('input',e=>{if(e.target?.matches?.('[data-linear-dim]'))applyMeasuredPropertiesInput(e);},true);
+// Commit on change/Enter rather than on every digit so feet/inches can be typed safely.
 // Wall length has its own bound change handler above; do not also process its blur
 // through the global measurement listener (which can interrupt the next click).
 document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))return;applyMeasuredPropertiesInput(e);},true);
