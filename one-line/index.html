@@ -3322,7 +3322,15 @@ function renderLinearLightDimensions(){
    if(!current||!feet||!inches||feet.value===''||inches.value==='')return;
    const ft=Number(feet.value),inch=Number(inches.value);
    if(!Number.isFinite(ft)||!Number.isFinite(inch)||ft<0||inch<0||inch>=12||ft*12+inch<=0)return;
-   if(commitMeasuredDimension(current,key,ft*12+inch))renderCanvasOnly();
+   const value=ft*12+inch;
+   if(Math.abs(Number(current[key]??(key==='linearLengthIn'?48:6))-value)<.0001)return;
+   // Same direct model update as Wall: the symbol geometry and selection bounds
+   // both read these authoritative physical dimensions.
+   current[key]=value;
+   current.scaleX=1;current.scaleY=1;
+   clampEquipmentToSheet(current);
+   renderCanvasOnly();
+   $('status').textContent='Linear Light '+(key==='linearLengthIn'?'length':'width')+' updated to '+ft+' ft '+inch+' in.';
   };
   for(const field of [feet,inches]){
    field.addEventListener('input',commit);
