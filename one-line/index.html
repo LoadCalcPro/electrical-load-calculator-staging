@@ -3311,13 +3311,15 @@ function updateLinearLightFromProperties(field){
  renderCanvasOnly();
  $('status').textContent='Linear Light '+(key==='linearLengthIn'?'length':'width')+': '+ft+' ft '+inch+' in';
 }
-document.addEventListener('input',e=>updateLinearLightFromProperties(e.target),true);
-document.addEventListener('change',e=>updateLinearLightFromProperties(e.target),true);
-document.addEventListener('keydown',e=>{
+// Same stable Properties-container delegation used by equipment sizing (Panel).
+// Bind once; rebuilding the panel's children does not detach this listener.
+$('properties').addEventListener('input',e=>updateLinearLightFromProperties(e.target));
+$('properties').addEventListener('change',e=>updateLinearLightFromProperties(e.target));
+$('properties').addEventListener('keydown',e=>{
  if(e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){
   e.preventDefault();updateLinearLightFromProperties(e.target);e.target.blur();
  }
-},true);
+});
 function renderPositionSpacingPropertiesRefresh(){
  const inspector=$('textInspector');if(!inspector)return;
  const existing=[...inspector.querySelectorAll('section')].find(section=>section.querySelector('[data-spacing-side]'));
