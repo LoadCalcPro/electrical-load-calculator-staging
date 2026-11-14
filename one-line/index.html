@@ -3292,18 +3292,22 @@ function renderPositionSpacing(){
 // Linear Light dimensions are rendered by props() and committed alongside Room dimensions.
 function renderLinearLightDimensions(){}
 function arrangeLinearLightFields(){
+ const existing=$('drawingInspector')?.querySelector('#linearLightTextFields');
+ if(existing)existing.remove();
  const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
  if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
  const p=$('properties');
  const designation=p.querySelector('[data-linear-designation]')?.closest('label');
  const circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
  if(!designation)return;
- // textInspector is immediately before #properties in the inspector. Put the
- // two live fields first in #properties, directly below the shared Rotation
- // editor and ahead of outline, fill, and dimension controls. Keep them in
- // #properties so existing delegated input handlers continue to work.
- p.prepend(designation);
- if(circuit)designation.after(circuit);
+ // The Rotation control lives in #textInspector, while dimensions live in
+ // #properties. Keep both editable fields in their own stable section between
+ // those two panels, rather than inside a replaceable Rotation label.
+ const inspector=$('drawingInspector');
+ let section=inspector.querySelector('#linearLightTextFields');
+ if(!section){section=document.createElement('div');section.id='linearLightTextFields';section.className='props';inspector.insertBefore(section,p);}
+ section.appendChild(designation);
+ if(circuit)section.appendChild(circuit);
  p.querySelectorAll('[data-prop="name"],[data-prop="symbolDescription"]').forEach(el=>el.closest('label')?.remove());
 }
 
@@ -4272,6 +4276,13 @@ for(const eventName of ['focusin','pointerdown'])document.addEventListener(event
  const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
  if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
  activateEquipmentText(node,e.target.matches('[data-prop="panelCircuit"]')?'linearCircuit':'drawingLabel');
+},true);
+document.addEventListener('input',e=>{
+ if(!e.target?.matches?.('#linearLightTextFields [data-prop="panelCircuit"]'))return;
+ const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
+ if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
+ node.panelCircuit=e.target.value;
+ renderCanvasOnly();
 },true);
 document.addEventListener('input',e=>{
  if(!e.target?.matches?.('[data-linear-designation]'))return;
