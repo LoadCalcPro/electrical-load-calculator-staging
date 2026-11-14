@@ -3292,22 +3292,26 @@ function renderPositionSpacing(){
 // Linear Light dimensions are rendered by props() and committed alongside Room dimensions.
 function renderLinearLightDimensions(){}
 function arrangeLinearLightFields(){
- const existing=$('drawingInspector')?.querySelector('#linearLightTextFields');
- if(existing)existing.remove();
+ const old=$('drawingInspector')?.querySelector('#linearLightTextFields');
+ old?.remove();
  const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
  if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
  const p=$('properties');
  const designation=p.querySelector('[data-linear-designation]')?.closest('label');
  const circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
- if(!designation)return;
- // The Rotation control lives in #textInspector, while dimensions live in
- // #properties. Keep both editable fields in their own stable section between
- // those two panels, rather than inside a replaceable Rotation label.
- const inspector=$('drawingInspector');
- let section=inspector.querySelector('#linearLightTextFields');
- if(!section){section=document.createElement('div');section.id='linearLightTextFields';section.className='props';inspector.insertBefore(section,p);}
+ const rotation=p.querySelector('[data-common-rotation]');
+ if(!designation||!rotation)return;
+ // Use the SAME shared formatting container as all other equipment labels.
+ // The rotation input is inside a div.field in details.properties-common.
+ const rotationRow=rotation.closest('div.field');
+ if(!rotationRow)return;
+ const section=document.createElement('div');
+ section.id='linearLightTextFields';
+ section.className='linear-light-text-fields';
+ section.style.cssText='padding:0 0 5px;display:flex;flex-direction:column;gap:6px';
  section.appendChild(designation);
  if(circuit)section.appendChild(circuit);
+ rotationRow.after(section);
  p.querySelectorAll('[data-prop="name"],[data-prop="symbolDescription"]').forEach(el=>el.closest('label')?.remove());
 }
 
