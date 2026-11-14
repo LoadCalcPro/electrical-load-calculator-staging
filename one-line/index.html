@@ -3297,13 +3297,18 @@ function arrangeLinearLightFields(){
  const p=$('properties'),designation=p.querySelector('[data-linear-designation]')?.closest('label'),rotation=p.querySelector('[data-common-rotation]')?.closest('label'),circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
  if(!designation)return;
  // Place these fields in the same order as Wall, retaining their existing listeners.
- if(rotation?.parentElement){rotation.after(designation);designation.after(circuit||document.createTextNode(''));}
- else if(circuit)designation.after(circuit);
  const description=p.querySelector('[data-prop="symbolDescription"]')?.closest('label');description?.remove();
  const symbolName=p.querySelector('[data-prop="name"]')?.closest('label');
- // Reuse the original Symbol designation slot rather than leaving a duplicate
- // designation field below Rotation. Preserve the live textarea and its handler.
- if(symbolName){symbolName.replaceWith(designation);}
+ const priority=p.querySelector('section.property-priority');
+ // Put the editable fixture designation in the exact top-level designation
+ // section, even if the original Symbol designation was moved or removed.
+ if(symbolName)symbolName.replaceWith(designation);
+ else if(priority)priority.prepend(designation);
+ else if(rotation)rotation.after(designation);
+ // The circuit field follows the designation; do not move it into Formatting.
+ if(circuit)designation.after(circuit);
+ // Remove any remaining legacy symbol-name controls after relocation.
+ p.querySelectorAll('[data-prop="name"]').forEach(el=>el.closest('label')?.remove());
 }
 
 function renderPositionSpacingPropertiesRefresh(){
