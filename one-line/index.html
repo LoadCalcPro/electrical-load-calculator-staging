@@ -4247,15 +4247,14 @@ document.addEventListener('change',e=>{
  if(e.target?.matches?.('[data-room-dim],[data-room-label-visible]'))updateSelectedRoomProperty(e.target);
 },true);
 function applyMeasuredPropertiesInput(e){
- const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]')||selected?.kind!=='node')return;
+ const el=e.target;if(!el?.matches?.('[data-wall-feet],[data-wall-inches]')||selected?.kind!=='node')return;
  const node=nodes.find(n=>n.id===selected.id);if(!node)return;
  let key,feetEl,inchEl;
  if(el.matches('[data-wall-feet],[data-wall-inches]')&&node.type==='planwall'){
   key='wallLengthIn';feetEl=$('properties').querySelector('[data-wall-feet]');inchEl=$('properties').querySelector('[data-wall-inches]');
  }else if(el.matches('[data-room-dim]')&&node.type==='planroom'){
   key=el.dataset.roomDim;feetEl=$('properties').querySelector('[data-room-dim="'+key+'"][data-unit="ft"]');inchEl=$('properties').querySelector('[data-room-dim="'+key+'"][data-unit="in"]');
- }else if(false&&el.matches('[data-linear-dim]')&&node.type==='plansymbol'){
-  key=el.dataset.linearDim;feetEl=$('properties').querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');inchEl=$('properties').querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
+ 
  }else return;
  if(!feetEl||!inchEl)return;
  const feet=Number(feetEl.value),fraction=Number(inchEl.value),inches=feet*12+fraction;
@@ -4270,7 +4269,7 @@ function applyMeasuredPropertiesInput(e){
 // Commit on change/Enter rather than on every digit so feet/inches can be typed safely.
 // Wall length has its own bound change handler above; do not also process its blur
 // through the global measurement listener (which can interrupt the next click).
-document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches],[data-linear-dim]'))return;applyMeasuredPropertiesInput(e);},true);
+document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],[data-wall-inches]'))return;applyMeasuredPropertiesInput(e);},true);
 
 
 // The selected node is the single source of truth for both mouse and Properties edits.
