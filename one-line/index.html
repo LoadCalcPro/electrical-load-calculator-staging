@@ -3297,11 +3297,12 @@ function arrangeLinearLightFields(){
  const p=$('properties');
  const designation=p.querySelector('[data-linear-designation]')?.closest('label');
  const circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
- const priority=p.querySelector('section.property-priority');
- if(!designation||!priority)return;
- // Both editable fields must remain inside #properties. Moving them after a
- // Rotation input in #textInspector makes them disappear on inspector redraw.
- priority.prepend(designation);
+ if(!designation)return;
+ // textInspector is immediately before #properties in the inspector. Put the
+ // two live fields first in #properties, directly below the shared Rotation
+ // editor and ahead of outline, fill, and dimension controls. Keep them in
+ // #properties so existing delegated input handlers continue to work.
+ p.prepend(designation);
  if(circuit)designation.after(circuit);
  p.querySelectorAll('[data-prop="name"],[data-prop="symbolDescription"]').forEach(el=>el.closest('label')?.remove());
 }
