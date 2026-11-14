@@ -4196,7 +4196,9 @@ function updateSelectedLinearLightProperty(target){
  if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
  const key=target.dataset.linearDim;
  if(key!=='linearLengthIn'&&key!=='linearWidthIn')return;
- const host=target.closest('#properties');
+ // Controls can be relocated into the shared inspector after Properties layout.
+ // Use the live field's parent first, not a hard-coded Properties ancestor.
+ const host=target.closest('#properties,#textInspector')||target.parentElement?.parentElement;
  if(!host)return;
  const ft=host.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
  const inch=host.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
@@ -4243,6 +4245,11 @@ document.addEventListener('change',e=>{
 // duplicate redraws, which previously caused the inspector to appear frozen.
 document.addEventListener('change',e=>{
  if(e.target?.matches?.('[data-room-dim],[data-room-label-visible]'))updateSelectedRoomProperty(e.target);
+ if(e.target?.matches?.('[data-linear-dim]'))updateSelectedLinearLightProperty(e.target);
+},true);
+// Match the working Wall: update valid Linear Light dimensions on input as well
+// as change, without rebuilding the Properties panel or interrupting focus.
+document.addEventListener('input',e=>{
  if(e.target?.matches?.('[data-linear-dim]'))updateSelectedLinearLightProperty(e.target);
 },true);
 function applyMeasuredPropertiesInput(e){
