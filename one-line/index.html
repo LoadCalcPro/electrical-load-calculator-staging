@@ -3288,33 +3288,36 @@ function renderPositionSpacing(){
  layer.innerHTML='<g pointer-events="none">'+lines+'</g>';
 }
 function renderLinearLightDimensions(){
- const p=$('properties');
- if(!p||selected?.kind!=='node')return;
- const node=nodes.find(n=>n.id===selected.id);
- if(node?.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
- // Inputs are generated in props() at their final location. Bind them here.
- for(const key of ['linearLengthIn','linearWidthIn']){
-  const feet=p.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
-  const inches=p.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
-  if(!feet||!inches)return;
-  const commit=()=>{
-   const current=nodes.find(n=>n.id===node.id&&n.type==='plansymbol');
-   if(!current||feet.value===''||inches.value==='')return;
-   const ft=Number(feet.value),inch=Number(inches.value),target=ft*12+inch;
-   if(!Number.isFinite(target)||ft<0||inch<0||inch>=12||target<=0)return;
-   if(Math.abs(Number(current[key]??(key==='linearLengthIn'?48:6))-target)<.0001)return;
-   if(commitMeasuredDimension(current,key,target)){
-    renderCanvasOnly();
-    $('status').textContent='Linear Light '+(key==='linearLengthIn'?'length':'width')+': '+ft+' ft '+inch+' in';
-   }
-  };
-  for(const field of [feet,inches]){
-   field.addEventListener('input',commit);
-   field.addEventListener('change',commit);
-   field.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();field.blur();}});
-  }
- }
+ // Inputs are created in props(); updates are handled by the delegated listener
+ // below, independent of Properties layout and selection changes.
 }
+function updateLinearLightFromProperties(field){
+ if(!field?.matches?.('[data-linear-dim]'))return;
+ const p=$('properties');
+ if(!p?.contains(field))return;
+ const key=field.dataset.linearDim;
+ if(key!=='linearLengthIn'&&key!=='linearWidthIn')return;
+ const feet=p.querySelector('[data-linear-dim="'+key+'"][data-unit="ft"]');
+ const inches=p.querySelector('[data-linear-dim="'+key+'"][data-unit="in"]');
+ const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
+ if(!feet||!inches||!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
+ if(feet.value===''||inches.value==='')return;
+ const ft=Number(feet.value),inch=Number(inches.value),value=ft*12+inch;
+ if(!Number.isFinite(value)||ft<0||inch<0||inch>=12||value<=0)return;
+ if(Math.abs(Number(node[key]??(key==='linearLengthIn'?48:6))-value)<.0001)return;
+ node[key]=value;
+ node.scaleX=1;node.scaleY=1;
+ clampEquipmentToSheet(node);
+ renderCanvasOnly();
+ $('status').textContent='Linear Light '+(key==='linearLengthIn'?'length':'width')+': '+ft+' ft '+inch+' in';
+}
+document.addEventListener('input',e=>updateLinearLightFromProperties(e.target),true);
+document.addEventListener('change',e=>updateLinearLightFromProperties(e.target),true);
+document.addEventListener('keydown',e=>{
+ if(e.key==='Enter'&&e.target?.matches?.('[data-linear-dim]')){
+  e.preventDefault();updateLinearLightFromProperties(e.target);e.target.blur();
+ }
+},true);
 function renderPositionSpacingPropertiesRefresh(){
  const inspector=$('textInspector');if(!inspector)return;
  const existing=[...inspector.querySelectorAll('section')].find(section=>section.querySelector('[data-spacing-side]'));
