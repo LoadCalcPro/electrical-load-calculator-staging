@@ -3300,7 +3300,10 @@ function arrangeLinearLightFields(){
  if(rotation?.parentElement){rotation.after(designation);designation.after(circuit||document.createTextNode(''));}
  else if(circuit)designation.after(circuit);
  const description=p.querySelector('[data-prop="symbolDescription"]')?.closest('label');description?.remove();
- const symbolName=p.querySelector('[data-prop="name"]')?.closest('label');symbolName?.remove();
+ const symbolName=p.querySelector('[data-prop="name"]')?.closest('label');
+ // Reuse the original Symbol designation slot rather than leaving a duplicate
+ // designation field below Rotation. Preserve the live textarea and its handler.
+ if(symbolName){symbolName.replaceWith(designation);}
 }
 
 function renderPositionSpacingPropertiesRefresh(){
