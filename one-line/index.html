@@ -4261,6 +4261,14 @@ document.addEventListener('change',e=>{
 },true);
 // Match the working Wall: update valid Linear Light dimensions on input as well
 // as change, without rebuilding the Properties panel or interrupting focus.
+// Focusing either fixture text field must select the label, not its outline.
+// Capture phase also handles fields moved by the shared Properties layout.
+for(const eventName of ['focusin','pointerdown'])document.addEventListener(eventName,e=>{
+ if(!e.target?.matches?.('[data-linear-designation],[data-prop="panelCircuit"]'))return;
+ const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
+ if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
+ activateEquipmentText(node,'drawingLabel');
+},true);
 document.addEventListener('input',e=>{
  if(!e.target?.matches?.('[data-linear-designation]'))return;
  const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
