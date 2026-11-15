@@ -3301,9 +3301,9 @@ function arrangeLinearLightFields(){
  const circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
  const rotation=p.querySelector('[data-common-rotation]');
  if(!designation||!rotation)return;
- // Use the SAME shared formatting container as all other equipment labels.
- // The rotation input is inside a div.field in details.properties-common.
- const rotationRow=rotation.closest('div.field');
+ // Rotation is a label moved into the shared editor grid. It is NOT
+ // necessarily inside div.field; that assumption prevented every move.
+ const rotationRow=rotation.closest('label');
  if(!rotationRow)return;
  const section=document.createElement('div');
  section.id='linearLightTextFields';
