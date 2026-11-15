@@ -4894,6 +4894,28 @@ function pasteDrawingObject(){
  mode='select';render();
  $('status').textContent='Object pasted. Drag it to position.';
 }
+async function pasteFromDrawingContextMenu(){
+ if(drawingObjectClipboard){pasteDrawingObject();return;}
+ if(!navigator.clipboard?.read){$('status').textContent='Browser clipboard access is unavailable. Use Ctrl + V to paste the screenshot.';return;}
+ try{
+  const entries=await navigator.clipboard.read();
+  for(const entry of entries){
+   const type=entry.types.find(t=>['image/png','image/jpeg','image/webp'].includes(t));
+   if(!type)continue;
+   const blob=await entry.getType(type);
+   if(blob.size>5*1024*1024){$('status').textContent='Pasted image exceeds 5 MB.';return;}
+   const src=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob)});
+   const picture=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src});
+   const scale=Math.min(1,280/Math.max(picture.naturalWidth,picture.naturalHeight));
+   const w=Math.max(1,picture.naturalWidth*scale),h=Math.max(1,picture.naturalHeight*scale);
+   const kind='clipboard-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+   personalImages.push({kind,src,...clipboardPlacement(w,h)});
+   selected={kind:'personalImage',id:kind};mode='select';render();
+   $('status').textContent='Screenshot pasted. Drag to move or resize.';return;
+  }
+  $('status').textContent='No image found in clipboard. Use Ctrl + V for text or other content.';
+ }catch(error){$('status').textContent='Clipboard permission was denied or unavailable. Use Ctrl + V instead.';}
+}
 function deleteDrawingObject(){
  if(!selected)return;
  const {kind,id}=selected;
@@ -4911,7 +4933,7 @@ $('svg').addEventListener('contextmenu',e=>{
  const hit=e.target.closest('[data-node],[data-annotation],[data-personal-image],[data-wire],[data-drawn-line]');
  if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':hit.hasAttribute('data-wire')?'wire':hit.hasAttribute('data-drawn-line')?'line':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(kind==='line'?hit.dataset.drawnLine:hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):kind==='wire'?wires.find(v=>v.id===id):kind==='line'?drawnLines.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked){e.preventDefault();return;}selected={kind,id};selectedLineIds.clear();selectedNodeIds.clear();if(kind==='line')selectedLineIds.add(id);render(true);}else{selected=null;selectedLineIds.clear();selectedNodeIds.clear();render(true);}
  e.preventDefault();closeDrawingMenu();
- const entries=[['Cut',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>pasteDrawingObject(),!drawingObjectClipboard],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
+ const entries=[['Cut',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>pasteFromDrawingContextMenu(),false],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
  for(const [label,action,disabled] of entries){const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=disabled;button.style.cssText='display:block;width:100%;text-align:left;padding:7px;border:0;background:transparent;color:inherit;cursor:pointer';button.onclick=()=>{closeDrawingMenu();action()};drawingMenu.appendChild(button);}
  drawingMenu.style.left=Math.min(e.clientX,window.innerWidth-175)+'px';drawingMenu.style.top=Math.min(e.clientY,window.innerHeight-205)+'px';drawingMenu.style.display='block';
 });
