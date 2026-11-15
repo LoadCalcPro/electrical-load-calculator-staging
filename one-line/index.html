@@ -2052,12 +2052,22 @@ function equipmentFillEditor(item){return '<label class="field">Equipment fill<s
 function bindEquipmentFillEditor(p,item){
  const mode=p.querySelector('[data-equipment-fill]');if(!mode)return;
  mode.value=['transparent','custom','hatched'].includes(item.fillMode)?item.fillMode:'transparent';
- const settings=document.createElement('div');settings.setAttribute('data-equipment-hatch-settings','');
- settings.innerHTML='<label class="field">Hatch Color<input data-equipment-hatch-color type="color"></label><label class="field">Hatch Angle (degrees)<input data-equipment-hatch-angle type="number" min="-360" max="360" step="1"></label><label class="field">Hatch Spacing<input data-equipment-hatch-spacing type="number" min="4" max="60" step="1"></label><label class="field">Hatch Line Thickness<input data-equipment-hatch-thickness type="number" min="0.5" max="8" step="0.5"></label>';
+ const settings=document.createElement('div');
+ settings.setAttribute('data-equipment-hatch-settings','');
+ settings.style.cssText='box-sizing:border-box;width:100%;max-width:100%;min-width:0;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none';
+ settings.innerHTML='<div data-equipment-hatch-color-row></div><div data-equipment-hatch-numbers><label class="field">Hatch Angle (degrees)<input data-equipment-hatch-angle type="number" min="-360" max="360" step="1"></label><label class="field">Hatch Spacing<input data-equipment-hatch-spacing type="number" min="4" max="60" step="1"></label><label class="field">Hatch Line Thickness<input data-equipment-hatch-thickness type="number" min="0.5" max="8" step="0.5"></label></div>';
  mode.closest('label')?.after(settings);
- const fields=[['color','fillColor','#f5d84b'],['angle','hatchAngle',45],['spacing','hatchSpacing',12],['thickness','hatchThickness',1.5]];
- for(const [name,key,fallback] of fields){const el=settings.querySelector('[data-equipment-hatch-'+name+']');el.value=item[key]??fallback;el.addEventListener('change',()=>{if(name==='color'){item[key]=el.value;}else{const v=Number(el.value);if(!Number.isFinite(v))return;item[key]=name==='spacing'?Math.max(4,Math.min(60,v)):name==='thickness'?Math.max(.5,Math.min(8,v)):Math.max(-360,Math.min(360,v));el.value=item[key];}renderCanvasOnly();});}
- const sync=()=>{settings.style.display=mode.value==='hatched'?'':'none';};
+ for(const field of settings.querySelectorAll('label.field')){
+  field.style.cssText='display:flex;flex-direction:column;box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin:0 0 10px;padding:0;background:transparent;font-size:14px;line-height:1.3;font-weight:600;gap:6px';
+  const control=field.querySelector('input,select');
+  if(control)control.style.cssText='box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;height:56px;min-height:56px;margin:0;padding:10px 14px;border-radius:14px;font-size:16px';
+ }
+ const colorRow=settings.querySelector('[data-equipment-hatch-color-row]');
+ colorRow.style.cssText='box-sizing:border-box;width:100%;min-width:0;margin:0 0 10px;padding:0;background:transparent';
+ makeColorRows(colorRow,()=>item.fillColor||'#f5d84b',value=>{item.fillColor=value;renderCanvasOnly();},()=>'',()=>{},{colorLabel:'Fill / Hatch Color',noHighlight:true});
+ const fields=[['angle','hatchAngle',45],['spacing','hatchSpacing',12],['thickness','hatchThickness',1.5]];
+ for(const [name,key,fallback] of fields){const el=settings.querySelector('[data-equipment-hatch-'+name+']');el.value=item[key]??fallback;el.addEventListener('change',()=>{const v=Number(el.value);if(!Number.isFinite(v))return;item[key]=name==='spacing'?Math.max(4,Math.min(60,v)):name==='thickness'?Math.max(.5,Math.min(8,v)):Math.max(-360,Math.min(360,v));el.value=item[key];renderCanvasOnly();});}
+ const sync=()=>{settings.style.display=mode.value==='transparent'?'none':'';settings.querySelector('[data-equipment-hatch-numbers]').style.display=mode.value==='hatched'?'':'none';};
  mode.addEventListener('change',()=>{item.fillMode=mode.value;sync();p.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();renderCanvasOnly();});sync();
 }
 function applyEquipmentFill(markup,n){
