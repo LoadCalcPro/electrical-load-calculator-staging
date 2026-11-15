@@ -919,6 +919,14 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
  line-height:1.3!important;
 }
 
+
+/* Shared compact rhythm for both conduit measured-length panels. */
+#properties .conduit-measured-properties{box-sizing:border-box;width:100%;padding:12px 14px!important;margin:0 0 10px!important;border:1px solid #c5d8ed!important;border-radius:14px;background:transparent;display:flex;flex-direction:column;gap:10px;}
+#properties .conduit-measured-properties> b{display:block;font-size:14px;line-height:1.35;margin:0 0 2px;}
+#properties .conduit-measured-properties>label.field{display:flex;flex-direction:column;gap:5px;margin:0!important;padding:0!important;line-height:1.35;letter-spacing:0;}
+#properties .conduit-measured-properties>label.field>input,#properties .conduit-measured-properties>label.field>select{box-sizing:border-box;width:100%;min-height:34px;margin:0;}
+#properties .conduit-measured-properties>div.field{margin:0!important;padding:0!important;line-height:1.4;letter-spacing:0;}
+#properties .conduit-measured-properties>small{display:block;margin:0;line-height:1.4;}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -3543,7 +3551,7 @@ function renderAboveConduitProperties(){
  const c=route.planConduit,p=$('properties'),units=planUnitsPerInch();
  const run=aboveConduitLength(route.points)/units;
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
- const section=document.createElement('section');section.className='field';section.style.cssText='padding:9px;border-bottom:2px solid #168c9a;margin-bottom:8px';
+ const section=document.createElement('section');section.className='field conduit-measured-properties';
  section.innerHTML='<b>Above-Ground Conduit — Measured Length</b>'+
  '<label class="field">Conduit ID<input data-above-conduit="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-above-conduit="diameter"')+'</label>'+
@@ -3574,7 +3582,7 @@ function renderPlanConduitProperties(){
  const run=Math.hypot(l.x2-l.x1,l.y2-l.y1)/units;
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');
- section.className='field';section.style.cssText='padding:9px;border-bottom:2px solid #168c9a;margin-bottom:8px';
+ section.className='field conduit-measured-properties';
  section.innerHTML='<b>Underground Conduit — Measured Length</b>'+
  '<label class="field">Conduit ID<input data-conduit-field="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-conduit-field="diameter"')+'</label>'+
