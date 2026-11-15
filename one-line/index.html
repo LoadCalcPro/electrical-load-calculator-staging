@@ -3299,10 +3299,12 @@ function arrangeLinearLightFields(){
  const p=$('properties');
  const designation=p.querySelector('[data-linear-designation]')?.closest('label');
  const circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
- const rotation=p.querySelector('[data-common-rotation]');
+ // organizeEquipmentProperties() moves details.properties-common (including
+ // Rotation) OUT of #properties and INTO #textInspector before this runs.
+ // Query the actual destination; querying p always returned null.
+ const common=$('textInspector')?.querySelector('details.properties-common');
+ const rotation=common?.querySelector('[data-common-rotation]');
  if(!designation||!rotation)return;
- // Rotation is a label moved into the shared editor grid. It is NOT
- // necessarily inside div.field; that assumption prevented every move.
  const rotationRow=rotation.closest('label');
  if(!rotationRow)return;
  const section=document.createElement('div');
