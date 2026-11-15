@@ -3008,6 +3008,11 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const outlinePattern=p.querySelector('[data-equipment-pattern]')?.closest('label');
  const installationStatus=p.querySelector('[data-installation-status]')?.closest('label');
  if(outlinePattern)appearance.appendChild(outlinePattern);
+ // Keep Fixture design in the exact same appearance group as the two adjacent
+ // native fields, before this group is moved into the padded Properties section.
+ const fixtureDesign=item.type==='plansymbol'&&(item.equipmentSubtype||item.name)==='Linear Light'
+  ?p.querySelector('.fixture-identification'):null;
+ if(fixtureDesign){appearance.appendChild(fixtureDesign);syncFixtureIdentificationSummary(fixtureDesign);}
  if(installationStatus)appearance.appendChild(installationStatus);
  const fillControl=p.querySelector('[data-equipment-fill]')?.closest('label');
  const fillColorControl=p.querySelector('[data-equipment-fill-color-row]');
@@ -3106,18 +3111,6 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    }
    info.appendChild(field);
   }
- }
- // The fixture selector starts as a direct child of #properties, while the
- // outline/status fields have already been moved into info. Query the actual
- // source parent, then move the existing live selector into the same section.
- const fixtureSelector=p.querySelector('.fixture-identification');
- if(fixtureSelector&&itemForInfo?.type==='plansymbol'&&(itemForInfo.equipmentSubtype||itemForInfo.name)==='Linear Light'){
-  syncFixtureIdentificationSummary(fixtureSelector);
-  const patternField=info.querySelector('[data-equipment-pattern]')?.closest('label.field');
-  const statusField=info.querySelector('[data-installation-status]')?.closest('label.field');
-  if(patternField){patternField.after(fixtureSelector);if(statusField)fixtureSelector.after(statusField);}
-  else if(statusField)statusField.before(fixtureSelector);
-  else info.appendChild(fixtureSelector);
  }
  // Linear Light uses the same equipment-information placement as every other
  // item: this section is anchored after Rotation. Keep its two live inputs at
@@ -5445,37 +5438,22 @@ if(location.protocol==='file:'){
 }
 
 /* Compact collapsible Linear Light identification, matching other Properties groups. */
-#drawingMain #properties details.fixture-identification,
-#drawingMain #textInspector details.fixture-identification{margin:8px 0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
-#drawingMain #properties details.fixture-identification>summary,
-#drawingMain #textInspector details.fixture-identification>summary{cursor:pointer;font-size:12px!important;font-weight:600!important;padding:8px 10px!important;min-height:34px;box-sizing:border-box}
-#drawingMain #properties details.fixture-identification .fixture-mark-option,
-#drawingMain #textInspector details.fixture-identification .fixture-mark-option{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;margin:0!important;padding:7px 10px!important;min-height:34px;box-sizing:border-box;font-size:12px!important;cursor:pointer}
-#drawingMain #properties details.fixture-identification .fixture-mark-option input[type=checkbox],
-#drawingMain #textInspector details.fixture-identification .fixture-mark-option input[type=checkbox]{appearance:auto!important;display:block!important;position:static!important;flex:0 0 20px!important;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;margin:0!important;accent-color:#2563eb;cursor:pointer}
-#drawingMain #properties details.fixture-identification .fixture-mark-option span,
-#drawingMain #textInspector details.fixture-identification .fixture-mark-option span{display:inline!important;flex:1!important;text-align:left!important;font-size:12px!important}
 
 /* Fixture identification matches Equipment fill: label above full-width white selector. */
-#drawingMain #properties .fixture-identification,#drawingMain #textInspector .fixture-identification{width:100%;margin:6px 0 10px!important}
-#drawingMain #properties .fixture-identification>label.field,#drawingMain #textInspector .fixture-identification>label.field{display:block!important;margin:0 0 5px!important;padding:0!important;font-size:12px!important;font-weight:600!important;color:#526985!important}
-#drawingMain #properties .fixture-identification>details,#drawingMain #textInspector .fixture-identification>details{position:relative;border:0!important;background:transparent!important;margin:0!important;padding:0!important;box-shadow:none!important}
-#drawingMain #properties .fixture-identification>details>summary,#drawingMain #textInspector .fixture-identification>details>summary{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;width:100%!important;min-height:44px!important;box-sizing:border-box!important;padding:10px 14px!important;border:1px solid #c9daf2!important;border-radius:12px!important;background:white!important;color:#182b45!important;font-size:14px!important;font-weight:400!important;cursor:pointer;list-style:none!important}
-#drawingMain #properties .fixture-identification>details>summary::-webkit-details-marker,#drawingMain #textInspector .fixture-identification>details>summary::-webkit-details-marker{display:none}
-#drawingMain #properties .fixture-identification>details>summary:after,#drawingMain #textInspector .fixture-identification>details>summary:after{content:'⌄';font-size:22px;line-height:1;flex:none;color:#172b46}
-#drawingMain #properties .fixture-identification>details[open]>summary:after,#drawingMain #textInspector .fixture-identification>details[open]>summary:after{transform:rotate(180deg)}
-#drawingMain #properties .fixture-identification .fixture-mark-option,#drawingMain #textInspector .fixture-identification .fixture-mark-option{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;padding:7px 10px!important;margin:0!important;min-height:34px!important;font-size:12px!important}
-#drawingMain #properties .fixture-identification .fixture-mark-option input[type=checkbox],#drawingMain #textInspector .fixture-identification .fixture-mark-option input[type=checkbox]{appearance:auto!important;position:static!important;display:block!important;flex:0 0 20px!important;width:20px!important;height:20px!important;margin:0!important}
-#drawingMain #properties .fixture-identification .fixture-mark-option span,#drawingMain #textInspector .fixture-identification .fixture-mark-option span{font-size:12px!important;text-align:left!important}
-#drawingMain #properties .fixture-identification>details[open],#drawingMain #textInspector .fixture-identification>details[open]{z-index:2}
 
 /* Match the surrounding blue padded Equipment outline pattern / Installation status fields. */
-#drawingMain #properties .fixture-identification,#drawingMain #textInspector .fixture-identification{padding:0!important;margin:6px 0 10px!important;background:transparent!important;box-sizing:border-box!important}
-#drawingMain #properties .fixture-identification>label.field,#drawingMain #textInspector .fixture-identification>label.field{color:#526985!important;font-size:12px!important;font-weight:600!important;margin:0 0 5px!important;padding:0!important;line-height:1.3!important}
-#drawingMain #properties .fixture-identification>details>summary,#drawingMain #textInspector .fixture-identification>details>summary{min-height:44px!important;background:#fff!important;border:1px solid #c9daf2!important;border-radius:12px!important;padding:10px 14px!important}
 
 /* Fixture design inherits the same blue Properties padding as adjacent fields. */
-#drawingMain #properties .property-priority>.fixture-identification{width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:6px 0 10px!important;padding:0!important}
-#drawingMain #properties .property-priority>.fixture-identification>label.field{display:block!important;width:100%!important;margin:0 0 5px!important;padding:0!important;color:#526985!important;font-size:12px!important;font-weight:600!important}
-#drawingMain #properties .property-priority>.fixture-identification>details>summary{width:100%!important;box-sizing:border-box!important}
+
+/* Fixture design: same inset, blue background and dropdown dimensions as native appearance fields. */
+#drawingMain #properties .property-priority>.fixture-identification{display:block!important;width:100%!important;box-sizing:border-box!important;margin:3px 0 5px!important;padding:0!important;background:transparent!important}
+#drawingMain #properties .fixture-identification>label.field{display:block!important;font-family:Arial,Helvetica,sans-serif!important;font-size:12px!important;font-weight:600!important;color:#526985!important;line-height:1.3!important;margin:0 0 5px!important;padding:0!important}
+#drawingMain #properties .fixture-identification>details{display:block!important;width:100%!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+#drawingMain #properties .fixture-identification>details>summary{display:flex!important;align-items:center!important;justify-content:space-between!important;list-style:none!important;box-sizing:border-box!important;width:100%!important;min-height:44px!important;border:1px solid #c9daf2!important;border-radius:12px!important;padding:10px 14px!important;background:#fff!important;color:#182b45!important;font-size:14px!important;font-weight:400!important;cursor:pointer}
+#drawingMain #properties .fixture-identification>details>summary::-webkit-details-marker{display:none}
+#drawingMain #properties .fixture-identification>details>summary:after{content:'⌄';font-size:22px;line-height:1;color:#172b46}
+#drawingMain #properties .fixture-identification>details[open]>summary:after{transform:rotate(180deg)}
+#drawingMain #properties .fixture-identification .fixture-mark-option{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;padding:7px 10px!important;margin:0!important;min-height:34px!important;font-size:12px!important;cursor:pointer}
+#drawingMain #properties .fixture-identification .fixture-mark-option input[type=checkbox]{appearance:auto!important;position:static!important;display:block!important;flex:0 0 20px!important;width:20px!important;height:20px!important;margin:0!important;cursor:pointer}
+#drawingMain #properties .fixture-identification .fixture-mark-option span{font-size:12px!important;text-align:left!important}
 </style></body></html>
