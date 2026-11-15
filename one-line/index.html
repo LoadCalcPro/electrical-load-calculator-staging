@@ -4959,8 +4959,7 @@ function pasteDrawingObject(){
  $('status').textContent='Object pasted. Drag it to position.';
 }
 async function pasteFromDrawingContextMenu(){
- if(drawingObjectClipboard){pasteDrawingObject();return;}
- if(!navigator.clipboard?.read){$('status').textContent='Browser clipboard access is unavailable. Use Ctrl + V to paste the screenshot.';return;}
+ if(!navigator.clipboard?.read){if(drawingObjectClipboard){pasteDrawingObject();return;}$('status').textContent='Browser clipboard access is unavailable. Use Ctrl + V to paste.';return;}
  try{
   const entries=await navigator.clipboard.read();
   for(const entry of entries){
@@ -4977,8 +4976,20 @@ async function pasteFromDrawingContextMenu(){
    selected={kind:'personalImage',id:kind};mode='select';render();
    $('status').textContent='Screenshot pasted. Drag to move or resize.';return;
   }
-  $('status').textContent='No image found in clipboard. Use Ctrl + V for text or other content.';
- }catch(error){$('status').textContent='Clipboard permission was denied or unavailable. Use Ctrl + V instead.';}
+  const textEntry=entries.find(entry=>entry.types.includes('text/plain'));
+  if(textEntry){
+   const blob=await textEntry.getType('text/plain');
+   const text=await blob.text();
+   if(text.trim()){
+    const placement=clipboardPlacement(250,70);
+    const note={id:next++,text:text.slice(0,12000),x:placement.x,y:placement.y,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:515,endY:295,targetId:null,offsetX:0,offsetY:0};
+    annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
+    $('status').textContent='Text pasted as an editable drawing note.';return;
+   }
+  }
+  if(drawingObjectClipboard){pasteDrawingObject();return;}
+  $('status').textContent='No supported text or image found in clipboard.';
+ }catch(error){if(drawingObjectClipboard){pasteDrawingObject();return;}$('status').textContent='Clipboard permission was denied or unavailable. Use Ctrl + V instead.';}
 }
 function deleteDrawingObject(){
  if(!selected)return;
