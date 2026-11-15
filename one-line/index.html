@@ -3107,6 +3107,15 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    info.appendChild(field);
   }
  }
+ // Linear Light uses the same equipment-information placement as every other
+ // item: this section is anchored after Rotation. Keep its two live inputs at
+ // the beginning of that section, before dimensions and appearance controls.
+ if(itemForInfo?.type==='plansymbol'&&(itemForInfo.equipmentSubtype||itemForInfo.name)==='Linear Light'){
+  const lightDesignation=info.querySelector('[data-linear-designation]')?.closest('label');
+  const lightCircuit=info.querySelector('[data-prop="panelCircuit"]')?.closest('label');
+  if(lightCircuit)info.prepend(lightCircuit);
+  if(lightDesignation)info.prepend(lightDesignation);
+ }
  // Keep the designation first, then descriptions, immediately after Rotation.
  // Move existing elements rather than recreating fields or their event handlers.
  const descriptionAnchor=rotation&&offsetGrid?rotation:common.querySelector('.shared-text-editor');
@@ -3292,29 +3301,8 @@ function renderPositionSpacing(){
 // Linear Light dimensions are rendered by props() and committed alongside Room dimensions.
 function renderLinearLightDimensions(){}
 function arrangeLinearLightFields(){
- const old=$('drawingInspector')?.querySelector('#linearLightTextFields');
- old?.remove();
- const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
- if(!node||node.type!=='plansymbol'||(node.equipmentSubtype||node.name)!=='Linear Light')return;
- const p=$('properties');
- const designation=p.querySelector('[data-linear-designation]')?.closest('label');
- const circuit=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
- // organizeEquipmentProperties() moves details.properties-common (including
- // Rotation) OUT of #properties and INTO #textInspector before this runs.
- // Query the actual destination; querying p always returned null.
- const common=$('textInspector')?.querySelector('details.properties-common');
- const rotation=common?.querySelector('[data-common-rotation]');
- if(!designation||!rotation)return;
- const rotationRow=rotation.closest('label');
- if(!rotationRow)return;
- const section=document.createElement('div');
- section.id='linearLightTextFields';
- section.className='linear-light-text-fields';
- section.style.cssText='padding:0 0 5px;display:flex;flex-direction:column;gap:6px';
- section.appendChild(designation);
- if(circuit)section.appendChild(circuit);
- rotationRow.after(section);
- p.querySelectorAll('[data-prop="name"],[data-prop="symbolDescription"]').forEach(el=>el.closest('label')?.remove());
+ // Linear Light text is positioned by organizeEquipmentProperties(), using
+ // the same shared information section as the rest of the equipment.
 }
 
 function renderPositionSpacingPropertiesRefresh(){
