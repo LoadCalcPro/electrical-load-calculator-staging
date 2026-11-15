@@ -4559,11 +4559,12 @@ function closeInlineEquipmentEditor(commit){
  }
 }
 // Inline editing for Add Text / Leader and externally pasted text notes.
-$('svg').addEventListener('dblclick',e=>{
+function openAnnotationInlineEditor(e){
  if(mode!=='select')return;
- const textNode=e.target.closest('[data-annotation] text');
+ const group=e.target.closest('[data-annotation]');
+ if(!group)return;
+ const textNode=group.querySelector('text');
  if(!textNode)return;
- const group=textNode.closest('[data-annotation]');
  const note=annotations.find(a=>a.id===Number(group?.dataset.annotation));
  if(!note||note.kind==='group-outline')return;
  e.preventDefault();e.stopImmediatePropagation();
@@ -4581,7 +4582,18 @@ $('svg').addEventListener('dblclick',e=>{
  editor.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();finish(false);}else if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();finish(true);}});
  editor.addEventListener('blur',()=>finish(true),{once:true});
  editor.focus();editor.select();
+}
+let lastAnnotationClick=null;
+$('svg').addEventListener('pointerdown',e=>{
+ if(mode!=='select'||e.button!==0)return;
+ const group=e.target.closest('[data-annotation]');
+ if(!group)return;
+ const now=Date.now(),id=group.dataset.annotation;
+ if(lastAnnotationClick&&lastAnnotationClick.id===id&&now-lastAnnotationClick.time<550&&Math.hypot(e.clientX-lastAnnotationClick.x,e.clientY-lastAnnotationClick.y)<12){
+  lastAnnotationClick=null;openAnnotationInlineEditor(e);
+ }else lastAnnotationClick={id,time:now,x:e.clientX,y:e.clientY};
 },true);
+$('svg').addEventListener('dblclick',e=>openAnnotationInlineEditor(e),true);
 $('svg').addEventListener('dblclick',e=>{
  if(mode!=='select')return;
  const t=e.target.closest('text[data-inner-key],text[data-additional-label]');
