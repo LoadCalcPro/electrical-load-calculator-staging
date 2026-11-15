@@ -5494,5 +5494,8 @@ if(location.protocol==='file:'){
 /* Ensure the fixture summary text exactly follows neighboring select typography. */
 #drawingMain #properties .fixture-identification .fixture-identification-value{font-size:14px!important;font-weight:400!important;line-height:20px!important;letter-spacing:normal!important}
 
+/* Fixture design options use a white dropdown surface, not the blue Properties background. */
+#drawingMain #properties .fixture-identification>details[open]{background:#fff!important;border-radius:12px!important}
+#drawingMain #properties .fixture-identification>details[open]>.fixture-mark-option{background:#fff!important;color:#182b45!important}
 /* Fixture option rows are self-contained flex rows; avoid global label.field layout. */
 </style></body></html>
