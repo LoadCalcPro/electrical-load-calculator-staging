@@ -2049,14 +2049,25 @@ function bindDrawingLabelOffset(input,item,key){if(!input)return;const isCurrent
 function installationStatusEditor(item){return '<label class="field">Installation status<select data-installation-status><option value="new">New</option><option value="existing">Existing</option><option value="remove">To be removed</option></select></label>'}
 function bindInstallationStatusEditor(p,item){const control=p.querySelector('[data-installation-status]');if(!control)return;control.value=item.installationStatus||'new';control.addEventListener('change',()=>{const status=control.value;item.installationStatus=status;/* Installation status changes appearance only: keep the current inspector DOM, selection and scroll position intact. */renderCanvasOnly();});}
 function equipmentFillEditor(item){return '<label class="field">Equipment fill<select data-equipment-fill><option value="transparent">Transparent</option><option value="custom">Custom</option><option value="hatched">Hatched</option></select></label>'}
-function bindEquipmentFillEditor(p,item){const mode=p.querySelector('[data-equipment-fill]');if(!mode)return;mode.value=['transparent','custom','hatched'].includes(item.fillMode)?item.fillMode:'transparent';mode.addEventListener('change',()=>{item.fillMode=mode.value;p.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();renderCanvasOnly();});}
+function bindEquipmentFillEditor(p,item){
+ const mode=p.querySelector('[data-equipment-fill]');if(!mode)return;
+ mode.value=['transparent','custom','hatched'].includes(item.fillMode)?item.fillMode:'transparent';
+ const settings=document.createElement('div');settings.setAttribute('data-equipment-hatch-settings','');
+ settings.innerHTML='<label class="field">Hatch Color<input data-equipment-hatch-color type="color"></label><label class="field">Hatch Angle (degrees)<input data-equipment-hatch-angle type="number" min="-360" max="360" step="1"></label><label class="field">Hatch Spacing<input data-equipment-hatch-spacing type="number" min="4" max="60" step="1"></label><label class="field">Hatch Line Thickness<input data-equipment-hatch-thickness type="number" min="0.5" max="8" step="0.5"></label>';
+ mode.closest('label')?.after(settings);
+ const fields=[['color','fillColor','#f5d84b'],['angle','hatchAngle',45],['spacing','hatchSpacing',12],['thickness','hatchThickness',1.5]];
+ for(const [name,key,fallback] of fields){const el=settings.querySelector('[data-equipment-hatch-'+name+']');el.value=item[key]??fallback;el.addEventListener('change',()=>{if(name==='color'){item[key]=el.value;}else{const v=Number(el.value);if(!Number.isFinite(v))return;item[key]=name==='spacing'?Math.max(4,Math.min(60,v)):name==='thickness'?Math.max(.5,Math.min(8,v)):Math.max(-360,Math.min(360,v));el.value=item[key];}renderCanvasOnly();});}
+ const sync=()=>{settings.style.display=mode.value==='hatched'?'':'none';};
+ mode.addEventListener('change',()=>{item.fillMode=mode.value;sync();p.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();renderCanvasOnly();});sync();
+}
 function applyEquipmentFill(markup,n){
  const mode=n.fillMode||'transparent';
  if(mode!=='custom'&&mode!=='hatched')return markup;
  const color=/^#[0-9a-fA-F]{6}$/.test(n.fillColor||'')?n.fillColor:'#f5d84b';
  const id='equipment-hatch-'+String(n.id||'shape').replace(/[^a-zA-Z0-9_-]/g,'');
  const fill=mode==='hatched'?'url(#'+id+')':color;
- const defs=mode==='hatched'?'<defs><pattern id="'+id+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0 V8" stroke="'+color+'" stroke-width="1.5" fill="none"/></pattern></defs>':'';
+ const spacing=Math.max(4,Math.min(60,Number(n.hatchSpacing)||12)),thickness=Math.max(.5,Math.min(8,Number(n.hatchThickness)||1.5)),angle=Number.isFinite(Number(n.hatchAngle))?Number(n.hatchAngle):45;
+ const defs=mode==='hatched'?'<defs><pattern id="'+id+'" width="'+spacing+'" height="'+spacing+'" patternUnits="userSpaceOnUse" patternTransform="rotate('+angle+')"><path d="M0 0 V'+spacing+'" stroke="'+color+'" stroke-width="'+thickness+'" fill="none"/></pattern></defs>':'';
  const subtype=n.equipmentSubtype||n.name||'';
  if(n.type==='plansymbol'&&['Single-Pole Switch','Three-Way Switch','Four-Way Switch'].includes(subtype)){
   const px=planUnitsPerInch(),radius=7.5*px/Math.max(.01,Number(n.scaleX)||1);
