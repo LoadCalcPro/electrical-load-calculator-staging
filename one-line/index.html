@@ -4089,6 +4089,9 @@ if(selected.kind==='wire'){
      if(route.handle?.axis!==axis)return;
      item.routeOffset=Number(input.value);renderCanvasOnly();
    });
+   // Unlabeled conductor position belongs after the color controls, not above them.
+   const positionGrid=section.querySelector('.shared-text-grid');
+   if(positionGrid)paletteRoot.appendChild(positionGrid);
    // Keep configuring the remaining wire controls below.
  }
  if(String(item.label||'').trim()){
