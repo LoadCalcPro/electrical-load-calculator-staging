@@ -3777,6 +3777,21 @@ for(const [i,l] of (a.leader?noteLeaders(a):[]).entries()){
  else if(ex>=actualLeft&&ex<=actualRight&&ey>=actualTop&&ey<=actualBottom){
   const nearest=[{d:Math.abs(ex-actualLeft),x:actualLeft,y:ey},{d:Math.abs(ex-actualRight),x:actualRight,y:ey},{d:Math.abs(ey-actualTop),x:ex,y:actualTop},{d:Math.abs(ey-actualBottom),x:ex,y:actualBottom}].sort((u,v)=>u.d-v.d)[0];sx=nearest.x;sy=nearest.y;
  }
+ if(a.calloutShape==='circle'||a.calloutShape==='hexagon'){
+  const circle=g.querySelector('circle[data-callout-boundary]'),polygon=g.querySelector('polygon[data-callout-boundary]');
+  const cx=left+width/2,cy=top+height/2;
+  const targetX=a.leaderShape==='bent'&&Number.isFinite(Number(l.bendX))?Number(l.bendX):ex;
+  const targetY=a.leaderShape==='bent'&&Number.isFinite(Number(l.bendY))?Number(l.bendY):ey;
+  const dx=targetX-cx,dy=targetY-cy,len=Math.hypot(dx,dy)||1;
+  const radius=Math.max(width,height)/2+7;
+  let distance=radius;
+  if(a.calloutShape==='hexagon'){
+   const ux=dx/len,uy=dy/len;
+   const vertices=Array.from({length:6},(_,j)=>{const t=Math.PI/6+j*Math.PI/3;return [radius*Math.cos(t),radius*Math.sin(t)];});
+   for(let j=0;j<6;j++){const [ax,ay]=vertices[j],[bx,by]=vertices[(j+1)%6];const vx=bx-ax,vy=by-ay,den=ux*vy-uy*vx;if(Math.abs(den)<1e-9)continue;const t=(ax*vy-ay*vx)/den,u=(ax*uy-ay*ux)/den;if(t>0&&u>=0&&u<=1)distance=Math.min(distance,t);}
+  }
+  sx=cx+dx/len*distance;sy=cy+dy/len*distance;
+ }
  path.setAttribute('d',path.getAttribute('d').replace(/^M[-+\\d.eE]+[ ,]+[-+\\d.eE]+/, 'M'+sx+' '+sy));
 }
 const hit=g.querySelector('rect[fill="transparent"]');if(hit){hit.setAttribute('x',x);hit.setAttribute('y',y);hit.setAttribute('width',w);hit.setAttribute('height',h);}}catch(e){}}}
