@@ -3052,7 +3052,11 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(installationStatus)appearance.appendChild(installationStatus);
  const fillControl=p.querySelector('[data-equipment-fill]')?.closest('label');
  const fillColorControl=p.querySelector('[data-equipment-fill-color-row]');
+ const hatchControls=p.querySelector('[data-equipment-hatch-settings]');
  if(fillControl)appearance.appendChild(fillControl);
+ // Keep hatch color and numeric controls immediately after Equipment fill,
+ // rather than leaving them behind the Linear Light dimensions.
+ if(hatchControls)appearance.appendChild(hatchControls);
  if(fillColorControl)appearance.appendChild(fillColorControl);
  if(advanced.children.length)appearance.appendChild(advanced);
  // Normalize this secondary group at the element level; older theme rules
