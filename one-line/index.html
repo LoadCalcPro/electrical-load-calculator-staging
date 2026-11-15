@@ -2515,7 +2515,7 @@ function conduitElbowPath(points,radius=12){
 function switchControlFixtureAt(pt){
  let best=null,dist=24/Math.max(.5,zoom);
  for(const n of nodes){if(n.type!=='plansymbol')continue;
-  const name=String(n.name||n.symbolName||n.equipmentName||'');
+  const name=String(n.equipmentSubtype||n.name||'');
   if(!/light|switch/i.test(name))continue;
   const d=Math.hypot(pt.x-n.x,pt.y-n.y);
   if(d<dist){dist=d;best=n;}
