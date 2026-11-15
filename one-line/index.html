@@ -2523,17 +2523,21 @@ function switchControlFixtureAt(pt){
 function roundedControlPath(points){
  if(!points?.length)return '';
  if(points.length===1)return 'M'+points[0].x+' '+points[0].y;
- // Interpolating Catmull-Rom spline converted to cubic Bezier: every clicked
- // vertex is an actual endpoint of a curve segment, never a skipped control point.
+ // Each fixture-to-fixture connection is an independent, gently bowed cubic.
+ // Control points are based only on the two endpoints, never adjacent fixtures.
  let d='M'+points[0].x+' '+points[0].y;
  for(let i=0;i<points.length-1;i++){
-  const p0=points[Math.max(0,i-1)],p1=points[i],p2=points[i+1],p3=points[Math.min(points.length-1,i+2)];
-  const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6;
-  const c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
-  d+=' C'+c1x+' '+c1y+' '+c2x+' '+c2y+' '+p2.x+' '+p2.y;
+  const a=points[i],b=points[i+1],dx=b.x-a.x,dy=b.y-a.y;
+  const length=Math.hypot(dx,dy);
+  if(length<.01)continue;
+  const bow=Math.min(18,length*.065),nx=-dy/length,ny=dx/length;
+  const c1x=a.x+dx/3+nx*bow,c1y=a.y+dy/3+ny*bow;
+  const c2x=a.x+dx*2/3+nx*bow,c2y=a.y+dy*2/3+ny*bow;
+  d+=' C'+c1x.toFixed(2)+' '+c1y.toFixed(2)+' '+c2x.toFixed(2)+' '+c2y.toFixed(2)+' '+b.x+' '+b.y;
  }
  return d;
-}let connectStartSide=null;
+}
+let connectStartSide=null;
 let pendingShapeConnection=null;
 function shapeConnectionPoint(shape,target){
  const pts=revisionShapePoints(shape),xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
