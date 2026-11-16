@@ -2280,7 +2280,7 @@ function feederPath(a,b,w={}){
      if(low<=high){const y=Math.max(low,Math.min(high,(P.y+Q.y)/2));P.y=y;Q.y=y;}
    }else if((fs==='top'||fs==='bottom')&&(ts==='top'||ts==='bottom')){
      const low=Math.max(a.x-A.l,b.x-B.l),high=Math.min(a.x+A.r,b.x+B.r);
-     if(low<=high){const x=Math.max(low,Math.min(high,(P.x+Q.x)/2));P.x=x;Q.x=x;}
+     if(low<=high&&Math.abs(Number(w.fromOffset)||0)<.0001&&Math.abs(Number(w.toOffset)||0)<.0001){const x=Math.max(low,Math.min(high,(P.x+Q.x)/2));P.x=x;Q.x=x;}
    }
    return {d:`M${P.x} ${P.y}L${Q.x} ${Q.y}`,lx:(P.x+Q.x)/2+8,ly:(P.y+Q.y)/2-9,handle:null};
  }
