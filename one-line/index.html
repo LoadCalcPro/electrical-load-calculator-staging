@@ -4061,6 +4061,18 @@ const boxFillRow=document.createElement('label');boxFillRow.className='field';bo
  const roundedField=p.querySelector('[data-connect-rounded]')?.closest('label');
  const weightSection=p.querySelector('[data-weight-style]')?.closest('.section');
  if(roundedField&&weightSection)roundedField.insertAdjacentElement('afterend',weightSection);
+ // Match the padded pale-blue Properties groups used elsewhere in the drawing suite.
+ const linePatternField=p.querySelector('[data-connect-pattern]')?.closest('label.field');
+ if(linePatternField&&roundedField&&weightSection){
+  const panel=document.createElement('div');
+  panel.className='connect-appearance-group';
+  panel.style.cssText='box-sizing:border-box;width:100%;min-width:0;background:#f0f5fc;border:1px solid #c8d9ef;border-radius:12px;padding:12px 10px;margin:10px 0 12px;display:flex;flex-direction:column;gap:8px;';
+  linePatternField.before(panel);
+  const controls=[linePatternField,p.querySelector('[data-route-style]')?.closest('label.field'),p.querySelector('[data-parallel-count]')?.closest('label.field'),p.querySelector('[data-parallel-spacing]')?.closest('label.field'),roundedField,weightSection];
+  for(const field of controls)if(field)panel.appendChild(field);
+  roundedField.style.cssText='display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:9px!important;margin:0!important;padding:5px 0!important;width:100%!important;';
+  weightSection.style.cssText='box-sizing:border-box;width:100%;margin:0;padding:0;background:transparent;border:0;box-shadow:none;';
+ }
  // Keep operational controls above help, and prevent duplicate advanced panels.
  const help=document.createElement('details');help.className='equipment-category properties-help';help.innerHTML='<summary>Connection help</summary><p class="status">Drag the round handles to change equipment attachment points. For bent or U-shaped routes, drag the teal square to adjust the bend. Feeder values are descriptive labels, not automatic conductor sizing or code approval.</p>';p.appendChild(help);
  for(const field of Array.from(p.querySelectorAll('[data-parallel-color]')).map(el=>el.closest('label'))){field?.remove();}
