@@ -4128,6 +4128,11 @@ if(selected.kind==='wire'){
   const shapeRow=document.createElement('div');shapeRow.className='leader-toggle-rows';
   shapeRow.innerHTML='<label class="leader-toggle-row"><input type="checkbox" data-wire-callout="circle"><span>Circle around feeder label</span></label><label class="leader-toggle-row"><input type="checkbox" data-wire-callout="hexagon"><span>Hexagon around feeder label</span></label>';
   feederLabelField.insertAdjacentElement('afterend',shapeRow);
+  const feederPanel=document.createElement('div');
+  feederPanel.className='connect-feeder-label-group';
+  feederPanel.style.cssText='box-sizing:border-box;width:100%;min-width:0;background:#f0f5fc;border:1px solid #c8d9ef;border-radius:12px;padding:12px 10px;margin:10px 0 12px;display:flex;flex-direction:column;gap:10px;';
+  feederLabelField.before(feederPanel);
+  feederPanel.append(feederLabelField,shapeRow);
   for(const checkbox of shapeRow.querySelectorAll('[data-wire-callout]')){
    checkbox.checked=item.labelShape===checkbox.dataset.wireCallout;
    checkbox.addEventListener('change',()=>{item.labelShape=checkbox.checked?checkbox.dataset.wireCallout:'none';for(const other of shapeRow.querySelectorAll('[data-wire-callout]'))other.checked=item.labelShape===other.dataset.wireCallout;renderCanvasOnly();});
