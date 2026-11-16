@@ -4063,6 +4063,20 @@ const boxFillRow=document.createElement('label');boxFillRow.className='field';bo
   if(isAdvanced)advanced.appendChild(el);
  }
  if(advanced.children.length>1)p.appendChild(advanced);
+ // Show editable conductor count, spacing, and individual colors together on existing connections.
+ const conductorCountField=p.querySelector('[data-parallel-count]')?.closest('label.field');
+ const conductorSpacingField=p.querySelector('[data-parallel-spacing]')?.closest('label.field');
+ if(conductorCountField&&conductorSpacingField){
+  const conductorPanel=document.createElement('div');
+  conductorPanel.className='connect-existing-conductor-properties';
+  conductorPanel.style.cssText='box-sizing:border-box;width:100%;min-width:0;background:#f2f7ff;border:1px solid #c6daf3;border-radius:18px;padding:16px 18px;margin:12px 0;display:flex;flex-direction:column;gap:12px;';
+  const heading=document.createElement('h4');heading.textContent='Line / Connection Properties';heading.style.cssText='margin:0 0 4px;font-size:15px;';
+  conductorCountField.before(conductorPanel);
+  conductorPanel.append(heading,conductorCountField,conductorSpacingField);
+  conductorCountField.firstChild.textContent='Conductors';
+  conductorSpacingField.firstChild.textContent='Spacing';
+  p.querySelectorAll('[data-parallel-color]').forEach((el,i)=>{const field=el.closest('label.field');if(field){field.firstChild.textContent='L'+(i+1);conductorPanel.appendChild(field);}});
+ }
  // Keep drawing weight immediately beneath Rounded conduit bends in Connect Properties.
  const roundedField=p.querySelector('[data-connect-rounded]')?.closest('label');
  const weightSection=p.querySelector('[data-weight-style]')?.closest('.section');
