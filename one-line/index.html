@@ -4048,7 +4048,7 @@ const boxFillRow=document.createElement('label');boxFillRow.className='field';bo
  const advanced=document.createElement('details');advanced.className='equipment-category properties-common';
  const summary=document.createElement('summary');summary.textContent='Advanced Drawing Settings';advanced.appendChild(summary);
  const advancedKeys=new Set(['amps','conductors','neutral','egc','length','notes']);
- const advancedSelectors=['[data-port]','[data-route-style]','[data-route-level]','[data-weight-style]','[data-weight-value]'];
+ const advancedSelectors=['[data-port]','[data-route-style]','[data-route-level]'];
  const candidates=Array.from(p.children);
  for(const el of candidates){
   const input=el.querySelector?.('[data-prop]');
@@ -4057,6 +4057,10 @@ const boxFillRow=document.createElement('label');boxFillRow.className='field';bo
   if(isAdvanced)advanced.appendChild(el);
  }
  if(advanced.children.length>1)p.appendChild(advanced);
+ // Keep drawing weight immediately beneath Rounded conduit bends in Connect Properties.
+ const roundedField=p.querySelector('[data-connect-rounded]')?.closest('label');
+ const weightSection=p.querySelector('[data-weight-style]')?.closest('.section');
+ if(roundedField&&weightSection)roundedField.insertAdjacentElement('afterend',weightSection);
  // Keep operational controls above help, and prevent duplicate advanced panels.
  const help=document.createElement('details');help.className='equipment-category properties-help';help.innerHTML='<summary>Connection help</summary><p class="status">Drag the round handles to change equipment attachment points. For bent or U-shaped routes, drag the teal square to adjust the bend. Feeder values are descriptive labels, not automatic conductor sizing or code approval.</p>';p.appendChild(help);
  for(const field of Array.from(p.querySelectorAll('[data-parallel-color]')).map(el=>el.closest('label'))){field?.remove();}
