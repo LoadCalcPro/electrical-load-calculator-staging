@@ -3183,7 +3183,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);const modeSelect=appearanceModeControl.querySelector('[data-equipment-appearance]');modeSelect?.addEventListener('change',()=>{if(selected?.kind!=='node'||selected.id!==item.id)return;item.appearanceMode=modeSelect.value==='proportional'?'proportional':'consistent';renderCanvasOnly();});}
  const lineWeightControl=advanced.querySelector('[data-weight-style]')?.closest('label')
   ||advanced.querySelector('[data-weight-status]')?.closest('label');
- if(lineWeightControl)appearance.appendChild(lineWeightControl);
+ if(lineWeightControl){appearance.appendChild(lineWeightControl);const customWeightControl=advanced.querySelector('[data-weight-value]')?.closest('label');if(customWeightControl)appearance.appendChild(customWeightControl);}
  const outlinePattern=p.querySelector('[data-equipment-pattern]')?.closest('label');
  const installationStatus=p.querySelector('[data-installation-status]')?.closest('label');
  if(outlinePattern)appearance.appendChild(outlinePattern);
