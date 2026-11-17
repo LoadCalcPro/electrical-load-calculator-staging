@@ -2982,21 +2982,23 @@ function saveDeveloperPropertyConfig(){
  catch(error){console.warn('Developer property preferences could not be saved',error);}
 }
 function findDeveloperPropertyField(panel,id,selector){
- const direct=panel.querySelector(selector)?.closest('label.field, label');
- if(direct)return direct;
+ const roots=[panel,document.getElementById('textInspector')].filter(Boolean);
  const patterns={
-  size:/^(equipment size|symbol size|size \(%\)|equipment scale)/i,
-  rotation:/^rotation(?: degrees| \(degrees\))?$/i,
-  lineThickness:/^(drawing line thickness|drawing line weight|line thickness|stroke thickness)/i,
-  outlinePattern:/^(equipment outline pattern|outline pattern|line pattern)/i,
-  equipmentFill:/^(equipment fill|fill mode)/i,
-  designation:/^(equipment designation|symbol designation|linear light designation|label|wall designation)/i
+  size:/\\b(equipment|symbol)\\s*(size|scale)\\b/i,
+  rotation:/\\brotation\\b/i,
+  lineThickness:/\\b(drawing line thickness|drawing line weight|stroke thickness|line thickness)\\b/i,
+  outlinePattern:/\\b(outline pattern|equipment outline pattern|line pattern)\\b/i,
+  equipmentFill:/\\b(equipment fill|fill mode)\\b/i,
+  designation:/\\b(equipment designation|symbol designation|linear light designation|wall designation|label)\\b/i
  };
- const pattern=patterns[id];
- if(!pattern)return null;
- for(const field of panel.querySelectorAll('label')){
-  const ownText=Array.from(field.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim();
-  if(pattern.test(ownText)&&field.querySelector('input,select,textarea'))return field;
+ for(const root of roots){
+  const direct=root.querySelector(selector)?.closest('label, .field');
+  if(direct)return direct;
+  for(const field of root.querySelectorAll('label, .field')){
+   if(!field.querySelector('input,select,textarea'))continue;
+   const heading=Array.from(field.childNodes).filter(n=>n.nodeType===3||n.nodeType===1&&!n.matches?.('input,select,textarea')).map(n=>n.textContent||'').join(' ').trim();
+   if(patterns[id]?.test(heading))return field;
+  }
  }
  return null;
 }
