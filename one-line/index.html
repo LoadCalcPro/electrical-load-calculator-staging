@@ -2997,7 +2997,7 @@ function installDeveloperPropertyVisibility(panel,item){
  if(panel.querySelector('.developer-property-visibility'))return;
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:panel.querySelector(selector)?.closest('label.field, label')}));
- if(!present.some(v=>v.field))return;
+ // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=panel.querySelector('[data-prop="name"], [data-prop="label"]')?.closest('label.field, label');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
  const settings=developerPropertyVisibility.get(type)||{};
