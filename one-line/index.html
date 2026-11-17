@@ -2971,6 +2971,35 @@ const UNIVERSAL_PROPERTY_CONTROLS=[
 ];
 const developerPropertyVisibility=new Map();
 const developerDesignationTerminology=new Map();
+const developerConfigKey='loadcalcpro-staging-property-visibility-v1';
+try{
+ const saved=JSON.parse(localStorage.getItem(developerConfigKey)||'{}');
+ for(const [type,values] of Object.entries(saved.visibility||{}))developerPropertyVisibility.set(type,values);
+ for(const [type,value] of Object.entries(saved.captions||{}))developerDesignationTerminology.set(type,value);
+}catch(error){console.warn('Developer property preferences could not be restored',error);}
+function saveDeveloperPropertyConfig(){
+ try{localStorage.setItem(developerConfigKey,JSON.stringify({visibility:Object.fromEntries(developerPropertyVisibility),captions:Object.fromEntries(developerDesignationTerminology)}));}
+ catch(error){console.warn('Developer property preferences could not be saved',error);}
+}
+function findDeveloperPropertyField(panel,id,selector){
+ const direct=panel.querySelector(selector)?.closest('label.field, label');
+ if(direct)return direct;
+ const patterns={
+  size:/^(equipment size|symbol size|size \(%\)|equipment scale)/i,
+  rotation:/^rotation(?: degrees| \(degrees\))?$/i,
+  lineThickness:/^(drawing line thickness|drawing line weight|line thickness|stroke thickness)/i,
+  outlinePattern:/^(equipment outline pattern|outline pattern|line pattern)/i,
+  equipmentFill:/^(equipment fill|fill mode)/i,
+  designation:/^(equipment designation|symbol designation|linear light designation|label|wall designation)/i
+ };
+ const pattern=patterns[id];
+ if(!pattern)return null;
+ for(const field of panel.querySelectorAll('label')){
+  const ownText=Array.from(field.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim();
+  if(pattern.test(ownText)&&field.querySelector('input,select,textarea'))return field;
+ }
+ return null;
+}
 function equipmentDesignationCaption(item){
  const type=item.equipmentSubtype||item.type||'equipment';
  const configured=developerDesignationTerminology.get(type);
@@ -2996,12 +3025,13 @@ function installDeveloperPropertyVisibility(panel,item){
 
  const host=document.getElementById('developerSettingsHost');
  if(!host)return;
+ if(!location.hostname.includes('staging')){host.replaceChildren();host.style.display='none';return;}
  host.replaceChildren();
  host.style.display='block';
  const type=item.equipmentSubtype||item.type||'equipment';
- const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:panel.querySelector(selector)?.closest('label.field, label')}));
+ const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:findDeveloperPropertyField(panel,id,selector)}));
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
- const designationField=panel.querySelector('[data-prop="name"], [data-prop="label"]')?.closest('label.field, label');
+ const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
@@ -3020,6 +3050,7 @@ function installDeveloperPropertyVisibility(panel,item){
  designationSelect.addEventListener('change',()=>{
   developerDesignationTerminology.set(type,designationSelect.value);
   setEquipmentDesignationCaption(designationField,designationSelect.value);
+  saveDeveloperPropertyConfig();
  });
  designationMode.appendChild(designationSelect);inspector.appendChild(designationMode);
  const note=document.createElement('p');note.textContent='Visibility only. Existing controls remain connected. Missing controls are not yet supported by this equipment.';note.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(note);
@@ -3027,11 +3058,11 @@ function installDeveloperPropertyVisibility(panel,item){
   const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px';
   const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
   if(entry.field){entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';}
-  checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';});
+  checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);saveDeveloperPropertyConfig();entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';});
   line.append(checkbox,document.createTextNode(entry.label+(entry.field?'':' (not yet available)')));if(!entry.field)line.style.opacity='0.6';inspector.appendChild(line);
  }
  host.appendChild(inspector);
- inspector.open=true;
+ inspector.open=false;
 }
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
