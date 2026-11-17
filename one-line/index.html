@@ -3026,6 +3026,7 @@ function installDeveloperPropertyVisibility(panel,item){
  const host=document.getElementById('developerSettingsHost');
  if(!host)return;
  if(!location.hostname.includes('staging')){host.replaceChildren();host.style.display='none';return;}
+ const previouslyOpen=host.querySelector('.developer-property-visibility')?.open;
  host.replaceChildren();
  host.style.display='block';
  const type=item.equipmentSubtype||item.type||'equipment';
@@ -3062,7 +3063,7 @@ function installDeveloperPropertyVisibility(panel,item){
   line.append(checkbox,document.createTextNode(entry.label+(entry.field?'':' (not yet available)')));if(!entry.field)line.style.opacity='0.6';inspector.appendChild(line);
  }
  host.appendChild(inspector);
- inspector.open=false;
+ inspector.open=previouslyOpen!==false;
 }
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
