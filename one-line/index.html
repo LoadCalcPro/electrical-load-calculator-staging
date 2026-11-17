@@ -2990,8 +2990,10 @@ function setEquipmentDesignationCaption(field,caption){
 }
 
 function installDeveloperPropertyVisibility(panel,item){
- if(!new URLSearchParams(location.search).has('developerProperties')&&sessionStorage.getItem('loadcalcproDeveloperProperties')!=='1')return;
- sessionStorage.setItem('loadcalcproDeveloperProperties','1');
+ // Staging-only developer inspector: do not depend on URL query parameters,
+ // which may be dropped by navigation or deployment redirects.
+ // This repository is the staging drawing suite; the inspector is not part of production.
+
  if(panel.querySelector('.developer-property-visibility'))return;
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:panel.querySelector(selector)?.closest('label.field, label')}));
