@@ -2786,6 +2786,18 @@ function moveEquipmentTarget(n,dragState,point){
  }
  if(dragState.labelKey){
   const key=dragState.labelKey;
+  if(n.type==='battery'&&dragState.startPoint&&dragState.screenLabelStart){
+   // Keep the Energy Storage Battery designation attached to the pointer.
+   // Convert pointer movement to the symbol's rotated/scaled local axes
+   // instead of repeatedly recalculating its position from the label origin.
+   const angle=(Number(n.drawingRotation)||0)*Math.PI/180;
+   const dx=point.x-dragState.startPoint.x,dy=point.y-dragState.startPoint.y;
+   const localX=(dx*Math.cos(angle)+dy*Math.sin(angle))/sx;
+   const localY=(-dx*Math.sin(angle)+dy*Math.cos(angle))/sy;
+   n.textOffsets??={};
+   n.textOffsets[key]={x:Math.round(dragState.screenLabelStart.x+localX),y:Math.round(dragState.screenLabelStart.y+localY)};
+   return true;
+  }
   if(n.type==='disconnect'&&dragState.startPoint&&dragState.screenLabelStart){n.textOffsets??={};n.textOffsets[key]={x:dragState.screenLabelStart.x+point.x-dragState.startPoint.x,y:dragState.screenLabelStart.y+point.y-dragState.startPoint.y};return true;}
   // Combo labels live in counter-scaled groups. Their offsets are in
   // drawing units, not enclosure-local scaled coordinates.
