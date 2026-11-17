@@ -3424,9 +3424,13 @@ function drawEquipmentTextHighlights(){
    try{
     const b=t.getBBox();if(!b.width||!b.height)continue;
     const r=document.createElementNS(ns,'rect');
-    r.setAttribute('x',b.x-2);r.setAttribute('y',b.y-1);
-    r.setAttribute('width',b.width+4);r.setAttribute('height',b.height+2);
-    r.setAttribute('rx','2');if(t.hasAttribute('transform'))r.setAttribute('transform',t.getAttribute('transform'));r.setAttribute('fill',color);
+    // Wall labels use the same roomy rounded highlight as Rectangle/Cloud,
+    // centered on the text bounds without changing the text position or rotation.
+    const wallLabel=n.type==='planwall'&&key==='wallLabel';
+    const padX=wallLabel?9:2,padY=wallLabel?7:1;
+    r.setAttribute('x',b.x-padX);r.setAttribute('y',b.y-padY);
+    r.setAttribute('width',b.width+2*padX);r.setAttribute('height',b.height+2*padY);
+    r.setAttribute('rx',wallLabel?'10':'2');if(t.hasAttribute('transform'))r.setAttribute('transform',t.getAttribute('transform'));r.setAttribute('fill',color);
     r.setAttribute('pointer-events','none');t.parentNode.insertBefore(r,t);
    }catch(e){}
   }
