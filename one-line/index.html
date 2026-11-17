@@ -2855,6 +2855,21 @@ function activateEquipmentText(item,key){
  if(!item||!equipmentTextKeys(item).includes(key))return false;
  selectEquipmentTarget(item.id,key);
  const inspector=$('textInspector');
+ // Breaker fields must retain focus while typing. The palette's synthetic click
+ // can rebuild Properties during focus/pointerdown and discard the live input.
+ // Select the breaker text target without dispatching that click.
+ if(item.type==='breaker'){
+  const palette=inspector?.querySelector('.equipment-outline-palette');
+  if(palette){
+   palette.querySelectorAll('[data-format-target]').forEach(button=>{
+    const isLabel=button.dataset.formatTarget==='label';
+    button.classList.toggle('active',isLabel);
+    button.setAttribute('aria-pressed',String(isLabel));
+   });
+  }
+  inspector?.syncSelectedText?.();
+  return true;
+ }
  // Text selected through a description field must target the same palette
  // as text selected directly on the drawing or through the label chooser.
  inspector?.querySelector('.equipment-outline-palette [data-format-target="label"]')?.click();
