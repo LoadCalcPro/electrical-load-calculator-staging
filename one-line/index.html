@@ -2088,9 +2088,17 @@ function bindEquipmentFillEditor(p,item){
   const control=field.querySelector('input,select');
   if(control)control.style.cssText='box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;height:56px;min-height:56px;margin:0;padding:10px 14px;border-radius:14px;font-size:16px';
  }
+ // Change only the selected equipment artwork; do not rebuild the entire sheet.
+ const updateFillArtwork=()=>{
+  const root=$('nodes')?.querySelector('[data-node="'+item.id+'"]');
+  const artwork=root?.querySelector('.equipment-symbol');
+  if(!artwork){renderCanvasOnly();return;}
+  const base=equipmentAppearanceMarkup(preserveEquipmentCircles(applyEquipmentFill(symbol(item),item),item),item);
+  artwork.innerHTML=item.installationStatus==='remove'?base.replace(/<path\\b/g,'<path stroke-dasharray="5 3"').replace(/<rect\\b/g,'<rect stroke-dasharray="5 3"').replace(/<circle\\b/g,'<circle stroke-dasharray="5 3"').replace(/<line\\b/g,'<line stroke-dasharray="5 3"').replace(/<polyline\\b/g,'<polyline stroke-dasharray="5 3"'):base;
+ };
  const colorRow=settings.querySelector('[data-equipment-hatch-color-row]');
  colorRow.style.cssText='box-sizing:border-box;width:100%;min-width:0;margin:0 0 10px;padding:0;background:transparent';
- makeColorRows(colorRow,()=>item.fillColor||'#f5d84b',value=>{item.fillColor=value;renderCanvasOnly();},()=>'',()=>{},{colorLabel:'Fill / Hatch Color',noHighlight:true});
+ makeColorRows(colorRow,()=>item.fillColor||'#f5d84b',value=>{item.fillColor=value;updateFillArtwork();},()=>'',()=>{},{colorLabel:'Fill / Hatch Color',noHighlight:true});
  const fields=[['angle','hatchAngle',45],['spacing','hatchSpacing',12],['thickness','hatchThickness',1.5]];
  // Updating a hatch must not rebuild the entire drawing on each keystroke:
  // large sheets can become unresponsive while an input has focus.
@@ -2119,7 +2127,7 @@ function bindEquipmentFillEditor(p,item){
   el.addEventListener('change',()=>{updateHatch();el.value=item[key];});
  }
  const sync=()=>{settings.style.display=mode.value==='transparent'?'none':'';settings.querySelector('[data-equipment-hatch-numbers]').style.display=mode.value==='hatched'?'':'none';};
- mode.addEventListener('change',()=>{item.fillMode=mode.value;sync();p.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();renderCanvasOnly();});sync();
+ mode.addEventListener('change',()=>{item.fillMode=mode.value;sync();p.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();updateFillArtwork();});sync();
 }
 function applyEquipmentFill(markup,n){
  const mode=n.fillMode||'transparent';
