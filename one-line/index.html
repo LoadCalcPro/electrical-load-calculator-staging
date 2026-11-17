@@ -2940,8 +2940,8 @@ const developerPropertyVisibility=new Map();
 function installDeveloperPropertyVisibility(panel,item){
  if(!new URLSearchParams(location.search).has('developerProperties'))return;
  const type=item.equipmentSubtype||item.type||'equipment';
- const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:panel.querySelector(selector)?.closest('label.field, label')})).filter(v=>v.field);
- if(!present.length)return;
+ const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:panel.querySelector(selector)?.closest('label.field, label')}));
+ if(!present.some(v=>v.field))return;
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
  inspector.className='developer-property-visibility';
@@ -2950,10 +2950,10 @@ function installDeveloperPropertyVisibility(panel,item){
  const note=document.createElement('p');note.textContent='Visibility only. Existing controls remain connected. Missing controls are not yet supported by this equipment.';note.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(note);
  for(const entry of present){
   const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px';
-  const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=settings[entry.id]!==false;
-  entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';
-  checkbox.addEventListener('change',()=>{settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';});
-  line.append(checkbox,document.createTextNode(entry.label));inspector.appendChild(line);
+  const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
+  if(entry.field){entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';}
+  checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';});
+  line.append(checkbox,document.createTextNode(entry.label+(entry.field?'':' (not yet available)')));if(!entry.field)line.style.opacity='0.6';inspector.appendChild(line);
  }
  panel.prepend(inspector);
  inspector.open=true;
