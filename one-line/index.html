@@ -2955,7 +2955,8 @@ function installDeveloperPropertyVisibility(panel,item){
   checkbox.addEventListener('change',()=>{settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';});
   line.append(checkbox,document.createTextNode(entry.label));inspector.appendChild(line);
  }
- panel.appendChild(inspector);
+ panel.prepend(inspector);
+ inspector.open=true;
 }
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
