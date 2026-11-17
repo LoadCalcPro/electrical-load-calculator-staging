@@ -2970,16 +2970,51 @@ const UNIVERSAL_PROPERTY_CONTROLS=[
  ['designation','Equipment Designation','[data-prop="name"], [data-prop="label"]']
 ];
 const developerPropertyVisibility=new Map();
+const developerDesignationTerminology=new Map();
+function equipmentDesignationCaption(item){
+ const type=item.equipmentSubtype||item.type||'equipment';
+ const configured=developerDesignationTerminology.get(type);
+ if(configured)return configured;
+ if(['plansymbol','planlight','planreceptacle','planswitch'].includes(item.type))return 'Symbol Designation';
+ if(['planwall','planroom'].includes(item.type))return 'Label';
+ return 'Equipment Designation';
+}
+function setEquipmentDesignationCaption(field,caption){
+ if(!field)return;
+ const textNode=Array.from(field.childNodes).find(node=>node.nodeType===3&&node.textContent.trim());
+ if(textNode)textNode.textContent=caption+' ';
+ else{
+  const heading=field.querySelector(':scope > span, :scope > b');
+  if(heading)heading.textContent=caption;
+ }
+}
+
 function installDeveloperPropertyVisibility(panel,item){
  if(!new URLSearchParams(location.search).has('developerProperties'))return;
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:panel.querySelector(selector)?.closest('label.field, label')}));
  if(!present.some(v=>v.field))return;
+ const designationField=panel.querySelector('[data-prop="name"], [data-prop="label"]')?.closest('label.field, label');
+ if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
  inspector.className='developer-property-visibility';
  inspector.style.cssText='margin:12px 0;padding:10px;border:1px dashed #64748b;border-radius:8px;background:#f8fafc;color:#1e293b';
  const summary=document.createElement('summary');summary.textContent='Developer: Property Visibility ('+type+')';inspector.appendChild(summary);
+ const designationMode=document.createElement('label');
+ designationMode.style.cssText='display:flex;flex-direction:column;gap:5px;margin:10px 0;font-size:13px;font-weight:600';
+ designationMode.textContent='Primary designation field name';
+ const designationSelect=document.createElement('select');
+ for(const caption of ['Equipment Designation','Symbol Designation','Label']){
+  const option=document.createElement('option');option.value=caption;option.textContent=caption;designationSelect.appendChild(option);
+ }
+ designationSelect.value=equipmentDesignationCaption(item);
+ designationSelect.disabled=!designationField;
+ designationSelect.addEventListener('change',()=>{
+  developerDesignationTerminology.set(type,designationSelect.value);
+  setEquipmentDesignationCaption(designationField,designationSelect.value);
+ });
+ designationMode.appendChild(designationSelect);inspector.appendChild(designationMode);
  const note=document.createElement('p');note.textContent='Visibility only. Existing controls remain connected. Missing controls are not yet supported by this equipment.';note.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(note);
  for(const entry of present){
   const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px';
