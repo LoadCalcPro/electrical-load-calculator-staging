@@ -3462,6 +3462,9 @@ function drawEquipmentTextHighlights(){
     r.setAttribute('x',b.x-2);r.setAttribute('y',b.y-1);
     r.setAttribute('width',b.width+4);r.setAttribute('height',b.height+2);
     r.setAttribute('rx','2');if(t.hasAttribute('transform'))r.setAttribute('transform',t.getAttribute('transform'));r.setAttribute('fill',color);
+    // The global .node text white stroke masks a tight highlight behind glyphs.
+    // Remove that halo only for labels with an active highlight.
+    t.style.stroke='none';
     r.setAttribute('pointer-events','none');t.parentNode.insertBefore(r,t);
    }catch(e){}
   }
