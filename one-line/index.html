@@ -2984,12 +2984,12 @@ function saveDeveloperPropertyConfig(){
 function findDeveloperPropertyField(panel,id,selector){
  const roots=[panel,document.getElementById('textInspector')].filter(Boolean);
  const patterns={
-  size:/\\b(equipment|symbol)\\s*(size|scale)\\b/i,
-  rotation:/\\brotation\\b/i,
-  lineThickness:/\\b(drawing line thickness|drawing line weight|stroke thickness|line thickness)\\b/i,
-  outlinePattern:/\\b(outline pattern|equipment outline pattern|line pattern)\\b/i,
-  equipmentFill:/\\b(equipment fill|fill mode)\\b/i,
-  designation:/\\b(equipment designation|symbol designation|linear light designation|wall designation|label)\\b/i
+  size:/\b(equipment|symbol)\s*(size|scale)\b/i,
+  rotation:/\brotation\b/i,
+  lineThickness:/\b(drawing line thickness|drawing line weight|stroke thickness|line thickness)\b/i,
+  outlinePattern:/\b(outline pattern|equipment outline pattern|line pattern)\b/i,
+  equipmentFill:/\b(equipment fill|fill mode)\b/i,
+  designation:/\b(equipment designation|symbol designation|linear light designation|wall designation|label)\b/i
  };
  for(const root of roots){
   const direct=root.querySelector(selector)?.closest('label, .field');
