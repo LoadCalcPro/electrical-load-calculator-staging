@@ -2092,7 +2092,7 @@ function bindEquipmentFillEditor(p,item){
  colorRow.style.cssText='box-sizing:border-box;width:100%;min-width:0;margin:0 0 10px;padding:0;background:transparent';
  makeColorRows(colorRow,()=>item.fillColor||'#f5d84b',value=>{item.fillColor=value;renderCanvasOnly();},()=>'',()=>{},{colorLabel:'Fill / Hatch Color',noHighlight:true});
  const fields=[['angle','hatchAngle',45],['spacing','hatchSpacing',12],['thickness','hatchThickness',1.5]];
- for(const [name,key,fallback] of fields){const el=settings.querySelector('[data-equipment-hatch-'+name+']');el.value=item[key]??fallback;el.addEventListener('change',()=>{const v=Number(el.value);if(!Number.isFinite(v))return;item[key]=name==='spacing'?Math.max(1,Math.min(60,v)):name==='thickness'?Math.max(.5,Math.min(8,v)):Math.max(-360,Math.min(360,v));el.value=item[key];renderCanvasOnly();});}
+ for(const [name,key,fallback] of fields){const el=settings.querySelector('[data-equipment-hatch-'+name+']');el.value=item[key]??fallback;const updateHatch=()=>{if(el.value.trim()==='')return;const v=Number(el.value);if(!Number.isFinite(v))return;item[key]=name==='spacing'?Math.max(1,Math.min(60,v)):name==='thickness'?Math.max(.5,Math.min(8,v)):Math.max(-360,Math.min(360,v));renderCanvasOnly();};el.addEventListener('input',updateHatch);el.addEventListener('change',()=>{updateHatch();el.value=item[key];});}
  const sync=()=>{settings.style.display=mode.value==='transparent'?'none':'';settings.querySelector('[data-equipment-hatch-numbers]').style.display=mode.value==='hatched'?'':'none';};
  mode.addEventListener('change',()=>{item.fillMode=mode.value;sync();p.querySelector('.equipment-outline-palette')?.syncSelectedColor?.();renderCanvasOnly();});sync();
 }
