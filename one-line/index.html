@@ -3020,6 +3020,19 @@ function setEquipmentDesignationCaption(field,caption){
  }
 }
 
+function setDeveloperPropertyGroupVisibility(panel,entry,visible){
+ if(!entry.field)return;
+ const controls=[entry.field];
+ if(entry.id==='equipmentFill'){
+  // The fill palette and hatch controls are siblings of the fill-mode field.
+  // Treat them as one developer visibility group, without changing fill values.
+  controls.push(...panel.querySelectorAll('[data-equipment-hatch-settings]'));
+ }
+ for(const control of controls){
+  control.hidden=!visible;
+  control.style.display=visible?'':'none';
+ }
+}
 function installDeveloperPropertyVisibility(panel,item){
  // Staging-only developer inspector: do not depend on URL query parameters,
  // which may be dropped by navigation or deployment redirects.
@@ -3060,8 +3073,8 @@ function installDeveloperPropertyVisibility(panel,item){
  for(const entry of present){
   const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px';
   const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
-  if(entry.field){entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';}
-  checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);saveDeveloperPropertyConfig();entry.field.hidden=!checkbox.checked;entry.field.style.display=checkbox.checked?'':'none';});
+  if(entry.field)setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);
+  checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);saveDeveloperPropertyConfig();setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);});
   line.append(checkbox,document.createTextNode(entry.label+(entry.field?'':' (not yet available)')));if(!entry.field)line.style.opacity='0.6';inspector.appendChild(line);
  }
  host.appendChild(inspector);
