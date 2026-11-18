@@ -3422,6 +3422,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Room designation is drawn as roomLabel even when the generic equipment definitions omit it.
  if(item?.type==='planroom'&&!defs.some(def=>def[0]==='roomLabel'))defs.unshift(['roomLabel','Room designation',item.name||'',12]);
  if(item?.type==='planwall'&&!defs.some(def=>def[0]==='wallLabel'))defs.unshift(['wallLabel','Wall designation',item.name||'',Number(item.wallNameSize)||10]);
+ if(item&&['planpanel','plantransformer','plangenerator'].includes(item.type))for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){if(String(item.electricalInfo?.[key]??'').trim()&&!defs.some(def=>def[0]==='electrical:'+key))defs.push(['electrical:'+key,caption,String(item.electricalInfo[key]),10]);}
  const existing=p.querySelectorAll('[data-inner-text]:not(.property-priority [data-inner-text])');
  existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
  // Remove the now-empty duplicate text editing section, not the equipment's actual properties.
