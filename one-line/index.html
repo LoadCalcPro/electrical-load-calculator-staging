@@ -3279,7 +3279,7 @@ function installDeveloperPropertyVisibility(panel,item){
     const field=entry.field;
     if(field.closest('[data-equipment-hatch-settings]'))return false;
     const text=(field.textContent||'').trim().toLowerCase();
-    if(/^(color|highlight color|fill \\/ hatch color)$/.test(text))return false;
+    if(['color','highlight color','fill / hatch color'].includes(text))return false;
     return true;
    });
    const footprint=present.find(entry=>entry.id==='planFootprint')?.field;
