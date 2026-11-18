@@ -3228,6 +3228,9 @@ function installDeveloperPropertyVisibility(panel,item){
    present.push({id,label,field});usedFields.add(field);
   }
  }
+ // The Developer list represents real, actionable controls only. Do not
+ // display unavailable registry entries as phantom Properties.
+ for(let i=present.length-1;i>=0;i--)if(!present[i].field)present.splice(i,1);
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
@@ -3247,52 +3250,37 @@ function installDeveloperPropertyVisibility(panel,item){
   if(bi>=0)return 1;
   return (domIndex.get(a.id)??10000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id))-(domIndex.get(b.id)??10000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id));
  });
- const applyPropertyOrder=()=>{
-  const groups=new Map();
-  for(const entry of present){
-   if(!entry.field?.parentElement)continue;
-   const parent=entry.field.parentElement;
-   if(!groups.has(parent))groups.set(parent,[]);
-   groups.get(parent).push(entry.field);
-  }
-  for(const [parent,fields] of groups){
-   if(fields.length<2)continue;
-   const slots=Array.from(parent.children).filter(child=>fields.includes(child));
-   const ordered=present.map(entry=>entry.field).filter(field=>slots.includes(field));
-   // Replace existing slots via stable placeholders; insertBefore on
-   // moving nodes could otherwise shuffle or skip the target positions.
-   const markers=slots.map(()=>document.createComment('property-order-slot'));
-   slots.forEach((field,i)=>field.replaceWith(markers[i]));
-   markers.forEach((marker,i)=>marker.replaceWith(ordered[i]));
-  }
+ // Move individual controls without moving their event handlers or data.
+ // A shared Formatting card may contain nested groups: when safe, relocate
+ // the field into its neighbour's container. Never move an entire unrelated
+ // card or place a section inside a label/input.
+ const canMoveTogether=(a,b)=>{
+  if(!a?.field||!b?.field||a.field===b.field)return false;
+  const x=a.field,y=b.field;
+  if(x.contains(y)||y.contains(x))return false;
+  if(x.parentElement===y.parentElement)return true;
+  const common=x.closest('details.properties-common');
+  return !!common&&common.contains(y)&&
+   !x.closest('label')?.contains(y)&&!y.closest('label')?.contains(x);
  };
- // Footprint lives inside Formatting; move it beside the nearest available
- // field, not beside a top-level panel wrapper or inside an input label.
- const positionFootprint=()=>{
-  const footprint=present.find(e=>e.id==='planFootprint')?.field;
-  if(!footprint)return;
-  const formatting=document.querySelector('#textInspector details.properties-common')
-    ||panel.querySelector('details.properties-common');
-  if(!formatting)return;
-  // Designation is nested in the equipment information group. Previous
-  // ordering only inspected direct Formatting children, so it could never
-  // place footprint immediately after designation as requested.
-  const idx=present.findIndex(e=>e.id==='planFootprint');
-  const previous=[...present.slice(0,idx)].reverse().find(e=>e.field&&e.field!==footprint&&formatting.contains(e.field));
-  const next=present.slice(idx+1).find(e=>e.field&&e.field!==footprint&&formatting.contains(e.field));
-  const target=next||previous;
-  if(!target){if(!formatting.contains(footprint))formatting.appendChild(footprint);return;}
-  // Keep the footprint intact as one movable group (including electrical
-  // inputs and their live listeners), without nesting it inside a label.
-  let anchor=target.field;
-  const parent=anchor.parentElement;
-  if(!parent)return;
-  if(anchor.closest('label')&&anchor.closest('label')!==anchor)anchor=anchor.closest('label');
-  if(next)anchor.before(footprint);
-  else anchor.after(footprint);
+ const applyPropertyOrder=()=>{
+  // Work backwards so each movable field is placed immediately before the
+  // next field in the requested order, including across nested Formatting
+  // groups. Unsupported boundaries are left intact, never silently shuffled.
+  for(let i=present.length-2;i>=0;i--){
+   const current=present[i],next=present[i+1];
+   if(!canMoveTogether(current,next))continue;
+   const a=current.field,b=next.field;
+   if(a.parentElement===b.parentElement){
+    if(a.nextElementSibling!==b)b.before(a);
+   }else if(a.matches('label.field, div.field, section.property-section')&&
+      b.matches('label.field, div.field, section.property-section')&&
+      !a.closest('[data-plan-footprint-section]')&&!b.closest('[data-plan-footprint-section]')){
+    b.before(a);
+   }
+  }
  };
  applyPropertyOrder();
- positionFootprint();
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
  inspector.className='developer-property-visibility';
@@ -3328,20 +3316,14 @@ function installDeveloperPropertyVisibility(panel,item){
    line.append(checkbox,name);
    for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
-    const nextIndex=(()=>{let j=i+direction;while(j>=0&&j<present.length&&!present[j].field)j+=direction;return j>=0&&j<present.length?j:-1;})();
-    button.disabled=!entry.field||nextIndex<0;
+    const nextIndex=(()=>{const j=i+direction;return j>=0&&j<present.length&&canMoveTogether(present[i],present[j])?j:-1;})();
+    button.disabled=nextIndex<0;
     button.addEventListener('click',()=>{
-     const other=nextIndex;if(other<0)return;[present[i],present[other]]=[present[other],present[i]];
-     // Reorder actual fields and re-position the embedded footprint in the
-     // same Formatting card. Skipped unavailable controls have no DOM node.
-     const first=present[other].field,second=present[i].field;
-     if(first&&second&&first!==second&&first.id!=='planFootprint'&&second.id!=='planFootprint'&&first.parentElement===second.parentElement){
-      const a=document.createComment('property-order-a'),b=document.createComment('property-order-b');
-      first.replaceWith(a);second.replaceWith(b);a.replaceWith(second);b.replaceWith(first);
-     }
-     positionFootprint();
+     if(nextIndex<0)return;
+     [present[i],present[nextIndex]]=[present[nextIndex],present[i]];
      applyPropertyOrder();
-     developerPropertyOrder.set(type,present.map(v=>v.id));saveDeveloperPropertyConfig();drawList();
+     developerPropertyOrder.set(type,present.map(v=>v.id));
+     saveDeveloperPropertyConfig();drawList();
     });
     line.appendChild(button);
    }
