@@ -3102,8 +3102,8 @@ function syncEquipmentTextHighlight(info,svg,item,key,defs){
 // Enable the developer inspector only with ?developerProperties=1 in staging.
 const UNIVERSAL_PROPERTY_CONTROLS=[
  ['size','Equipment Size (%)','[data-equipment-size]'],
- ['planFootprint','Actual footprint and location (feet / inches)','[data-plan-footprint-section]'],
  ['rotation','Rotation','[data-wall-angle], [data-rotation], [data-drawing-rotation]'],
+ ['planFootprint','Actual footprint and location (feet / inches)','[data-plan-footprint-section]'],
  ['lineThickness','Drawing Line Thickness','[data-weight-value]'],
  ['outlinePattern','Outline Pattern','[data-equipment-pattern]'],
  ['equipmentFill','Equipment Fill','[data-equipment-fill]'],
@@ -3207,7 +3207,20 @@ function installDeveloperPropertyVisibility(panel,item){
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
+ // For newly configured Plan View equipment, mirror the actual DOM order
+ // instead of relying on the universal registry order. Existing saved
+ // developer ordering remains authoritative.
  const storedOrder=developerPropertyOrder.get(type)||[];
+ if(!storedOrder.length&&['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
+  const available=present.filter(entry=>entry.field);
+  available.sort((a,b)=>a.field===b.field?0:(a.field.compareDocumentPosition(b.field)&Node.DOCUMENT_POSITION_FOLLOWING)?-1:1);
+  const orderedIds=available.map(entry=>entry.id);
+  present.sort((a,b)=>{
+   const ai=orderedIds.indexOf(a.id),bi=orderedIds.indexOf(b.id);
+   return (ai<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id):ai)-(bi<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id):bi);
+  });
+ }
+
  present.sort((a,b)=>{const ai=storedOrder.indexOf(a.id),bi=storedOrder.indexOf(b.id);return (ai<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id):ai)-(bi<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id):bi);});
  const applyPropertyOrder=()=>{
   const groups=new Map();
