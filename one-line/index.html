@@ -3254,29 +3254,38 @@ function installDeveloperPropertyVisibility(panel,item){
  // A shared Formatting card may contain nested groups: when safe, relocate
  // the field into its neighbour's container. Never move an entire unrelated
  // card or place a section inside a label/input.
- const canMoveTogether=(a,b)=>{
-  if(!a?.field||!b?.field||a.field===b.field)return false;
-  const x=a.field,y=b.field;
-  if(x.contains(y)||y.contains(x))return false;
-  if(x.parentElement===y.parentElement)return true;
-  const common=x.closest('details.properties-common');
-  return !!common&&common.contains(y)&&
-   !x.closest('label')?.contains(y)&&!y.closest('label')?.contains(x);
- };
  const applyPropertyOrder=()=>{
-  // Work backwards so each movable field is placed immediately before the
-  // next field in the requested order, including across nested Formatting
-  // groups. Unsupported boundaries are left intact, never silently shuffled.
-  for(let i=present.length-2;i>=0;i--){
-   const current=present[i],next=present[i+1];
-   if(!canMoveTogether(current,next))continue;
-   const a=current.field,b=next.field;
-   if(a.parentElement===b.parentElement){
-    if(a.nextElementSibling!==b)b.before(a);
-   }else if(a.matches('label.field, div.field, section.property-section')&&
-      b.matches('label.field, div.field, section.property-section')&&
-      !a.closest('[data-plan-footprint-section]')&&!b.closest('[data-plan-footprint-section]')){
-    b.before(a);
+  // Reorder the actual Properties controls according to the Developer list.
+  // Plan View's Formatting card is the common visual parent; preserve each
+  // existing field node and its listeners, including the footprint section.
+  const formatting=document.querySelector('#textInspector details.properties-common')
+    ||panel.querySelector('details.properties-common');
+  if(formatting&&['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
+   const movable=present.filter(entry=>entry.field&&
+     (formatting.contains(entry.field)||entry.id==='planFootprint')&&
+     !present.some(other=>other!==entry&&other.field&&other.field.contains(entry.field)));
+   // Keep the header and non-Property elements intact. The fields are
+   // moved into one continuous Formatting list so nested wrappers cannot
+   // prevent the requested order from taking effect.
+   for(const entry of movable){
+    if(entry.field===formatting||entry.field.contains(formatting))continue;
+    formatting.appendChild(entry.field);
+   }
+  }else{
+   // Other equipment: reorder only fields within their existing parent.
+   const groups=new Map();
+   for(const entry of present){
+    const field=entry.field,parent=field?.parentElement;
+    if(!parent||present.some(other=>other!==entry&&other.field?.contains(field)))continue;
+    if(!groups.has(parent))groups.set(parent,[]);
+    groups.get(parent).push(field);
+   }
+   for(const [parent,fields] of groups){
+    if(fields.length<2)continue;
+    const slots=Array.from(parent.children).filter(node=>fields.includes(node));
+    const markers=slots.map(()=>document.createComment('property-order-slot'));
+    slots.forEach((field,i)=>field.replaceWith(markers[i]));
+    markers.forEach((marker,i)=>marker.replaceWith(fields[i]));
    }
   }
  };
@@ -3316,7 +3325,7 @@ function installDeveloperPropertyVisibility(panel,item){
    line.append(checkbox,name);
    for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
-    const nextIndex=(()=>{const j=i+direction;return j>=0&&j<present.length&&canMoveTogether(present[i],present[j])?j:-1;})();
+    const nextIndex=(()=>{const j=i+direction;return j>=0&&j<present.length?j:-1;})();
     button.disabled=nextIndex<0;
     button.addEventListener('click',()=>{
      if(nextIndex<0)return;
