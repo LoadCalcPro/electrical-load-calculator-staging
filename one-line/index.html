@@ -3298,6 +3298,11 @@ function installDeveloperPropertyVisibility(panel,item){
     if(entry.field===formatting||entry.field.contains(formatting))continue;
     formatting.appendChild(entry.field);
    }
+   // Reattach dependent fill controls immediately after Equipment Fill.
+   // They must never be stranded by Developer reordering.
+   const fillField=present.find(entry=>entry.id==='equipmentFill')?.field;
+   const fillSettings=panel.querySelector('[data-equipment-hatch-settings]');
+   if(fillField&&fillSettings)fillField.after(fillSettings);
   }else{
    // Other equipment: reorder only fields within their existing parent.
    const groups=new Map();
@@ -3768,10 +3773,13 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const fillControl=p.querySelector('[data-equipment-fill]')?.closest('label');
  const fillColorControl=p.querySelector('[data-equipment-fill-color-row]');
  const hatchControls=p.querySelector('[data-equipment-hatch-settings]');
- if(fillControl)appearance.appendChild(fillControl);
- // Keep hatch color and numeric controls immediately after Equipment fill,
- // rather than leaving them behind the Linear Light dimensions.
- if(hatchControls)appearance.appendChild(hatchControls);
+ if(fillControl){
+  appearance.appendChild(fillControl);
+  // The fill palette and hatch options belong directly under their selector.
+  // Keep the settings as a sibling of the fill field, never in a separate
+  // appearance location that can drift during Properties reordering.
+  if(hatchControls)fillControl.after(hatchControls);
+ }else if(hatchControls)appearance.appendChild(hatchControls);
  if(fillColorControl)appearance.appendChild(fillColorControl);
  if(advanced.children.length)appearance.appendChild(advanced);
  // Normalize this secondary group at the element level; older theme rules
