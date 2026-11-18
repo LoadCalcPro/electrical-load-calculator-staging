@@ -1555,6 +1555,22 @@ function removeInvalidPlanWallJoints(){
  for(const wall of nodes.filter(n=>n.type==='planwall'&&n.wallJoints))
   wall.wallJoints=wall.wallJoints.filter(j=>valid.has(j.wallId)&&j.wallId!==wall.id&&[-1,1].includes(j.side)&&[-1,1].includes(j.otherSide));
 }
+// Rotating a wall changes its endpoint geometry. Release only its own
+// reciprocal joints when the requested rotation cannot preserve them.
+function rotatePlanWallSafely(wall,angle){
+ const previous=Number(wall.wallAngle)||0;
+ const next=((Number(angle)%360)+360)%360;
+ if(Math.abs(next-previous)<0.00001)return;
+ wall.wallAngle=next;
+ if(syncPlanWallJoints(wall)===false){
+  // Restore any translated neighbors before releasing the incompatible joints.
+  for(const other of nodes.filter(n=>n.type==='planwall'&&n.id!==wall.id&&n.wallJoints))
+   other.wallJoints=other.wallJoints.filter(j=>j.wallId!==wall.id);
+  wall.wallJoints=[];
+  $('status').textContent='Wall rotated; incompatible endpoint connections were released.';
+ }
+ moveAttachedPlanOpenings(wall);
+}
 function syncPlanWallJoints(source){
  if(source.type!=='planwall'||!source.wallJoints?.length)return true;
  const visited=new Set([source.id]),queue=[source],walls=new Map(nodes.filter(n=>n.type==='planwall').map(n=>[n.id,n]));
@@ -3529,7 +3545,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  if(rotation&&offsetGrid){
   rotation.classList.add('field','shared-rotation-field');
   const rotationInput=rotation.querySelector('input');
-  if(rotationInput){rotationInput.classList.add('shared-rotation-input');rotationInput.step='1';rotationInput.style.setProperty('appearance','auto','important');rotationInput.style.setProperty('-webkit-appearance','auto','important');rotationInput.classList.add('persistent-native-rotation-spinner');rotationInput.addEventListener('input',event=>{event.stopPropagation();if(selected?.kind!=='node'||selected.id!==item.id||rotationInput.value==='')return;const angle=Number(rotationInput.value);if(!Number.isFinite(angle))return;const rotationTextKey=item.type==='planwall'&&common.querySelector('.equipment-format-targets')?.value==='label'?'wallLabel':activeInnerKey;if(rotationTextKey){if(rotationTextKey==='drawingLabel')item.drawingLabelRotation=angle;else{item.textRotations??={};item.textRotations[rotationTextKey]=angle;}renderCanvasOnly();return;}if(item.type==='planwall'){const previous=item.wallAngle;item.wallAngle=((angle%360)+360)%360;if(syncPlanWallJoints(item)===false)item.wallAngle=previous;else moveAttachedPlanOpenings(item);}else item.drawingRotation=angle;
+  if(rotationInput){rotationInput.classList.add('shared-rotation-input');rotationInput.step='1';rotationInput.style.setProperty('appearance','auto','important');rotationInput.style.setProperty('-webkit-appearance','auto','important');rotationInput.classList.add('persistent-native-rotation-spinner');rotationInput.addEventListener('input',event=>{event.stopPropagation();if(selected?.kind!=='node'||selected.id!==item.id||rotationInput.value==='')return;const angle=Number(rotationInput.value);if(!Number.isFinite(angle))return;const rotationTextKey=item.type==='planwall'&&common.querySelector('.equipment-format-targets')?.value==='label'?'wallLabel':activeInnerKey;if(rotationTextKey){if(rotationTextKey==='drawingLabel')item.drawingLabelRotation=angle;else{item.textRotations??={};item.textRotations[rotationTextKey]=angle;}renderCanvasOnly();return;}if(item.type==='planwall'){rotatePlanWallSafely(item,angle);}else item.drawingRotation=angle;
    // Update the selected equipment SVG directly while the number spinner is held.
    // Rebuilding the SVG on each spinner input interrupts native repeated stepping.
    if(!activeInnerKey&&item.type!=='planwall'){
@@ -4758,10 +4774,7 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
    if(wallAngleControl.value===''||!Number.isFinite(Number(wallAngleControl.value)))return;
    if(wallLabelSelected()){item.textRotations??={};item.textRotations.wallLabel=Number(wallAngleControl.value);return;}
    const next=((Number(wallAngleControl.value)%360)+360)%360;
-   const previous=item.wallAngle;
-   item.wallAngle=next;
-   if(syncPlanWallJoints(item)===false)item.wallAngle=previous;
-   else moveAttachedPlanOpenings(item);
+   rotatePlanWallSafely(item,next);
   };
   wallAngleControl.addEventListener('input',event=>{
    event.stopPropagation();
