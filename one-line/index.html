@@ -3231,33 +3231,25 @@ function installDeveloperPropertyVisibility(panel,item){
  const positionFootprint=()=>{
   const footprint=present.find(e=>e.id==='planFootprint')?.field;
   if(!footprint)return;
-  // The upper Formatting controls live in textInspector. Keep the footprint
-  // there instead of moving it back to the white lower Properties column.
-  if(footprint.closest('#textInspector'))return;
+  const formatting=document.querySelector('#textInspector details.properties-common.plan-unified-formatting')
+    ||document.querySelector('#textInspector details.properties-common')
+    ||panel.querySelector('details.properties-common');
+  if(!formatting)return;
+  // The developer list controls the actual order, not just the arrow labels.
+  // Find the nearest field in the SAME Formatting card, since the other
+  // inspector root cannot be interleaved with it.
   const idx=present.findIndex(e=>e.id==='planFootprint');
-  const available=present.filter(e=>e.field&&e.field!==footprint);
-  if(!available.length)return;
-  const before=present.slice(idx+1).find(e=>e.field&&e.field!==footprint);
-  const after=present.slice(0,idx).reverse().find(e=>e.field&&e.field!==footprint);
-  const target=before||after;
-  if(!target)return;
-  let anchor=target.field;
-  // Find the nearest common ancestor without ever nesting the section
-  // inside a label or relocating the other field's event listeners.
-  while(anchor.parentElement&&anchor.parentElement!==footprint.parentElement&&anchor.parentElement!==panel)anchor=anchor.parentElement;
-  if(anchor===footprint||!anchor.parentElement)return;
-  if(anchor.parentElement!==footprint.parentElement){
-   // Nested Formatting content may have a different parent; use its own
-   // formatting container, preserving a single continuous Properties card.
-   const formatting=document.querySelector('#textInspector details.properties-common')||panel.querySelector('details.properties-common');
-   if(formatting&&formatting.contains(target.field)){
-    let nested=target.field;
-    while(nested.parentElement&&nested.parentElement!==formatting)nested=nested.parentElement;
-    anchor=nested;
-   }else return;
-  }
-  if(before)anchor.before(footprint);
-  else anchor.after(footprint);
+  const inFormatting=e=>e.field&&e.field!==footprint&&formatting.contains(e.field)
+    &&!footprint.contains(e.field);
+  const following=present.slice(idx+1).find(inFormatting);
+  const preceding=[...present.slice(0,idx)].reverse().find(inFormatting);
+  const neighbor=following||preceding;
+  if(!neighbor){if(footprint.parentElement!==formatting)formatting.appendChild(footprint);return;}
+  let anchor=neighbor.field;
+  while(anchor.parentElement&&anchor.parentElement!==formatting)anchor=anchor.parentElement;
+  if(anchor.parentElement!==formatting||anchor===footprint)return;
+  if(following){if(anchor.nextElementSibling!==footprint)formatting.insertBefore(footprint,anchor);}
+  else if(footprint.previousElementSibling!==anchor)anchor.after(footprint);
  };
  applyPropertyOrder();
  positionFootprint();
@@ -3308,6 +3300,7 @@ function installDeveloperPropertyVisibility(panel,item){
       first.replaceWith(a);second.replaceWith(b);a.replaceWith(second);b.replaceWith(first);
      }
      positionFootprint();
+     applyPropertyOrder();
      developerPropertyOrder.set(type,present.map(v=>v.id));saveDeveloperPropertyConfig();drawList();
     });
     line.appendChild(button);
