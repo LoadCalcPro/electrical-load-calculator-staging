@@ -1400,7 +1400,7 @@ function snapPlanOpeningToWall(n){
 }
 // Snap a moved wall endpoint to another wall endpoint without changing wall length or angle.
 function snapPlanWallEndpoint(n){
- if(n.type!=='planwall'||n.wallSnapDisabled===true)return false;
+ if(n.type!=='planwall')return false;
  const px=planUnitsPerInch(),angle=(Number(n.wallAngle)||0)*Math.PI/180;
  const ux=Math.cos(angle),uy=Math.sin(angle),half=Math.max(1,Number(n.wallLengthIn)||120)*px/2;
  let best=null;
@@ -4739,9 +4739,10 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
   for(const other of nodes.filter(n=>n.type==='planwall'&&n.id!==item.id&&n.wallJoints))
    other.wallJoints=other.wallJoints.filter(j=>j.wallId!==item.id);
   item.wallJoints=[];
-  // Do not immediately recreate the same connection when the wall is moved.
-  item.wallSnapDisabled=true;
-  $('status').textContent='Wall disconnected. Automatic endpoint snapping is off for this wall.';
+  // Disconnect only clears the current joints. The wall can snap to another
+  // endpoint again on a subsequent drag-and-release.
+  delete item.wallSnapDisabled;
+  $('status').textContent='Wall disconnected. Move an endpoint near another wall endpoint to reconnect.';
   render();
  });
  const updateWallGeometry=(key,value,input)=>{
