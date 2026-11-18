@@ -948,6 +948,10 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 #properties [data-plan-footprint-section]>.field,#properties [data-plan-electrical-info]>.field{width:100%;min-width:0;box-sizing:border-box;margin:0;color:#435b78;font-weight:600;}
 #properties [data-plan-footprint-section] input{min-width:0;box-sizing:border-box;background:white;border:1px solid #c8d9f1;border-radius:12px;}
 #properties [data-plan-footprint-section] .status:empty{display:none;}
+
+/* Embedded Plan View fields inherit the one continuous Formatting card. */
+#properties [data-plan-footprint-section].embedded-plan-footprint{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin:0!important;box-shadow:none!important;}
+#properties details.properties-common:has(.embedded-plan-footprint){overflow:visible;}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -3214,6 +3218,17 @@ const SHARED_ELECTRICAL_FIELDS=[
  ['voltage','Voltage / Phase'],['mainType','Main designation'],['amps','Rating (A)'],['kaic','Interrupting Rating (kAIC)'],
  ['fuseAmps','Fuse Size (A)'],['kw','Generator Rating (kW)'],['kva','Transformer Rating (kVA)']
 ];
+function mergePlanFootprintIntoFormatting(panel,item){
+ if(!['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type))return;
+ const footprint=panel.querySelector('[data-plan-footprint-section]');
+ const formatting=panel.querySelector('details.properties-common');
+ if(!footprint||!formatting||formatting.contains(footprint))return;
+ // Keep the whole live footprint node (including inputs and listeners) while
+ // removing its independent card. Developer visibility still targets the node.
+ footprint.style.cssText='display:flex;flex-direction:column;gap:9px;margin:0;padding:0;border:0;background:transparent;border-radius:0;width:100%;min-width:0;box-sizing:border-box';
+ footprint.classList.add('embedded-plan-footprint');
+ formatting.appendChild(footprint);
+}
 function installPlanElectricalInformation(panel,item){
  if(!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
  if(panel.querySelector('[data-plan-electrical-info]'))return;
@@ -3248,6 +3263,7 @@ function installPlanElectricalInformation(panel,item){
  }
  // The footprint and electrical ratings form one continuous Plan View
  // equipment-information card, not separate bordered sections.
+ mergePlanFootprintIntoFormatting(panel,item);
  const footprint=panel.querySelector('[data-plan-footprint-section]');
  if(footprint){
   footprint.dataset.planElectricalInfo='';
