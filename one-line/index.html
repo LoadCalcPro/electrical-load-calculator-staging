@@ -3204,6 +3204,30 @@ function installDeveloperPropertyVisibility(panel,item){
   const footprint=present.find(entry=>entry.id==='planFootprint');
   if(footprint)footprint.field=panel.querySelector('section[data-plan-footprint-section]')||document.querySelector('#textInspector section[data-plan-footprint-section]');
  }
+ // Discover actual rendered property groups as well as registered universal controls.
+ // This keeps equipment-specific sections in the developer list instead of
+ // silently omitting them whenever a new drawing tool adds Properties.
+ const usedFields=new Set(present.filter(entry=>entry.field).map(entry=>entry.field));
+ const propertyRoots=[panel,document.getElementById('textInspector')].filter(Boolean);
+ const propertyLabel=(field)=>{
+  const title=field.querySelector(':scope > summary, :scope > h4, :scope > h3, :scope > b');
+  if(title)return (title.textContent||'').trim();
+  const nodes=Array.from(field.childNodes).filter(node=>node.nodeType===3);
+  return nodes.map(node=>node.textContent||'').join(' ').trim()||field.getAttribute('aria-label')||'';
+ };
+ for(const root of propertyRoots){
+  for(const field of root.querySelectorAll('details.properties-common, section.property-section, .property-priority, label.field, div.field')){
+   if(usedFields.has(field)||field.closest('#developerSettingsHost'))continue;
+   if(!field.querySelector('input,select,textarea')&&!field.matches('details.properties-common'))continue;
+   // Do not create duplicate developer entries for children of an already
+   // registered group (notably the complete Actual Footprint section).
+   if(Array.from(usedFields).some(used=>used.contains(field)))continue;
+   const label=propertyLabel(field);
+   if(!label)continue;
+   const id='actual:'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+':'+present.filter(e=>e.label===label).length;
+   present.push({id,label,field});usedFields.add(field);
+  }
+ }
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
