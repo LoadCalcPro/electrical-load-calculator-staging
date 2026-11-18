@@ -3180,7 +3180,7 @@ function setDeveloperPropertyGroupVisibility(panel,entry,visible){
  }
  for(const control of controls){
   control.hidden=!visible;
-  control.style.display=visible?'':'none';
+  control.style.setProperty('display',visible?'':'none',visible?'':'important');
  }
 }
 function installDeveloperPropertyVisibility(panel,item){
@@ -3228,6 +3228,12 @@ function installDeveloperPropertyVisibility(panel,item){
    present.push({id,label,field});usedFields.add(field);
   }
  }
+ // Resolve individual electrical rows, even when nested in footprint.
+ for(const entry of present){
+  if(!['voltage','mainType','amps','fuseAmps','kaic','kw','kva'].includes(entry.id))continue;
+  const input=panel.querySelector('[data-electrical-info="'+entry.id+'"]')||document.querySelector('#textInspector [data-electrical-info="'+entry.id+'"]');
+  if(input)entry.field=input.closest('[data-electrical-field]')||input.closest('label.field');
+ }
  // The Developer list represents real, actionable controls only. Do not
  // display unavailable registry entries as phantom Properties.
  for(let i=present.length-1;i>=0;i--)if(!present[i].field)present.splice(i,1);
@@ -3262,8 +3268,14 @@ function installDeveloperPropertyVisibility(panel,item){
     ||panel.querySelector('details.properties-common');
   if(formatting&&['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
    const movable=present.filter(entry=>entry.field&&
-     (formatting.contains(entry.field)||entry.id==='planFootprint')&&
-     !present.some(other=>other!==entry&&other.field&&other.field.contains(entry.field)));
+     (formatting.contains(entry.field)||entry.id==='planFootprint'));
+   const footprint=present.find(entry=>entry.id==='planFootprint')?.field;
+   // Extract nested electrical fields before moving the footprint section.
+   if(footprint){
+    for(const entry of movable){
+     if(entry.field!==footprint&&footprint.contains(entry.field))formatting.appendChild(entry.field);
+    }
+   }
    // Keep the header and non-Property elements intact. The fields are
    // moved into one continuous Formatting list so nested wrappers cannot
    // prevent the requested order from taking effect.
@@ -3384,6 +3396,7 @@ function installPlanElectricalInformation(panel,item){
    for(const value of options){const option=document.createElement('option');option.value=value;option.textContent=value||(key==='voltage'?'Select voltage / phase':'Select');input.appendChild(option);}
   }
   input.value=current;
+  field.dataset.electricalField=key;
   input.dataset.electricalInfo=key;
   input.style.cssText='width:100%;min-width:0;box-sizing:border-box;height:48px;padding:8px 14px;background:white;border:1px solid #c8d9f1;border-radius:14px;font-size:16px;font-weight:400;color:#172a40';
   input.addEventListener('focus',()=>{if(key!=='mainType')activateEquipmentText(item,'electrical:'+key);});
