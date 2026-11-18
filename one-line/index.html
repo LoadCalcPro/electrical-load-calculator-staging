@@ -949,6 +949,33 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 #properties [data-plan-footprint-section] input{min-width:0;box-sizing:border-box;background:white;border:1px solid #c8d9f1;border-radius:12px;}
 #properties [data-plan-footprint-section] .status:empty{display:none;}
 
+/* Plan View footprint and electrical details: same compact continuous field list
+   as the upper Properties controls, without a second nested card or gutters. */
+#drawingMain #properties [data-plan-footprint-section]{
+ background:transparent!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;padding:0!important;margin:0!important;
+ width:100%!important;max-width:100%!important;gap:0!important;
+}
+#drawingMain #properties [data-plan-footprint-section]>.field{
+ margin:0 0 6px!important;padding:0!important;width:100%!important;
+ font-size:inherit!important;line-height:1.3!important;
+}
+#drawingMain #properties [data-plan-footprint-section]>.field>span{
+ gap:8px!important;width:100%!important;
+}
+#drawingMain #properties [data-plan-footprint-section]>.field input,
+#drawingMain #properties [data-plan-footprint-section]>.field select{
+ width:100%!important;min-width:0!important;box-sizing:border-box!important;
+}
+#drawingMain #properties [data-plan-footprint-section]>.field:first-child{
+ margin:0 0 6px!important;
+}
+#drawingMain #properties [data-plan-footprint-section] [data-electrical-field]{
+ margin:0 0 6px!important;padding:0!important;
+}
+#drawingMain #properties [data-plan-footprint-section]+[data-plan-electrical-info]{
+ display:none!important;
+}
 /* Embedded Plan View fields inherit the one continuous Formatting card. */
 #properties [data-plan-footprint-section].embedded-plan-footprint{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin:0!important;box-shadow:none!important;}
 #properties details.properties-common:has(.embedded-plan-footprint){overflow:visible;}
