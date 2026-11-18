@@ -979,6 +979,13 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 /* Embedded Plan View fields inherit the one continuous Formatting card. */
 #properties [data-plan-footprint-section].embedded-plan-footprint{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin:0!important;box-shadow:none!important;}
 #properties details.properties-common:has(.embedded-plan-footprint){overflow:visible;}
+
+/* The embedded footprint is part of the upper Formatting card, even though
+   it originated in the separate Properties container. */
+#drawingInspector #textInspector .properties-common [data-plan-footprint-section]{display:flex!important;flex-direction:column!important;gap:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;width:100%!important;box-sizing:border-box!important;}
+#drawingInspector #textInspector .properties-common [data-plan-footprint-section]>.field{margin:5px 10px!important;padding:0!important;width:calc(100% - 20px)!important;box-sizing:border-box!important;}
+#drawingInspector #textInspector .properties-common [data-plan-footprint-section]>.field>span{display:flex!important;gap:8px!important;}
+#drawingInspector #textInspector .properties-common [data-plan-footprint-section] input,#drawingInspector #textInspector .properties-common [data-plan-footprint-section] select{min-width:0!important;box-sizing:border-box!important;}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -3159,7 +3166,7 @@ function installDeveloperPropertyVisibility(panel,item){
  // list does not depend on the generic field matcher or stale inspector DOM.
  if(['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
   const footprint=present.find(entry=>entry.id==='planFootprint');
-  if(footprint)footprint.field=panel.querySelector('section[data-plan-footprint-section]');
+  if(footprint)footprint.field=panel.querySelector('section[data-plan-footprint-section]')||document.querySelector('#textInspector section[data-plan-footprint-section]');
  }
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
@@ -3188,6 +3195,9 @@ function installDeveloperPropertyVisibility(panel,item){
  const positionFootprint=()=>{
   const footprint=present.find(e=>e.id==='planFootprint')?.field;
   if(!footprint)return;
+  // The upper Formatting controls live in textInspector. Keep the footprint
+  // there instead of moving it back to the white lower Properties column.
+  if(footprint.closest('#textInspector'))return;
   const idx=present.findIndex(e=>e.id==='planFootprint');
   const available=present.filter(e=>e.field&&e.field!==footprint);
   if(!available.length)return;
@@ -3203,7 +3213,7 @@ function installDeveloperPropertyVisibility(panel,item){
   if(anchor.parentElement!==footprint.parentElement){
    // Nested Formatting content may have a different parent; use its own
    // formatting container, preserving a single continuous Properties card.
-   const formatting=panel.querySelector('details.properties-common');
+   const formatting=document.querySelector('#textInspector details.properties-common')||panel.querySelector('details.properties-common');
    if(formatting&&formatting.contains(target.field)){
     let nested=target.field;
     while(nested.parentElement&&nested.parentElement!==formatting)nested=nested.parentElement;
