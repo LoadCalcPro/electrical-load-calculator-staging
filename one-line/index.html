@@ -3246,7 +3246,13 @@ function installPlanElectricalInformation(panel,item){
   if(['amps','fuseAmps'].includes(key))input.addEventListener('change',update);
   field.appendChild(input);section.appendChild(field);
  }
- panel.appendChild(section);
+ // The footprint and electrical ratings form one continuous Plan View
+ // equipment-information card, not separate bordered sections.
+ const footprint=panel.querySelector('[data-plan-footprint-section]');
+ if(footprint){
+  footprint.dataset.planElectricalInfo='';
+  for(const field of [...section.children])footprint.appendChild(field);
+ }else panel.appendChild(section);
 }
 function electricalTextDefaultPosition(item,key){
  const B=bounds(item);
