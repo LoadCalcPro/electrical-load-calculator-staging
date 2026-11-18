@@ -3207,21 +3207,21 @@ function installDeveloperPropertyVisibility(panel,item){
  // Discover actual rendered property groups as well as registered universal controls.
  // This keeps equipment-specific sections in the developer list instead of
  // silently omitting them whenever a new drawing tool adds Properties.
+ // Discover only leaf controls not already represented by a registered
+ // section. Parent cards are layout containers, not duplicate controls.
  const usedFields=new Set(present.filter(entry=>entry.field).map(entry=>entry.field));
  const propertyRoots=[panel,document.getElementById('textInspector')].filter(Boolean);
  const propertyLabel=(field)=>{
-  const title=field.querySelector(':scope > summary, :scope > h4, :scope > h3, :scope > b');
-  if(title)return (title.textContent||'').trim();
-  const nodes=Array.from(field.childNodes).filter(node=>node.nodeType===3);
-  return nodes.map(node=>node.textContent||'').join(' ').trim()||field.getAttribute('aria-label')||'';
+  const heading=field.querySelector(':scope > summary, :scope > h4, :scope > h3, :scope > b');
+  if(heading)return (heading.textContent||'').trim();
+  const directText=Array.from(field.childNodes).filter(node=>node.nodeType===3).map(node=>node.textContent||'').join(' ').trim();
+  return directText||field.getAttribute('aria-label')||'';
  };
  for(const root of propertyRoots){
-  for(const field of root.querySelectorAll('details.properties-common, section.property-section, .property-priority, label.field, div.field')){
+  for(const field of root.querySelectorAll('label.field, div.field, section.property-section')){
    if(usedFields.has(field)||field.closest('#developerSettingsHost'))continue;
-   if(!field.querySelector('input,select,textarea')&&!field.matches('details.properties-common'))continue;
-   // Do not create duplicate developer entries for children of an already
-   // registered group (notably the complete Actual Footprint section).
-   if(Array.from(usedFields).some(used=>used.contains(field)))continue;
+   if(Array.from(usedFields).some(used=>used.contains(field)||field.contains(used)))continue;
+   if(!field.querySelector('input,select,textarea'))continue;
    const label=propertyLabel(field);
    if(!label)continue;
    const id='actual:'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+':'+present.filter(e=>e.label===label).length;
@@ -3231,21 +3231,22 @@ function installDeveloperPropertyVisibility(panel,item){
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
- // For newly configured Plan View equipment, mirror the actual DOM order
- // instead of relying on the universal registry order. Existing saved
- // developer ordering remains authoritative.
+ // The actual rendered order is the baseline for every equipment type.
+ // Stored developer order overrides it only for entries that were saved.
  const storedOrder=developerPropertyOrder.get(type)||[];
- if(!storedOrder.length&&['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
-  const available=present.filter(entry=>entry.field);
-  available.sort((a,b)=>a.field===b.field?0:(a.field.compareDocumentPosition(b.field)&Node.DOCUMENT_POSITION_FOLLOWING)?-1:1);
-  const orderedIds=available.map(entry=>entry.id);
-  present.sort((a,b)=>{
-   const ai=orderedIds.indexOf(a.id),bi=orderedIds.indexOf(b.id);
-   return (ai<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id):ai)-(bi<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id):bi);
-  });
- }
-
- present.sort((a,b)=>{const ai=storedOrder.indexOf(a.id),bi=storedOrder.indexOf(b.id);return (ai<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id):ai)-(bi<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id):bi);});
+ const domOrder=present.filter(entry=>entry.field).sort((a,b)=>{
+  if(a.field===b.field)return 0;
+  const relation=a.field.compareDocumentPosition(b.field);
+  return relation&Node.DOCUMENT_POSITION_FOLLOWING?-1:relation&Node.DOCUMENT_POSITION_PRECEDING?1:0;
+ });
+ const domIndex=new Map(domOrder.map((entry,index)=>[entry.id,index]));
+ present.sort((a,b)=>{
+  const ai=storedOrder.indexOf(a.id),bi=storedOrder.indexOf(b.id);
+  if(ai>=0&&bi>=0)return ai-bi;
+  if(ai>=0)return -1;
+  if(bi>=0)return 1;
+  return (domIndex.get(a.id)??10000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id))-(domIndex.get(b.id)??10000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id));
+ });
  const applyPropertyOrder=()=>{
   const groups=new Map();
   for(const entry of present){
@@ -3256,11 +3257,13 @@ function installDeveloperPropertyVisibility(panel,item){
   }
   for(const [parent,fields] of groups){
    if(fields.length<2)continue;
-   const original=Array.from(parent.children);
-   const slots=original.filter(child=>fields.includes(child));
-   if(slots.length<2)continue;
+   const slots=Array.from(parent.children).filter(child=>fields.includes(child));
    const ordered=present.map(entry=>entry.field).filter(field=>slots.includes(field));
-   for(let i=0;i<slots.length;i++)parent.insertBefore(ordered[i],slots[i]);
+   // Replace existing slots via stable placeholders; insertBefore on
+   // moving nodes could otherwise shuffle or skip the target positions.
+   const markers=slots.map(()=>document.createComment('property-order-slot'));
+   slots.forEach((field,i)=>field.replaceWith(markers[i]));
+   markers.forEach((marker,i)=>marker.replaceWith(ordered[i]));
   }
  };
  // Footprint lives inside Formatting; move it beside the nearest available
