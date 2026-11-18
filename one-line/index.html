@@ -986,6 +986,21 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 #drawingInspector #textInspector .properties-common [data-plan-footprint-section]>.field{margin:5px 10px!important;padding:0!important;width:calc(100% - 20px)!important;box-sizing:border-box!important;}
 #drawingInspector #textInspector .properties-common [data-plan-footprint-section]>.field>span{display:flex!important;gap:8px!important;}
 #drawingInspector #textInspector .properties-common [data-plan-footprint-section] input,#drawingInspector #textInspector .properties-common [data-plan-footprint-section] select{min-width:0!important;box-sizing:border-box!important;}
+
+/* Unified Plan View equipment properties: one blue padded surface. */
+#drawingInspector #textInspector details.properties-common.plan-unified-formatting,
+#drawingInspector #properties details.properties-common.plan-unified-formatting{
+ background:#f2f7ff!important;border:1px solid #c8d9f1!important;
+ border-radius:12px!important;padding:10px 12px!important;
+ margin:0!important;box-sizing:border-box!important;width:100%!important;
+}
+#drawingInspector details.plan-unified-formatting [data-plan-footprint-section]{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:0!important;margin:0!important;border-radius:0!important;
+}
+#drawingInspector details.plan-unified-formatting [data-plan-footprint-section]>.field{
+ margin:5px 0!important;width:100%!important;box-sizing:border-box!important;
+}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -3291,14 +3306,14 @@ const SHARED_ELECTRICAL_FIELDS=[
 ];
 function mergePlanFootprintIntoFormatting(panel,item){
  if(!['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type))return;
- const footprint=panel.querySelector('[data-plan-footprint-section]');
- const formatting=panel.querySelector('details.properties-common');
- if(!footprint||!formatting||formatting.contains(footprint))return;
- // Keep the whole live footprint node (including inputs and listeners) while
- // removing its independent card. Developer visibility still targets the node.
- footprint.style.cssText='display:flex;flex-direction:column;gap:9px;margin:0;padding:0;border:0;background:transparent;border-radius:0;width:100%;min-width:0;box-sizing:border-box';
+ const footprint=panel.querySelector('[data-plan-footprint-section]')||document.querySelector('#textInspector [data-plan-footprint-section]');
+ const formatting=document.querySelector('#textInspector details.properties-common')||panel.querySelector('details.properties-common');
+ if(!footprint||!formatting)return;
+ // The entire list must share one light-blue padded Formatting surface.
+ formatting.classList.add('plan-unified-formatting');
+ if(!formatting.contains(footprint))formatting.appendChild(footprint);
  footprint.classList.add('embedded-plan-footprint');
- formatting.appendChild(footprint);
+ footprint.style.cssText='display:flex;flex-direction:column;gap:0;margin:0;padding:0;border:0;background:transparent;border-radius:0;width:100%;min-width:0;box-sizing:border-box';
 }
 function installPlanElectricalInformation(panel,item){
  if(!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
