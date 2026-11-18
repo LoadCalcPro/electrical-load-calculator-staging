@@ -3053,7 +3053,7 @@ function installDeveloperPropertyVisibility(panel,item){
  const previouslyOpen=host.querySelector('.developer-property-visibility')?.open;
  host.replaceChildren();
  host.style.display='block';
- host.style.cssText='display:block;position:sticky;top:0;z-index:12;max-height:42vh;overflow-y:auto;overscroll-behavior:contain;background:#fff;border-bottom:1px solid #c8d9ef';
+ host.style.cssText='display:block!important;position:sticky;top:0;z-index:30;max-height:42vh;overflow-y:auto;overscroll-behavior:contain;background:#fff;border-bottom:1px solid #c8d9ef;flex-shrink:0';
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:findDeveloperPropertyField(panel,id,selector)}));
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
@@ -3131,6 +3131,7 @@ function installDeveloperPropertyVisibility(panel,item){
  drawList();
  host.appendChild(inspector);
  inspector.open=previouslyOpen!==false;
+ inspector.addEventListener('toggle',()=>{host.dataset.developerExpanded=String(inspector.open);});
 }
 const SHARED_ELECTRICAL_FIELDS=[
  ['voltage','Voltage / Phase'],['mainType','Main designation'],['amps','Rating (A)'],['kaic','Interrupting Rating (kAIC)'],
@@ -3627,7 +3628,6 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Equipment designation is the first field in the same group as ratings.
  // No separate oversized description heading or nested designation card.
  if(designation)info.prepend(designation);
- installDeveloperPropertyVisibility(p,nodes.find(n=>n.id===selected.id)||{});
 
 }
 
