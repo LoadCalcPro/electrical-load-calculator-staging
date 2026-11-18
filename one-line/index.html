@@ -3053,6 +3053,7 @@ function installDeveloperPropertyVisibility(panel,item){
  const previouslyOpen=host.querySelector('.developer-property-visibility')?.open;
  host.replaceChildren();
  host.style.display='block';
+ host.style.cssText='display:block;position:sticky;top:0;z-index:12;max-height:42vh;overflow-y:auto;overscroll-behavior:contain;background:#fff;border-bottom:1px solid #c8d9ef';
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:findDeveloperPropertyField(panel,id,selector)}));
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
@@ -3081,8 +3082,8 @@ function installDeveloperPropertyVisibility(panel,item){
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
  inspector.className='developer-property-visibility';
- inspector.style.cssText='margin:12px 0;padding:10px;border:1px dashed #64748b;border-radius:8px;background:#f8fafc;color:#1e293b';
- const summary=document.createElement('summary');summary.textContent='Developer: Property Visibility ('+type+')';inspector.appendChild(summary);
+ inspector.style.cssText='margin:4px 0;padding:6px;border:1px dashed #64748b;border-radius:7px;background:#f8fafc;color:#1e293b';
+ const summary=document.createElement('summary');summary.textContent='Developer: '+type;inspector.appendChild(summary);
  const designationMode=document.createElement('label');
  designationMode.style.cssText='display:flex;flex-direction:column;gap:5px;margin:10px 0;font-size:13px;font-weight:600';
  designationMode.textContent='Primary designation field name';
@@ -3098,8 +3099,8 @@ function installDeveloperPropertyVisibility(panel,item){
   saveDeveloperPropertyConfig();
  });
  designationMode.appendChild(designationSelect);inspector.appendChild(designationMode);
- const note=document.createElement('p');note.textContent='Visibility only. Existing controls remain connected. Missing controls are not yet supported by this equipment.';note.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(note);
- const orderHeading=document.createElement('p');orderHeading.textContent='Property order and visibility — use arrows to move available fields. Fields in separate layout groups remain in their original group.';orderHeading.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(orderHeading);
+
+
  const list=document.createElement('div');inspector.appendChild(list);
  const drawList=()=>{
   list.replaceChildren();
