@@ -3156,7 +3156,38 @@ function installDeveloperPropertyVisibility(panel,item){
    for(let i=0;i<slots.length;i++)parent.insertBefore(ordered[i],slots[i]);
   }
  };
+ // Footprint lives inside Formatting; move it beside the nearest available
+ // field, not beside a top-level panel wrapper or inside an input label.
+ const positionFootprint=()=>{
+  const footprint=present.find(e=>e.id==='planFootprint')?.field;
+  if(!footprint)return;
+  const idx=present.findIndex(e=>e.id==='planFootprint');
+  const available=present.filter(e=>e.field&&e.field!==footprint);
+  if(!available.length)return;
+  const before=present.slice(idx+1).find(e=>e.field&&e.field!==footprint);
+  const after=present.slice(0,idx).reverse().find(e=>e.field&&e.field!==footprint);
+  const target=before||after;
+  if(!target)return;
+  let anchor=target.field;
+  // Find the nearest common ancestor without ever nesting the section
+  // inside a label or relocating the other field's event listeners.
+  while(anchor.parentElement&&anchor.parentElement!==footprint.parentElement&&anchor.parentElement!==panel)anchor=anchor.parentElement;
+  if(anchor===footprint||!anchor.parentElement)return;
+  if(anchor.parentElement!==footprint.parentElement){
+   // Nested Formatting content may have a different parent; use its own
+   // formatting container, preserving a single continuous Properties card.
+   const formatting=panel.querySelector('details.properties-common');
+   if(formatting&&formatting.contains(target.field)){
+    let nested=target.field;
+    while(nested.parentElement&&nested.parentElement!==formatting)nested=nested.parentElement;
+    anchor=nested;
+   }else return;
+  }
+  if(before)anchor.before(footprint);
+  else anchor.after(footprint);
+ };
  applyPropertyOrder();
+ positionFootprint();
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
  inspector.className='developer-property-visibility';
@@ -3192,31 +3223,18 @@ function installDeveloperPropertyVisibility(panel,item){
    line.append(checkbox,name);
    for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
-    button.disabled=!entry.field||!present[i+direction]?.field;
+    const nextIndex=(()=>{let j=i+direction;while(j>=0&&j<present.length&&!present[j].field)j+=direction;return j>=0&&j<present.length?j:-1;})();
+    button.disabled=!entry.field||nextIndex<0;
     button.addEventListener('click',()=>{
-     const other=i+direction;[present[i],present[other]]=[present[other],present[i]];
-     // Move entire registered sections, including the footprint section, even
-     // when their controls were created in different Properties containers.
+     const other=nextIndex;if(other<0)return;[present[i],present[other]]=[present[other],present[i]];
+     // Reorder actual fields and re-position the embedded footprint in the
+     // same Formatting card. Skipped unavailable controls have no DOM node.
      const first=present[other].field,second=present[i].field;
-     if(first&&second&&first!==second){
-      const footprint=first.matches?.('[data-plan-footprint-section]')?first:second.matches?.('[data-plan-footprint-section]')?second:null;
-      if(footprint){
-       // Footprint is a complete section. Never insert it inside a label or
-       // another nested field: move it among the panel's top-level sections.
-       const neighbor=footprint===first?second:first;
-       let top=neighbor;
-       while(top.parentElement&&top.parentElement!==panel)top=top.parentElement;
-       if(top.parentElement===panel&&top!==footprint){
-        if(footprint===second)panel.insertBefore(footprint,top);
-        else panel.insertBefore(footprint,top.nextSibling);
-       }
-      }else if(first.parentElement===second.parentElement){
-       const a=document.createComment('property-order-a');
-       const b=document.createComment('property-order-b');
-       first.replaceWith(a);second.replaceWith(b);
-       a.replaceWith(second);b.replaceWith(first);
-      }
+     if(first&&second&&first!==second&&first.id!=='planFootprint'&&second.id!=='planFootprint'&&first.parentElement===second.parentElement){
+      const a=document.createComment('property-order-a'),b=document.createComment('property-order-b');
+      first.replaceWith(a);second.replaceWith(b);a.replaceWith(second);b.replaceWith(first);
      }
+     positionFootprint();
      developerPropertyOrder.set(type,present.map(v=>v.id));saveDeveloperPropertyConfig();drawList();
     });
     line.appendChild(button);
