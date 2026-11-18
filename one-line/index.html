@@ -3097,19 +3097,20 @@ function installPlanElectricalInformation(panel,item){
  const section=document.createElement('section');
  section.className='property-priority property-section';
  section.dataset.planElectricalInfo='';
- const heading=document.createElement('h4');heading.textContent='Electrical Equipment Information';section.appendChild(heading);
+ const heading=document.createElement('h4');heading.textContent='Electrical Equipment Information';heading.style.cssText='margin:0 0 6px;padding:6px 8px;background:#dceafa;color:#153b69;font-size:12px;font-weight:700';section.appendChild(heading);
+ section.style.cssText='display:flex;flex-direction:column;gap:3px;margin:8px 0;padding:0';
  const applicable=item.type==='planpanel'?['voltage','amps','kaic','fuseAmps']:item.type==='plangenerator'?['voltage','amps','kaic','kw']:['voltage','amps','kva'];
  for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){
   if(!applicable.includes(key))continue;
   const row=document.createElement('div');row.className='field';row.dataset.electricalField=key;
-  row.style.cssText='margin:8px 0 12px;min-width:0';
-  const label=document.createElement('label');label.textContent=caption;label.style.cssText='display:block;font-weight:600;margin-bottom:5px';
-  const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:8px';
-  const input=document.createElement('input');input.type='text';input.value=item.electricalInfo?.[key]??'';input.placeholder='';input.dataset.electricalInfo=key;input.style.cssText='flex:1;min-width:0';
+  row.style.cssText='display:flex;align-items:center;gap:8px;box-sizing:border-box;width:100%;min-width:0;margin:0;padding:4px 8px;min-height:38px;background:#edf4fd;border-radius:4px';
+  const label=document.createElement('label');label.textContent=caption;label.title=caption;label.style.cssText='flex:0 0 42%;min-width:0;font-size:12px;font-weight:600;line-height:1.2';
+  const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:6px;flex:1;min-width:0';
+  const input=document.createElement('input');input.type='text';input.value=item.electricalInfo?.[key]??'';input.placeholder='';input.dataset.electricalInfo=key;input.style.cssText='flex:1;min-width:0;width:0;box-sizing:border-box;height:30px;min-height:30px;margin:0;padding:4px 6px;border-radius:5px;font-size:13px';
   input.addEventListener('input',()=>{item.electricalInfo??={};item.electricalInfo[key]=input.value;renderCanvasOnly();});
   const toggle=document.createElement('input');toggle.type='checkbox';toggle.checked=item.electricalInfoVisible?.[key]!==false;toggle.title='Show on drawing';toggle.setAttribute('aria-label','Show '+caption+' on drawing');
   toggle.addEventListener('change',()=>{item.electricalInfoVisible??={};item.electricalInfoVisible[key]=toggle.checked;renderCanvasOnly();});
-  const show=document.createElement('label');show.style.cssText='display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:12px';show.append(toggle,document.createTextNode('Show'));
+  const show=document.createElement('label');show.style.cssText='display:flex;align-items:center;gap:3px;white-space:nowrap;font-size:11px;margin:0';show.append(toggle,document.createTextNode('Show'));
   controls.append(input,show);row.append(label,controls);section.appendChild(row);
  }
  panel.appendChild(section);
