@@ -3172,69 +3172,104 @@ function installPlanElectricalInformation(panel,item){
   show.append(toggle,document.createTextNode('Show'));
   controls.append(input,show);row.append(label,controls);section.appendChild(row);
  }
+ // Select a particular electrical line; each field has its own saved offset and rotation.
+ const fieldSelect=document.createElement('label');
+ fieldSelect.className='field';
+ fieldSelect.style.cssText='display:flex;flex-direction:column;gap:4px;margin-top:4px;font-size:12px;font-weight:600';
+ fieldSelect.textContent='Selected Electrical Text';
+ const chooser=document.createElement('select');
+ chooser.dataset.electricalTextChoice='';
+ chooser.style.cssText='width:100%;height:34px;background:white;border:1px solid #c8d9f1;border-radius:7px;font-size:14px';
+ for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){
+  if(!applicable.includes(key))continue;
+  const option=document.createElement('option');option.value=key;option.textContent=caption;chooser.appendChild(option);
+ }
+ const currentKey=activeInnerKey?.startsWith('electrical:')?activeInnerKey.slice(11):null;
+ chooser.value=applicable.includes(currentKey)?currentKey:applicable[0];
+ chooser.addEventListener('change',()=>{selectEquipmentTarget(item.id,'electrical:'+chooser.value);syncElectricalPositionFields(item,chooser.value);});
+ fieldSelect.appendChild(chooser);section.appendChild(fieldSelect);
  const positionSection=document.createElement('div');
  positionSection.className='field';
  positionSection.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px;padding:8px;background:#edf4fd;border-radius:8px';
- const B=bounds(item);
- for(const [key,caption,initial] of [['x','Horizontal Offset',0],['y','Vertical Offset',B.b+32],['rotation','Rotation Degrees',0]]){
+ for(const [key,caption] of [['x','Horizontal Offset'],['y','Vertical Offset'],['rotation','Rotation Degrees']]){
   const field=document.createElement('label');
   field.style.cssText='display:flex;flex-direction:column;gap:4px;min-width:0;font-size:12px;font-weight:600;color:#435b78';
   field.textContent=caption;
   const control=document.createElement('input');
   control.type='number';control.step='any';control.dataset.electricalPosition=key;
-  control.value=String(item.electricalInfoPosition?.[key]??initial);
   control.style.cssText='width:100%;min-width:0;height:34px;padding:4px 6px;background:#fff;border:1px solid #c8d9f1;border-radius:7px;font-size:14px';
-  control.addEventListener('focus',()=>{selectEquipmentTarget(item.id,'electricalInformation');});
+  control.addEventListener('focus',()=>{selectEquipmentTarget(item.id,'electrical:'+chooser.value);});
   control.addEventListener('input',()=>{
+   if(control.value.trim()==='')return;
    const value=Number(control.value);
    if(!Number.isFinite(value))return;
-   item.electricalInfoPosition??={};
-   item.electricalInfoPosition[key]=value;
+   item.electricalInfoPositions??={};
+   item.electricalInfoPositions[chooser.value]??={};
+   item.electricalInfoPositions[chooser.value][key]=value;
    renderCanvasOnly();
   });
   field.appendChild(control);positionSection.appendChild(field);
  }
  section.appendChild(positionSection);
+ syncElectricalPositionFields(item,chooser.value);
  panel.appendChild(section);
+}
+function electricalTextDefaultPosition(item,key){
+ const B=bounds(item);
+ const applicable=item.type==='planpanel'?['voltage','amps','kaic','fuseAmps']:item.type==='plangenerator'?['voltage','amps','kaic','kw']:['voltage','amps','kva'];
+ const index=Math.max(0,applicable.indexOf(key));
+ return {x:Number(item.electricalInfoPosition?.x??0),y:Number(item.electricalInfoPosition?.y??(B.b+32))+index*13,rotation:Number(item.electricalInfoPosition?.rotation??0)};
+}
+function electricalTextPosition(item,key){
+ return {...electricalTextDefaultPosition(item,key),...item.electricalInfoPositions?.[key]};
+}
+function syncElectricalPositionFields(item,key){
+ const panel=$('properties');
+ if(!panel||selected?.kind!=='node'||selected.id!==item.id)return;
+ const chooser=panel.querySelector('[data-electrical-text-choice]');
+ if(!chooser)return;
+ chooser.value=key;
+ const position=electricalTextPosition(item,key);
+ for(const axis of ['x','y','rotation']){
+  const control=panel.querySelector('[data-electrical-position="'+axis+'"]');
+  if(control&&document.activeElement!==control)control.value=String(Number(position[axis].toFixed(2)));
+ }
 }
 function drawPlanElectricalInformation(){
  for(const item of nodes){
   if(!['planpanel','plantransformer','plangenerator'].includes(item.type)||item.layerHidden)continue;
   const group=$('nodes')?.querySelector('[data-node="'+item.id+'"]');
   if(!group)continue;
-  const entries=SHARED_ELECTRICAL_FIELDS.filter(([key])=>String(item.electricalInfo?.[key]??'').trim()&&item.electricalInfoVisible?.[key]!==false);
-  if(!entries.length)continue;
-  const svgNS='http://www.w3.org/2000/svg';
-  const text=document.createElementNS(svgNS,'text');
-  text.setAttribute('text-anchor','middle');text.setAttribute('font-size','10');text.setAttribute('fill','#111');
-  text.setAttribute('pointer-events','visiblePainted');text.style.cursor='move';text.setAttribute('data-electrical-information','');
-  const B=bounds(item);
-  text.setAttribute('x',String(item.electricalInfoPosition?.x??0));
-  text.setAttribute('y',String(item.electricalInfoPosition?.y??(B.b+32)));
-  text.setAttribute('transform','rotate('+(Number(item.electricalInfoPosition?.rotation)||0)+' '+(Number(item.electricalInfoPosition?.x)||0)+' '+(Number(item.electricalInfoPosition?.y??(B.b+32)))+')');
-  for(const [key,caption] of entries){
-   const span=document.createElementNS(svgNS,'tspan');
-   span.setAttribute('x',String(item.electricalInfoPosition?.x??0));
-   span.setAttribute('dy',span===text.firstChild?'0':text.childNodes.length?'13':'0');
-   span.textContent=caption+': '+item.electricalInfo[key];
-   text.appendChild(span);
+  for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){
+   if(!String(item.electricalInfo?.[key]??'').trim()||item.electricalInfoVisible?.[key]===false)continue;
+   const position=electricalTextPosition(item,key);
+   const text=document.createElementNS('http://www.w3.org/2000/svg','text');
+   text.dataset.electricalInformation=key;
+   text.setAttribute('x',String(position.x));text.setAttribute('y',String(position.y));
+   text.setAttribute('transform','rotate('+position.rotation+' '+position.x+' '+position.y+')');
+   text.setAttribute('text-anchor','middle');text.setAttribute('font-size','10');
+   text.setAttribute('fill','#111');text.setAttribute('pointer-events','visiblePainted');
+   text.style.cursor='move';
+   text.textContent=caption+': '+item.electricalInfo[key];
+   if(selected?.kind==='node'&&selected.id===item.id&&activeInnerKey==='electrical:'+key){
+    text.setAttribute('stroke','#168c9a');text.setAttribute('stroke-width','.2');
+   }
+   group.appendChild(text);
   }
-  group.appendChild(text);
  }
 }
-// Independent Plan View electrical-information dragging; keep its offset relative
-// to the equipment so moving the enclosure carries the text along with it.
 let planElectricalTextDrag=null;
 $('svg').addEventListener('pointerdown',e=>{
  if(mode!=='select'||drawingView!=='plan'||e.button!==0)return;
  const target=e.target.closest('[data-electrical-information]');
  const group=target?.closest('[data-node]');
  const item=nodes.find(n=>n.id===Number(group?.dataset.node));
- if(!item||!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
- const point=xy(e),B=bounds(item);
- const initial={x:Number(item.electricalInfoPosition?.x??0),y:Number(item.electricalInfoPosition?.y??(B.b+32))};
- planElectricalTextDrag={pointerId:e.pointerId,item,start:point,initial};
- selectEquipmentTarget(item.id,'electricalInformation');
+ const key=target?.dataset.electricalInformation;
+ if(!item||!key||!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
+ const point=xy(e),initial=electricalTextPosition(item,key);
+ planElectricalTextDrag={pointerId:e.pointerId,item,key,start:point,initial};
+ selectEquipmentTarget(item.id,'electrical:'+key);
+ syncElectricalPositionFields(item,key);
  $('svg').setPointerCapture(e.pointerId);
  e.preventDefault();e.stopImmediatePropagation();
 },true);
@@ -3242,10 +3277,11 @@ $('svg').addEventListener('pointermove',e=>{
  const drag=planElectricalTextDrag;
  if(!drag||drag.pointerId!==e.pointerId)return;
  const point=xy(e);
- drag.item.electricalInfoPosition={...drag.item.electricalInfoPosition,
+ drag.item.electricalInfoPositions??={};
+ drag.item.electricalInfoPositions[drag.key]={...drag.initial,
   x:drag.initial.x+point.x-drag.start.x,
   y:drag.initial.y+point.y-drag.start.y};
- for(const key of ['x','y']){const input=$('properties')?.querySelector('[data-electrical-position="'+key+'"]');if(input&&document.activeElement!==input)input.value=String(Number(drag.item.electricalInfoPosition[key].toFixed(2)));}
+ syncElectricalPositionFields(drag.item,drag.key);
  renderCanvasOnly();
  e.preventDefault();e.stopImmediatePropagation();
 },true);
