@@ -3116,12 +3116,18 @@ function installDeveloperPropertyVisibility(panel,item){
    line.append(checkbox,name);
    for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
-    button.disabled=!entry.field||!present[i+direction]?.field||entry.field.parentElement!==present[i+direction].field.parentElement;
+    button.disabled=!entry.field||!present[i+direction]?.field;
     button.addEventListener('click',()=>{
      const other=i+direction;[present[i],present[other]]=[present[other],present[i]];
-     const parent=entry.field.parentElement;
-     if(direction<0)parent.insertBefore(entry.field,present[other].field);
-     else parent.insertBefore(present[i].field,entry.field);
+     // Move entire registered sections, including the footprint section, even
+     // when their controls were created in different Properties containers.
+     const first=present[other].field,second=present[i].field;
+     if(first&&second&&first!==second){
+      const a=document.createComment('property-order-a');
+      const b=document.createComment('property-order-b');
+      first.replaceWith(a);second.replaceWith(b);
+      a.replaceWith(second);b.replaceWith(first);
+     }
      developerPropertyOrder.set(type,present.map(v=>v.id));saveDeveloperPropertyConfig();drawList();
     });
     line.appendChild(button);
