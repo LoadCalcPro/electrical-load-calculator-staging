@@ -3267,19 +3267,32 @@ function installDeveloperPropertyVisibility(panel,item){
   const formatting=document.querySelector('#textInspector details.properties-common')
     ||panel.querySelector('details.properties-common');
   if(formatting&&['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
+   // Only move registered Properties rows. Never move color palettes,
+   // highlight controls, hatch pickers, or selection-mode buttons: those
+   // rely on their original wrappers for compact styling and interaction.
    const movable=present.filter(entry=>entry.field&&
-     (formatting.contains(entry.field)||entry.id==='planFootprint'));
+     !entry.id.startsWith('actual:')&&
+     (formatting.contains(entry.field)||entry.id==='planFootprint')&&
+     !entry.field.matches('[data-equipment-hatch-settings]')&&
+     !entry.field.querySelector('[data-equipment-hatch-settings]'));
+   const safeMovable=movable.filter(entry=>{
+    const field=entry.field;
+    if(field.closest('[data-equipment-hatch-settings]'))return false;
+    const text=(field.textContent||'').trim().toLowerCase();
+    if(/^(color|highlight color|fill \\/ hatch color)$/.test(text))return false;
+    return true;
+   });
    const footprint=present.find(entry=>entry.id==='planFootprint')?.field;
    // Extract nested electrical fields before moving the footprint section.
    if(footprint){
-    for(const entry of movable){
+    for(const entry of safeMovable){
      if(entry.field!==footprint&&footprint.contains(entry.field))formatting.appendChild(entry.field);
     }
    }
    // Keep the header and non-Property elements intact. The fields are
    // moved into one continuous Formatting list so nested wrappers cannot
    // prevent the requested order from taking effect.
-   for(const entry of movable){
+   for(const entry of safeMovable){
     if(entry.field===formatting||entry.field.contains(formatting))continue;
     formatting.appendChild(entry.field);
    }
