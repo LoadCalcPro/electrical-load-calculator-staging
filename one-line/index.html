@@ -3172,6 +3172,29 @@ function installPlanElectricalInformation(panel,item){
   show.append(toggle,document.createTextNode('Show'));
   controls.append(input,show);row.append(label,controls);section.appendChild(row);
  }
+ const positionSection=document.createElement('div');
+ positionSection.className='field';
+ positionSection.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px;padding:8px;background:#edf4fd;border-radius:8px';
+ const B=bounds(item);
+ for(const [key,caption,initial] of [['x','Horizontal Offset',0],['y','Vertical Offset',B.b+32],['rotation','Rotation Degrees',0]]){
+  const field=document.createElement('label');
+  field.style.cssText='display:flex;flex-direction:column;gap:4px;min-width:0;font-size:12px;font-weight:600;color:#435b78';
+  field.textContent=caption;
+  const control=document.createElement('input');
+  control.type='number';control.step='any';control.dataset.electricalPosition=key;
+  control.value=String(item.electricalInfoPosition?.[key]??initial);
+  control.style.cssText='width:100%;min-width:0;height:34px;padding:4px 6px;background:#fff;border:1px solid #c8d9f1;border-radius:7px;font-size:14px';
+  control.addEventListener('focus',()=>{selectEquipmentTarget(item.id,'electricalInformation');});
+  control.addEventListener('input',()=>{
+   const value=Number(control.value);
+   if(!Number.isFinite(value))return;
+   item.electricalInfoPosition??={};
+   item.electricalInfoPosition[key]=value;
+   renderCanvasOnly();
+  });
+  field.appendChild(control);positionSection.appendChild(field);
+ }
+ section.appendChild(positionSection);
  panel.appendChild(section);
 }
 function drawPlanElectricalInformation(){
@@ -3222,6 +3245,7 @@ $('svg').addEventListener('pointermove',e=>{
  drag.item.electricalInfoPosition={...drag.item.electricalInfoPosition,
   x:drag.initial.x+point.x-drag.start.x,
   y:drag.initial.y+point.y-drag.start.y};
+ for(const key of ['x','y']){const input=$('properties')?.querySelector('[data-electrical-position="'+key+'"]');if(input&&document.activeElement!==input)input.value=String(Number(drag.item.electricalInfoPosition[key].toFixed(2)));}
  renderCanvasOnly();
  e.preventDefault();e.stopImmediatePropagation();
 },true);
