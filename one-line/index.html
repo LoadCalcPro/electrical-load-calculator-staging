@@ -2977,14 +2977,16 @@ const UNIVERSAL_PROPERTY_CONTROLS=[
 ];
 const developerPropertyVisibility=new Map();
 const developerDesignationTerminology=new Map();
+const developerPropertyOrder=new Map();
 const developerConfigKey='loadcalcpro-staging-property-visibility-v1';
 try{
  const saved=JSON.parse(localStorage.getItem(developerConfigKey)||'{}');
  for(const [type,values] of Object.entries(saved.visibility||{}))developerPropertyVisibility.set(type,values);
  for(const [type,value] of Object.entries(saved.captions||{}))developerDesignationTerminology.set(type,value);
+ for(const [type,value] of Object.entries(saved.order||{}))if(Array.isArray(value))developerPropertyOrder.set(type,value);
 }catch(error){console.warn('Developer property preferences could not be restored',error);}
 function saveDeveloperPropertyConfig(){
- try{localStorage.setItem(developerConfigKey,JSON.stringify({visibility:Object.fromEntries(developerPropertyVisibility),captions:Object.fromEntries(developerDesignationTerminology)}));}
+ try{localStorage.setItem(developerConfigKey,JSON.stringify({visibility:Object.fromEntries(developerPropertyVisibility),captions:Object.fromEntries(developerDesignationTerminology),order:Object.fromEntries(developerPropertyOrder)}));}
  catch(error){console.warn('Developer property preferences could not be saved',error);}
 }
 function findDeveloperPropertyField(panel,id,selector){
@@ -3056,6 +3058,26 @@ function installDeveloperPropertyVisibility(panel,item){
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
+ const storedOrder=developerPropertyOrder.get(type)||[];
+ present.sort((a,b)=>{const ai=storedOrder.indexOf(a.id),bi=storedOrder.indexOf(b.id);return (ai<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===a.id):ai)-(bi<0?1000+UNIVERSAL_PROPERTY_CONTROLS.findIndex(x=>x[0]===b.id):bi);});
+ const applyPropertyOrder=()=>{
+  const groups=new Map();
+  for(const entry of present){
+   if(!entry.field?.parentElement)continue;
+   const parent=entry.field.parentElement;
+   if(!groups.has(parent))groups.set(parent,[]);
+   groups.get(parent).push(entry.field);
+  }
+  for(const [parent,fields] of groups){
+   if(fields.length<2)continue;
+   const original=Array.from(parent.children);
+   const slots=original.filter(child=>fields.includes(child));
+   if(slots.length<2)continue;
+   const ordered=present.map(entry=>entry.field).filter(field=>slots.includes(field));
+   for(let i=0;i<slots.length;i++)parent.insertBefore(ordered[i],slots[i]);
+  }
+ };
+ applyPropertyOrder();
  const settings=developerPropertyVisibility.get(type)||{};
  const inspector=document.createElement('details');
  inspector.className='developer-property-visibility';
@@ -3077,13 +3099,35 @@ function installDeveloperPropertyVisibility(panel,item){
  });
  designationMode.appendChild(designationSelect);inspector.appendChild(designationMode);
  const note=document.createElement('p');note.textContent='Visibility only. Existing controls remain connected. Missing controls are not yet supported by this equipment.';note.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(note);
- for(const entry of present){
-  const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px';
-  const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
-  if(entry.field)setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);
-  checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);saveDeveloperPropertyConfig();setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);});
-  line.append(checkbox,document.createTextNode(entry.label+(entry.field?'':' (not yet available)')));if(!entry.field)line.style.opacity='0.6';inspector.appendChild(line);
- }
+ const orderHeading=document.createElement('p');orderHeading.textContent='Property order and visibility — use arrows to move available fields. Fields in separate layout groups remain in their original group.';orderHeading.style.cssText='font-size:12px;margin:8px 0';inspector.appendChild(orderHeading);
+ const list=document.createElement('div');inspector.appendChild(list);
+ const drawList=()=>{
+  list.replaceChildren();
+  for(let i=0;i<present.length;i++){
+   const entry=present[i];
+   const line=document.createElement('div');line.style.cssText='display:flex;align-items:center;gap:5px;margin:4px 0;padding:5px;background:white;border:1px solid #d8e2ee;border-radius:5px;font-size:12px';
+   const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
+   if(entry.field)setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);
+   checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);saveDeveloperPropertyConfig();setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);});
+   const name=document.createElement('span');name.textContent=entry.label+(entry.field?'':' (not available)');name.style.cssText='flex:1;min-width:0';
+   line.append(checkbox,name);
+   for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
+    const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
+    button.disabled=!entry.field||!present[i+direction]?.field||entry.field.parentElement!==present[i+direction].field.parentElement;
+    button.addEventListener('click',()=>{
+     const other=i+direction;[present[i],present[other]]=[present[other],present[i]];
+     const parent=entry.field.parentElement;
+     if(direction<0)parent.insertBefore(entry.field,present[other].field);
+     else parent.insertBefore(present[i].field,entry.field);
+     developerPropertyOrder.set(type,present.map(v=>v.id));saveDeveloperPropertyConfig();drawList();
+    });
+    line.appendChild(button);
+   }
+   if(!entry.field)line.style.opacity='0.6';
+   list.appendChild(line);
+  }
+ };
+ drawList();
  host.appendChild(inspector);
  inspector.open=previouslyOpen!==false;
 }
