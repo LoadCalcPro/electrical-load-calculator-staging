@@ -2831,16 +2831,12 @@ function moveEquipmentTarget(n,dragState,point){
  if(dragState.labelKey){
   const key=dragState.labelKey;
   if(key.startsWith('electrical:')&&['planpanel','plantransformer','plangenerator'].includes(n.type)){
-   const field=key.slice(11);
-   const position=electricalTextPosition(n,field);
-   const angle=0; // Plan electrical labels live in the outer translated SVG group.
+   // Electrical information uses the same textOffsets store as One-Line labels.
+   // Preserve legacy electricalInfoPositions as a read-only initial placement.
    const dx=point.x-dragState.startPoint.x,dy=point.y-dragState.startPoint.y;
-   const localX=(dx*Math.cos(angle)+dy*Math.sin(angle))/sx;
-   const localY=(-dx*Math.sin(angle)+dy*Math.cos(angle))/sy;
-   n.electricalInfoPositions??={};
-   n.electricalInfoPositions[field]={...position,
-    x:dragState.electricalStart.x+localX,y:dragState.electricalStart.y+localY};
-   syncElectricalPositionFields(n,field);
+   n.textOffsets??={};
+   const initial=dragState.screenLabelStart||{x:0,y:0};
+   n.textOffsets[key]={x:initial.x+dx/sx,y:initial.y+dy/sy};
    return true;
   }
   if(n.type==='battery'&&dragState.startPoint&&dragState.screenLabelStart){
@@ -3207,58 +3203,37 @@ function syncElectricalPositionFields(item,key){
  }
 }
 function drawPlanElectricalInformation(){
+ const ns='http://www.w3.org/2000/svg';
  for(const item of nodes){
   if(!['planpanel','plantransformer','plangenerator'].includes(item.type)||item.layerHidden)continue;
   const group=$('nodes')?.querySelector('[data-node="'+item.id+'"]');
   if(!group)continue;
   for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){
-   if(!String(item.electricalInfo?.[key]??'').trim()||item.electricalInfoVisible?.[key]===false)continue;
-   const position=electricalTextPosition(item,key);
-   const text=document.createElementNS('http://www.w3.org/2000/svg','text');
-   text.dataset.electricalInformation=key;
-   text.dataset.innerKey='electrical:'+key;
-   text.setAttribute('x',String(position.x));text.setAttribute('y',String(position.y));
-   text.setAttribute('transform','rotate('+position.rotation+' '+position.x+' '+position.y+')');
-   text.setAttribute('text-anchor','middle');
+   const value=String(item.electricalInfo?.[key]??'').trim();
+   if(!value||item.electricalInfoVisible?.[key]===false)continue;
    const labelKey='electrical:'+key;
+   const base=electricalTextPosition(item,key);
+   const offset=item.textOffsets?.[labelKey]||{};
+   const x=base.x+(Number(offset.x)||0),y=base.y+(Number(offset.y)||0);
+   const rotation=Number(item.textRotations?.[labelKey]??base.rotation)||0;
    const fontSize=equipmentFontSize(item.textSizes?.[labelKey],10);
    const style=equipmentTextStyle(item.textStyles?.[labelKey]);
-   const offset=item.textOffsets?.[labelKey]||{x:0,y:0};
-   text.setAttribute('x',String(position.x+(Number(offset.x)||0)));
-   text.setAttribute('y',String(position.y+(Number(offset.y)||0)));
-   text.setAttribute('transform','rotate('+position.rotation+' '+(position.x+(Number(offset.x)||0))+' '+(position.y+(Number(offset.y)||0))+')');
+   const text=document.createElementNS(ns,'text');
+   text.dataset.innerKey=labelKey;
+   text.dataset.electricalInformation=key;
+   text.setAttribute('x',String(x));text.setAttribute('y',String(y));
+   text.setAttribute('transform','rotate('+rotation+' '+x+' '+y+')');
+   text.setAttribute('text-anchor','middle');
    text.setAttribute('font-size',String(fontSize));
    text.setAttribute('font-weight',style==='bold'?'700':style==='light'?'300':'400');
    text.setAttribute('font-style',style==='italic'?'italic':'normal');
-   text.setAttribute('fill',item.textColors?.[labelKey]||'#111');text.setAttribute('pointer-events','all');
+   text.setAttribute('fill',item.textColors?.[labelKey]||'#111111');
+   text.setAttribute('pointer-events','all');
    text.style.setProperty('pointer-events','all','important');
    text.style.cursor='grab';
-   text.style.paintOrder='stroke fill';
-   text.style.stroke='transparent';text.style.strokeWidth='10px';
-   text.textContent=caption+': '+item.electricalInfo[key];
-   if(selected?.kind==='node'&&selected.id===item.id&&activeInnerKey==='electrical:'+key){
-    text.setAttribute('stroke','#168c9a');text.setAttribute('stroke-width','.2');
-   }
+   text.textContent=caption+': '+value;
+   if(selected?.kind==='node'&&selected.id===item.id&&activeInnerKey===labelKey)text.classList.add('active-drawing-text');
    group.appendChild(text);
-   // Use the same data-inner-key target as One-Line. The transparent SVG
-   // hit rectangle is a sibling of the text and travels with its rotation.
-   // It is appended last so equipment outlines cannot intercept clicks.
-   try{
-    const b=text.getBBox();
-    if(b.width>0&&b.height>0){
-     const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');
-     hit.dataset.innerKey='electrical:'+key;
-     hit.dataset.electricalInformation=key;
-     hit.setAttribute('x',String(b.x-4));hit.setAttribute('y',String(b.y-4));
-     hit.setAttribute('width',String(b.width+8));hit.setAttribute('height',String(b.height+8));
-     hit.setAttribute('transform',text.getAttribute('transform'));
-     hit.setAttribute('fill','transparent');
-     hit.setAttribute('stroke','none');
-     hit.style.setProperty('pointer-events','all','important');
-     hit.style.cursor='grab';
-     group.appendChild(hit);
-    }
-   }catch(_){}
   }
  }
 }
