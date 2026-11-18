@@ -3058,6 +3058,13 @@ function installDeveloperPropertyVisibility(panel,item){
  host.style.cssText='display:block!important;position:sticky;top:0;z-index:30;max-height:42vh;overflow-y:auto;overscroll-behavior:contain;background:#fff;border-bottom:1px solid #c8d9ef;flex-shrink:0';
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:findDeveloperPropertyField(panel,id,selector)}));
+ // Plan View footprint is a complete section, not an individual input.
+ // Resolve it directly for each supported equipment type so the developer
+ // list does not depend on the generic field matcher or stale inspector DOM.
+ if(['planpanel','plantransformer','plangenerator','planclearance'].includes(item.type)){
+  const footprint=present.find(entry=>entry.id==='planFootprint');
+  if(footprint)footprint.field=panel.querySelector('section[data-plan-footprint-section]');
+ }
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
