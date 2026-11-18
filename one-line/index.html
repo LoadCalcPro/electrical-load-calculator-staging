@@ -3184,7 +3184,7 @@ function drawPlanElectricalInformation(){
   const svgNS='http://www.w3.org/2000/svg';
   const text=document.createElementNS(svgNS,'text');
   text.setAttribute('text-anchor','middle');text.setAttribute('font-size','10');text.setAttribute('fill','#111');
-  text.setAttribute('pointer-events','none');text.setAttribute('data-electrical-information','');
+  text.setAttribute('pointer-events','visiblePainted');text.style.cursor='move';text.setAttribute('data-electrical-information','');
   const B=bounds(item);
   text.setAttribute('x',String(item.electricalInfoPosition?.x??0));
   text.setAttribute('y',String(item.electricalInfoPosition?.y??(B.b+32)));
@@ -3199,6 +3199,41 @@ function drawPlanElectricalInformation(){
   group.appendChild(text);
  }
 }
+// Independent Plan View electrical-information dragging; keep its offset relative
+// to the equipment so moving the enclosure carries the text along with it.
+let planElectricalTextDrag=null;
+$('svg').addEventListener('pointerdown',e=>{
+ if(mode!=='select'||drawingView!=='plan'||e.button!==0)return;
+ const target=e.target.closest('[data-electrical-information]');
+ const group=target?.closest('[data-node]');
+ const item=nodes.find(n=>n.id===Number(group?.dataset.node));
+ if(!item||!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
+ const point=xy(e),B=bounds(item);
+ const initial={x:Number(item.electricalInfoPosition?.x??0),y:Number(item.electricalInfoPosition?.y??(B.b+32))};
+ planElectricalTextDrag={pointerId:e.pointerId,item,start:point,initial};
+ selectEquipmentTarget(item.id,'electricalInformation');
+ $('svg').setPointerCapture(e.pointerId);
+ e.preventDefault();e.stopImmediatePropagation();
+},true);
+$('svg').addEventListener('pointermove',e=>{
+ const drag=planElectricalTextDrag;
+ if(!drag||drag.pointerId!==e.pointerId)return;
+ const point=xy(e);
+ drag.item.electricalInfoPosition={...drag.item.electricalInfoPosition,
+  x:drag.initial.x+point.x-drag.start.x,
+  y:drag.initial.y+point.y-drag.start.y};
+ renderCanvasOnly();
+ e.preventDefault();e.stopImmediatePropagation();
+},true);
+const finishPlanElectricalTextDrag=e=>{
+ if(!planElectricalTextDrag||planElectricalTextDrag.pointerId!==e.pointerId)return;
+ planElectricalTextDrag=null;
+ if($('svg').hasPointerCapture(e.pointerId))$('svg').releasePointerCapture(e.pointerId);
+ render();
+ e.preventDefault();e.stopImmediatePropagation();
+};
+$('svg').addEventListener('pointerup',finishPlanElectricalTextDrag,true);
+$('svg').addEventListener('pointercancel',finishPlanElectricalTextDrag,true);
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
  const common=p.querySelector('details.properties-common');if(!common)return;
