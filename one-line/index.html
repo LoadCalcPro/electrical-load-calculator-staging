@@ -2907,25 +2907,13 @@ function equipmentTextKeys(item){return item?[...(item._labelDefs||[]).map(d=>d[
 function activateEquipmentText(item,key){
  if(!item||!equipmentTextKeys(item).includes(key))return false;
  selectEquipmentTarget(item.id,key);
+ // Do not synthesize a palette click: it can replace the current label with
+ // a fallback target and steal focus from the actual electrical input.
  const inspector=$('textInspector');
- // Breaker fields must retain focus while typing. The palette's synthetic click
- // can rebuild Properties during focus/pointerdown and discard the live input.
- // Select the breaker text target without dispatching that click.
- if(item.type==='breaker'){
-  const palette=inspector?.querySelector('.equipment-outline-palette');
-  if(palette){
-   palette.querySelectorAll('[data-format-target]').forEach(button=>{
-    const isLabel=button.dataset.formatTarget==='label';
-    button.classList.toggle('active',isLabel);
-    button.setAttribute('aria-pressed',String(isLabel));
-   });
-  }
-  inspector?.syncSelectedText?.();
-  return true;
- }
- // Text selected through a description field must target the same palette
- // as text selected directly on the drawing or through the label chooser.
- inspector?.querySelector('.equipment-outline-palette [data-format-target="label"]')?.click();
+ const palette=inspector?.querySelector('.equipment-outline-palette');
+ const target=palette?.querySelector('.equipment-format-targets');
+ if(target)target.value='label';
+ palette?.syncSelectedColor?.();
  inspector?.syncSelectedText?.();
  return true;
 }
@@ -3227,7 +3215,11 @@ function drawPlanElectricalInformation(){
    text.setAttribute('font-size',String(fontSize));
    text.setAttribute('font-weight',style==='bold'?'700':style==='light'?'300':'400');
    text.setAttribute('font-style',style==='italic'?'italic':'normal');
-   text.setAttribute('fill',item.textColors?.[labelKey]||'#111111');
+   const labelColor=item.textColors?.[labelKey]||'#111111';
+   text.setAttribute('fill',labelColor);
+   // .node text { fill:#111 } overrides presentation attributes; use the
+   // same inline fill approach as the working One-Line labels.
+   text.style.setProperty('fill',labelColor,'important');
    text.setAttribute('pointer-events','all');
    text.style.setProperty('pointer-events','all','important');
    text.style.cursor='grab';
