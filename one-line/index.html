@@ -2833,7 +2833,7 @@ function moveEquipmentTarget(n,dragState,point){
   if(key.startsWith('electrical:')&&['planpanel','plantransformer','plangenerator'].includes(n.type)){
    const field=key.slice(11);
    const position=electricalTextPosition(n,field);
-   const angle=(Number(n.drawingRotation)||0)*Math.PI/180;
+   const angle=0; // Plan electrical labels live in the outer translated SVG group.
    const dx=point.x-dragState.startPoint.x,dy=point.y-dragState.startPoint.y;
    const localX=(dx*Math.cos(angle)+dy*Math.sin(angle))/sx;
    const localY=(-dx*Math.sin(angle)+dy*Math.cos(angle))/sy;
@@ -3265,8 +3265,18 @@ function drawPlanElectricalInformation(){
    text.dataset.innerKey='electrical:'+key;
    text.setAttribute('x',String(position.x));text.setAttribute('y',String(position.y));
    text.setAttribute('transform','rotate('+position.rotation+' '+position.x+' '+position.y+')');
-   text.setAttribute('text-anchor','middle');text.setAttribute('font-size','10');
-   text.setAttribute('fill','#111');text.setAttribute('pointer-events','all');
+   text.setAttribute('text-anchor','middle');
+   const labelKey='electrical:'+key;
+   const fontSize=equipmentFontSize(item.textSizes?.[labelKey],10);
+   const style=equipmentTextStyle(item.textStyles?.[labelKey]);
+   const offset=item.textOffsets?.[labelKey]||{x:0,y:0};
+   text.setAttribute('x',String(position.x+(Number(offset.x)||0)));
+   text.setAttribute('y',String(position.y+(Number(offset.y)||0)));
+   text.setAttribute('transform','rotate('+position.rotation+' '+(position.x+(Number(offset.x)||0))+' '+(position.y+(Number(offset.y)||0))+')');
+   text.setAttribute('font-size',String(fontSize));
+   text.setAttribute('font-weight',style==='bold'?'700':style==='light'?'300':'400');
+   text.setAttribute('font-style',style==='italic'?'italic':'normal');
+   text.setAttribute('fill',item.textColors?.[labelKey]||'#111');text.setAttribute('pointer-events','all');
    text.style.setProperty('pointer-events','all','important');
    text.style.cursor='grab';
    text.style.paintOrder='stroke fill';
