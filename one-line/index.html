@@ -3123,10 +3123,23 @@ function installDeveloperPropertyVisibility(panel,item){
      // when their controls were created in different Properties containers.
      const first=present[other].field,second=present[i].field;
      if(first&&second&&first!==second){
-      const a=document.createComment('property-order-a');
-      const b=document.createComment('property-order-b');
-      first.replaceWith(a);second.replaceWith(b);
-      a.replaceWith(second);b.replaceWith(first);
+      const footprint=first.matches?.('[data-plan-footprint-section]')?first:second.matches?.('[data-plan-footprint-section]')?second:null;
+      if(footprint){
+       // Footprint is a complete section. Never insert it inside a label or
+       // another nested field: move it among the panel's top-level sections.
+       const neighbor=footprint===first?second:first;
+       let top=neighbor;
+       while(top.parentElement&&top.parentElement!==panel)top=top.parentElement;
+       if(top.parentElement===panel&&top!==footprint){
+        if(footprint===second)panel.insertBefore(footprint,top);
+        else panel.insertBefore(footprint,top.nextSibling);
+       }
+      }else if(first.parentElement===second.parentElement){
+       const a=document.createComment('property-order-a');
+       const b=document.createComment('property-order-b');
+       first.replaceWith(a);second.replaceWith(b);
+       a.replaceWith(second);b.replaceWith(first);
+      }
      }
      developerPropertyOrder.set(type,present.map(v=>v.id));saveDeveloperPropertyConfig();drawList();
     });
