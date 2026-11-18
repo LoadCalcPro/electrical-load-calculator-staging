@@ -3317,7 +3317,7 @@ function mergePlanFootprintIntoFormatting(panel,item){
 }
 function installPlanElectricalInformation(panel,item){
  if(!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
- if(panel.querySelector('[data-plan-electrical-info]'))return;
+ if(panel.querySelector('[data-plan-electrical-info]')||document.querySelector('#textInspector [data-plan-electrical-info]'))return;
  const section=document.createElement('section');
  section.className='property-priority property-section';
  section.dataset.planElectricalInfo='';
@@ -3350,7 +3350,7 @@ function installPlanElectricalInformation(panel,item){
  // The footprint and electrical ratings form one continuous Plan View
  // equipment-information card, not separate bordered sections.
  mergePlanFootprintIntoFormatting(panel,item);
- const footprint=panel.querySelector('[data-plan-footprint-section]');
+ const footprint=panel.querySelector('[data-plan-footprint-section]')||document.querySelector('#textInspector [data-plan-footprint-section]');
  if(footprint){
   footprint.dataset.planElectricalInfo='';
   for(const field of [...section.children])footprint.appendChild(field);
