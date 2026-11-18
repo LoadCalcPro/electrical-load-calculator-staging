@@ -459,6 +459,8 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #workspaceViewToggle{background:#176b80!important;color:#fff!important;border:1px solid #11596b!important;font-weight:700!important;box-shadow:0 1px 3px rgba(15,75,90,.18)}
 #workspaceViewToggle:hover{background:#11596b!important;border-color:#0c4757!important}
 #workspaceViewToggle:focus-visible{outline:3px solid #7ccbd7!important;outline-offset:2px}
+/* Electrical information must override the legacy .node text pointer-events:none rule. */
+#svg .node text[data-electrical-information]{pointer-events:all!important;cursor:grab!important}
 /* Give title-block text a forgiving hit target without changing printed appearance. */
 #titleblock text[data-project-text]{pointer-events:visiblePainted;cursor:move;paint-order:stroke fill}
 #titleblock text[data-project-text]:hover{stroke:rgba(23,107,128,.15);stroke-width:9px;stroke-linejoin:round}
@@ -3249,8 +3251,11 @@ function drawPlanElectricalInformation(){
    text.setAttribute('x',String(position.x));text.setAttribute('y',String(position.y));
    text.setAttribute('transform','rotate('+position.rotation+' '+position.x+' '+position.y+')');
    text.setAttribute('text-anchor','middle');text.setAttribute('font-size','10');
-   text.setAttribute('fill','#111');text.setAttribute('pointer-events','visiblePainted');
-   text.style.cursor='move';
+   text.setAttribute('fill','#111');text.setAttribute('pointer-events','all');
+   text.style.setProperty('pointer-events','all','important');
+   text.style.cursor='grab';
+   text.style.paintOrder='stroke fill';
+   text.style.stroke='transparent';text.style.strokeWidth='10px';
    text.textContent=caption+': '+item.electricalInfo[key];
    if(selected?.kind==='node'&&selected.id===item.id&&activeInnerKey==='electrical:'+key){
     text.setAttribute('stroke','#168c9a');text.setAttribute('stroke-width','.2');
@@ -3268,7 +3273,8 @@ $('svg').addEventListener('pointerdown',e=>{
  const key=target?.dataset.electricalInformation;
  if(!item||!key||!['planpanel','plantransformer','plangenerator'].includes(item.type))return;
  const point=xy(e),initial=electricalTextPosition(item,key);
- planElectricalTextDrag={pointerId:e.pointerId,item,key,start:point,initial};
+ const toLocal=evt=>{const matrix=group.getScreenCTM();if(!matrix)return xy(evt);const p=$('svg').createSVGPoint();p.x=evt.clientX;p.y=evt.clientY;const q=p.matrixTransform(matrix.inverse());return {x:q.x,y:q.y};};
+ planElectricalTextDrag={pointerId:e.pointerId,item,key,start:toLocal(e),initial,toLocal};
  selectEquipmentTarget(item.id,'electrical:'+key);
  syncElectricalPositionFields(item,key);
  $('svg').setPointerCapture(e.pointerId);
@@ -3277,7 +3283,7 @@ $('svg').addEventListener('pointerdown',e=>{
 $('svg').addEventListener('pointermove',e=>{
  const drag=planElectricalTextDrag;
  if(!drag||drag.pointerId!==e.pointerId)return;
- const point=xy(e);
+ const point=drag.toLocal(e);
  drag.item.electricalInfoPositions??={};
  drag.item.electricalInfoPositions[drag.key]={...drag.initial,
   x:drag.initial.x+point.x-drag.start.x,
