@@ -2970,6 +2970,7 @@ const UNIVERSAL_PROPERTY_CONTROLS=[
  ['equipmentFill','Equipment Fill','[data-equipment-fill]'],
  ['designation','Equipment Designation','[data-prop="name"], [data-prop="label"]'],
  ['voltage','Voltage / Phase','[data-electrical-info="voltage"]'],
+ ['mainType','Main designation (M.L.O. / M.C.B.)','[data-electrical-info="mainType"]'],
  ['amps','Rating (A)','[data-electrical-info="amps"]'],
  ['kaic','Interrupting Rating (kAIC)','[data-electrical-info="kaic"]'],
  ['fuseAmps','Fuse Size (A)','[data-electrical-info="fuseAmps"]'],
@@ -3154,7 +3155,7 @@ function installPlanElectricalInformation(panel,item){
   field.appendChild(document.createTextNode(captions[key]));
   const isSelect=key==='voltage'||key==='mainType';
   const input=document.createElement(isSelect?'select':'input');
-  if(!isSelect)input.type='text';
+  if(!isSelect){input.type=key==='amps'?'number':'text';if(key==='amps'){input.min='0';input.step='1';input.inputMode='numeric';}}
   const current=key==='mainType'?(item.electricalInfo?.mainType??'M.L.O.'):(item.electricalInfo?.[key]??'');
   if(isSelect){
    const options=key==='mainType'?['M.L.O.','M.C.B.']:['',...voltageOptions];
@@ -3167,6 +3168,7 @@ function installPlanElectricalInformation(panel,item){
   input.addEventListener('focus',()=>{if(key!=='mainType')activateEquipmentText(item,'electrical:'+key);});
   const update=()=>{item.electricalInfo??={};item.electricalInfo[key]=input.value;renderCanvasOnly();};
   input.addEventListener(isSelect?'change':'input',update);
+  if(key==='amps')input.addEventListener('change',update);
   field.appendChild(input);section.appendChild(field);
  }
  panel.appendChild(section);
