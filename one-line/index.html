@@ -3161,6 +3161,7 @@ function installPlanElectricalInformation(panel,item){
   const input=document.createElement('input');
   input.type='text';input.value=item.electricalInfo?.[key]??'';input.placeholder='';input.dataset.electricalInfo=key;
   input.style.cssText='flex:1;min-width:0;width:0;box-sizing:border-box;height:40px;min-height:40px;margin:0;padding:7px 12px;background:#fff;border:1px solid #c8d9f1;border-radius:14px;font-size:14px';
+  input.addEventListener('focus',()=>{selectEquipmentTarget(item.id,'electrical:'+key);syncElectricalPositionFields(item,key);});
   input.addEventListener('input',()=>{item.electricalInfo??={};item.electricalInfo[key]=input.value;renderCanvasOnly();});
   const toggle=document.createElement('input');
   toggle.type='checkbox';toggle.checked=item.electricalInfoVisible?.[key]!==false;
@@ -3211,8 +3212,8 @@ function installPlanElectricalInformation(panel,item){
   field.appendChild(control);positionSection.appendChild(field);
  }
  section.appendChild(positionSection);
- syncElectricalPositionFields(item,chooser.value);
  panel.appendChild(section);
+ syncElectricalPositionFields(item,chooser.value);
 }
 function electricalTextDefaultPosition(item,key){
  const B=bounds(item);
