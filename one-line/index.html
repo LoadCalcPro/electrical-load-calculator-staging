@@ -3231,25 +3231,25 @@ function installDeveloperPropertyVisibility(panel,item){
  const positionFootprint=()=>{
   const footprint=present.find(e=>e.id==='planFootprint')?.field;
   if(!footprint)return;
-  const formatting=document.querySelector('#textInspector details.properties-common.plan-unified-formatting')
-    ||document.querySelector('#textInspector details.properties-common')
+  const formatting=document.querySelector('#textInspector details.properties-common')
     ||panel.querySelector('details.properties-common');
   if(!formatting)return;
-  // The developer list controls the actual order, not just the arrow labels.
-  // Find the nearest field in the SAME Formatting card, since the other
-  // inspector root cannot be interleaved with it.
+  // Designation is nested in the equipment information group. Previous
+  // ordering only inspected direct Formatting children, so it could never
+  // place footprint immediately after designation as requested.
   const idx=present.findIndex(e=>e.id==='planFootprint');
-  const inFormatting=e=>e.field&&e.field!==footprint&&formatting.contains(e.field)
-    &&!footprint.contains(e.field);
-  const following=present.slice(idx+1).find(inFormatting);
-  const preceding=[...present.slice(0,idx)].reverse().find(inFormatting);
-  const neighbor=following||preceding;
-  if(!neighbor){if(footprint.parentElement!==formatting)formatting.appendChild(footprint);return;}
-  let anchor=neighbor.field;
-  while(anchor.parentElement&&anchor.parentElement!==formatting)anchor=anchor.parentElement;
-  if(anchor.parentElement!==formatting||anchor===footprint)return;
-  if(following){if(anchor.nextElementSibling!==footprint)formatting.insertBefore(footprint,anchor);}
-  else if(footprint.previousElementSibling!==anchor)anchor.after(footprint);
+  const previous=[...present.slice(0,idx)].reverse().find(e=>e.field&&e.field!==footprint&&formatting.contains(e.field));
+  const next=present.slice(idx+1).find(e=>e.field&&e.field!==footprint&&formatting.contains(e.field));
+  const target=next||previous;
+  if(!target){if(!formatting.contains(footprint))formatting.appendChild(footprint);return;}
+  // Keep the footprint intact as one movable group (including electrical
+  // inputs and their live listeners), without nesting it inside a label.
+  let anchor=target.field;
+  const parent=anchor.parentElement;
+  if(!parent)return;
+  if(anchor.closest('label')&&anchor.closest('label')!==anchor)anchor=anchor.closest('label');
+  if(next)anchor.before(footprint);
+  else anchor.after(footprint);
  };
  applyPropertyOrder();
  positionFootprint();
