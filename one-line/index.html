@@ -3145,7 +3145,7 @@ function installDeveloperPropertyVisibility(panel,item){
  inspector.open=previouslyOpen!==false;
 }
 const SHARED_ELECTRICAL_FIELDS=[
- ['voltage','Voltage / Phase'],['amps','Rating (A)'],['kaic','Interrupting Rating (kAIC)'],
+ ['voltage','Voltage / Phase'],['mainType','Main designation'],['amps','Rating (A)'],['kaic','Interrupting Rating (kAIC)'],
  ['fuseAmps','Fuse Size (A)'],['kw','Generator Rating (kW)'],['kva','Transformer Rating (kVA)']
 ];
 function installPlanElectricalInformation(panel,item){
@@ -3174,7 +3174,7 @@ function installPlanElectricalInformation(panel,item){
   input.value=current;
   input.dataset.electricalInfo=key;
   input.style.cssText='width:100%;min-width:0;box-sizing:border-box;height:48px;padding:8px 14px;background:white;border:1px solid #c8d9f1;border-radius:14px;font-size:16px;font-weight:400;color:#172a40';
-  input.addEventListener('focus',()=>{if(key!=='mainType'){selectEquipmentTarget(item.id,'electrical:'+key);syncElectricalPositionFields(item,key);}});
+  input.addEventListener('focus',()=>{if(key!=='mainType')activateEquipmentText(item,'electrical:'+key);});
   const update=()=>{item.electricalInfo??={};item.electricalInfo[key]=input.value;renderCanvasOnly();};
   input.addEventListener(isSelect?'change':'input',update);
   field.appendChild(input);section.appendChild(field);
@@ -3183,7 +3183,7 @@ function installPlanElectricalInformation(panel,item){
 }
 function electricalTextDefaultPosition(item,key){
  const B=bounds(item);
- const applicable=item.type==='planpanel'?['voltage','amps','kaic','fuseAmps']:item.type==='plangenerator'?['voltage','amps','kaic','kw']:['voltage','amps','kva'];
+ const applicable=item.type==='planpanel'?['voltage','mainType','amps','kaic']:item.type==='plangenerator'?['voltage','amps','kaic','kw']:['voltage','amps','kva'];
  const index=Math.max(0,applicable.indexOf(key));
  return {x:Number(item.electricalInfoPosition?.x??0),y:Number(item.electricalInfoPosition?.y??(B.b+32))+index*13,rotation:Number(item.electricalInfoPosition?.rotation??0)};
 }
@@ -3209,7 +3209,7 @@ function drawPlanElectricalInformation(){
   const group=$('nodes')?.querySelector('[data-node="'+item.id+'"]');
   if(!group)continue;
   for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){
-   const value=String(item.electricalInfo?.[key]??'').trim();
+   const value=String(item.electricalInfo?.[key]??(key==='mainType'&&item.type==='planpanel'?'M.L.O.':'')).trim();
    if(!value||item.electricalInfoVisible?.[key]===false)continue;
    const labelKey='electrical:'+key;
    const base=electricalTextPosition(item,key);
@@ -3380,7 +3380,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Room designation is drawn as roomLabel even when the generic equipment definitions omit it.
  if(item?.type==='planroom'&&!defs.some(def=>def[0]==='roomLabel'))defs.unshift(['roomLabel','Room designation',item.name||'',12]);
  if(item?.type==='planwall'&&!defs.some(def=>def[0]==='wallLabel'))defs.unshift(['wallLabel','Wall designation',item.name||'',Number(item.wallNameSize)||10]);
- if(item&&['planpanel','plantransformer','plangenerator'].includes(item.type))for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){if(String(item.electricalInfo?.[key]??'').trim()&&!defs.some(def=>def[0]==='electrical:'+key))defs.push(['electrical:'+key,caption,String(item.electricalInfo[key]),10]);}
+ if(item&&['planpanel','plantransformer','plangenerator'].includes(item.type))for(const [key,caption] of SHARED_ELECTRICAL_FIELDS){if(String(item.electricalInfo?.[key]??(key==='mainType'&&item.type==='planpanel'?'M.L.O.':'')).trim()&&!defs.some(def=>def[0]==='electrical:'+key))defs.push(['electrical:'+key,caption,String(item.electricalInfo?.[key]??'M.L.O.'),10]);}
  const existing=p.querySelectorAll('[data-inner-text]:not(.property-priority [data-inner-text])');
  existing.forEach(input=>{const field=input.closest('label');const details=field?.nextElementSibling;if(details?.matches('details.equipment-category'))details.remove();if(field)field.remove();});
  // Remove the now-empty duplicate text editing section, not the equipment's actual properties.
