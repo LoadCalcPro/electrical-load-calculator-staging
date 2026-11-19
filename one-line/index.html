@@ -1544,7 +1544,9 @@ function planWallMiter(wall,side){
   const otherOut={x:joint.otherSide*b.cos,y:joint.otherSide*b.sin};
   // Both outside faces use the same turn-side classification.
   const turn=outward.x*otherOut.y-outward.y*otherOut.x;
-  const otherFace=face*(turn>0?-side*joint.otherSide:side*joint.otherSide);
+  // Match the outward and inward wall faces at the shared endpoint.
+  // The previous sign paired opposite quadrants, shortening the exterior face.
+  const otherFace=face*(turn>0?side*joint.otherSide:-side*joint.otherSide);
   const pb={x:otherEnd.x+otherFace*b.halfThickness*normalB.x,y:otherEnd.y+otherFace*b.halfThickness*normalB.y};
   const t=((pb.x-pa.x)*b.sin-(pb.y-pa.y)*b.cos)/cross;
   if(!Number.isFinite(t)||Math.abs(t)>b.halfThickness*3+1)return null;
