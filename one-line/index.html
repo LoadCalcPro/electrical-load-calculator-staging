@@ -943,6 +943,17 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 #properties .conduit-measure-heading>b{flex:1;min-width:0;font-size:14px}
 #properties .conduit-measure-heading>input[type=checkbox]{flex:none;width:24px;height:24px;min-width:24px;margin:0;cursor:pointer;accent-color:#168c9a}
 
+
+/* Compact measured conduit panels, shared by above-ground and underground. */
+#properties .conduit-measured-properties{gap:6px!important;padding:10px!important;background:#f2f7ff!important;border:1px solid #c8d9f1!important;border-radius:12px!important;}
+#properties .conduit-measured-properties .conduit-measure-heading{display:block!important;padding:0 0 4px!important;}
+#properties .conduit-measured-properties .conduit-measure-heading>b{display:block;font-size:13px!important;line-height:1.25!important;}
+#properties .conduit-measured-properties .conduit-length-toggle{display:flex!important;flex-direction:row!important;justify-content:space-between;align-items:center;gap:8px;margin:0!important;padding:4px 0!important;font-size:12px;font-weight:600;}
+#properties .conduit-measured-properties .conduit-length-toggle>input[type=checkbox]{flex:none;width:20px;height:20px;min-width:20px;margin:0;accent-color:#168c9a;cursor:pointer;}
+#properties .conduit-measured-properties>label.field{gap:3px!important;font-size:12px!important;line-height:1.25!important;}
+#properties .conduit-measured-properties>label.field>input:not([type=checkbox]),#properties .conduit-measured-properties>label.field>select{height:36px!important;min-height:36px!important;border-radius:8px!important;padding:5px 10px!important;}
+#properties .conduit-measured-properties>div.field{font-size:12px!important;line-height:1.3!important;padding:2px 0!important;}
+
 /* Plan View: make footprint and electrical properties match the padded blue equipment cards. */
 #properties [data-plan-footprint-section],#properties [data-plan-electrical-info]{width:100%;max-width:100%;box-sizing:border-box;background:#f2f7ff;border:1px solid #c8d9f1;border-radius:12px;padding:12px;margin:8px 0;}
 #properties [data-plan-footprint-section]>.field,#properties [data-plan-electrical-info]>.field{width:100%;min-width:0;box-sizing:border-box;margin:0;color:#435b78;font-weight:600;}
@@ -4314,16 +4325,16 @@ function renderAboveConduitProperties(){
  const run=aboveConduitLength(route.points)/units;
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');section.className='field conduit-measured-properties';
- section.innerHTML='<div class="conduit-measure-heading"><b>Above-Ground Conduit — Measured Length</b><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></div>'+
+ section.innerHTML='<div class="conduit-measure-heading"><b>Above-Ground Conduit </b></div><label class="conduit-length-toggle"><span>Show Conduit Length</span><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"></label>'+
  '<label class="field">Conduit ID<input data-above-conduit="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-above-conduit="diameter"')+'</label>'+
  '<label class="field">Conduit material / type<select data-above-conduit="material"><option value="EMT">EMT</option><option value="IMC">IMC</option><option value="RMC">RMC</option><option value="PVC">PVC</option><option value="FMC">FMC</option><option value="LFMC">LFMC</option><option value="LFNC">LFNC</option><option value="ENT">ENT</option><option value="RTRC">RTRC</option><option value="custom">Custom / Other</option></select><input data-above-conduit-custom placeholder="Enter conduit type" style="display:none;margin-top:5px"></label>'+
- '<label class="field">Vertical entry at first endpoint (inches)<input type="number" min="0" step=".125" data-above-conduit="riseA"></label>'+
- '<label class="field">Vertical entry at second endpoint (inches)<input type="number" min="0" step=".125" data-above-conduit="riseB"></label>'+
- '<label class="field">Additional bends / allowance (inches)<input type="number" min="0" step=".125" data-above-conduit="allowance"></label>'+
+ '<label class="field">First endpoint rise (in.)<input type="number" min="0" step=".125" data-above-conduit="riseA"></label>'+
+ '<label class="field">Second endpoint rise (in.)<input type="number" min="0" step=".125" data-above-conduit="riseB"></label>'+
+ '<label class="field">Bends / allowance (in.)<input type="number" min="0" step=".125" data-above-conduit="allowance"></label>'+
  '<div class="field"><b>Plan route length: '+conduitFeetInches(run)+'</b></div>'+
  '<div class="field"><b>Estimated conduit length: '+conduitFeetInches(run+extra)+'</b></div>'+
- '<small>Length follows all drawn segments at the selected plan scale. Vertical entries and allowances are added separately. Actual bent conduit length may vary.</small>';
+;
  p.prepend(section);
  const showLength=section.querySelector('[data-conduit-length-visible]');showLength.checked=c.showLengthOnDrawing===true;showLength.onchange=()=>{c.showLengthOnDrawing=showLength.checked;renderCanvasOnly();};
  for(const field of section.querySelectorAll('[data-above-conduit]')){
@@ -4346,16 +4357,16 @@ function renderPlanConduitProperties(){
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');
  section.className='field conduit-measured-properties';
- section.innerHTML='<div class="conduit-measure-heading"><b>Underground Conduit — Measured Length</b><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></div>'+
+ section.innerHTML='<div class="conduit-measure-heading"><b>Underground Conduit </b></div><label class="conduit-length-toggle"><span>Show Conduit Length</span><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"></label>'+
  '<label class="field">Conduit ID<input data-conduit-field="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-conduit-field="diameter"')+'</label>'+
  '<label class="field">Conduit material / type<input data-conduit-field="material" placeholder="PVC, EMT, RMC, etc."></label>'+
- '<label class="field">Vertical entry at first endpoint (inches)<input type="number" min="0" step=".125" data-conduit-field="riseA"></label>'+
- '<label class="field">Vertical entry at second endpoint (inches)<input type="number" min="0" step=".125" data-conduit-field="riseB"></label>'+
- '<label class="field">Additional bends / allowance (inches)<input type="number" min="0" step=".125" data-conduit-field="allowance"></label>'+
+ '<label class="field">First endpoint rise (in.)<input type="number" min="0" step=".125" data-conduit-field="riseA"></label>'+
+ '<label class="field">Second endpoint rise (in.)<input type="number" min="0" step=".125" data-conduit-field="riseB"></label>'+
+ '<label class="field">Bends / allowance (in.)<input type="number" min="0" step=".125" data-conduit-field="allowance"></label>'+
  '<div class="field"><b>Plan distance: '+conduitFeetInches(run)+'</b></div>'+
  '<div class="field"><b>Estimated conduit length: '+conduitFeetInches(run+extra)+'</b></div>'+
- '<small>Plan distance is straight-line and assumes the selected drawing scale is correct. Vertical entries and allowances are added separately; actual routing may differ.</small>';
+;
  const arrowControl=p.querySelector('[data-line-prop="arrow"]')?.closest('label.field');
  if(arrowControl)arrowControl.remove();
  l.arrow='none';
