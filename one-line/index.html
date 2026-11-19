@@ -3236,6 +3236,12 @@ function installDeveloperPropertyVisibility(panel,item){
   const input=panel.querySelector('[data-electrical-info="'+entry.id+'"]')||document.querySelector('#textInspector [data-electrical-info="'+entry.id+'"]');
   if(input)entry.field=input.closest('[data-electrical-field]')||input.closest('label.field');
  }
+ // Hatch inputs are dependent on Equipment Fill, not independent
+ // reorderable sections. Their visibility and position follow Equipment Fill.
+ for(let i=present.length-1;i>=0;i--){
+  const field=present[i].field;
+  if(field?.closest('[data-equipment-hatch-settings]'))present.splice(i,1);
+ }
  // The Developer list represents real, actionable controls only. Do not
  // display unavailable registry entries as phantom Properties.
  for(let i=present.length-1;i>=0;i--)if(!present[i].field)present.splice(i,1);
@@ -3273,13 +3279,12 @@ function installDeveloperPropertyVisibility(panel,item){
    // highlight controls, hatch pickers, or selection-mode buttons: those
    // rely on their original wrappers for compact styling and interaction.
    const movable=present.filter(entry=>entry.field&&
-     !entry.id.startsWith('actual:')&&
      (formatting.contains(entry.field)||entry.id==='planFootprint')&&
      !entry.field.matches('[data-equipment-hatch-settings]')&&
      !entry.field.querySelector('[data-equipment-hatch-settings]'));
    const safeMovable=movable.filter(entry=>{
     const field=entry.field;
-    if(field.closest('[data-equipment-hatch-settings]'))return false;
+    if(field.closest('[data-equipment-hatch-settings]')||field.closest('.equipment-outline-palette')||field.matches('.equipment-outline-palette'))return false;
     const text=(field.textContent||'').trim().toLowerCase();
     if(['color','highlight color','fill / hatch color'].includes(text))return false;
     return true;
