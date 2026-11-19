@@ -1552,6 +1552,31 @@ function planWallMiter(wall,side){
  }
  return result;
 }
+// Render-only face joins: retain each wall's stored centerline length and thickness.
+// A partition endpoint may terminate on the near face of a perpendicular host wall.
+function planWallFaceJoin(wall,side){
+ if((wall.wallJoints||[]).some(j=>j.side===side))return null;
+ const g=planWallGeometry(wall),end=planWallEndpoint(wall,side),px=planUnitsPerInch();
+ let best=null;
+ for(const host of nodes){
+  if(host===wall||host.type!=='planwall'||host.layerHidden)continue;
+  const h=planWallGeometry(host),dot=g.cos*h.cos+g.sin*h.sin;
+  if(Math.abs(dot)>0.025)continue;
+  const dx=end.x-host.x,dy=end.y-host.y;
+  const along=dx*h.cos+dy*h.sin,cross=-dx*h.sin+dy*h.cos;
+  // Avoid treating a corner as a T junction.
+  if(Math.abs(along)>h.halfLength-g.halfThickness-1)continue;
+  const face=cross>=0?1:-1,faceCross=face*h.halfThickness;
+  const distance=Math.abs(cross-faceCross);
+  // The endpoint must be close to the host's actual face.
+  if(distance>Math.max(px*3,4))continue;
+  const inward=side*(g.cos*(-h.sin)+g.sin*h.cos)*face;
+  if(inward<=0.98)continue; // wall must point into the host at its endpoint
+  const candidate={host,face,along,distance,trim:side*(faceCross-cross)/(g.cos*(-h.sin)+g.sin*h.cos)};
+  if(!best||distance<best.distance)best=candidate;
+ }
+ return best;
+}
 function registerPlanWallJoint(wall,other,side,otherSide){
  if(wall.id===other.id||![-1,1].includes(side)||![-1,1].includes(otherSide))return false;
  wall.wallJoints??=[];other.wallJoints??=[];
@@ -2385,12 +2410,46 @@ if(t==='plandimension'){const px=planUnitsPerInch(),len=Math.max(1,Number(n.dime
 // face-to-face miter joints. Keep opening segments unchanged.
 if(!openings.length){
  const start=planWallMiter(n,-1),end=planWallMiter(n,1);
- if(start||end){
-  const leftTop=start?.[-1]??-geometry.halfLength,leftBottom=start?.[1]??-geometry.halfLength;
-  const rightTop=end?.[-1]??geometry.halfLength,rightBottom=end?.[1]??geometry.halfLength;
+ const faceStart=start?null:planWallFaceJoin(n,-1),faceEnd=end?null:planWallFaceJoin(n,1);
+ if(start||end||faceStart||faceEnd){
+  const leftTop=start?.[-1]??(-geometry.halfLength+(faceStart?.trim??0)),leftBottom=start?.[1]??(-geometry.halfLength+(faceStart?.trim??0));
+  const rightTop=end?.[-1]??(geometry.halfLength+(faceEnd?.trim??0)),rightBottom=end?.[1]??(geometry.halfLength+(faceEnd?.trim??0));
   const x0=leftTop/sx,x1=rightTop/sx,x2=rightBottom/sx,x3=leftBottom/sx;
   segments.length=0;
   segments.push(`<path d="M${x0} ${-thick/2} L${x1} ${-thick/2} ${x2} ${thick/2} ${x3} ${thick/2} Z" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+ }
+}
+// Suppress the host-face stroke under perpendicular partition connections.
+if(!openings.length){
+ const joins=[];
+ for(const partition of nodes){
+  if(partition===n||partition.type!=='planwall'||partition.layerHidden)continue;
+  for(const side of [-1,1]){
+   const join=planWallFaceJoin(partition,side);
+   if(join?.host===n){
+    const width=planWallGeometry(partition).halfThickness*2/sx;
+    joins.push({face:join.face,from:join.along/sx-width/2,to:join.along/sx+width/2});
+   }
+  }
+ }
+ if(joins.length){
+  const start=planWallMiter(n,-1),end=planWallMiter(n,1);
+  const x0=(start?.[-1]??-geometry.halfLength)/sx,x1=(end?.[-1]??geometry.halfLength)/sx;
+  const x2=(start?.[1]??-geometry.halfLength)/sx,x3=(end?.[1]??geometry.halfLength)/sx;
+  segments.length=0;
+  for(const face of [-1,1]){
+   const left=face===-1?x0:x2,right=face===-1?x1:x3;
+   let cursor=left;
+   const gaps=joins.filter(j=>j.face===face).sort((a,b)=>a.from-b.from);
+   for(const gap of gaps){
+    const a=Math.max(left,Math.min(right,gap.from)),b=Math.max(a,Math.min(right,gap.to));
+    if(a>cursor+0.01)segments.push(`<path d="M${cursor} ${face*thick/2}H${a}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+    cursor=Math.max(cursor,b);
+   }
+   if(right>cursor+0.01)segments.push(`<path d="M${cursor} ${face*thick/2}H${right}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+  }
+  if(!start)segments.push(`<path d="M${x0} ${-thick/2}L${x2} ${thick/2}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+  if(!end)segments.push(`<path d="M${x1} ${-thick/2}L${x3} ${thick/2}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
  }
 }
 const inches=Math.max(1,Number(n.wallLengthIn??120)),feet=Math.floor(inches/12),rem=+(inches%12).toFixed(2),dimension=`${feet}'-${rem}\"`;const d=thick/2+23;const dimensionMarkup=n.showWallDimension!==true?'':`<g pointer-events="none" stroke="${ink}" fill="none" stroke-width="0.9"><path d="M${-len/2} ${thick/2+5}V${d+7}M${len/2} ${thick/2+5}V${d+7}M${-len/2} ${d}H${len/2}M${-len/2-3} ${d+3}l6 -6M${len/2-3} ${d+3}l6 -6"/><text x="0" y="${d-4}" font-size="10" text-anchor="middle" stroke="none" fill="${ink}">${dimension}</text></g>`;return `<g>${segments.join('')}${dimensionMarkup}</g>`;}
