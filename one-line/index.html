@@ -4334,7 +4334,7 @@ function renderAboveConduitProperties(){
  '<label class="field">Bends / allowance (in.)<input type="number" min="0" step=".125" data-above-conduit="allowance"></label>'+
  '<div class="field"><b>Plan route length: '+conduitFeetInches(run)+'</b></div>'+
  '<div class="field"><b>Estimated conduit length: '+conduitFeetInches(run+extra)+'</b></div>'+
-;
+  '';
  p.prepend(section);
  const showLength=section.querySelector('[data-conduit-length-visible]');showLength.checked=c.showLengthOnDrawing===true;showLength.onchange=()=>{c.showLengthOnDrawing=showLength.checked;renderCanvasOnly();};
  for(const field of section.querySelectorAll('[data-above-conduit]')){
@@ -4366,7 +4366,7 @@ function renderPlanConduitProperties(){
  '<label class="field">Bends / allowance (in.)<input type="number" min="0" step=".125" data-conduit-field="allowance"></label>'+
  '<div class="field"><b>Plan distance: '+conduitFeetInches(run)+'</b></div>'+
  '<div class="field"><b>Estimated conduit length: '+conduitFeetInches(run+extra)+'</b></div>'+
-;
+  '';
  const arrowControl=p.querySelector('[data-line-prop="arrow"]')?.closest('label.field');
  if(arrowControl)arrowControl.remove();
  l.arrow='none';
