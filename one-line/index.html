@@ -6438,4 +6438,53 @@ if(location.protocol==='file:'){
 #drawingMain #properties .fixture-identification .fixture-mark-option{position:relative!important}
 #drawingMain #properties .fixture-identification .fixture-mark-option:has(input[data-fixture-mark]:focus-visible) .fixture-mark-visual{outline:2px solid #165db5!important;outline-offset:2px!important}
 /* Fixture option rows are self-contained flex rows; avoid global label.field layout. */
-</style></body></html>
+</style><!-- staging compact rotation stepper v1 -->
+<style>
+.rotation-stepper-row{display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important}
+.rotation-stepper-buttons{display:flex;flex:1 1 50%;min-width:0;gap:6px}
+.rotation-stepper-buttons button{flex:1;min-width:0;min-height:34px;border:1px solid #b8c9dc;border-radius:7px;background:#fff;color:#243e5c;font-size:22px;line-height:1;cursor:pointer}
+.rotation-stepper-buttons button:hover{background:#e8f2fb}
+.rotation-stepper-row>input{flex:1 1 50%!important;width:50%!important;min-width:0!important;max-width:none!important;margin:0!important}
+</style>
+<script>
+(function(){
+ 'use strict';
+ function enhance(){
+  for(const root of [document.getElementById('properties'),document.getElementById('textInspector')]){
+   if(!root)continue;
+   for(const input of root.querySelectorAll('input[type="number"]')){
+    if(input.closest('.rotation-stepper-row'))continue;
+    const field=input.closest('label');
+    if(!field)continue;
+    const label=(field.textContent||'').trim().replace(/\\s+/g,' ').toLowerCase();
+    const id=(input.id||'').toLowerCase(),data=Object.keys(input.dataset).join(' ').toLowerCase();
+    const hatch=/hatch.*angle|angle.*hatch/.test(label)||/hatch.*angle/.test(id+' '+data);
+    const rotate=hatch||/rotation|rotate|angle/.test(label)&&!/spacing|thickness|width|offset/.test(label)||/rotation|labelangle|outlineangle/.test(id+' '+data);
+    if(!rotate)continue;
+    const row=document.createElement('div');row.className='rotation-stepper-row';
+    const buttons=document.createElement('div');buttons.className='rotation-stepper-buttons';
+    for(const [symbol,direction,title] of [['↶',-1,'Rotate counterclockwise'],['↷',1,'Rotate clockwise']]){
+     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=title+' '+(hatch?45:90)+'°';
+     button.setAttribute('aria-label',button.title);
+     button.addEventListener('click',()=>{
+      if(input.disabled||input.readOnly)return;
+      const current=Number(input.value)||0;
+      const next=((current+direction*(hatch?45:90))%360+360)%360;
+      input.value=String(next);
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+     });
+     buttons.appendChild(button);
+    }
+    input.parentNode.insertBefore(row,input);row.append(buttons,input);
+   }
+  }
+ }
+ let queued=false;
+ const schedule=()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;enhance();});};
+ const observer=new MutationObserver(schedule);
+ for(const id of ['properties','textInspector']){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true});}
+ enhance();
+})();
+</script>
+</body></html>
