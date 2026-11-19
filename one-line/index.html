@@ -2982,7 +2982,7 @@ function moveEquipmentTarget(n,dragState,point){
  }
  if(dragState.labelKey){
   const key=dragState.labelKey;
-  if(key.startsWith('electrical:')&&['planpanel','plantransformer','plangenerator'].includes(n.type)){
+  if((key==='planInsideLabel'||key.startsWith('electrical:'))&&['planpanel','plantransformer','plangenerator'].includes(n.type)){
    // Electrical information uses the same textOffsets store as One-Line labels.
    // Preserve legacy electricalInfoPositions as a read-only initial placement.
    const dx=point.x-dragState.startPoint.x,dy=point.y-dragState.startPoint.y;
