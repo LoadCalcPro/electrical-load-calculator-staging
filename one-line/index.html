@@ -3105,6 +3105,7 @@ function syncEquipmentTextHighlight(info,svg,item,key,defs){
 const UNIVERSAL_PROPERTY_CONTROLS=[
  ['size','Equipment Size (%)','[data-equipment-size]'],
  ['rotation','Rotation','[data-wall-angle], [data-rotation], [data-drawing-rotation]'],
+ ['wallLength','Wall length','[data-wall-feet]'],
  ['planFootprint','Actual footprint and location (feet / inches)','[data-plan-footprint-section]'],
  ['lineThickness','Drawing Line Thickness','[data-weight-value]'],
  ['outlinePattern','Outline Pattern','[data-equipment-pattern]'],
@@ -3199,6 +3200,11 @@ function installDeveloperPropertyVisibility(panel,item){
  host.style.cssText='display:block!important;position:sticky;top:0;z-index:30;max-height:42vh;overflow-y:auto;overscroll-behavior:contain;background:#fff;border-bottom:1px solid #c8d9ef;flex-shrink:0';
  const type=item.equipmentSubtype||item.type||'equipment';
  const present=UNIVERSAL_PROPERTY_CONTROLS.map(([id,label,selector])=>({id,label,field:findDeveloperPropertyField(panel,id,selector)}));
+ // Wall length is a paired feet/inches control. Keep it as one developer entry.
+ if(item.type==='planwall'){
+  const wallLength=present.find(entry=>entry.id==='wallLength');
+  if(wallLength)wallLength.field=panel.querySelector('[data-wall-feet]')?.closest('label.field')||null;
+ }
  // Plan View footprint is a complete section, not an individual input.
  // Resolve it directly for each supported equipment type so the developer
  // list does not depend on the generic field matcher or stale inspector DOM.
