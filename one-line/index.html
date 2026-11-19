@@ -2416,7 +2416,11 @@ if(!openings.length){
   const rightTop=end?.[-1]??(geometry.halfLength+(faceEnd?.trim??0)),rightBottom=end?.[1]??(geometry.halfLength+(faceEnd?.trim??0));
   const x0=leftTop/sx,x1=rightTop/sx,x2=rightBottom/sx,x3=leftBottom/sx;
   segments.length=0;
-  segments.push(`<path d="M${x0} ${-thick/2} L${x1} ${-thick/2} ${x2} ${thick/2} ${x3} ${thick/2} Z" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+  // Draw wall faces independently. Never draw a diagonal closing edge
+  // through a joined corner: that creates the crossed X/triangle artifact.
+  segments.push(`<path d="M${x0} ${-thick/2}H${x1} M${x3} ${thick/2}H${x2}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+  if(!start)segments.push(`<path d="M${x0} ${-thick/2}L${x3} ${thick/2}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
+  if(!end)segments.push(`<path d="M${x1} ${-thick/2}L${x2} ${thick/2}" stroke="${ink}" stroke-width="${weightFor(n)}" fill="none"/>`);
  }
 }
 // Suppress the host-face stroke under perpendicular partition connections.
@@ -5084,12 +5088,9 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
      }
     }
    }
-   if(nodes.some(n=>n.type==='planwall'&&n.id!==item.id&&!n.layerHidden)){
-    // Preserve the native spinner's focus across the necessary redraw.
-    const wasFocused=document.activeElement===wallAngleControl;
-    renderCanvasOnly();
-    if(wasFocused&&document.activeElement!==wallAngleControl)wallAngleControl.focus({preventScroll:true});
-   }
+   // Always redraw the complete wall outline while retaining the input.
+   // Connected and unconnected walls must use the same immediate update path.
+   renderCanvasOnly();
   });
   // Rebuild only when editing ends; change can fire on each native arrow step.
   wallAngleControl.addEventListener('blur',()=>{if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
