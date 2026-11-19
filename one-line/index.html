@@ -3282,8 +3282,14 @@ function installDeveloperPropertyVisibility(panel,item){
      (formatting.contains(entry.field)||entry.id==='planFootprint')&&
      !entry.field.matches('[data-equipment-hatch-settings]')&&
      !entry.field.querySelector('[data-equipment-hatch-settings]'));
+   // The shared text grid is a single layout unit: font/style and X/Y
+   // offsets must never be extracted as independent DOM siblings.
+   const textGrid=formatting.querySelector('.equipment-text-editor .shared-text-grid');
+   const gridEntries=movable.filter(entry=>textGrid?.contains(entry.field));
+   const gridAnchor=gridEntries[0];
    const safeMovable=movable.filter(entry=>{
     const field=entry.field;
+    if(textGrid?.contains(field))return false;
     if(field.closest('[data-equipment-hatch-settings]')||field.closest('.equipment-outline-palette')||field.matches('.equipment-outline-palette'))return false;
     const text=(field.textContent||'').trim().toLowerCase();
     if(['color','highlight color','fill / hatch color'].includes(text))return false;
@@ -3299,9 +3305,19 @@ function installDeveloperPropertyVisibility(panel,item){
    // Keep the header and non-Property elements intact. The fields are
    // moved into one continuous Formatting list so nested wrappers cannot
    // prevent the requested order from taking effect.
-   for(const entry of safeMovable){
-    if(entry.field===formatting||entry.field.contains(formatting))continue;
-    formatting.appendChild(entry.field);
+   // Follow Developer order, inserting the intact two-column text editor
+   // at the first typography/offset entry rather than splitting its fields.
+   const orderedUnits=[];
+   for(const entry of present){
+    if(entry===gridAnchor&&textGrid){
+     const editor=textGrid.closest('.equipment-text-editor');
+     if(editor&&!orderedUnits.includes(editor))orderedUnits.push(editor);
+    }
+    if(safeMovable.includes(entry)&&!orderedUnits.includes(entry.field))orderedUnits.push(entry.field);
+   }
+   for(const field of orderedUnits){
+    if(field===formatting||field.contains(formatting))continue;
+    formatting.appendChild(field);
    }
    // Reattach dependent fill controls immediately after Equipment Fill.
    // They must never be stranded by Developer reordering.
