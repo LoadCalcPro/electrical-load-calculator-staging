@@ -3538,7 +3538,13 @@ function drawPlanElectricalInformation(){
    text.setAttribute('pointer-events','all');
    text.style.setProperty('pointer-events','all','important');
    text.style.cursor='grab';
-   text.textContent=caption+': '+value;
+   const formattedElectricalValue=key==='amps'||key==='fuseAmps'
+    ?(value.toUpperCase().endsWith('A')?value:value+'A')
+    :key==='kaic'?(value.toUpperCase().includes('KAIC')?value:value+' kAIC')
+    :key==='kw'?(value.toLowerCase().endsWith('kw')?value:value+' kW')
+    :key==='kva'?(value.toLowerCase().endsWith('kva')?value:value+' kVA')
+    :value;
+   text.textContent=formattedElectricalValue;
    if(selected?.kind==='node'&&selected.id===item.id&&activeInnerKey===labelKey)text.classList.add('active-drawing-text');
    group.appendChild(text);
   }
