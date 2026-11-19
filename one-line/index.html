@@ -5072,8 +5072,9 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
    event.stopPropagation();
    if(wallLabelSelected()){applyWallAngle();const label=$('svg')?.querySelector('[data-node="'+item.id+'"] [data-inner-key="wallLabel"]');if(label){const x=Number(item.wallNameX||0)+Number(item.textOffsets?.wallLabel?.x||0),y=Number(item.wallNameY||0)+Number(item.textOffsets?.wallLabel?.y||0);label.setAttribute('transform','rotate('+Number(item.textRotations.wallLabel)+' '+x+' '+y+')');}return;}
    applyWallAngle();
-   // Mirror Disconnect: rotate the existing SVG groups directly while the
-   // native number spinner retains focus, instead of rebuilding the sheet.
+   // Update both the wall symbol and its selection hitbox immediately.
+   // A full redraw is needed when multiple walls exist because joints,
+   // face-trims and neighboring wall outlines depend on the new angle.
    const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
    if(node){
     const angle=Number(item.wallAngle)||0;
@@ -5082,6 +5083,12 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
       group.setAttribute('transform','rotate('+angle+')');
      }
     }
+   }
+   if(nodes.some(n=>n.type==='planwall'&&n.id!==item.id&&!n.layerHidden)){
+    // Preserve the native spinner's focus across the necessary redraw.
+    const wasFocused=document.activeElement===wallAngleControl;
+    renderCanvasOnly();
+    if(wasFocused&&document.activeElement!==wallAngleControl)wallAngleControl.focus({preventScroll:true});
    }
   });
   // Rebuild only when editing ends; change can fire on each native arrow step.
