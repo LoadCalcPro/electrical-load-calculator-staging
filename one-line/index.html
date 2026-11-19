@@ -1530,27 +1530,19 @@ function planWallMiter(wall,side){
  if(!other)return null;
  const a=planWallGeometry(wall),b=planWallGeometry(other);
  const cross=a.cos*b.sin-a.sin*b.cos;
- if(Math.abs(cross)<0.98)return null; // perpendicular only
+ if(Math.abs(cross)<0.98)return null;
  const endpoint=planWallEndpoint(wall,side),otherEnd=planWallEndpoint(other,joint.otherSide);
  if(Math.hypot(endpoint.x-otherEnd.x,endpoint.y-otherEnd.y)>1)return null;
- // Intersections of the two parallel face pairs in local wall coordinates.
- // Pair faces by the physical quadrant at the corner, independent of
- // whether either wall was drawn forward or backward.
- const normalA={x:-a.sin,y:a.cos},normalB={x:-b.sin,y:b.cos};
+ // For an L junction the face toward the other wall ends at its near face;
+ // the opposite face continues to its far face. Both walls use the same
+ // geometric rule, including when their thicknesses differ or are reversed.
+ const otherInteriorX=-joint.otherSide*b.cos,otherInteriorY=-joint.otherSide*b.sin;
+ const toward=Math.sign(otherInteriorX*(-a.sin)+otherInteriorY*a.cos);
+ if(!toward)return null;
  const result={};
  for(const face of [-1,1]){
-  const pa={x:endpoint.x+face*a.halfThickness*normalA.x,y:endpoint.y+face*a.halfThickness*normalA.y};
-  const outward={x:side*a.cos,y:side*a.sin};
-  const otherOut={x:joint.otherSide*b.cos,y:joint.otherSide*b.sin};
-  // Both outside faces use the same turn-side classification.
-  const turn=outward.x*otherOut.y-outward.y*otherOut.x;
-  // Match the outward and inward wall faces at the shared endpoint.
-  // The previous sign paired opposite quadrants, shortening the exterior face.
-  const otherFace=face*(turn>0?side*joint.otherSide:-side*joint.otherSide);
-  const pb={x:otherEnd.x+otherFace*b.halfThickness*normalB.x,y:otherEnd.y+otherFace*b.halfThickness*normalB.y};
-  const t=((pb.x-pa.x)*b.sin-(pb.y-pa.y)*b.cos)/cross;
-  if(!Number.isFinite(t)||Math.abs(t)>b.halfThickness*3+1)return null;
-  result[face]=side*a.halfLength+t;
+  const extension=-side*face*toward*b.halfThickness;
+  result[face]=side*a.halfLength+extension;
  }
  return result;
 }
