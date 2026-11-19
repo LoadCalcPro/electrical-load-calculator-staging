@@ -1571,7 +1571,7 @@ function planWallFaceJoin(wall,side){
   // The endpoint must be close to the host's actual face.
   if(distance>Math.max(px*3,4))continue;
   const inward=side*(g.cos*(-h.sin)+g.sin*h.cos)*face;
-  if(inward<=0.98)continue; // wall must point into the host at its endpoint
+  if(inward>=-0.98)continue; // endpoint direction must point into the host face
   const candidate={host,face,along,distance,trim:side*(faceCross-cross)/(g.cos*(-h.sin)+g.sin*h.cos)};
   if(!best||distance<best.distance)best=candidate;
  }
