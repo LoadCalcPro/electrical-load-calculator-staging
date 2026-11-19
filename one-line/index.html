@@ -5458,13 +5458,13 @@ $('svg').addEventListener('dblclick',e=>{
  const target=$('nodes').querySelector('[data-node="'+id+'"] '+(key==='drawingLabel'?'text[data-additional-label]':'text[data-inner-key="'+key+'"]'));
  if(!target)return;
  const bounds=target.getBoundingClientRect();
- const input=document.createElement('input');input.type='text';
+ const input=document.createElement('textarea');
  input.setAttribute('aria-label','Edit equipment text on drawing');
  input.value=key==='drawingLabel'?(item.drawingLabel??''):(item.innerText?.[key]??item._labelDefs?.find(d=>d[0]===key)?.[2]??'');
- Object.assign(input.style,{position:'fixed',left:Math.max(0,bounds.left-8)+'px',top:Math.max(0,bounds.top-6)+'px',width:Math.max(130,bounds.width+45)+'px',height:Math.max(28,bounds.height+12)+'px',zIndex:'10000',background:'#fff',color:'#111',border:'2px solid #0d9488',borderRadius:'4px',padding:'3px 7px',fontSize:Math.max(14,Math.min(28,bounds.height))+'px',boxSizing:'border-box'});
+ Object.assign(input.style,{position:'fixed',left:Math.max(0,bounds.left-8)+'px',top:Math.max(0,bounds.top-6)+'px',width:Math.max(130,bounds.width+45)+'px',height:Math.max(44,bounds.height+18)+'px',minHeight:'44px',resize:'both',whiteSpace:'pre-wrap',lineHeight:'1.25',zIndex:'10000',background:'#fff',color:'#111',border:'2px solid #0d9488',borderRadius:'4px',padding:'3px 7px',fontSize:Math.max(14,Math.min(28,bounds.height))+'px',boxSizing:'border-box'});
  document.body.appendChild(input);
  inlineEquipmentEditor={input,id,key};
- input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();closeInlineEquipmentEditor(true);}else if(event.key==='Escape'){event.preventDefault();closeInlineEquipmentEditor(false);}});
+ input.addEventListener('keydown',event=>{if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();closeInlineEquipmentEditor(true);}else if(event.key==='Escape'){event.preventDefault();closeInlineEquipmentEditor(false);}});
  input.addEventListener('blur',()=>closeInlineEquipmentEditor(true),{once:true});
  input.focus();input.select();
 },true);
