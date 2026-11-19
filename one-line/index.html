@@ -3319,6 +3319,18 @@ function installDeveloperPropertyVisibility(panel,item){
     if(field===formatting||field.contains(formatting))continue;
     formatting.appendChild(field);
    }
+   // The selected-text editor has an internal fixed layout. Developer
+   // ordering must not separate it from its Rotation/Designation sequence.
+   // Reassemble the live nodes (preserving listeners) after generic ordering.
+   if(textGrid){
+    const editor=textGrid.closest('.equipment-text-editor');
+    const rotation=present.find(entry=>entry.id==='rotation')?.field;
+    const designation=present.find(entry=>entry.id==='designation')?.field;
+    if(editor&&rotation&&formatting.contains(rotation)){
+     rotation.before(editor);
+     if(designation&&formatting.contains(designation))rotation.after(designation);
+    }
+   }
    // Reattach dependent fill controls immediately after Equipment Fill.
    // They must never be stranded by Developer reordering.
    const fillField=present.find(entry=>entry.id==='equipmentFill')?.field;
