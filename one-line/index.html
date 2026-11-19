@@ -1957,7 +1957,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
  if(drawingView!=='plan'){output.textContent='Switch to Plan View before scanning.';return;}
  const im=calibrationTarget();
  if(!im?.src){output.textContent='Select an imported PDF/image, or import one first.';return;}
- button.disabled=true;output.textContent='Reading printed dimensions from selected drawing…';
+ button.disabled=true;output.textContent='Reading text from selected drawing…';
  try{
   if(!window.Tesseract){
    await new Promise((resolve,reject)=>{
@@ -1968,19 +1968,50 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
    });
   }
   const result=await window.Tesseract.recognize(im.src,'eng');
-  const tokens=(result?.data?.text||'').match(/\b\d{1,3}\s*['’′]\s*(?:[- ]\s*\d{1,2}(?:\.\d+)?)?\s*(?:["”″])?/g)||[];
-  const candidates=[...new Set(tokens.map(v=>v.trim()))].map(label=>({label,dimension:parseDrawingDimension(label)})).filter(v=>v.dimension).slice(0,40);
+  const recognized=String(result?.data?.text||'').trim();
   output.replaceChildren();
-  if(!candidates.length){output.textContent='No feet/inches labels found. Enter a known dimension manually; OCR may miss faded or handwritten text.';return;}
-  const note=document.createElement('small');note.textContent='OCR suggestions only. Confirm the printed value and select its two actual endpoints; labels are not automatically matched to walls.';output.appendChild(note);
-  for(const candidate of candidates){
-   const item=document.createElement('button');item.type='button';item.textContent=candidate.label;item.style.cssText='margin:4px;padding:5px 8px';
-   item.addEventListener('click',()=>{
-    $('calibrationFeet').value=String(candidate.dimension.feet);
-    $('calibrationInches').value=String(candidate.dimension.inches);
-    $('calibrationResult').textContent='Suggested '+candidate.label+' selected. Verify the dimension on the drawing, then click Start Calibration and pick its endpoints.';
-   });
-   output.appendChild(item);
+  if(!recognized){output.textContent='No text was recognized. Try a clearer or higher-resolution drawing.';return;}
+  const heading=document.createElement('div');
+  heading.textContent='Recognized text (review before using):';
+  heading.style.cssText='font-weight:600;margin:4px 0';
+  output.appendChild(heading);
+  const textBox=document.createElement('textarea');
+  textBox.value=recognized;textBox.readOnly=true;textBox.rows=6;
+  textBox.style.cssText='box-sizing:border-box;width:100%;font:12px/1.4 monospace;resize:vertical';
+  output.appendChild(textBox);
+  const actions=document.createElement('div');
+  actions.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin:6px 0';
+  const copy=document.createElement('button');copy.type='button';copy.textContent='Copy recognized text';
+  copy.addEventListener('click',async()=>{
+   try{await navigator.clipboard.writeText(textBox.value);$('status').textContent='Recognized text copied.';}
+   catch(error){textBox.focus();textBox.select();$('status').textContent='Select and copy the recognized text using Ctrl+C.';}
+  });
+  actions.appendChild(copy);
+  const place=document.createElement('button');place.type='button';place.textContent='Place text on drawing';
+  place.addEventListener('click',()=>{
+   const value=textBox.value.trim();if(!value)return;
+   const placement=clipboardPlacement(250,70);
+   const note={id:next++,text:value.slice(0,12000),x:placement.x,y:placement.y,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:515,endY:295,targetId:null,offsetX:0,offsetY:0};
+   annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
+   $('status').textContent='Recognized text added as an editable drawing note. Review OCR accuracy.';
+  });
+  actions.appendChild(place);output.appendChild(actions);
+  const tokens=recognized.match(/\\b\\d{1,3}\\s*['’′]\\s*(?:[- ]\\s*\\d{1,2}(?:\\.\\d+)?)?\\s*(?:["”″])?/g)||[];
+  const candidates=[...new Set(tokens.map(v=>v.trim()))].map(label=>({label,dimension:parseDrawingDimension(label)})).filter(v=>v.dimension).slice(0,40);
+  if(candidates.length){
+   const dimensionHeading=document.createElement('div');
+   dimensionHeading.textContent='Possible dimensions for calibration (verify before use):';
+   dimensionHeading.style.cssText='font-weight:600;margin:8px 0 4px';
+   output.appendChild(dimensionHeading);
+   for(const candidate of candidates){
+    const item=document.createElement('button');item.type='button';item.textContent=candidate.label;item.style.cssText='margin:3px;padding:5px 8px';
+    item.addEventListener('click',()=>{
+     $('calibrationFeet').value=String(candidate.dimension.feet);
+     $('calibrationInches').value=String(candidate.dimension.inches);
+     $('calibrationResult').textContent='Suggested '+candidate.label+' selected. Verify the dimension on the drawing, then click Start Calibration and pick its endpoints.';
+    });
+    output.appendChild(item);
+   }
   }
  }catch(error){output.textContent='Could not scan drawing: '+error.message+'. Manual calibration remains available.';}
  finally{button.disabled=false;}
