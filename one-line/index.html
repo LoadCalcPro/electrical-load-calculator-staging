@@ -1778,13 +1778,13 @@ function placeNewEquipmentWithoutOverlap(n){
  const minX=area.left+b.l+gap,maxX=area.right-b.r-gap;
  const minY=area.top+b.t+gap,maxY=area.bottom-b.b-gap;
  if(minX>maxX||minY>maxY)return;
- const occupied=nodes.filter(other=>other.type!=='planroom'&&other.type!=='planwall').map(other=>{
+ const occupied=nodes.filter(other=>other.type!=='planroom'&&!other.layerHidden).map(other=>{
   const q=bounds(other);return {left:other.x-q.l-gap,right:other.x+q.r+gap,top:other.y-q.t-gap,bottom:other.y+q.b+gap};
  });
  const clear=(x,y)=>occupied.every(q=>x+b.r<=q.left||x-b.l>=q.right||y+b.b<=q.top||y-b.t>=q.bottom);
  const originX=Math.max(minX,Math.min(maxX,n.x)),originY=Math.max(minY,Math.min(maxY,n.y));
  if(clear(originX,originY)){n.x=originX;n.y=originY;return;}
- const step=20,candidates=[];
+ const step=Math.max(6,Math.min(16,Math.min(b.r+b.l,b.b+b.t)/2)),candidates=[];
  for(let y=minY;y<=maxY;y+=step)for(let x=minX;x<=maxX;x+=step)
   if(clear(x,y))candidates.push({x,y,d:(x-originX)**2+(y-originY)**2});
  for(const x of [minX,maxX])for(const y of [minY,maxY])
@@ -1807,7 +1807,7 @@ if(x==null&&y==null&&drawingView==='plan'&&type==='plansymbol'){
   const interior={left:room.x-halfW+b.l+gap,right:room.x+halfW-b.r-gap,top:room.y-halfH+b.t+gap,bottom:room.y+halfH-b.b-gap};
   const area={left:Math.max(interior.left,visible?.left??-Infinity),right:Math.min(interior.right,visible?.right??Infinity),top:Math.max(interior.top,visible?.top??-Infinity),bottom:Math.min(interior.bottom,visible?.bottom??Infinity)};
   if(area.left>area.right||area.top>area.bottom)Object.assign(area,interior);
-  const occupied=nodes.filter(v=>v.type==='plansymbol'&&!v.layerHidden).map(v=>({x:v.x,y:v.y,b:bounds(v)}));
+  const occupied=nodes.filter(v=>v.type!=='planroom'&&!v.layerHidden).map(v=>({x:v.x,y:v.y,b:bounds(v)}));
   const clear=(x,y)=>occupied.every(v=>Math.abs(x-v.x)>=b.r+v.b.l+gap||Math.abs(y-v.y)>=b.b+v.b.t+gap);
   const centerX=Math.max(area.left,Math.min(area.right,n.x)),centerY=Math.max(area.top,Math.min(area.bottom,n.y));
   let best=null;
@@ -1817,7 +1817,7 @@ if(x==null&&y==null&&drawingView==='plan'&&type==='plansymbol'){
     if(x>=area.left&&x<=area.right&&y>=area.top&&y<=area.bottom&&clear(x,y)){best={x,y};break;}
    }
   }
-  if(best){n.x=best.x;n.y=best.y;}else{n.x=centerX;n.y=centerY;}
+  if(best){n.x=best.x;n.y=best.y;}else{n.x=centerX;n.y=centerY;placeNewEquipmentWithoutOverlap(n);}
  }else placeNewEquipmentWithoutOverlap(n);
 }else if(x==null&&y==null)placeNewEquipmentWithoutOverlap(n);
 snapPlanOpeningToWall(n);nodes.push(n);selectedNodeIds.clear();selectedLineIds.clear();activeInnerKey=null;selected={kind:'node',id:n.id};render()}
