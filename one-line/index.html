@@ -1916,7 +1916,17 @@ measureToggle.addEventListener('click',()=>{measureOptions.hidden=!measureOption
 [measureButton,areaMeasureButton].forEach(button=>button.addEventListener('click',()=>{measureOptions.hidden=true;}));
 // Preserve the old measurementMenu as a container for existing per-area deletion controls.
 measureButton.parentNode.insertBefore(measurementMenu,measureButton.nextSibling);
-let areaMeasurePoints=[],areaMeasureOverlay=null;
+let areaMeasurePoints=[],areaMeasureOverlay=null,selectedAreaMeasurement=null;
+// Area overlays are independent SVG measurements; clicking an outline selects it.
+// Backspace/Delete removes only that selected measurement, not other drawing items.
+window.addEventListener('keydown',e=>{
+ if(!selectedAreaMeasurement||!['Backspace','Delete'].includes(e.key))return;
+ const focus=document.activeElement;
+ if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ selectedAreaMeasurement.remove();selectedAreaMeasurement=null;
+ $('status').textContent='Area measurement deleted.';
+},true);
 function clearAreaMeasureOverlay(){
  if(areaMeasureOverlay){areaMeasureOverlay.remove();areaMeasureOverlay=null;}
 }
@@ -1937,7 +1947,7 @@ function finishAreaMeasurement(){
  group.setAttribute('pointer-events','all');
  const polygon=document.createElementNS(ns,'polygon');
  polygon.setAttribute('points',areaMeasurePoints.map(p=>p.x+','+p.y).join(' '));
- polygon.setAttribute('fill','#ef4444');polygon.setAttribute('fill-opacity','0.09');
+ polygon.setAttribute('fill','none');polygon.setAttribute('pointer-events','stroke');
  polygon.setAttribute('stroke','#dc2626');polygon.setAttribute('stroke-width','1.8');
  group.appendChild(polygon);
  const label=document.createElementNS(ns,'text');
@@ -1947,10 +1957,14 @@ function finishAreaMeasurement(){
  label.setAttribute('fill','#b91c1c');label.setAttribute('font-weight','bold');
  label.textContent=squareFeet.toFixed(1)+' ft² | '+perimeterFeet.toFixed(1)+' ft perimeter';
  group.appendChild(label);
- group.addEventListener('click',e=>{if(mode!=='select')return;e.stopPropagation();$('status').textContent='Area '+squareFeet.toFixed(1)+' ft²; perimeter '+perimeterFeet.toFixed(1)+' ft. Click Delete measurement to remove.';});
+ group.addEventListener('click',e=>{if(mode!=='select')return;e.stopPropagation();
+ if(selectedAreaMeasurement&&selectedAreaMeasurement!==group)selectedAreaMeasurement.querySelector('polygon')?.setAttribute('stroke','#dc2626');
+ selectedAreaMeasurement=group;polygon.setAttribute('stroke','#0d9488');
+ $('status').textContent='Area '+squareFeet.toFixed(1)+' ft²; perimeter '+perimeterFeet.toFixed(1)+' ft. Press Backspace or Delete to remove.';
+});
  const remove=document.createElement('button');remove.type='button';remove.textContent='Delete measurement';
  remove.style.marginLeft='5px';measurementMenu.appendChild(remove);
- remove.addEventListener('click',()=>{group.remove();remove.remove();});
+ remove.addEventListener('click',()=>{group.remove();remove.remove();if(selectedAreaMeasurement===group)selectedAreaMeasurement=null;});
  svgPrecision.appendChild(group);
  $('status').textContent='Area: '+squareFeet.toFixed(1)+' ft²; perimeter: '+perimeterFeet.toFixed(1)+' ft. Approximate; verify calibration.';
  areaMeasurePoints=[];clearAreaMeasureOverlay();mode='select';svgPrecision.classList.remove('precision-pick');
