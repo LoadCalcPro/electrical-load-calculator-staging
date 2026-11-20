@@ -1896,8 +1896,26 @@ const areaMeasureButton=document.createElement('button');
 areaMeasureButton.type='button';areaMeasureButton.textContent='Area';
 areaMeasureButton.title='Trace a closed perimeter to calculate square footage and perimeter';
 measureButton.textContent='Straight';
+// Keep calibration separate from measurement; expose the existing tools in Plan View's main toolbar.
+const measureToolbarAnchor=$('fieldMeasureMode');
+measureToolbarAnchor.hidden=true;
+measureToolbarAnchor.style.display='none';
+const measureDropdown=document.createElement('span');
+measureDropdown.style.cssText='display:inline-flex;align-items:center;gap:4px;position:relative';
+const measureToggle=document.createElement('button');
+measureToggle.type='button';measureToggle.textContent='Measure ▾';
+measureToggle.title='Choose straight distance or area measurement';
+const measureOptions=document.createElement('span');
+measureOptions.hidden=true;
+measureOptions.style.cssText='position:absolute;top:calc(100% + 5px);left:0;z-index:80;background:white;border:1px solid #b9cce2;border-radius:7px;padding:6px;box-shadow:0 6px 18px #0002;white-space:nowrap';
+measureDropdown.appendChild(measureToggle);measureDropdown.appendChild(measureOptions);
+measureToolbarAnchor.parentNode.insertBefore(measureDropdown,measureToolbarAnchor);
+measureOptions.appendChild(measureButton);measureOptions.appendChild(areaMeasureButton);
+measureButton.style.margin='2px';areaMeasureButton.style.margin='2px';
+measureToggle.addEventListener('click',()=>{measureOptions.hidden=!measureOptions.hidden;});
+[measureButton,areaMeasureButton].forEach(button=>button.addEventListener('click',()=>{measureOptions.hidden=true;}));
+// Preserve the old measurementMenu as a container for existing per-area deletion controls.
 measureButton.parentNode.insertBefore(measurementMenu,measureButton.nextSibling);
-measurementMenu.appendChild(areaMeasureButton);
 let areaMeasurePoints=[],areaMeasureOverlay=null;
 function clearAreaMeasureOverlay(){
  if(areaMeasureOverlay){areaMeasureOverlay.remove();areaMeasureOverlay=null;}
