@@ -5236,6 +5236,13 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
    // Connected and unconnected walls must use the same immediate update path.
    renderCanvasOnly();
   });
+  // Prevent delegated change handlers from rebuilding Properties after each spinner step.
+  // Native number inputs emit change while their up/down arrows are used.
+  wallAngleControl.addEventListener('change',event=>{
+   event.stopPropagation();
+   applyWallAngle();
+   renderCanvasOnly();
+  });
   // Rebuild only when editing ends; change can fire on each native arrow step.
   wallAngleControl.addEventListener('blur',()=>{if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
   wallAngleControl.addEventListener('keydown',e=>{if(e.key==='Enter'){wallAngleControl.blur();}});
