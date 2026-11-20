@@ -1856,7 +1856,7 @@ const lens=document.createElement('div');lens.id='precisionLens';lens.innerHTML=
 document.body.appendChild(lens);
 const hint=document.createElement('div');hint.id='precisionHint';document.body.appendChild(hint);
 const svgPrecision=$('svg');
-function precisionActive(){return mode==='calibrate-background'||mode==='verify-background'||mode==='precision-measure'}
+function precisionActive(){return mode==='calibrate-background'||mode==='verify-background'||mode==='precision-measure'||mode==='precision-area'}
 function showPrecision(e){
  if(!precisionActive())return;
  const pt=xy(e);precisionPoint=pt;
@@ -1889,6 +1889,83 @@ function showPrecision(e){
 }
 svgPrecision.addEventListener('pointermove',showPrecision,true);
 svgPrecision.addEventListener('pointerleave',()=>{lens.style.display='none';hint.style.display='none'},true);
+// Plan View measurement modes share the same precision crosshair and calibrated scale.
+const measurementMenu=document.createElement('span');
+measurementMenu.style.cssText='display:inline-flex;gap:4px;align-items:center;margin-left:5px';
+const areaMeasureButton=document.createElement('button');
+areaMeasureButton.type='button';areaMeasureButton.textContent='Area';
+areaMeasureButton.title='Trace a closed perimeter to calculate square footage and perimeter';
+measureButton.textContent='Straight';
+measureButton.parentNode.insertBefore(measurementMenu,measureButton.nextSibling);
+measurementMenu.appendChild(areaMeasureButton);
+let areaMeasurePoints=[],areaMeasureOverlay=null;
+function clearAreaMeasureOverlay(){
+ if(areaMeasureOverlay){areaMeasureOverlay.remove();areaMeasureOverlay=null;}
+}
+function finishAreaMeasurement(){
+ if(areaMeasurePoints.length<3){$('status').textContent='Area requires at least three corners.';return;}
+ const units=calibratedUnitsPerInch(calibrationTarget());
+ if(!(units>0)){$('status').textContent='Calibrate the imported drawing before measuring area.';return;}
+ let twiceArea=0,perimeter=0;
+ for(let i=0;i<areaMeasurePoints.length;i++){
+  const a=areaMeasurePoints[i],b=areaMeasurePoints[(i+1)%areaMeasurePoints.length];
+  twiceArea+=a.x*b.y-b.x*a.y;perimeter+=Math.hypot(b.x-a.x,b.y-a.y);
+ }
+ const squareFeet=Math.abs(twiceArea)/2/(units*units*144);
+ const perimeterFeet=perimeter/units/12;
+ const ns='http://www.w3.org/2000/svg';
+ const group=document.createElementNS(ns,'g');
+ group.setAttribute('class','plan-measured-area');
+ group.setAttribute('pointer-events','all');
+ const polygon=document.createElementNS(ns,'polygon');
+ polygon.setAttribute('points',areaMeasurePoints.map(p=>p.x+','+p.y).join(' '));
+ polygon.setAttribute('fill','#ef4444');polygon.setAttribute('fill-opacity','0.09');
+ polygon.setAttribute('stroke','#dc2626');polygon.setAttribute('stroke-width','1.8');
+ group.appendChild(polygon);
+ const label=document.createElementNS(ns,'text');
+ const center=areaMeasurePoints.reduce((a,p)=>({x:a.x+p.x/areaMeasurePoints.length,y:a.y+p.y/areaMeasurePoints.length}),{x:0,y:0});
+ label.setAttribute('x',center.x);label.setAttribute('y',center.y);
+ label.setAttribute('text-anchor','middle');label.setAttribute('font-size','12');
+ label.setAttribute('fill','#b91c1c');label.setAttribute('font-weight','bold');
+ label.textContent=squareFeet.toFixed(1)+' ft² | '+perimeterFeet.toFixed(1)+' ft perimeter';
+ group.appendChild(label);
+ group.addEventListener('click',e=>{if(mode!=='select')return;e.stopPropagation();$('status').textContent='Area '+squareFeet.toFixed(1)+' ft²; perimeter '+perimeterFeet.toFixed(1)+' ft. Click Delete measurement to remove.';});
+ const remove=document.createElement('button');remove.type='button';remove.textContent='Delete measurement';
+ remove.style.marginLeft='5px';measurementMenu.appendChild(remove);
+ remove.addEventListener('click',()=>{group.remove();remove.remove();});
+ svgPrecision.appendChild(group);
+ $('status').textContent='Area: '+squareFeet.toFixed(1)+' ft²; perimeter: '+perimeterFeet.toFixed(1)+' ft. Approximate; verify calibration.';
+ areaMeasurePoints=[];clearAreaMeasureOverlay();mode='select';svgPrecision.classList.remove('precision-pick');
+ lens.style.display='none';hint.style.display='none';
+}
+areaMeasureButton.addEventListener('click',()=>{
+ if(drawingView!=='plan'){$('status').textContent='Switch to Plan View to measure area.';return;}
+ areaMeasurePoints=[];mode='precision-area';svgPrecision.classList.add('precision-pick');
+ $('status').textContent='Area: click each corner; double-click the final corner to finish. Escape cancels.';
+});
+svgPrecision.addEventListener('click',e=>{
+ if(mode!=='precision-area')return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(e.detail>=2){finishAreaMeasurement();return;}
+ areaMeasurePoints.push(xy(e));
+ clearAreaMeasureOverlay();
+ const ns='http://www.w3.org/2000/svg';
+ areaMeasureOverlay=document.createElementNS(ns,'polyline');
+ areaMeasureOverlay.setAttribute('points',areaMeasurePoints.map(p=>p.x+','+p.y).join(' '));
+ areaMeasureOverlay.setAttribute('fill','none');areaMeasureOverlay.setAttribute('stroke','#dc2626');
+ areaMeasureOverlay.setAttribute('stroke-width','2');areaMeasureOverlay.setAttribute('pointer-events','none');
+ svgPrecision.appendChild(areaMeasureOverlay);
+ $('status').textContent='Area: '+areaMeasurePoints.length+' corner(s). Double-click to finish.';
+},true);
+svgPrecision.addEventListener('dblclick',e=>{
+ if(mode==='precision-area'){e.preventDefault();e.stopImmediatePropagation();finishAreaMeasurement();}
+},true);
+window.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&mode==='precision-area'){
+  areaMeasurePoints=[];clearAreaMeasureOverlay();mode='select';svgPrecision.classList.remove('precision-pick');
+  lens.style.display='none';hint.style.display='none';$('status').textContent='Area measurement cancelled.';
+ }
+},true);
 measureButton.addEventListener('click',()=>{
  if(drawingView!=='plan'){$('status').textContent='Switch to Plan View to measure the imported drawing.';return}
  precisionMeasure={start:null};mode='precision-measure';svgPrecision.classList.add('precision-pick');
