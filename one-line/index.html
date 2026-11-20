@@ -1860,9 +1860,10 @@ function precisionActive(){return mode==='calibrate-background'||mode==='verify-
 function showPrecision(e){
  if(!precisionActive())return;
  const pt=xy(e);precisionPoint=pt;
- if(mode==='precision-area'){
+ if(mode==='precision-area'||mode==='precision-measure'){
   lens.style.display='none';hint.style.display='none';
-  if(areaMeasurePoints.length)drawAreaMeasurePreview(pt);
+  if(mode==='precision-area'&&areaMeasurePoints.length)drawAreaMeasurePreview(pt);
+  if(mode==='precision-measure'&&precisionMeasure?.start)drawStraightMeasurePreview(pt);
   return;
  }
  svgPrecision.classList.add('precision-pick');
@@ -1921,6 +1922,24 @@ measureToggle.addEventListener('click',()=>{measureOptions.hidden=!measureOption
 [measureButton,areaMeasureButton].forEach(button=>button.addEventListener('click',()=>{measureOptions.hidden=true;}));
 // Preserve the old measurementMenu as a container for existing per-area deletion controls.
 measureButton.parentNode.insertBefore(measurementMenu,measureButton.nextSibling);
+let straightMeasureOverlay=null;
+function clearStraightMeasurePreview(){
+ if(straightMeasureOverlay){straightMeasureOverlay.remove();straightMeasureOverlay=null;}
+}
+function drawStraightMeasurePreview(cursor){
+ clearStraightMeasurePreview();
+ if(!precisionMeasure?.start)return;
+ const ns='http://www.w3.org/2000/svg';
+ const line=document.createElementNS(ns,'line');
+ line.setAttribute('x1',precisionMeasure.start.x);
+ line.setAttribute('y1',precisionMeasure.start.y);
+ line.setAttribute('x2',cursor.x);
+ line.setAttribute('y2',cursor.y);
+ line.setAttribute('stroke','#dc2626');
+ line.setAttribute('stroke-width','1.1');
+ line.setAttribute('pointer-events','none');
+ straightMeasureOverlay=line;svgPrecision.appendChild(line);
+}
 let areaMeasurePoints=[],areaMeasureOverlay=null;
 function drawAreaMeasurePreview(cursor){
  clearAreaMeasureOverlay();
@@ -2035,14 +2054,15 @@ window.addEventListener('keydown',e=>{
 },true);
 measureButton.addEventListener('click',()=>{
  if(drawingView!=='plan'){$('status').textContent='Switch to Plan View to measure the imported drawing.';return}
- precisionMeasure={start:null};mode='precision-measure';svgPrecision.classList.add('precision-pick');
+ clearStraightMeasurePreview();precisionMeasure={start:null};mode='precision-measure';svgPrecision.classList.add('precision-pick');
+ lens.style.display='none';hint.style.display='none';
  $('status').textContent='Measure: click the first point, then the second. Use zoom for precision.';
 });
 svgPrecision.addEventListener('pointerdown',e=>{
  if(mode!=='precision-measure'||e.button!==0)return;
  e.preventDefault();e.stopImmediatePropagation();
  const p=precisionPoint&&e.shiftKey?precisionPoint:xy(e);
- if(!precisionMeasure.start){precisionMeasure.start=p;$('status').textContent='Measure: select the second point.';return}
+ if(!precisionMeasure.start){precisionMeasure.start=p;drawStraightMeasurePreview(p);$('status').textContent='Measure: move crosshair to the second point and click to finish.';return}
  const distance=Math.hypot(p.x-precisionMeasure.start.x,p.y-precisionMeasure.start.y);
  const units=calibratedUnitsPerInch(calibrationTarget());
  if(!(units>0)){$('status').textContent='No valid Plan View scale. Calibrate the imported drawing first.'}
@@ -2063,13 +2083,13 @@ svgPrecision.addEventListener('pointerdown',e=>{
   render();
   $('status').textContent='Measured: '+label+'. Dimension added to drawing; select it to edit or delete.';
  }
- precisionMeasure=null;mode='select';svgPrecision.classList.remove('precision-pick');
+ clearStraightMeasurePreview();precisionMeasure=null;mode='select';svgPrecision.classList.remove('precision-pick');
  lens.style.display='none';hint.style.display='none';
 },true);
 window.addEventListener('keydown',e=>{
  if(!precisionActive())return;
  if(e.key==='Escape'){
-  precisionMeasure=null;svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';
+  clearStraightMeasurePreview();precisionMeasure=null;svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';
   if(mode==='precision-measure'){mode='select';$('status').textContent='Measurement cancelled.'}
  }
  // Adjust the pending calibration/measurement start point without mouse drift.
