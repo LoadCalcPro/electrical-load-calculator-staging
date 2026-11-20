@@ -2063,11 +2063,11 @@ $('startBackgroundCalibration').addEventListener('click',()=>{
  let im=selected?.kind==='personalImage'?personalImages.find(v=>v.kind===selected.id):null;
  if(!im&&backgrounds.length===1){im=backgrounds[0];selected={kind:'personalImage',id:im.kind};}
  if(!im){$('status').textContent=backgrounds.length?'Select the imported PDF on the drawing, then press Start Calibration.':'Import a PDF or image into Plan View before calibrating.';return;}
- if(im.locked){$('status').textContent='Unlock the imported PDF in Backgrounds & Layers, then calibrate.';return;}
+ // Calibration is a measurement operation: a locked background can still be calibrated.
  const inches=12*Number($('calibrationFeet').value)+Number($('calibrationInches').value);
  if(!Number.isFinite(inches)||inches<=0){$('status').textContent='Enter a positive known distance in inches.';return;}
  backgroundCalibration={kind:im.kind,inches,start:null};mode='calibrate-background';$('calibrationControls').hidden=true;$('calibrateBackground').setAttribute('aria-expanded','false');svgPrecision.classList.add('precision-pick');
- $('status').textContent='Calibration: click the first end of the known distance on the background.';
+ $('status').textContent='Calibration ready: click the FIRST endpoint of the printed dimension, then the SECOND endpoint.';showCalibrationNotice('Calibration ready: click the first endpoint of the printed dimension.');
 });
 $('svg').addEventListener('pointerdown',e=>{
  if(!['calibrate-background','verify-background'].includes(mode)||e.button!==0)return;
