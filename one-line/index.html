@@ -1916,16 +1916,21 @@ measureToggle.addEventListener('click',()=>{measureOptions.hidden=!measureOption
 [measureButton,areaMeasureButton].forEach(button=>button.addEventListener('click',()=>{measureOptions.hidden=true;}));
 // Preserve the old measurementMenu as a container for existing per-area deletion controls.
 measureButton.parentNode.insertBefore(measurementMenu,measureButton.nextSibling);
-let areaMeasurePoints=[],areaMeasureOverlay=null,selectedAreaMeasurement=null;
-// Area overlays are independent SVG measurements; clicking an outline selects it.
-// Backspace/Delete removes only that selected measurement, not other drawing items.
+let areaMeasurePoints=[],areaMeasureOverlay=null;
+// Measured areas live in polyRoutes, the existing per-sheet saved drawing model.
+$('svg').addEventListener('click',e=>{
+ const target=e.target.closest('[data-measured-area]');if(!target||mode!=='select')return;
+ e.preventDefault();e.stopImmediatePropagation();
+ selected={kind:'measured-area',id:Number(target.dataset.measuredArea)};
+ renderCanvasOnly();$('status').textContent='Area selected. Press Backspace or Delete to remove.';
+},true);
 window.addEventListener('keydown',e=>{
- if(!selectedAreaMeasurement||!['Backspace','Delete'].includes(e.key))return;
+ if(!['Backspace','Delete'].includes(e.key)||selected?.kind!=='measured-area')return;
  const focus=document.activeElement;
  if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
  e.preventDefault();e.stopImmediatePropagation();
- selectedAreaMeasurement.remove();selectedAreaMeasurement=null;
- $('status').textContent='Area measurement deleted.';
+ polyRoutes=polyRoutes.filter(route=>route.id!==selected.id);selected=null;
+ render();$('status').textContent='Area measurement deleted.';
 },true);
 function clearAreaMeasureOverlay(){
  if(areaMeasureOverlay){areaMeasureOverlay.remove();areaMeasureOverlay=null;}
@@ -1941,34 +1946,12 @@ function finishAreaMeasurement(){
  }
  const squareFeet=Math.abs(twiceArea)/2/(units*units*144);
  const perimeterFeet=perimeter/units/12;
- const ns='http://www.w3.org/2000/svg';
- const group=document.createElementNS(ns,'g');
- group.setAttribute('class','plan-measured-area');
- group.setAttribute('pointer-events','all');
- const polygon=document.createElementNS(ns,'polygon');
- polygon.setAttribute('points',areaMeasurePoints.map(p=>p.x+','+p.y).join(' '));
- polygon.setAttribute('fill','none');polygon.setAttribute('pointer-events','stroke');
- polygon.setAttribute('stroke','#dc2626');polygon.setAttribute('stroke-width','1.8');
- group.appendChild(polygon);
- const label=document.createElementNS(ns,'text');
- const center=areaMeasurePoints.reduce((a,p)=>({x:a.x+p.x/areaMeasurePoints.length,y:a.y+p.y/areaMeasurePoints.length}),{x:0,y:0});
- label.setAttribute('x',center.x);label.setAttribute('y',center.y);
- label.setAttribute('text-anchor','middle');label.setAttribute('font-size','12');
- label.setAttribute('fill','#b91c1c');label.setAttribute('font-weight','bold');
- label.textContent=squareFeet.toFixed(1)+' ft² | '+perimeterFeet.toFixed(1)+' ft perimeter';
- group.appendChild(label);
- group.addEventListener('click',e=>{if(mode!=='select')return;e.stopPropagation();
- if(selectedAreaMeasurement&&selectedAreaMeasurement!==group)selectedAreaMeasurement.querySelector('polygon')?.setAttribute('stroke','#dc2626');
- selectedAreaMeasurement=group;polygon.setAttribute('stroke','#0d9488');
- $('status').textContent='Area '+squareFeet.toFixed(1)+' ft²; perimeter '+perimeterFeet.toFixed(1)+' ft. Press Backspace or Delete to remove.';
-});
- const remove=document.createElement('button');remove.type='button';remove.textContent='Delete measurement';
- remove.style.marginLeft='5px';measurementMenu.appendChild(remove);
- remove.addEventListener('click',()=>{group.remove();remove.remove();if(selectedAreaMeasurement===group)selectedAreaMeasurement=null;});
- svgPrecision.appendChild(group);
- $('status').textContent='Area: '+squareFeet.toFixed(1)+' ft²; perimeter: '+perimeterFeet.toFixed(1)+' ft. Approximate; verify calibration.';
+ const id=next++;
+ polyRoutes.push({id,kind:'measured-area',points:areaMeasurePoints.map(p=>({...p})),squareFeet,perimeterFeet});
+ selected={kind:'measured-area',id};
+ $('status').textContent='Area: '+squareFeet.toFixed(1)+' ft²; perimeter: '+perimeterFeet.toFixed(1)+' ft. Saved with drawing; select outline and press Backspace to delete.';
  areaMeasurePoints=[];clearAreaMeasureOverlay();mode='select';svgPrecision.classList.remove('precision-pick');
- lens.style.display='none';hint.style.display='none';
+ lens.style.display='none';hint.style.display='none';render();
 }
 areaMeasureButton.addEventListener('click',()=>{
  if(drawingView!=='plan'){$('status').textContent='Switch to Plan View to measure area.';return;}
@@ -3038,7 +3021,13 @@ function syncShapeConnections(){
   line.x1=start.x;line.y1=start.y;line.x2=end.x;line.y2=end.y;
  }
 }
-function renderPolyRoutes(){syncShapeConnections();return polyRoutes.map(route=>{if(route.kind==='switch-control'&&Array.isArray(route.fixtureIds)){route.points=route.fixtureIds.map((id,i)=>{const n=nodes.find(n=>n.id===id);return n?{x:n.x,y:n.y}:route.points[i];}).filter(Boolean);}if(route.kind==='revision-shape'){const points=revisionShapePoints(route),xs=points.map(p=>p.x),ys=points.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,active=selected?.kind==='polyroute'&&selected.id===route.id;const path=route.shape==='cloud'?irregularCloudPath(points):'M'+x+' '+y+'h'+w+'v'+h+'h'+(-w)+'Z';const fillMode=route.areaFillMode||'transparent',fillColor=/^#[0-9a-fA-F]{6}$/.test(route.areaFillColor||'')?route.areaFillColor:'#f5d84b',patternId='area-hatch-'+route.id;
+function renderPolyRoutes(){syncShapeConnections();return polyRoutes.map(route=>{if(route.kind==='measured-area'){
+ const pts=route.points||[];if(pts.length<3)return '';
+ const coordinates=pts.map(p=>p.x+','+p.y).join(' ');
+ const center=pts.reduce((a,p)=>({x:a.x+p.x/pts.length,y:a.y+p.y/pts.length}),{x:0,y:0});
+ const active=selected?.kind==='measured-area'&&selected.id===route.id;
+ return '<g data-measured-area="'+route.id+'"><polygon points="'+coordinates+'" fill="none" stroke="'+(active?'#0d9488':'#dc2626')+'" stroke-width="'+(active?2.5:1.8)+'" pointer-events="stroke" style="cursor:pointer"/><text x="'+center.x+'" y="'+center.y+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c" pointer-events="none">'+Number(route.squareFeet).toFixed(1)+' ft² | '+Number(route.perimeterFeet).toFixed(1)+' ft perimeter</text></g>';
+ }if(route.kind==='switch-control'&&Array.isArray(route.fixtureIds)){route.points=route.fixtureIds.map((id,i)=>{const n=nodes.find(n=>n.id===id);return n?{x:n.x,y:n.y}:route.points[i];}).filter(Boolean);}if(route.kind==='revision-shape'){const points=revisionShapePoints(route),xs=points.map(p=>p.x),ys=points.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,active=selected?.kind==='polyroute'&&selected.id===route.id;const path=route.shape==='cloud'?irregularCloudPath(points):'M'+x+' '+y+'h'+w+'v'+h+'h'+(-w)+'Z';const fillMode=route.areaFillMode||'transparent',fillColor=/^#[0-9a-fA-F]{6}$/.test(route.areaFillColor||'')?route.areaFillColor:'#f5d84b',patternId='area-hatch-'+route.id;
  const spacing=Math.max(1,Math.min(60,Number(route.hatchSpacing)||12)),thickness=Math.max(.5,Math.min(8,Number(route.hatchThickness)||1.5)),angle=Number.isFinite(Number(route.hatchAngle))?Number(route.hatchAngle):45;
  const hatchDefs=fillMode==='hatch'?'<defs><pattern id="'+patternId+'" width="'+spacing+'" height="'+spacing+'" patternUnits="userSpaceOnUse" patternTransform="rotate('+angle+')"><path d="M0 0 V'+spacing+'" stroke="'+fillColor+'" stroke-width="'+thickness+'" fill="none"/></pattern></defs>':'';
  const areaFill=fillMode==='hatch'?'url(#'+patternId+')':fillMode==='highlight'?fillColor:'transparent';
