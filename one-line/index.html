@@ -1938,10 +1938,13 @@ function drawAreaMeasurePreview(cursor){
 }
 
 // Measured areas live in polyRoutes, the existing per-sheet saved drawing model.
-$('svg').addEventListener('click',e=>{
- const target=e.target.closest('[data-measured-area]');if(!target||mode!=='select')return;
+$('svg').addEventListener('pointerdown',e=>{
+ const target=e.target.closest('[data-measured-area]');
+ if(!target||mode!=='select'||e.button!==0)return;
+ // Select before other canvas pointer handlers can clear the selection.
  e.preventDefault();e.stopImmediatePropagation();
  selected={kind:'measured-area',id:Number(target.dataset.measuredArea)};
+ selectedNodeIds.clear();selectedLineIds.clear();
  renderCanvasOnly();$('status').textContent='Area selected. Press Backspace or Delete to remove.';
 },true);
 window.addEventListener('keydown',e=>{
@@ -3041,7 +3044,7 @@ function renderPolyRoutes(){syncShapeConnections();return polyRoutes.map(route=>
  const coordinates=pts.map(p=>p.x+','+p.y).join(' ');
  const center=pts.reduce((a,p)=>({x:a.x+p.x/pts.length,y:a.y+p.y/pts.length}),{x:0,y:0});
  const active=selected?.kind==='measured-area'&&selected.id===route.id;
- return '<g data-measured-area="'+route.id+'"><polygon points="'+coordinates+'" fill="none" stroke="'+(active?'#0d9488':'#dc2626')+'" stroke-width="'+(active?1.8:1.1)+'" pointer-events="stroke" style="cursor:pointer"/><text x="'+center.x+'" y="'+center.y+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c" pointer-events="none">'+Number(route.squareFeet).toFixed(1)+' ft² | '+Number(route.perimeterFeet).toFixed(1)+' ft perimeter</text></g>';
+ return '<g data-measured-area="'+route.id+'"><polygon points="'+coordinates+'" fill="none" stroke="transparent" stroke-width="14" pointer-events="stroke" style="cursor:pointer"/><polygon points="'+coordinates+'" fill="none" stroke="'+(active?'#0d9488':'#dc2626')+'" stroke-width="'+(active?1.8:1.1)+'" pointer-events="none"/><text x="'+center.x+'" y="'+center.y+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c" pointer-events="none">'+Number(route.squareFeet).toFixed(1)+' ft² | '+Number(route.perimeterFeet).toFixed(1)+' ft perimeter</text></g>';
  }if(route.kind==='switch-control'&&Array.isArray(route.fixtureIds)){route.points=route.fixtureIds.map((id,i)=>{const n=nodes.find(n=>n.id===id);return n?{x:n.x,y:n.y}:route.points[i];}).filter(Boolean);}if(route.kind==='revision-shape'){const points=revisionShapePoints(route),xs=points.map(p=>p.x),ys=points.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,active=selected?.kind==='polyroute'&&selected.id===route.id;const path=route.shape==='cloud'?irregularCloudPath(points):'M'+x+' '+y+'h'+w+'v'+h+'h'+(-w)+'Z';const fillMode=route.areaFillMode||'transparent',fillColor=/^#[0-9a-fA-F]{6}$/.test(route.areaFillColor||'')?route.areaFillColor:'#f5d84b',patternId='area-hatch-'+route.id;
  const spacing=Math.max(1,Math.min(60,Number(route.hatchSpacing)||12)),thickness=Math.max(.5,Math.min(8,Number(route.hatchThickness)||1.5)),angle=Number.isFinite(Number(route.hatchAngle))?Number(route.hatchAngle):45;
  const hatchDefs=fillMode==='hatch'?'<defs><pattern id="'+patternId+'" width="'+spacing+'" height="'+spacing+'" patternUnits="userSpaceOnUse" patternTransform="rotate('+angle+')"><path d="M0 0 V'+spacing+'" stroke="'+fillColor+'" stroke-width="'+thickness+'" fill="none"/></pattern></defs>':'';
