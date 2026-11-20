@@ -1941,11 +1941,45 @@ function drawAreaMeasurePreview(cursor){
 $('svg').addEventListener('pointerdown',e=>{
  const target=e.target.closest('[data-measured-area]');
  if(!target||mode!=='select'||e.button!==0)return;
+ if(e.target.closest('[data-area-label]')){
+  const route=polyRoutes.find(v=>v.id===Number(target.dataset.measuredArea));
+  if(route){e.preventDefault();e.stopImmediatePropagation();draggingMeasuredAreaLabel={route,element:e.target};selected={kind:'measured-area',id:route.id};selectedNodeIds.clear();selectedLineIds.clear();return;}
+ }
  // Select before other canvas pointer handlers can clear the selection.
  e.preventDefault();e.stopImmediatePropagation();
  selected={kind:'measured-area',id:Number(target.dataset.measuredArea)};
  selectedNodeIds.clear();selectedLineIds.clear();
- renderCanvasOnly();$('status').textContent='Area selected. Press Backspace or Delete to remove.';
+ render();$('status').textContent='Area selected. Drag its text or change Font Size in Properties.';
+},true);
+let draggingMeasuredAreaLabel=null;
+function renderMeasuredAreaProperties(){
+ if(selected?.kind!=='measured-area')return;
+ const route=polyRoutes.find(v=>v.id===selected.id&&v.kind==='measured-area');
+ if(!route)return;
+ const host=$('properties');if(!host)return;
+ const section=document.createElement('div');section.className='plan-area-label-properties';
+ section.style.cssText='padding:10px 12px;margin:8px 0;background:#e8f1ff;border-radius:8px';
+ const heading=document.createElement('div');heading.textContent='Area Measurement Label';heading.style.cssText='font-weight:600;margin-bottom:8px';section.appendChild(heading);
+ const label=document.createElement('label');label.className='field';label.textContent='Font Size';
+ const size=document.createElement('input');size.type='number';size.min='6';size.max='48';size.step='1';size.value=String(route.labelFontSize||12);
+ size.addEventListener('input',()=>{
+  const value=Number(size.value);if(!Number.isFinite(value)||value<6||value>48)return;
+  route.labelFontSize=value;
+  const el=$('svg')?.querySelector('[data-area-label="'+route.id+'"]');el?.setAttribute('font-size',String(value));
+ });
+ label.appendChild(size);section.appendChild(label);
+ const note=document.createElement('div');note.textContent='Drag the measurement text to move it independently of the area outline.';note.style.cssText='font-size:12px;margin-top:6px';section.appendChild(note);
+ host.appendChild(section);
+}
+window.addEventListener('pointermove',e=>{
+ if(!draggingMeasuredAreaLabel)return;
+ const p=xy(e),{route,element}=draggingMeasuredAreaLabel;
+ route.labelX=p.x;route.labelY=p.y;
+ element.setAttribute('x',String(p.x));element.setAttribute('y',String(p.y));
+},true);
+window.addEventListener('pointerup',()=>{
+ if(!draggingMeasuredAreaLabel)return;
+ draggingMeasuredAreaLabel=null;render();
 },true);
 window.addEventListener('keydown',e=>{
  if(!['Backspace','Delete'].includes(e.key)||selected?.kind!=='measured-area')return;
@@ -3044,7 +3078,9 @@ function renderPolyRoutes(){syncShapeConnections();return polyRoutes.map(route=>
  const coordinates=pts.map(p=>p.x+','+p.y).join(' ');
  const center=pts.reduce((a,p)=>({x:a.x+p.x/pts.length,y:a.y+p.y/pts.length}),{x:0,y:0});
  const active=selected?.kind==='measured-area'&&selected.id===route.id;
- return '<g data-measured-area="'+route.id+'"><polygon points="'+coordinates+'" fill="none" stroke="transparent" stroke-width="14" pointer-events="stroke" style="cursor:pointer"/><polygon points="'+coordinates+'" fill="none" stroke="'+(active?'#0d9488':'#dc2626')+'" stroke-width="'+(active?1.8:1.1)+'" pointer-events="none"/><text x="'+center.x+'" y="'+center.y+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c" pointer-events="none">'+Number(route.squareFeet).toFixed(1)+' ft² | '+Number(route.perimeterFeet).toFixed(1)+' ft perimeter</text></g>';
+ const lx=Number.isFinite(Number(route.labelX))?Number(route.labelX):center.x,ly=Number.isFinite(Number(route.labelY))?Number(route.labelY):center.y;
+ const fontSize=Math.max(6,Math.min(48,Number(route.labelFontSize)||12));
+ return '<g data-measured-area="'+route.id+'"><polygon points="'+coordinates+'" fill="none" stroke="transparent" stroke-width="14" pointer-events="stroke" style="cursor:pointer"/><polygon points="'+coordinates+'" fill="none" stroke="'+(active?'#0d9488':'#dc2626')+'" stroke-width="'+(active?1.8:1.1)+'" pointer-events="none"/><text data-area-label="'+route.id+'" x="'+lx+'" y="'+ly+'" text-anchor="middle" font-size="'+fontSize+'" font-weight="bold" fill="#b91c1c" pointer-events="all" style="cursor:move">'+Number(route.squareFeet).toFixed(1)+' ft² | '+Number(route.perimeterFeet).toFixed(1)+' ft perimeter</text></g>';
  }if(route.kind==='switch-control'&&Array.isArray(route.fixtureIds)){route.points=route.fixtureIds.map((id,i)=>{const n=nodes.find(n=>n.id===id);return n?{x:n.x,y:n.y}:route.points[i];}).filter(Boolean);}if(route.kind==='revision-shape'){const points=revisionShapePoints(route),xs=points.map(p=>p.x),ys=points.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,active=selected?.kind==='polyroute'&&selected.id===route.id;const path=route.shape==='cloud'?irregularCloudPath(points):'M'+x+' '+y+'h'+w+'v'+h+'h'+(-w)+'Z';const fillMode=route.areaFillMode||'transparent',fillColor=/^#[0-9a-fA-F]{6}$/.test(route.areaFillColor||'')?route.areaFillColor:'#f5d84b',patternId='area-hatch-'+route.id;
  const spacing=Math.max(1,Math.min(60,Number(route.hatchSpacing)||12)),thickness=Math.max(.5,Math.min(8,Number(route.hatchThickness)||1.5)),angle=Number.isFinite(Number(route.hatchAngle))?Number(route.hatchAngle):45;
  const hatchDefs=fillMode==='hatch'?'<defs><pattern id="'+patternId+'" width="'+spacing+'" height="'+spacing+'" patternUnits="userSpaceOnUse" patternTransform="rotate('+angle+')"><path d="M0 0 V'+spacing+'" stroke="'+fillColor+'" stroke-width="'+thickness+'" fill="none"/></pattern></defs>':'';
@@ -4742,7 +4778,7 @@ if(skipProperties){
  if(Boolean(existing)!==Boolean(context))renderPositionSpacingPropertiesRefresh();
  syncPositionSpacingInputs();
 }
-if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();organizeEquipmentProperties();standardizeDrawingProperties();{const host=$('developerSettingsHost');if(selected?.kind!=='node'&&host){host.replaceChildren();host.style.display='none';}}if(selected?.kind==='node'){const current=nodes.find(n=>n.id===selected.id);if(current){installPlanElectricalInformation($('properties'),current);installDeveloperPropertyVisibility($('properties'),current);}}renderLinearLightDimensions();renderPositionSpacingProperties();renderPlanConduitProperties();renderAboveConduitProperties();bindRoomDimensionInputs();}else if(selected?.kind==='node'&&!roomPropertiesUpdateInProgress&&!['planpanel','plantransformer','plangenerator','planclearance'].includes(nodes.find(n=>n.id===selected.id)?.type)&&!(nodes.find(n=>n.id===selected.id)?.type==='plansymbol'&&(nodes.find(n=>n.id===selected.id)?.equipmentSubtype||nodes.find(n=>n.id===selected.id)?.name)==='Linear Light')){$('textInspector').syncSelectedText?.();}$('selectMode').classList.toggle('active',mode==='select');$('connectMode').classList.toggle('active',mode==='connect');$('lineMode').classList.toggle('active',mode==='line');$('fieldMeasureMode').classList.toggle('active',mode==='field-measure');$('polyMode').classList.toggle('active',mode==='polyline'&&!window.creatingAboveConduit);const aboveButton=$('planAboveConduitTool');if(aboveButton)aboveButton.classList.toggle('active',drawingView==='plan'&&mode==='polyline'&&!!window.creatingAboveConduit);$('shapeMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='rectangle');$('cloudMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='cloud');$('switchLegMode').classList.toggle('active',mode==='switch-control');$('homeRunMode').classList.toggle('active',mode==='home-run');const conduitOverlay=$('conduitEndpointOverlay');if(conduitOverlay)conduitOverlay.innerHTML=polyRoutes.filter(route=>route.planConduit?.location==='Above Ground'&&route.points?.length>1).map(route=>[route.points[0],route.points[route.points.length-1]].map(p=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="white" stroke="'+esc(installationStroke(route,route.colors?.[0]||'#087f99'))+'" stroke-width="1.4"/>').join('')).join('');$('modeLabel').textContent='Mode: '+(mode==='connect'?'Connect (select two symbols)':mode==='plan-conduit'?'Underground Conduit (select two points)':'Select / Move')}
+if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();renderMeasuredAreaProperties();organizeEquipmentProperties();standardizeDrawingProperties();{const host=$('developerSettingsHost');if(selected?.kind!=='node'&&host){host.replaceChildren();host.style.display='none';}}if(selected?.kind==='node'){const current=nodes.find(n=>n.id===selected.id);if(current){installPlanElectricalInformation($('properties'),current);installDeveloperPropertyVisibility($('properties'),current);}}renderLinearLightDimensions();renderPositionSpacingProperties();renderPlanConduitProperties();renderAboveConduitProperties();bindRoomDimensionInputs();}else if(selected?.kind==='node'&&!roomPropertiesUpdateInProgress&&!['planpanel','plantransformer','plangenerator','planclearance'].includes(nodes.find(n=>n.id===selected.id)?.type)&&!(nodes.find(n=>n.id===selected.id)?.type==='plansymbol'&&(nodes.find(n=>n.id===selected.id)?.equipmentSubtype||nodes.find(n=>n.id===selected.id)?.name)==='Linear Light')){$('textInspector').syncSelectedText?.();}$('selectMode').classList.toggle('active',mode==='select');$('connectMode').classList.toggle('active',mode==='connect');$('lineMode').classList.toggle('active',mode==='line');$('fieldMeasureMode').classList.toggle('active',mode==='field-measure');$('polyMode').classList.toggle('active',mode==='polyline'&&!window.creatingAboveConduit);const aboveButton=$('planAboveConduitTool');if(aboveButton)aboveButton.classList.toggle('active',drawingView==='plan'&&mode==='polyline'&&!!window.creatingAboveConduit);$('shapeMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='rectangle');$('cloudMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='cloud');$('switchLegMode').classList.toggle('active',mode==='switch-control');$('homeRunMode').classList.toggle('active',mode==='home-run');const conduitOverlay=$('conduitEndpointOverlay');if(conduitOverlay)conduitOverlay.innerHTML=polyRoutes.filter(route=>route.planConduit?.location==='Above Ground'&&route.points?.length>1).map(route=>[route.points[0],route.points[route.points.length-1]].map(p=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="white" stroke="'+esc(installationStroke(route,route.colors?.[0]||'#087f99'))+'" stroke-width="1.4"/>').join('')).join('');$('modeLabel').textContent='Mode: '+(mode==='connect'?'Connect (select two symbols)':mode==='plan-conduit'?'Underground Conduit (select two points)':'Select / Move')}
 function noteLeaders(a){if(!Array.isArray(a.leaders)){a.leaders=[{id:0,endX:a.endX??a.x+95,endY:a.endY??a.y+30,targetId:a.targetId??null,offsetX:a.offsetX||0,offsetY:a.offsetY||0}]}return a.leaders;}
 function leaderStartPoint(l,left,top,width,height,autoX,autoY){
  if(l.fromLeader!=null)return null;
