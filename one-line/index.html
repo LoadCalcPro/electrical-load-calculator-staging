@@ -5232,9 +5232,10 @@ const apply=()=>{clampEquipmentToSheet(item);moveAttachedPlanOpenings(item);sync
      }
     }
    }
-   // Always redraw the complete wall outline while retaining the input.
-   // Connected and unconnected walls must use the same immediate update path.
-   renderCanvasOnly();
+   // Keep the native number spinner mounted during repeated arrow presses.
+   // renderCanvasOnly() can refresh the selected wall's inspector indirectly,
+   // replacing this input after its first step. The wall SVG rotates above;
+   // the full geometry redraw occurs on blur instead.
   });
   // Rebuild only when editing ends; change can fire on each native arrow step.
   wallAngleControl.addEventListener('blur',()=>{if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
