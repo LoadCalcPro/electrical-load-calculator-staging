@@ -5087,6 +5087,11 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
   const style=document.createElement('style');style.id='numberedNotePropertiesStyle';
   style.textContent=`
   #properties.numbered-note-properties{display:block}
+  #properties.numbered-note-properties .numbered-note-formatting{background:#e8f1ff;border:1px solid #bfd6f4;border-radius:13px;margin:0 0 10px;padding:0;overflow:hidden}
+  #properties.numbered-note-properties .numbered-note-formatting>summary{background:#f0f5fd;padding:10px 14px;font-weight:700;color:#183654}
+  #properties.numbered-note-properties .numbered-note-formatting .shared-text-editor{padding:10px 12px}
+  #properties.numbered-note-properties .numbered-note-formatting .shared-selected-label{font-size:12px;font-weight:700;color:#0b6072}
+
   #properties.numbered-note-properties .numbered-note-heading{font-size:12px;font-weight:700;color:#0b6072;padding:6px 4px 10px}
   #properties.numbered-note-properties .numbered-note-panel{background:#e8f1ff;border:1px solid #bfd6f4;border-radius:13px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
   #properties.numbered-note-properties .numbered-note-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:end}
@@ -5105,9 +5110,35 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  '<div class="numbered-note-row"><label class="field">Text Font Size<input data-note-font type="number" min="6" max="48" step="1"></label><label class="field">Symbol Font Size<input data-note-symbol-font type="number" min="6" max="48" step="1"></label></div>'+
  '<div class="numbered-note-row"><label class="field">Symbol Size<input data-note-size type="number" min="16" max="100" step="1"></label><label class="field">Text Spacing<input data-note-gap type="number" min="0" max="100" step="1"></label></div>'+
  '<div class="numbered-note-row"><label class="field">Horizontal Text Offset<input data-note-x type="number" step="1"></label><label class="field">Vertical Text Offset<input data-note-y type="number" step="1"></label></div>'+
- '<div class="numbered-note-row numbered-note-footer"><label class="field">Color<input data-note-color type="color"></label><button type="button" data-note-duplicate>Duplicate Note</button></div>'+
+ '<div class="numbered-note-footer"><button type="button" data-note-duplicate>Duplicate Note</button></div>'+
  '</div>';
- const bindings=[['[data-note-shape]','shape',false],['[data-note-symbol]','symbolText',false],['[data-note-text]','text',false],['[data-note-font]','fontSize',true],['[data-note-symbol-font]','symbolFontSize',true],['[data-note-size]','symbolSize',true],['[data-note-gap]','gap',true],['[data-note-x]','textDX',true],['[data-note-y]','textDY',true],['[data-note-color]','color',false]];
+ const formatting=document.createElement('details');
+ formatting.className='equipment-category properties-common numbered-note-formatting';formatting.open=true;
+ formatting.innerHTML='<summary>Formatting</summary><div class="shared-text-editor"><div class="shared-selected-label">Selected: Numbered Note</div></div>';
+ const editor=formatting.querySelector('.shared-text-editor');
+ const buttons=document.createElement('div');buttons.className='equipment-format-targets';buttons.style.cssText='display:flex;gap:14px;margin:8px 0 16px';
+ let activeTarget='symbol';
+ for(const [value,label] of [['symbol','Note symbol'],['text','Note text']]){
+  const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.noteFormatTarget=value;
+  button.style.cssText='flex:1;min-width:0;min-height:88px;padding:9px 7px;border:1px solid #b8cbe3;border-radius:12px;background:#fff;color:#526b89;font:inherit;font-weight:600;cursor:pointer';
+  button.addEventListener('click',()=>{activeTarget=value;syncButtons();syncColors();});buttons.appendChild(button);
+ }
+ editor.appendChild(buttons);
+ const syncColors=makeColorRows(editor,()=>item.color||'#111111',v=>{
+  if(selected?.kind!=='annotation'||selected.id!==item.id||!editor.isConnected)return;item.color=v;renderCanvasOnly();
+ },()=>activeTarget==='text'?(item.highlight||''):'',v=>{
+  if(selected?.kind!=='annotation'||selected.id!==item.id||!editor.isConnected||activeTarget!=='text')return;
+  item.highlight=v;renderCanvasOnly();
+ },{colorLabel:'Color'});
+ const syncButtons=()=>{for(const button of buttons.querySelectorAll('button')){
+  const active=button.dataset.noteFormatTarget===activeTarget;button.setAttribute('aria-pressed',String(active));
+  button.style.background=active?'#d9edf5':'#fff';button.style.color=active?'#164a5a':'#526b89';
+  button.style.border=active?'2px solid #16869b':'1px solid #b8cbe3';
+ }};
+ syncButtons();p.insertBefore(formatting,p.firstChild);
+ p.querySelector('[data-note-symbol]')?.addEventListener('focus',()=>{activeTarget='symbol';syncButtons();syncColors();});
+ p.querySelector('[data-note-text]')?.addEventListener('focus',()=>{activeTarget='text';syncButtons();syncColors();});
+ const bindings=[['[data-note-shape]','shape',false],['[data-note-symbol]','symbolText',false],['[data-note-text]','text',false],['[data-note-font]','fontSize',true],['[data-note-symbol-font]','symbolFontSize',true],['[data-note-size]','symbolSize',true],['[data-note-gap]','gap',true],['[data-note-x]','textDX',true],['[data-note-y]','textDY',true] ];
  for(const [selector,key,numeric] of bindings){
   const input=p.querySelector(selector);input.value=String(item[key]??'');
   input.addEventListener('input',()=>{if(numeric&&input.value==='')return;item[key]=numeric?Number(input.value):input.value;renderCanvasOnly();});
