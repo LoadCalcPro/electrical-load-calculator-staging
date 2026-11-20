@@ -2000,7 +2000,19 @@ svgPrecision.addEventListener('pointerdown',e=>{
  else{
   const inches=distance/units;
   const feet=Math.floor(inches/12),rem=(inches-feet*12).toFixed(2);
-  $('status').textContent='Measured: '+feet+' ft '+rem+' in (based on Plan View scale; verify PDF calibration).';
+  // Store the dimension as a normal drawing line so existing selection, editing,
+  // rendering and project JSON serialization handle it consistently.
+  const label=feet+' ft '+rem+' in';
+  const measuredLine={id:next++,x1:precisionMeasure.start.x,y1:precisionMeasure.start.y,
+   x2:p.x,y2:p.y,width:1.5,lineWeight:1.5,lineStyle:'custom',
+   color:'#dc2626',arrow:'both',label,labelFontSize:11,
+   labelColor:'#dc2626',strokePattern:'solid',dashed:false,
+   measurementType:'straight',measuredInches:inches};
+  drawnLines.push(measuredLine);
+  selected={kind:'line',id:measuredLine.id};
+  selectedLineIds.clear();selectedLineIds.add(measuredLine.id);
+  render();
+  $('status').textContent='Measured: '+label+'. Dimension added to drawing; select it to edit or delete.';
  }
  precisionMeasure=null;mode='select';svgPrecision.classList.remove('precision-pick');
  lens.style.display='none';hint.style.display='none';
