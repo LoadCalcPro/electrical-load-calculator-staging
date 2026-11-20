@@ -2087,13 +2087,24 @@ $('svg').addEventListener('pointerdown',e=>{
   showCalibrationNotice($('status').textContent);backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';render();return;
  }
  if(im&&measured>1&&expected>0){
-  // Store the measurement conversion on the imported image, not its geometry.
-  // widthAtCalibration lets a later uniform fit/resize preserve the scale ratio.
-  im.calibrationReference={knownInches:cal.inches,unitsPerInch:measured/cal.inches,widthAtCalibration:im.w};
-  delete im.calibrationVerification;
-  previousBackgroundResize=null;
-  $('status').textContent='Calibrated — Approximate Scale. Reference '+cal.inches+' inches; imported drawing size unchanged.';
-  $('calibrationResult').textContent='Calibrated — Approximate Scale. Reference '+conduitFeetInches(cal.inches)+'. No background resize. Additional verification: Not performed. Measurements are estimates; verify critical dimensions.';
+  // The entered real-world distance controls the actual imported image size.
+  // Uniformly resize about its center; never stretch one axis independently.
+  const factor=expected/measured;
+  const oldGeometry={x:im.x,y:im.y,w:im.w,h:im.h,calibrationReference:im.calibrationReference,calibrationVerification:im.calibrationVerification};
+  if(!Number.isFinite(factor)||factor<=0||factor>100||factor<0.01){
+   $('status').textContent='Calibration scale is outside the supported range. Check the entered length and endpoint selections.';
+  }else{
+   previousBackgroundResize={kind:im.kind,geometry:oldGeometry};
+   const cx=Number(im.x)+Number(im.w)/2,cy=Number(im.y)+Number(im.h)/2;
+   im.w=Number(im.w)*factor;im.h=Number(im.h)*factor;
+   im.x=cx-im.w/2;im.y=cy-im.h/2;
+   // The image now uses the sheet's Plan View scale, so measurements agree
+   // with the known reference without applying a second conversion.
+   im.calibrationReference={knownInches:cal.inches,unitsPerInch:planUnitsPerInch(),widthAtCalibration:im.w};
+   delete im.calibrationVerification;
+   $('status').textContent='Drawing resized uniformly to match '+conduitFeetInches(cal.inches)+'. Verify another printed dimension before relying on measurements.';
+   $('calibrationResult').textContent='Calibrated: imported drawing resized by '+(factor*100).toFixed(1)+'% to match '+conduitFeetInches(cal.inches)+'. Undo Resize restores the previous size. Verify another dimension for accuracy.';
+  }
  }else $('status').textContent='Calibration requires two distinct points on an imported background.';
  showCalibrationNotice($('status').textContent);backgroundCalibration=null;mode='select';svgPrecision.classList.remove('precision-pick');lens.style.display='none';hint.style.display='none';render();
 },true);
