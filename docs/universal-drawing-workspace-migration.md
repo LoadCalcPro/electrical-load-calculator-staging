@@ -21,6 +21,15 @@ One sheet/canvas with all Plan, One-Line, and Ladder symbols, annotations, edita
 6. **Panel schedules and ladder symbols:** add editable data-backed tables and specialized connection behavior using the same canvas.
 7. **Retire redundant tabs only after complete parity testing and user approval.**
 
+## Panel Schedule — first-class drawing object (planned)
+- Add **Panel Schedule** to the universal drawing library, insertable on any sheet and independently movable, proportionally resizable, and editable in place.
+- Store panel schedule data separately from its on-sheet presentation; resizing must not alter circuit data or calculated electrical loads.
+- Initial schema: panel designation, voltage, phase, wires, bus/main ratings, circuit number, pole count, breaker rating, circuit description, connected load (VA), phase assignment and totals. Provide configurable rows and spare/space circuits.
+- Preserve stable IDs so schedules can later link to panel symbols, circuit connectivity and LoadCalcPro X load calculations without duplicating authoritative values.
+- Future calculation integration: calculation method, NEC edition, inputs, results, last-updated status, and explicit frozen/issued snapshot.
+- Verify editing, copy/paste across sheets, JSON save/reopen, print/PDF export, and compatibility with existing drawing projects.
+- Implementation should follow the shared object/Properties foundation, not introduce a separate one-off schedule editor.
+
 ## Non-negotiable invariants
 - Stage only; never change production as part of this migration.
 - Keep the calibrated floor-plan scale and measurement results invariant under NTS diagram resizing.
