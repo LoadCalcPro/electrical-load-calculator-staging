@@ -3867,7 +3867,7 @@ function installDeveloperPropertyVisibility(panel,item){
  };
  drawList();
  host.appendChild(inspector);
- inspector.open=previouslyOpen!==false;
+ inspector.open=previouslyOpen===true || (previouslyOpen===undefined && host.dataset.developerExpanded==='true');
  inspector.addEventListener('toggle',()=>{host.dataset.developerExpanded=String(inspector.open);});
 }
 const SHARED_ELECTRICAL_FIELDS=[
