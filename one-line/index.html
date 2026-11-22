@@ -3424,6 +3424,15 @@ const UNIVERSAL_PROPERTY_CONTROLS=[
  ['kw','Generator Rating (kW)','[data-electrical-info="kw"]'],
  ['kva','Transformer Rating (kVA)','[data-electrical-info="kva"]']
 ];
+// Developer inventory includes planned capabilities, but only rendered, wired
+// controls can be toggled. Unavailable entries are explicitly disabled.
+const DEVELOPER_PROPERTY_CATEGORIES=[
+ ['Sizing & Dimensions',[['size','Object Size (%)'],['fontSize','Font Size (pt)'],['widthHeight','Width / Height'],['wallLength','Wall length'],['planFootprint','Actual footprint and location (feet / inches)']]],
+ ['Rotation & Position',[['rotation','Object Rotation (°)'],['labelRotation','Label Rotation (°)'],['positionOffset','Position & Offset']]],
+ ['Labels & Text',[['designation','Drawing Label'],['additionalLabel','Additional Label'],['fontFamily','Font Family'],['fontStyle','Font Style'],['fontColor','Font Color']]],
+ ['Appearance',[['lineThickness','Line Weight'],['outlinePattern','Outline Pattern'],['equipmentFill','Equipment Fill'],['labelHighlight','Label Highlight']]],
+ ['Electrical Information',[['voltage','Voltage / Phase'],['mainType','Main designation (M.L.O. / M.C.B.)'],['amps','Rating (A)'],['kaic','Interrupting Rating (kAIC)'],['fuseAmps','Fuse Size (A)'],['kw','Generator Rating (kW)'],['kva','Transformer Rating (kVA)']]]
+];
 const developerPropertyVisibility=new Map();
 const developerDesignationTerminology=new Map();
 const developerPropertyOrder=new Map();
@@ -3582,9 +3591,26 @@ function installDeveloperPropertyVisibility(panel,item){
   const field=present[i].field;
   if(field?.closest('[data-equipment-hatch-settings]'))present.splice(i,1);
  }
- // The Developer list represents real, actionable controls only. Do not
- // display unavailable registry entries as phantom Properties.
- for(let i=present.length-1;i>=0;i--)if(!present[i].field)present.splice(i,1);
+ // Keep the complete inventory visible, but never enable phantom controls.
+ // Supplement with actual field matches where safely identifiable.
+ const availableSelectors={
+  fontSize:'[data-shared-size]',
+  fontStyle:'[data-shared-style]',
+  fontColor:'[data-text-color], [data-font-color]',
+  labelRotation:'[data-shared-angle], [data-label-rotation]',
+  fontFamily:'[data-shared-font-family]',
+  additionalLabel:'[data-additional-label-input]'
+ };
+ for(const [,items] of DEVELOPER_PROPERTY_CATEGORIES){
+  for(const [id,label] of items){
+   let entry=present.find(e=>e.id===id);
+   if(!entry){
+    const selector=availableSelectors[id];
+    const field=selector?findDeveloperPropertyField(panel,id,selector):null;
+    entry={id,label,field};present.push(entry);
+   }else entry.label=label;
+  }
+ }
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
@@ -3718,10 +3744,23 @@ function installDeveloperPropertyVisibility(panel,item){
 
 
  const list=document.createElement('div');inspector.appendChild(list);
+ const categoryFor=id=>{
+  for(const [category,entries] of DEVELOPER_PROPERTY_CATEGORIES)if(entries.some(([key])=>key===id))return category;
+  return 'Specialized Controls';
+ };
+
  const drawList=()=>{
   list.replaceChildren();
+  let previousCategory='';
   for(let i=0;i<present.length;i++){
    const entry=present[i];
+   const category=categoryFor(entry.id);
+   if(category!==previousCategory){
+    const heading=document.createElement('div');
+    heading.textContent=category;
+    heading.style.cssText='margin:9px 0 4px;padding:5px 7px;background:#e6f0ff;border-radius:4px;font-weight:700;font-size:12px;color:#174574';
+    list.appendChild(heading);previousCategory=category;
+   }
    const line=document.createElement('div');line.style.cssText='display:flex;align-items:center;gap:5px;margin:4px 0;padding:5px;background:white;border:1px solid #d8e2ee;border-radius:5px;font-size:12px';
    const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
    if(entry.field)setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);
