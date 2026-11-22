@@ -4563,7 +4563,7 @@ function renderPositionSpacing(){
  const lines=sides.map(side=>{
   const horizontal=side==='left'||side==='right';
   const x1=horizontal?points[side]:n.x,y1=horizontal?n.y:points[side];
-  const x2=horizontal?edges[side]:n.x,y2=horizontal?edges[side];
+  const x2=horizontal?edges[side]:n.x,y2=horizontal?n.y:edges[side];
   const tx=(x1+x2)/2,ty=(y1+y2)/2;
   const label=positionDistanceLabel(distances[side]);
   const length=Math.hypot(x2-x1,y2-y1);
