@@ -3679,6 +3679,12 @@ function installDeveloperPropertyVisibility(panel,item){
    }else entry.label=label;
   }
  }
+ // Non-equipment drawing tools expose only controls that are actually rendered.
+ // Avoid a long list of disabled equipment-only checkboxes for wires, lines,
+ // polylines, annotations and measurements. Equipment retains the full inventory.
+ if(['line','polyroute','wire','annotation','measured-area'].includes(item.type)){
+  for(let i=present.length-1;i>=0;i--)if(!present[i].field)present.splice(i,1);
+ }
  // Always display the inspector, even when a particular equipment type has no matching shared controls.
  const designationField=findDeveloperPropertyField(panel,'designation','[data-prop="name"], [data-prop="label"]');
  if(designationField)setEquipmentDesignationCaption(designationField,equipmentDesignationCaption(item));
