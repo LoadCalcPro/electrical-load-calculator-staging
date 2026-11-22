@@ -1073,6 +1073,11 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 .shared-property-text-grid>.shared-property-offset-field>input{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
 .shared-property-text-grid>.shared-property-rotation-field>input:focus-visible,
 .shared-property-text-grid>.shared-property-offset-field>input:focus-visible{outline:2px solid var(--prop-accent,#1769c2);outline-offset:1px}
+/* Shared Fill/Hatch layout; controls remain immediately below their fill mode. */
+.shared-property-fill-settings{box-sizing:border-box;width:100%;max-width:100%;min-width:0;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+.shared-property-fill-color{box-sizing:border-box;width:100%;min-width:0;margin:0 0 10px;padding:0;background:transparent}
+.shared-property-fill-settings label.field{display:flex;flex-direction:column;box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin:0 0 10px;padding:0;background:transparent;font-size:14px;line-height:1.3;font-weight:600;gap:6px}
+.shared-property-fill-settings label.field>input,.shared-property-fill-settings label.field>select{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;height:56px;min-height:56px;margin:0;padding:10px 14px;border-radius:14px;font-size:16px}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -2499,14 +2504,9 @@ function bindEquipmentFillEditor(p,item){
  mode.value=['transparent','custom','hatched'].includes(item.fillMode)?item.fillMode:'transparent';
  const settings=document.createElement('div');
  settings.setAttribute('data-equipment-hatch-settings','');
- settings.style.cssText='box-sizing:border-box;width:100%;max-width:100%;min-width:0;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none';
+ settings.classList.add('shared-property-fill-settings');
  settings.innerHTML='<div data-equipment-hatch-color-row></div><div data-equipment-hatch-numbers><label class="field">Hatch Angle (degrees)<input data-equipment-hatch-angle type="number" min="-360" max="360" step="1"></label><label class="field">Hatch Spacing<input data-equipment-hatch-spacing type="number" min="1" max="60" step="1"></label><label class="field">Hatch Line Thickness<input data-equipment-hatch-thickness type="number" min="0.5" max="8" step="0.5"></label></div>';
  mode.closest('label')?.after(settings);
- for(const field of settings.querySelectorAll('label.field')){
-  field.style.cssText='display:flex;flex-direction:column;box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin:0 0 10px;padding:0;background:transparent;font-size:14px;line-height:1.3;font-weight:600;gap:6px';
-  const control=field.querySelector('input,select');
-  if(control)control.style.cssText='box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;height:56px;min-height:56px;margin:0;padding:10px 14px;border-radius:14px;font-size:16px';
- }
  // Change only the selected equipment artwork; do not rebuild the entire sheet.
  const updateFillArtwork=()=>{
   const root=$('nodes')?.querySelector('[data-node="'+item.id+'"]');
@@ -2516,7 +2516,7 @@ function bindEquipmentFillEditor(p,item){
   artwork.innerHTML=item.installationStatus==='remove'?base.replace(/<path\\b/g,'<path stroke-dasharray="5 3"').replace(/<rect\\b/g,'<rect stroke-dasharray="5 3"').replace(/<circle\\b/g,'<circle stroke-dasharray="5 3"').replace(/<line\\b/g,'<line stroke-dasharray="5 3"').replace(/<polyline\\b/g,'<polyline stroke-dasharray="5 3"'):base;
  };
  const colorRow=settings.querySelector('[data-equipment-hatch-color-row]');
- colorRow.style.cssText='box-sizing:border-box;width:100%;min-width:0;margin:0 0 10px;padding:0;background:transparent';
+ colorRow.classList.add('shared-property-fill-color');
  makeColorRows(colorRow,()=>item.fillColor||'#f5d84b',value=>{item.fillColor=value;updateFillArtwork();},()=>'',()=>{},{colorLabel:'Fill / Hatch Color',noHighlight:true});
  const fields=[['angle','hatchAngle',45],['spacing','hatchSpacing',12],['thickness','hatchThickness',1.5]];
  // Updating a hatch must not rebuild the entire drawing on each keystroke:
