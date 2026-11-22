@@ -3061,12 +3061,13 @@ function conduitElbowPath(points,radius=12){
 }
 function switchControlFixtureAt(pt){
  let best=null,dist=24/Math.max(.5,zoom);
+ const excluded=new Set(['planroom','planwall','plandimension','planwindow','plandoor','plantext','planclearance']);
  for(const n of nodes){
-  // Circuit Connections can terminate at electrical equipment as well as
-  // lighting and switch symbols. Exclude architectural and annotation objects.
-  if(n.layerHidden||['planroom','planwall','plandimension','planwindow','plandoor','plantext'].includes(n.type))continue;
-  if(n.type!=='plansymbol'&&n.type!=='equipment'&&n.type!=='panel'&&n.type!=='disconnect'&&n.type!=='switchboard'&&n.type!=='transformer'&&n.type!=='generator'&&n.type!=='ats'&&n.type!=='meter'&&n.type!=='junction'&&n.type!=='wireway'&&n.type!=='utility')continue;
-  const d=Math.hypot(pt.x-n.x,pt.y-n.y);
+  if(n.layerHidden||excluded.has(n.type))continue;
+  // All actual electrical nodes are eligible, including planpanel,
+  // plantransformer and plangenerator (not only 'plansymbol').
+  const box=bounds(n),dx=Math.max(0,Math.abs(pt.x-n.x)-Math.max(box.l,box.r)),dy=Math.max(0,Math.abs(pt.y-n.y)-Math.max(box.t,box.b));
+  const d=Math.hypot(dx,dy);
   if(d<dist){dist=d;best=n;}
  }
  return best;
