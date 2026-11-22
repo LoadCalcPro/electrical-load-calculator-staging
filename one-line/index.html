@@ -5066,7 +5066,7 @@ function mountLineEndpointButtons(select){
  const row=select.closest('label.field');if(!row)return;
  row.style.display='none';
  const container=document.createElement('div');container.className='field shared-endpoint-buttons';
- container.style.cssText='background:#e7f0fc;padding:6px;border-radius:7px;display:grid;gap:5px';
+ container.style.cssText='background:#e7f0fc;padding:6px;border-radius:7px;display:grid;gap:5px';const heading=document.createElement('span');heading.textContent='Line endpoints';heading.style.cssText='font-size:12px;font-weight:600;color:#244d78;margin-bottom:2px';container.appendChild(heading);
  const choices=[['none','M5 12 H19'],['arrow','M4 12 H20 M14 6 L20 12 L14 18']];
  function state(side){return select.value==='both'||select.value===side?'arrow':'none';}
  function refresh(){container.querySelectorAll('button').forEach(b=>{const on=state(b.dataset.endpointSide)===b.dataset.endpointShape;b.setAttribute('aria-pressed',String(on));b.style.background=on?'#d3e7ff':'#fff';b.style.borderColor=on?'#1769c2':'#c4d3e5';});}
