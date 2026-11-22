@@ -3415,7 +3415,7 @@ const UNIVERSAL_PROPERTY_CONTROLS=[
  ['lineThickness','Line Weight','[data-weight-value]'],
  ['outlinePattern','Outline Pattern','[data-equipment-pattern]'],
  ['equipmentFill','Equipment Fill','[data-equipment-fill]'],
- ['designation','Equipment Designation','[data-prop="name"], [data-prop="label"]'],
+ ['designation','Drawing Label','[data-prop="name"], [data-prop="label"]'],
  ['voltage','Voltage / Phase','[data-electrical-info="voltage"]'],
  ['mainType','Main designation (M.L.O. / M.C.B.)','[data-electrical-info="mainType"]'],
  ['amps','Rating (A)','[data-electrical-info="amps"]'],
@@ -3446,7 +3446,7 @@ function findDeveloperPropertyField(panel,id,selector){
   lineThickness:/\b(drawing line thickness|drawing line weight|stroke thickness|line thickness)\b/i,
   outlinePattern:/\b(outline pattern|equipment outline pattern|line pattern)\b/i,
   equipmentFill:/\b(equipment fill|fill mode)\b/i,
-  designation:/\b(equipment designation|symbol designation|linear light designation|wall designation|label)\b/i
+  designation:/\b(drawing label|equipment designation|symbol designation|linear light designation|wall designation|label)\b/i
  };
  for(const root of roots){
   const control=root.querySelector(selector);
@@ -3461,12 +3461,9 @@ function findDeveloperPropertyField(panel,id,selector){
  return null;
 }
 function equipmentDesignationCaption(item){
- const type=item.equipmentSubtype||item.type||'equipment';
- const configured=developerDesignationTerminology.get(type);
- if(configured)return configured;
- if(['plansymbol','planlight','planreceptacle','planswitch'].includes(item.type))return 'Symbol Designation';
- if(['planwall','planroom'].includes(item.type))return 'Label';
- return 'Equipment Designation';
+ // Preserve saved field values and legacy terminology preferences, but use
+ // one consistent visible caption for the primary identifier.
+ return 'Drawing Label';
 }
 function setEquipmentDesignationCaption(field,caption){
  if(!field)return;
@@ -3705,9 +3702,9 @@ function installDeveloperPropertyVisibility(panel,item){
  const summary=document.createElement('summary');summary.textContent='Developer: '+type;inspector.appendChild(summary);
  const designationMode=document.createElement('label');
  designationMode.style.cssText='display:flex;flex-direction:column;gap:5px;margin:10px 0;font-size:13px;font-weight:600';
- designationMode.textContent='Primary designation field name';
+ designationMode.textContent='Primary label field name';
  const designationSelect=document.createElement('select');
- for(const caption of ['Equipment Designation','Symbol Designation','Label']){
+ for(const caption of ['Drawing Label']){
   const option=document.createElement('option');option.value=caption;option.textContent=caption;designationSelect.appendChild(option);
  }
  designationSelect.value=equipmentDesignationCaption(item);
