@@ -1049,6 +1049,13 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 .shared-endpoint-buttons .shared-property-row-label{width:92px;flex:none;font-size:12px;color:var(--prop-label,#244d78)}
 .shared-endpoint-buttons .shared-property-choice{height:32px;flex:1;min-width:0;border:1px solid var(--prop-border,#c4d3e5);border-radius:5px;cursor:pointer;background:#fff;display:flex;align-items:center;justify-content:center;padding:2px}
 .shared-endpoint-buttons .shared-property-choice[aria-pressed="true"]{background:var(--prop-selected,#d3e7ff);border:2px solid var(--prop-accent,#1769c2)}
+/* Shared palette component: same dimensions and spacing for every Properties target. */
+.shared-property-color-heading{font-size:14px;font-weight:700;margin:0 0 7px;color:inherit}
+.shared-property-color-bar{display:flex;flex-wrap:nowrap;gap:3px;align-items:center;width:100%;min-width:0;overflow:hidden;padding:3px 1px 5px;box-sizing:border-box}
+.shared-property-swatch{flex:0 1 16px;min-width:11px;width:16px;height:30px;padding:0;border:1px solid #cbd7e5;border-radius:4px;cursor:pointer}
+.shared-property-clear{padding:2px 8px;height:38px;flex:0 0 auto}
+.shared-property-picker{width:30px;min-width:24px;height:34px;padding:2px;flex:0 1 30px;box-sizing:border-box}
+.shared-property-hex{width:68px;min-width:58px;flex:0 1 68px;box-sizing:border-box;padding:5px 3px;height:34px;font-size:13px;font-family:monospace;border:1px solid #b8c9dc;border-radius:8px;background:white;color:#172331}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -3129,13 +3136,13 @@ function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight,option
  function row(label,colors,get,set,clear){
   const container=options.compactCard?document.createElement('div'):parent;
   if(options.compactCard){container.className='equipment-color-card';container.style.cssText='box-sizing:border-box;width:100%;min-width:0;margin:8px 0;padding:10px 12px;border:1px solid #c8d9f1;border-radius:12px;background:#f2f7ff;overflow:hidden';parent.appendChild(container);}
-  const heading=document.createElement('div');heading.textContent=label;heading.style.cssText='font-size:14px;font-weight:700;margin:0 0 7px';container.appendChild(heading);
-  const bar=document.createElement('div');bar.style.cssText='display:flex;flex-wrap:nowrap;gap:3px;align-items:center;width:100%;min-width:0;overflow:hidden;padding:3px 1px 5px;box-sizing:border-box';container.appendChild(bar);
+  const heading=document.createElement('div');heading.textContent=label;heading.className='shared-property-color-heading';container.appendChild(heading);
+  const bar=document.createElement('div');bar.className='shared-property-color-bar';container.appendChild(bar);
   const buttons=[];
-  for(const [name,hex] of colors){const b=document.createElement('button');b.type='button';b.title=name;b.setAttribute('aria-label',label+': '+name);b.style.cssText='flex:0 1 16px;min-width:11px;width:16px;height:30px;padding:0;border:1px solid #cbd7e5;border-radius:4px;background-color:'+hex;b.onclick=()=>{set(hex);sync()};bar.appendChild(b);buttons.push([b,hex]);}
-  if(clear){const b=document.createElement('button');b.type='button';b.title='Remove highlight';b.textContent='×';b.style.cssText='padding:2px 8px;height:38px;flex:0 0 auto';b.onclick=()=>{set('');sync()};bar.appendChild(b);}
-  const picker=document.createElement('input');picker.type='color';picker.title='Custom '+label;picker.style.cssText='width:30px;min-width:24px;height:34px;padding:2px;flex:0 1 30px;box-sizing:border-box';picker.oninput=()=>{set(picker.value);sync()};bar.appendChild(picker);
-  const hexInput=document.createElement('input');hexInput.type='text';hexInput.maxLength=7;hexInput.spellcheck=false;hexInput.setAttribute('aria-label',label+' HEX color');hexInput.title='Enter HEX color, for example #FF0000';hexInput.placeholder='#RRGGBB';hexInput.style.cssText='width:68px;min-width:58px;flex:0 1 68px;box-sizing:border-box;padding:5px 3px;height:34px;font-size:13px;font-family:monospace;border:1px solid #b8c9dc;border-radius:8px;background:white;color:#172331';bar.appendChild(hexInput);
+  for(const [name,hex] of colors){const b=document.createElement('button');b.type='button';b.title=name;b.setAttribute('aria-label',label+': '+name);b.className='shared-property-swatch';b.style.backgroundColor=hex;b.onclick=()=>{set(hex);sync()};bar.appendChild(b);buttons.push([b,hex]);}
+  if(clear){const b=document.createElement('button');b.type='button';b.title='Remove highlight';b.textContent='×';b.className='shared-property-clear';b.onclick=()=>{set('');sync()};bar.appendChild(b);}
+  const picker=document.createElement('input');picker.type='color';picker.title='Custom '+label;picker.className='shared-property-picker';picker.oninput=()=>{set(picker.value);sync()};bar.appendChild(picker);
+  const hexInput=document.createElement('input');hexInput.type='text';hexInput.maxLength=7;hexInput.spellcheck=false;hexInput.setAttribute('aria-label',label+' HEX color');hexInput.title='Enter HEX color, for example #FF0000';hexInput.placeholder='#RRGGBB';hexInput.className='shared-property-hex';bar.appendChild(hexInput);
   const applyHex=()=>{let v=hexInput.value.trim();if(/^[0-9a-fA-F]{6}$/.test(v))v='#'+v;if(/^#[0-9a-fA-F]{6}$/.test(v)){set(v.toLowerCase());sync();hexInput.setCustomValidity('');}else{hexInput.setCustomValidity('Enter a six-digit HEX color, such as #FF0000');hexInput.reportValidity();}};
   hexInput.addEventListener('change',applyHex);hexInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyHex();hexInput.blur();}});
   function sync(){const current=get()||'';for(const [b,hex] of buttons)b.style.outline=current.toLowerCase()===hex?'2px solid #168c9a':'none';const validHex=/^#[0-9a-fA-F]{6}$/.test(current);picker.value=validHex?current:colors[0][1];if(document.activeElement!==hexInput)hexInput.value=validHex?current.toUpperCase():'';}
