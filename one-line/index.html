@@ -4973,11 +4973,14 @@ if(skipProperties){
  if(Boolean(existing)!==Boolean(context))renderPositionSpacingPropertiesRefresh();
  syncPositionSpacingInputs();
 }
-if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();organizeEquipmentProperties();standardizeDrawingProperties();{const host=$('developerSettingsHost');if(selected?.kind!=='node'&&host){host.replaceChildren();host.style.display='none';}}if(selected?.kind==='node'){const current=nodes.find(n=>n.id===selected.id);if(current){installPlanElectricalInformation($('properties'),current);installDeveloperPropertyVisibility($('properties'),current);}}renderLinearLightDimensions();renderPositionSpacingProperties();renderPlanConduitProperties();renderAboveConduitProperties();bindRoomDimensionInputs();
+if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();organizeEquipmentProperties();standardizeDrawingProperties();{const host=$('developerSettingsHost');if(selected?.kind!=='node'&&host){host.replaceChildren();host.style.display='none';}}if(selected?.kind==='node'){const current=nodes.find(n=>n.id===selected.id);if(current)installPlanElectricalInformation($('properties'),current);}renderLinearLightDimensions();renderPositionSpacingProperties();renderPlanConduitProperties();renderAboveConduitProperties();bindRoomDimensionInputs();
 // Install after all item-specific controls are rendered, including lines,
 // conduits, polylines, annotations, measurements, and connections.
 // Node equipment uses its existing subtype-specific registry unchanged.
-if(selected?.kind&&selected.kind!=='node'){
+if(selected?.kind==='node'){
+ const current=nodes.find(n=>n.id===selected.id);
+ if(current)installDeveloperPropertyVisibility($('properties'),current);
+}else if(selected?.kind){
  const selectedCollections={
   line:typeof drawnLines!=='undefined'?drawnLines:[],
   polyline:typeof polyRoutes!=='undefined'?polyRoutes:[],
