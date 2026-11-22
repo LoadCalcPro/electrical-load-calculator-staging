@@ -3543,15 +3543,21 @@ function setEquipmentDesignationCaption(field,caption){
 
 function setDeveloperPropertyGroupVisibility(panel,entry,visible){
  if(!entry.field)return;
- const controls=entry.fields||[entry.field];
+ const controls=[...(entry.fields||[entry.field])];
  if(entry.id==='equipmentFill'){
-  // The fill palette and hatch controls are siblings of the fill-mode field.
-  // Treat them as one developer visibility group, without changing fill values.
+  // Keep dependent controls grouped without mutating the saved field array.
   controls.push(...panel.querySelectorAll('[data-equipment-hatch-settings]'));
  }
- for(const control of controls){
+ for(const control of new Set(controls)){
   control.hidden=!visible;
-  control.style.setProperty('display',visible?'':'none',visible?'':'important');
+  if(!visible)control.style.setProperty('display','none','important');
+  else if(entry.id==='equipmentFill'&&control.matches('[data-equipment-hatch-settings]')){
+   // Respect Transparent / Custom / Hatched instead of forcing a hidden
+   // hatch palette open when Developer visibility is switched back on.
+   const mode=panel.querySelector('[data-equipment-fill]')?.value||'transparent';
+   control.style.removeProperty('display');
+   control.style.display=mode==='transparent'?'none':'';
+  }else control.style.removeProperty('display');
  }
 }
 function installDeveloperPropertyVisibility(panel,item){
@@ -3776,6 +3782,11 @@ function installDeveloperPropertyVisibility(panel,item){
     markers.forEach((marker,i)=>marker.replaceWith(fields[i]));
    }
   }
+  // Fill/Hatch is one dependent unit regardless of equipment type or
+  // whether its fields live in the Plan View Formatting card.
+  const fillField=present.find(entry=>entry.id==='equipmentFill')?.field;
+  const fillSettings=panel.querySelector('[data-equipment-hatch-settings]');
+  if(fillField&&fillSettings&&fillField.parentElement)fillField.after(fillSettings);
  };
  applyPropertyOrder();
  const settings=developerPropertyVisibility.get(type)||{};
