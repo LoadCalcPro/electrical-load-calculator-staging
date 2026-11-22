@@ -3378,8 +3378,10 @@ function sharedEquipmentTextEditorMarkup(){
    ? '<select '+control.attribute+'>'+control.options.map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('')+'</select>'
    : '<input '+control.attribute+' type="'+control.type+'" '+control.extra+'>';
   return '<label class="field">'+control.label+input+'</label>';
- }).join('');
- return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><div class="shared-text-grid">'+fields+'</div>';
+ });
+ const offsetGroup='<div class="field" data-position-offset-group style="grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">'+fields.slice(2).join('')+'</div>';
+ const groupedFields=fields.slice(0,2).join('')+offsetGroup;
+ return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><div class="shared-text-grid">'+groupedFields+'</div>';
 }
 function equipmentTextKeyForControl(el,defs){
  const raw=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;
@@ -3406,6 +3408,7 @@ function syncEquipmentTextHighlight(info,svg,item,key,defs){
 // Enable the developer inspector only with ?developerProperties=1 in staging.
 const UNIVERSAL_PROPERTY_CONTROLS=[
  ['size','Object Size (%)','[data-equipment-size]'],
+ ['positionOffset','Position & Offset','[data-position-offset-group]'],
  ['rotation','Rotation','[data-wall-angle], [data-rotation], [data-drawing-rotation]'],
  ['wallLength','Wall length','[data-wall-feet]'],
  ['planFootprint','Actual footprint and location (feet / inches)','[data-plan-footprint-section]'],
