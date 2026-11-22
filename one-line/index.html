@@ -4901,8 +4901,8 @@ function renderAnnotations(){const layer=$('annotations');layer.removeAttribute(
  const selectedNote=selected?.kind==='annotation'&&selected.id===a.id;
  const symbol=a.shape==='hexagon'?'<polygon points="'+Array.from({length:6},(_,i)=>{const t=(i*60-30)*Math.PI/180;return (x+radius*Math.cos(t))+','+(y+radius*Math.sin(t));}).join(' ')+'" fill="none" stroke="'+color+'" stroke-width="1.1"/>':a.shape==='none'?'':'<circle cx="'+x+'" cy="'+y+'" r="'+radius+'" fill="none" stroke="'+color+'" stroke-width="1.1"/>';
  const lines=String(a.text||'').split('\\n'),tx=x+radius+gap+dx,ty=y+dy-(lines.length-1)*fs*.625;
- const text='<text x="'+tx+'" y="'+ty+'" dominant-baseline="middle" font-size="'+fs+'" fill="'+color+'">'+lines.map((line,i)=>'<tspan x="'+tx+'" dy="'+(i?fs*1.25:0)+'">'+esc(line)+'</tspan>').join('')+'</text>';
- const symbolText=a.shape==='none'?'':'<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="'+symbolFs+'" fill="'+color+'">'+esc(a.symbolText||'')+'</text>';
+ const text='<text x="'+tx+'" y="'+ty+'" dominant-baseline="middle" font-family="'+esc(equipmentFontFamily(a.fontFamily))+'" font-size="'+fs+'" fill="'+color+'">'+lines.map((line,i)=>'<tspan x="'+tx+'" dy="'+(i?fs*1.25:0)+'">'+esc(line)+'</tspan>').join('')+'</text>';
+ const symbolText=a.shape==='none'?'':'<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-family="'+esc(equipmentFontFamily(a.symbolFontFamily))+'" font-size="'+symbolFs+'" fill="'+color+'">'+esc(a.symbolText||'')+'</text>';
  const hitWidth=Math.max(120,Math.max(...lines.map(v=>v.length))*fs*.65+radius+gap+20);
  return '<g data-annotation="'+a.id+'" style="cursor:move"><rect x="'+(x-radius-4)+'" y="'+(y-Math.max(radius,lines.length*fs*.75)-5)+'" width="'+(radius+hitWidth+10)+'" height="'+(Math.max(size,lines.length*fs*1.5)+10)+'" fill="transparent" pointer-events="all"/>'+symbol+symbolText+text+(selectedNote?'<rect x="'+(x-radius-4)+'" y="'+(y-Math.max(radius,lines.length*fs*.75)-5)+'" width="'+(radius+hitWidth+10)+'" height="'+(Math.max(size,lines.length*fs*1.5)+10)+'" fill="none" stroke="#168c9a" stroke-width="1" stroke-dasharray="3 3" pointer-events="none"/>':'')+'</g>';
  }
@@ -5191,6 +5191,7 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  '<div class="numbered-note-panel">'+
  '<div class="numbered-note-row"><label class="field">Symbol Shape<select data-note-shape><option value="circle">Circle</option><option value="hexagon">Hexagon</option><option value="none">None</option></select></label><label class="field">Number / Letter<input data-note-symbol type="text" maxlength="8"></label></div>'+
  '<label class="field">Note Text<textarea data-note-text rows="3"></textarea></label>'+
+ '<div class="numbered-note-row"><label class="field">Text Font Family<select data-note-font-family>'+equipmentFontFamilies.map(font=>'<option value="'+esc(font)+'">'+esc(font)+'</option>').join('')+'</select></label><label class="field">Symbol Font Family<select data-note-symbol-font-family>'+equipmentFontFamilies.map(font=>'<option value="'+esc(font)+'">'+esc(font)+'</option>').join('')+'</select></label></div>'+ 
  '<div class="numbered-note-row"><label class="field">Text Font Size<input data-note-font type="number" min="6" max="48" step="1"></label><label class="field">Symbol Font Size<input data-note-symbol-font type="number" min="6" max="48" step="1"></label></div>'+
  '<div class="numbered-note-row"><label class="field">Symbol Size<input data-note-size type="number" min="16" max="100" step="1"></label><label class="field">Text Spacing<input data-note-gap type="number" min="0" max="100" step="1"></label></div>'+
  '<div class="numbered-note-row"><label class="field">Horizontal Text Offset<input data-note-x type="number" step="1"></label><label class="field">Vertical Text Offset<input data-note-y type="number" step="1"></label></div>'+
@@ -5222,9 +5223,9 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  syncButtons();p.insertBefore(formatting,p.firstChild);
  p.querySelector('[data-note-symbol]')?.addEventListener('focus',()=>{activeTarget='symbol';syncButtons();syncColors();});
  p.querySelector('[data-note-text]')?.addEventListener('focus',()=>{activeTarget='text';syncButtons();syncColors();});
- const bindings=[['[data-note-shape]','shape',false],['[data-note-symbol]','symbolText',false],['[data-note-text]','text',false],['[data-note-font]','fontSize',true],['[data-note-symbol-font]','symbolFontSize',true],['[data-note-size]','symbolSize',true],['[data-note-gap]','gap',true],['[data-note-x]','textDX',true],['[data-note-y]','textDY',true] ];
+ const bindings=[['[data-note-shape]','shape',false],['[data-note-symbol]','symbolText',false],['[data-note-text]','text',false],['[data-note-font-family]','fontFamily',false],['[data-note-symbol-font-family]','symbolFontFamily',false],['[data-note-font]','fontSize',true],['[data-note-symbol-font]','symbolFontSize',true],['[data-note-size]','symbolSize',true],['[data-note-gap]','gap',true],['[data-note-x]','textDX',true],['[data-note-y]','textDY',true] ];
  for(const [selector,key,numeric] of bindings){
-  const input=p.querySelector(selector);input.value=String(item[key]??'');
+  const input=p.querySelector(selector);input.value=key==='fontFamily'||key==='symbolFontFamily'?equipmentFontFamily(item[key]):String(item[key]??'');
   input.addEventListener('input',()=>{if(numeric&&input.value==='')return;item[key]=numeric?Number(input.value):input.value;renderCanvasOnly();});
  }
  p.querySelector('[data-note-duplicate]').onclick=()=>{
