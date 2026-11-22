@@ -6689,7 +6689,7 @@ const deleteSelectedItem=()=>{if(!selected){$('status').textContent='Select an i
    // Request the picker directly from the click, before any asynchronous work.
    pending=window.showSaveFilePicker({
     suggestedName:filename,
-    types:[{description:'LoadCalcPro X Project',accept:{'application/octet-stream':['.lcpx']}}]
+    types:[{description:'LoadCalcPro X Project',accept:{'application/x-loadcalcpro-project':['.lcpx']}}]
    });
   }catch(error){
    if(error.name==='AbortError'){status.textContent='Save canceled.';return;}
