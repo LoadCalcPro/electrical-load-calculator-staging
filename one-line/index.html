@@ -4984,11 +4984,14 @@ if(selected?.kind==='node'){
  const selectedCollections={
   line:drawnLines,
   polyroute:polyRoutes,
-  annotation:annotations
+  'measured-area':polyRoutes,
+  annotation:annotations,
+  wire:wires
  };
  const collection=selectedCollections[selected.kind];
  const current=collection?.find(entry=>entry.id===selected.id);
- const subtype=current?.planConduit?.location==='Above Ground'?'above-ground-conduit'
+ const subtype=selected.kind==='measured-area'?'area-measurement'
+  :current?.planConduit?.location==='Above Ground'?'above-ground-conduit'
   :current?.planConduit?'underground-conduit'
   :current?.type||current?.kind||selected.kind;
  installDeveloperPropertyVisibility($('properties'),{
