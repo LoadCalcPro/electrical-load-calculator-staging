@@ -1036,6 +1036,8 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 /* Text / Leader: keep alignment data while hiding its redundant default control. */
 #properties.text-leader-properties label.field:has(>select[data-prop="align"]){display:none!important}
 .endpoint-group-caption{display:block;font-size:12px;font-weight:600;color:#244d78;margin:1px 0 4px}
+/* Polyline label rotation is controlled by the shared formatting editor; hide legacy duplicate. */
+#properties label.field:has(>#polyLabelAngle),#textInspector label.field:has(>#polyLabelAngle){display:none!important}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
