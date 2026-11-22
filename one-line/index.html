@@ -3480,7 +3480,7 @@ function setEquipmentDesignationCaption(field,caption){
 
 function setDeveloperPropertyGroupVisibility(panel,entry,visible){
  if(!entry.field)return;
- const controls=[entry.field];
+ const controls=entry.fields||[entry.field];
  if(entry.id==='equipmentFill'){
   // The fill palette and hatch controls are siblings of the fill-mode field.
   // Treat them as one developer visibility group, without changing fill values.
@@ -3539,6 +3539,38 @@ function installDeveloperPropertyVisibility(panel,item){
    if(!label)continue;
    const id='actual:'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+':'+present.filter(e=>e.label===label).length;
    present.push({id,label,field});usedFields.add(field);
+  }
+ }
+ // Consolidate paired X/Y position or offset controls into one Developer entry.
+ // The input nodes and their listeners remain untouched; only visibility is grouped.
+ const offsetEntry=present.find(entry=>entry.id==='positionOffset');
+ const pairedFields=[];
+ const roots=[panel,document.getElementById('textInspector')].filter(Boolean);
+ for(const root of roots){
+  for(const parent of root.querySelectorAll('.shared-text-grid, .numbered-note-row, .field-grid, .properties-grid, .section, .property-section, div')){
+   if(parent.closest('#developerSettingsHost'))continue;
+   const children=Array.from(parent.children).filter(el=>el.matches?.('label.field'));
+   const caption=el=>Array.from(el.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim().toLowerCase();
+   const horizontal=children.find(el=>/^(horizontal (offset|position)|x offset)$/.test(caption(el)));
+   const vertical=children.find(el=>/^(vertical (offset|position)|y offset)$/.test(caption(el)));
+   if(horizontal&&vertical&&!pairedFields.some(pair=>pair.includes(horizontal))){
+    pairedFields.push([horizontal,vertical]);
+   }
+  }
+ }
+ // Prefer the native shared editor group, then fall back to adjacent field pairs.
+ const sharedGroup=panel.querySelector('[data-position-offset-group]')||document.querySelector('#textInspector [data-position-offset-group]');
+ if(offsetEntry){
+  if(sharedGroup){offsetEntry.field=sharedGroup;offsetEntry.fields=[sharedGroup];}
+  else if(pairedFields.length){
+   offsetEntry.field=pairedFields[0][0];
+   offsetEntry.fields=pairedFields[0];
+  }
+ }
+ if(offsetEntry?.field){
+  for(let i=present.length-1;i>=0;i--){
+   const entry=present[i];
+   if(entry!==offsetEntry&&(offsetEntry.fields||[]).some(field=>field===entry.field||field.contains(entry.field)))present.splice(i,1);
   }
  }
  // Resolve individual electrical rows, even when nested in footprint.
