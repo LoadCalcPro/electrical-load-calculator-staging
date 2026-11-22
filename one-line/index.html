@@ -3852,8 +3852,9 @@ function installDeveloperPropertyVisibility(panel,item){
    const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.disabled=!entry.field;checkbox.checked=!!entry.field&&settings[entry.id]!==false;
    if(entry.field)setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);
    checkbox.addEventListener('change',()=>{if(!entry.field)return;settings[entry.id]=checkbox.checked;developerPropertyVisibility.set(type,settings);saveDeveloperPropertyConfig();setDeveloperPropertyGroupVisibility(panel,entry,checkbox.checked);if(SHARED_ELECTRICAL_FIELDS.some(([key])=>key===entry.id))renderCanvasOnly();});
-   const name=document.createElement('span');name.textContent=entry.label+(entry.field?'':' (not available)');name.style.cssText='flex:1;min-width:0';
-   line.append(checkbox,name);
+   const name=document.createElement('label');name.textContent=entry.label+(entry.field?'':' (not available)');name.style.cssText='display:flex;align-items:center;gap:7px;flex:1;min-width:0;cursor:'+(entry.field?'pointer':'default');
+   name.prepend(checkbox);
+   line.appendChild(name);
    for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
     const nextIndex=(()=>{const j=i+direction;return j>=0&&j<present.length&&categoryFor(present[j].id)===category?j:-1;})();
@@ -3874,7 +3875,10 @@ function installDeveloperPropertyVisibility(panel,item){
  drawList();
  host.appendChild(inspector);
  inspector.open=previouslyOpen===true || (previouslyOpen===undefined && host.dataset.developerExpanded==='true');
- inspector.addEventListener('toggle',()=>{host.dataset.developerExpanded=String(inspector.open);});
+ inspector.addEventListener('toggle',()=>{
+  // Ignore delayed toggle events from inspectors replaced during selection changes.
+  if(host.contains(inspector))host.dataset.developerExpanded=String(inspector.open);
+ });
 }
 const SHARED_ELECTRICAL_FIELDS=[
  ['voltage','Voltage / Phase'],['mainType','Main designation'],['amps','Rating (A)'],['kaic','Interrupting Rating (kAIC)'],
