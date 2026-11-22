@@ -1038,6 +1038,17 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 .endpoint-group-caption{display:block;font-size:12px;font-weight:600;color:#244d78;margin:1px 0 4px}
 /* Polyline label rotation is controlled by the shared formatting editor; hide legacy duplicate. */
 #properties label.field:has(>#polyLabelAngle),#textInspector label.field:has(>#polyLabelAngle){display:none!important}
+/* Shared Properties design tokens: use for every drawing tool, not per-item overrides. */
+#properties,.drawing-inspector{
+ --prop-blue:#e7f0fc;--prop-border:#c4d3e5;--prop-selected:#d3e7ff;
+ --prop-accent:#1769c2;--prop-label:#244d78;--prop-gap:6px;
+}
+.shared-endpoint-buttons{box-sizing:border-box;width:100%;min-width:0;background:var(--prop-blue,#e7f0fc);padding:var(--prop-gap,6px);border-radius:7px;display:grid;gap:var(--prop-gap,6px)}
+.shared-endpoint-buttons .shared-property-caption{display:block;font-size:12px;font-weight:600;color:var(--prop-label,#244d78);margin:0 0 2px}
+.shared-endpoint-buttons .shared-property-row{display:flex;align-items:center;gap:var(--prop-gap,6px);min-width:0}
+.shared-endpoint-buttons .shared-property-row-label{width:92px;flex:none;font-size:12px;color:var(--prop-label,#244d78)}
+.shared-endpoint-buttons .shared-property-choice{height:32px;flex:1;min-width:0;border:1px solid var(--prop-border,#c4d3e5);border-radius:5px;cursor:pointer;background:#fff;display:flex;align-items:center;justify-content:center;padding:2px}
+.shared-endpoint-buttons .shared-property-choice[aria-pressed="true"]{background:var(--prop-selected,#d3e7ff);border:2px solid var(--prop-accent,#1769c2)}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -5066,17 +5077,17 @@ function mountLineEndpointButtons(select){
  const row=select.closest('label.field');if(!row)return;
  row.style.display='none';
  const container=document.createElement('div');container.className='field shared-endpoint-buttons';
- container.style.cssText='background:#e7f0fc;padding:6px;border-radius:7px;display:grid;gap:5px';const heading=document.createElement('span');heading.textContent='Line endpoints';heading.style.cssText='font-size:12px;font-weight:600;color:#244d78;margin-bottom:2px';container.appendChild(heading);
+ const heading=document.createElement('span');heading.textContent='Line endpoints';heading.className='shared-property-caption';container.appendChild(heading);
  const choices=[['none','M5 12 H19'],['arrow','M4 12 H20 M14 6 L20 12 L14 18']];
  function state(side){return select.value==='both'||select.value===side?'arrow':'none';}
- function refresh(){container.querySelectorAll('button').forEach(b=>{const on=state(b.dataset.endpointSide)===b.dataset.endpointShape;b.setAttribute('aria-pressed',String(on));b.style.background=on?'#d3e7ff':'#fff';b.style.borderColor=on?'#1769c2':'#c4d3e5';});}
+ function refresh(){container.querySelectorAll('button').forEach(b=>{const on=state(b.dataset.endpointSide)===b.dataset.endpointShape;b.setAttribute('aria-pressed',String(on));});}
  for(const [side,title] of [['start','Start endpoint'],['end','End endpoint']]){
-  const line=document.createElement('div');line.style.cssText='display:flex;align-items:center;gap:5px';
-  const label=document.createElement('span');label.textContent=title;label.style.cssText='width:92px;flex:none;font-size:12px';
+  const line=document.createElement('div');line.className='shared-property-row';
+  const label=document.createElement('span');label.textContent=title;label.className='shared-property-row-label';
   line.appendChild(label);
   for(const [shape,path] of choices){
    const b=document.createElement('button');b.type='button';b.dataset.endpointSide=side;b.dataset.endpointShape=shape;b.title=title+': '+shape;b.setAttribute('aria-label',b.title);
-   b.style.cssText='height:32px;flex:1;min-width:0;border:1px solid #c4d3e5;border-radius:5px;cursor:pointer';
+   b.className='shared-property-choice';
    b.innerHTML='<svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="'+path+'"/></svg>';
    b.onclick=()=>{const other=side==='start'?'end':'start',otherOn=state(other)==='arrow';const thisOn=shape==='arrow';select.value=thisOn?(otherOn?'both':side):(otherOn?other:'none');select.dispatchEvent(new Event('change',{bubbles:true}));refresh();};
    line.appendChild(b);
