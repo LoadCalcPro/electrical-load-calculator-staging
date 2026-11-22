@@ -3749,6 +3749,14 @@ function installDeveloperPropertyVisibility(panel,item){
   return 'Specialized Controls';
  };
 
+ // Keep categories contiguous while respecting saved order within each category.
+ // This changes Developer presentation only; Properties DOM is untouched until
+ // the developer explicitly uses the ordering arrows.
+ const categoryIndex=id=>{
+  const index=DEVELOPER_PROPERTY_CATEGORIES.findIndex(([,entries])=>entries.some(([key])=>key===id));
+  return index<0?DEVELOPER_PROPERTY_CATEGORIES.length:index;
+ };
+ present.sort((a,b)=>categoryIndex(a.id)-categoryIndex(b.id));
  const drawList=()=>{
   list.replaceChildren();
   let previousCategory='';
@@ -3769,7 +3777,7 @@ function installDeveloperPropertyVisibility(panel,item){
    line.append(checkbox,name);
    for(const [direction,symbol] of [[-1,'↑'],[1,'↓']]){
     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=direction<0?'Move up':'Move down';button.style.cssText='padding:2px 7px;min-width:25px';
-    const nextIndex=(()=>{const j=i+direction;return j>=0&&j<present.length?j:-1;})();
+    const nextIndex=(()=>{const j=i+direction;return j>=0&&j<present.length&&categoryFor(present[j].id)===category?j:-1;})();
     button.disabled=nextIndex<0;
     button.addEventListener('click',()=>{
      if(nextIndex<0)return;
