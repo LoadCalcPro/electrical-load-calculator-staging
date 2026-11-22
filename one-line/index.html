@@ -1066,6 +1066,13 @@ body[data-drawing-view="plan"] #equipmentLibrary .plan-door-subcategory{width:10
 .shared-property-text-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px;min-width:0}
 .shared-property-text-grid>.field{min-width:0;box-sizing:border-box}
 .shared-property-text-grid>.field input,.shared-property-text-grid>.field select{max-width:100%;box-sizing:border-box}
+/* Shared rotation and offset rows across Properties text editors. */
+.shared-property-text-grid>.shared-property-rotation-field,
+.shared-property-text-grid>.shared-property-offset-field{min-width:0;margin:0;padding:0}
+.shared-property-text-grid>.shared-property-rotation-field>input,
+.shared-property-text-grid>.shared-property-offset-field>input{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.shared-property-text-grid>.shared-property-rotation-field>input:focus-visible,
+.shared-property-text-grid>.shared-property-offset-field>input:focus-visible{outline:2px solid var(--prop-accent,#1769c2);outline-offset:1px}
 </style><style>
 /* Keep native number steppers available in every Properties panel after redraws. */
 #drawingInspector #properties input[type="number"],
@@ -3145,7 +3152,16 @@ const highlightColors=[['Yellow','#fff176'],['Green','#b9f18c'],['Blue','#8ed8fa
 // Shared layout class for text-formatting grids across drawing object inspectors.
 function applySharedPropertiesTextLayout(root){
  if(!root)return;
- root.querySelectorAll('.shared-text-grid').forEach(grid=>grid.classList.add('shared-property-text-grid'));
+ root.querySelectorAll('.shared-text-grid').forEach(grid=>{
+  grid.classList.add('shared-property-text-grid');
+  grid.querySelectorAll('label.field').forEach(field=>{
+   const control=field.querySelector('input[type="number"]');
+   if(!control)return;
+   const caption=Array.from(field.childNodes).filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join(' ').trim().toLowerCase();
+   if(/rotation|angle|degrees/.test(caption))field.classList.add('shared-property-rotation-field');
+   else if(/offset|horizontal position|vertical position/.test(caption))field.classList.add('shared-property-offset-field');
+  });
+ });
 }
 function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight,options={}){
  function row(label,colors,get,set,clear){
