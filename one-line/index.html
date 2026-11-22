@@ -4982,12 +4982,12 @@ if(selected?.kind==='node'){
  if(current)installDeveloperPropertyVisibility($('properties'),current);
 }else if(selected?.kind){
  const selectedCollections={
-  line:typeof drawnLines!=='undefined'?drawnLines:[],
-  polyline:typeof polyRoutes!=='undefined'?polyRoutes:[],
-  annotation:typeof annotations!=='undefined'?annotations:[]
+  line:drawnLines,
+  polyroute:polyRoutes,
+  annotation:annotations
  };
- const collection=selectedCollections[selected.kind]||[];
- const current=collection.find(entry=>entry.id===selected.id);
+ const collection=selectedCollections[selected.kind];
+ const current=collection?.find(entry=>entry.id===selected.id);
  const subtype=current?.planConduit?.location==='Above Ground'?'above-ground-conduit'
   :current?.planConduit?'underground-conduit'
   :current?.type||current?.kind||selected.kind;
