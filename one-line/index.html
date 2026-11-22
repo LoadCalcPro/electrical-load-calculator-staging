@@ -5122,28 +5122,50 @@ function addDrawingLinePalette(item,kind){
 /* Shared compact endpoint buttons; preserves legacy arrow values for existing drawings. */
 function mountLineEndpointButtons(select){
  if(!select||select.dataset.endpointMounted)return;
- select.dataset.endpointMounted='1';
  const row=select.closest('label.field');if(!row)return;
+ select.dataset.endpointMounted='1';
  row.style.display='none';
- const container=document.createElement('div');container.className='field shared-endpoint-buttons';
- const heading=document.createElement('span');heading.textContent='Line endpoints';heading.className='shared-property-caption';container.appendChild(heading);
- const choices=[['none','M5 12 H19'],['arrow','M4 12 H20 M14 6 L20 12 L14 18']];
- function state(side){return select.value==='both'||select.value===side?'arrow':'none';}
- function refresh(){container.querySelectorAll('button').forEach(b=>{const on=state(b.dataset.endpointSide)===b.dataset.endpointShape;b.setAttribute('aria-pressed',String(on));});}
- for(const [side,title] of [['start','Start endpoint'],['end','End endpoint']]){
-  const line=document.createElement('div');line.className='shared-property-row';
-  const label=document.createElement('span');label.textContent=title;label.className='shared-property-row-label';
-  line.appendChild(label);
-  for(const [shape,path] of choices){
-   const b=document.createElement('button');b.type='button';b.dataset.endpointSide=side;b.dataset.endpointShape=shape;b.title=title+': '+shape;b.setAttribute('aria-label',b.title);
-   b.className='shared-property-choice';
-   b.innerHTML='<svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="'+path+'"/></svg>';
-   b.onclick=()=>{const other=side==='start'?'end':'start',otherOn=state(other)==='arrow';const thisOn=shape==='arrow';select.value=thisOn?(otherOn?'both':side):(otherOn?other:'none');select.dispatchEvent(new Event('change',{bubbles:true}));refresh();};
-   line.appendChild(b);
-  }
-  container.appendChild(line);
+ const container=document.createElement('div');
+ container.className='field shared-endpoint-buttons';
+ const heading=document.createElement('span');
+ heading.textContent='Line endpoints';
+ heading.className='shared-property-caption';
+ container.appendChild(heading);
+ const buttons=document.createElement('div');
+ buttons.className='shared-property-row';
+ buttons.style.cssText='display:flex;flex-wrap:nowrap;gap:5px;align-items:center';
+ const choices=[
+  ['none','None','M3 12 H21'],
+  ['start','Start arrow','M3 12 H21 M9 6 L3 12 L9 18'],
+  ['end','End arrow','M3 12 H21 M15 6 L21 12 L15 18'],
+  ['both','Both arrows','M3 12 H21 M9 6 L3 12 L9 18 M15 6 L21 12 L15 18']
+ ];
+ function refresh(){
+  buttons.querySelectorAll('button').forEach(button=>{
+   const active=button.dataset.endpointValue===(select.value||'none');
+   button.setAttribute('aria-pressed',String(active));
+  });
  }
- row.insertAdjacentElement('afterend',container);select.addEventListener('change',refresh);refresh();
+ for(const [value,title,path] of choices){
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='shared-property-choice';
+  button.dataset.endpointValue=value;
+  button.title=title;
+  button.setAttribute('aria-label',title);
+  button.style.cssText='flex:1 1 0;min-width:0;max-width:52px;height:34px;padding:3px';
+  button.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="'+path+'"/></svg>';
+  button.addEventListener('click',()=>{
+   select.value=value;
+   select.dispatchEvent(new Event('change',{bubbles:true}));
+   refresh();
+  });
+  buttons.appendChild(button);
+ }
+ container.appendChild(buttons);
+ row.insertAdjacentElement('afterend',container);
+ select.addEventListener('change',refresh);
+ refresh();
 }
 function mountVisibleLineEndpointButtons(root=document){
  root.querySelectorAll('#newPolyArrow,#newLineArrow,#polyArrow,[data-poly-quick-arrow],[data-line-prop="arrow"]').forEach(mountLineEndpointButtons);
