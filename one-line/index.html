@@ -4257,8 +4257,13 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    if(!activeInnerKey&&item.type!=='planwall'){
     const node=$('svg')?.querySelector('[data-node="'+item.id+'"]');
     const transform='rotate('+(Number(item.drawingRotation)||0)+') scale('+(Number(item.scaleX)||1)+' '+(Number(item.scaleY)||1)+')';
-    node?.querySelector('.equipment-symbol')?.setAttribute('transform',transform);
-    const selection=node?.querySelector('[data-equipment-selection-rotation]')||node?.querySelector('[data-resize="'+item.id+'"]')?.parentElement;
+    // Keep the hit target, artwork, and selection synchronized during live rotation.
+    const artwork=node?.querySelector('.equipment-symbol');
+    if(!artwork){renderCanvasOnly();return;}
+    artwork.setAttribute('transform',transform);
+    const hitTarget=node?.firstElementChild;
+    if(hitTarget&&hitTarget!==artwork)hitTarget.setAttribute('transform',transform);
+    const selection=node.querySelector('[data-equipment-selection-rotation]');
     if(selection)selection.setAttribute('transform',transform);
    }else renderCanvasOnly();
   });
