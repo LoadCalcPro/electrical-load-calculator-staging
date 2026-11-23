@@ -4996,7 +4996,7 @@ if(skipProperties){
  const inspector=$('textInspector');
  const existing=inspector?.querySelector('[data-spacing-side]');
  const context=planPositionContext();
- if(Boolean(existing)!==Boolean(context))renderPositionSpacingPropertiesRefresh();
+ if(Boolean(existing)!==Boolean(context)&&!$('properties')?.contains(document.activeElement))renderPositionSpacingPropertiesRefresh();
  syncPositionSpacingInputs();
 }
 if(!skipProperties){const inspector=$('textInspector');inspector.syncSelectedText=null;inspector.syncLineColor=null;inspector.selectDrawingLineConductor=null;inspector.selectPolylineConductor=null;inspector.replaceChildren();props();organizeEquipmentProperties();standardizeDrawingProperties();{const host=$('developerSettingsHost');if(selected?.kind!=='node'&&host){host.replaceChildren();host.style.display='none';}}if(selected?.kind==='node'){const current=nodes.find(n=>n.id===selected.id);if(current)installPlanElectricalInformation($('properties'),current);}renderLinearLightDimensions();renderPositionSpacingProperties();renderPlanConduitProperties();renderAboveConduitProperties();bindRoomDimensionInputs();
