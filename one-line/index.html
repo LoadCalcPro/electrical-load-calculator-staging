@@ -7485,6 +7485,9 @@ if(location.protocol==='file:'){
     for(const [symbol,direction,title] of [['↶',-1,'Rotate counterclockwise'],['↷',1,'Rotate clockwise']]){
      const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=title+' '+(hatch?45:90)+'°';
      button.setAttribute('aria-label',button.title);
+     // Prevent the degree field's blur redraw from detaching this button
+     // before the 90-degree click can update the selected equipment.
+     button.addEventListener('pointerdown',event=>event.preventDefault());
      button.addEventListener('click',()=>{
       if(input.disabled||input.readOnly)return;
       const current=Number(input.value)||0;
