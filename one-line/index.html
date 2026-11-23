@@ -7493,8 +7493,12 @@ if(location.protocol==='file:'){
       const current=Number(input.value)||0;
       const next=((current+direction*(hatch?45:90))%360+360)%360;
       input.value=String(next);
+      // Equipment rotation uses the same live input handler as Linear Light.
+      // A synthetic change event here can rebuild Properties mid-click,
+      // unlike the native degree spinner, and break subsequent 90° steps.
       input.dispatchEvent(new Event('input',{bubbles:true}));
-      input.dispatchEvent(new Event('change',{bubbles:true}));
+      if(!input.matches('[data-common-rotation]'))
+       input.dispatchEvent(new Event('change',{bubbles:true}));
      });
      buttons.appendChild(button);
     }
