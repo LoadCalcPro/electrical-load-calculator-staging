@@ -6376,9 +6376,11 @@ function constrainLine(a,b,shift){if(shift)return Math.abs(b.x-a.x)>Math.abs(b.y
  e.preventDefault();
  window.getSelection()?.removeAllRanges();
  mode='select';selected=null;selectedLineIds.clear();
- selectedNodeIds=new Set(nodes.map(n=>n.id));
+ selectedNodeIds=new Set(nodes.filter(n=>!n.locked).map(n=>n.id));
+ selectedLineIds=new Set(drawnLines.filter(l=>!l.locked).map(l=>l.id));
+ drawingSelectAllPending=true;
  render();
- $('status').textContent='Selected '+nodes.length+' equipment items. Use Resize entire drawing in Properties to scale all drawing objects.';
+ $('status').textContent='Entire drawing selected for copying: equipment, lines, connections, notes and unlocked images. Press Ctrl+C or right-click Copy.';
 });
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&mode==='select'){selectedNodeIds.clear();selected=null;selectedLineIds.clear();selectedNodeIds.clear();render();return;}if(e.key==='Escape'&&(mode==='line'||mode==='polyline'||mode==='switch-control'||mode==='revision-shape')){if((mode==='polyline'||mode==='switch-control')&&activePoly?.points.length>1){$('svg').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));}activePoly=null;window.creatingAboveConduit=false;showAlignmentGuides(null);mode='select';lineStart=null;polyPrevious=null;linePreview=null;render();}});$('addNote').onclick=addAnnotation;$('addNumberedNote').onclick=addNumberedNote;$('selectMode').onclick=()=>{if(activePoly?.points.length>1)$('svg').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));activePoly=null;window.creatingAboveConduit=false;mode='select';start=null;lineStart=null;polyPrevious=null;linePreview=null;render()};$('connectMode').onclick=()=>{activePoly=null;mode='connect';start=null;connectStartSide=null;freeConnectStart=null;drag=null;selected=null;selectedNodeIds.clear();selectedLineIds.clear();activeInnerKey=null;const inspector=$('textInspector');if(inspector)inspector.syncSelectedText=null;render();$('status').textContent='Select the first equipment symbol for a new connection.'};const sheetDimensions={letter:[11,8.5],tabloid:[17,11],archd:[36,24]};
 function sheetHeightUnits(){const dims=sheetDimensions[$('paper').value]||sheetDimensions.letter;return 1000*dims[1]/dims[0];}
@@ -6602,19 +6604,27 @@ $('manageBackgrounds').addEventListener('click',()=>{const panel=$('drawingLayer
  document.addEventListener('click',e=>{if(!e.target.closest('#backgroundOpacityControl'))requestAnimationFrame(sync);});
 })();
 let drawingObjectClipboard=null;
+let drawingSelectAllPending=false;
+// A new mouse selection cancels the full-drawing selection snapshot.
+$('svg').addEventListener('pointerdown',e=>{if(e.button===0)drawingSelectAllPending=false;},true);
 const drawingMenu=document.createElement('div');
 drawingMenu.id='drawingObjectMenu';
 drawingMenu.style.cssText='position:fixed;z-index:100000;display:none;background:white;color:#18242b;border:1px solid #aebbc2;border-radius:6px;box-shadow:0 4px 18px #0003;padding:5px;min-width:155px;font:13px Arial,sans-serif';
 document.body.appendChild(drawingMenu);
 function closeDrawingMenu(){drawingMenu.style.display='none';drawingMenu.replaceChildren();}
 function copyDrawingObject(){
- const nodeIds=new Set(selectedNodeIds);
- const lineIds=new Set(selectedLineIds);
+ const copyAll=drawingSelectAllPending;
+ const nodeIds=new Set(copyAll?nodes.map(n=>n.id):selectedNodeIds);
+ const lineIds=new Set(copyAll?drawnLines.map(l=>l.id):selectedLineIds);
  if(selected?.kind==='node')nodeIds.add(selected.id);
  if(selected?.kind==='line')lineIds.add(selected.id);
  const objects=[];
  for(const n of nodes)if(nodeIds.has(n.id)&&!n.locked)objects.push({kind:'node',data:structuredClone(n)});
  for(const l of drawnLines)if(lineIds.has(l.id)&&!l.locked)objects.push({kind:'line',data:structuredClone(l)});
+ if(copyAll){
+  for(const a of annotations)if(!a.locked)objects.push({kind:'annotation',data:structuredClone(a)});
+  for(const im of personalImages)if(!im.locked)objects.push({kind:'personalImage',data:structuredClone(im)});
+ }
  if(objects.length>1){
   // Include only connections whose two endpoints are copied.
   const copiedIds=new Set(objects.filter(o=>o.kind==='node').map(o=>o.data.id));
@@ -6644,7 +6654,7 @@ function pasteDrawingObject(){
   }else if(kind==='wire'){
    if(idMap.has(item.from)&&idMap.has(item.to)){
     item.id=next++;item.from=idMap.get(item.from);item.to=idMap.get(item.to);
-    if(Number.isFinite(Number(item.routeOffset)))item.routeOffset=Number(item.routeOffset)+offset;
+    // Connected wires follow their copied endpoints; do not double-offset their routing.
     wires.push(item);
    }else if(objects.length===1){
     // An isolated connection has no independent endpoints; do not reconnect it to the original equipment.
@@ -6672,6 +6682,7 @@ function pasteDrawingObject(){
  selectedNodeIds.clear();selectedLineIds.clear();
  if(newNodes.length>1){newNodes.forEach(id=>selectedNodeIds.add(id));selected={kind:'node',id:newNodes[0]};}
  else if(newLines.length>1&&!newNodes.length){newLines.forEach(id=>selectedLineIds.add(id));selected={kind:'line',id:newLines[0]};}
+ drawingSelectAllPending=false;
  mode='select';render();
  $('status').textContent='Pasted '+objects.length+' drawing item(s). Drag to position.';
 }
