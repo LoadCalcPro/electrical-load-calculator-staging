@@ -5073,7 +5073,8 @@ function renderAnnotations(){const layer=$('annotations');layer.removeAttribute(
  const size=Math.max(16,Math.min(100,Number(a.symbolSize)||30)),radius=size/2,fs=Math.max(6,Math.min(48,Number(a.fontSize)||12)),symbolFs=Math.max(6,Math.min(48,Number(a.symbolFontSize)||12));
  const x=Number(a.x)||0,y=Number(a.y)||0,dx=Number(a.textDX)||0,dy=Number(a.textDY)||0,gap=Number(a.gap)||12,color=esc(a.color||'#111111');
  const selectedNote=selected?.kind==='annotation'&&selected.id===a.id;
- const symbol=a.shape==='hexagon'?'<polygon points="'+Array.from({length:6},(_,i)=>{const t=(i*60-30)*Math.PI/180;return (x+radius*Math.cos(t))+','+(y+radius*Math.sin(t));}).join(' ')+'" fill="none" stroke="'+color+'" stroke-width="1.1"/>':a.shape==='none'?'':'<circle cx="'+x+'" cy="'+y+'" r="'+radius+'" fill="none" stroke="'+color+'" stroke-width="1.1"/>';
+ const symbolFill=a.symbolFillMode==='custom'&&/^#[0-9a-fA-F]{6}$/.test(a.symbolFillColor||'')?a.symbolFillColor:'none';
+ const symbol=a.shape==='hexagon'?'<polygon points="'+Array.from({length:6},(_,i)=>{const t=(i*60-30)*Math.PI/180;return (x+radius*Math.cos(t))+','+(y+radius*Math.sin(t));}).join(' ')+'" fill="'+symbolFill+'" stroke="'+color+'" stroke-width="1.1"/>':a.shape==='none'?'':'<circle cx="'+x+'" cy="'+y+'" r="'+radius+'" fill="'+symbolFill+'" stroke="'+color+'" stroke-width="1.1"/>';
  const lines=String(a.text||'').split('\\n'),tx=x+radius+gap+dx,ty=y+dy-(lines.length-1)*fs*.625;
  const text='<text x="'+tx+'" y="'+ty+'" dominant-baseline="middle" font-family="'+esc(equipmentFontFamily(a.fontFamily))+'" font-weight="'+(a.fontStyle==='bold'?'700':a.fontStyle==='light'?'300':'400')+'" font-style="'+(a.fontStyle==='italic'?'italic':'normal')+'" font-size="'+fs+'" fill="'+color+'">'+lines.map((line,i)=>'<tspan x="'+tx+'" dy="'+(i?fs*1.25:0)+'">'+esc(line)+'</tspan>').join('')+'</text>';
  const symbolText=a.shape==='none'?'':'<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-family="'+esc(equipmentFontFamily(a.symbolFontFamily))+'" font-weight="'+(a.symbolFontStyle==='bold'?'700':a.symbolFontStyle==='light'?'300':'400')+'" font-style="'+(a.symbolFontStyle==='italic'?'italic':'normal')+'" font-size="'+symbolFs+'" fill="'+color+'">'+esc(a.symbolText||'')+'</text>';
@@ -5117,7 +5118,7 @@ function addGroupOutline(){const group=[...selectedNodeIds].map(id=>nodes.find(n
 function addNumberedNote(){
  const used=annotations.filter(a=>a.kind==='numbered-note'&&/^\\d+$/.test(String(a.symbolText||''))).map(a=>Number(a.symbolText));
  let number=1;while(used.includes(number))number++;
- const a={id:next++,kind:'numbered-note',x:390,y:240,shape:'circle',symbolText:String(number),text:'Enter note text',fontSize:12,symbolSize:30,symbolFontSize:12,gap:12,color:'#111111',textDX:0,textDY:0};
+ const a={id:next++,kind:'numbered-note',x:390,y:240,shape:'circle',symbolText:String(number),text:'Enter note text',fontSize:12,symbolSize:30,symbolFontSize:12,gap:12,color:'#111111',symbolFillMode:'transparent',symbolFillColor:'#ffffff',textDX:0,textDY:0};
  annotations.push(a);selected={kind:'annotation',id:a.id};mode='select';render();
  $('status').textContent='Numbered note added. Edit the symbol and description in Properties; drag to position.';
 }
@@ -5445,7 +5446,8 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  p.innerHTML='<div class="numbered-note-heading">Selected: Numbered Note</div>'+
  '<div class="numbered-note-panel">'+
  '<div class="numbered-note-row"><label class="field">Symbol Shape<select data-note-shape><option value="circle">Circle</option><option value="hexagon">Hexagon</option><option value="none">None</option></select></label><label class="field">Number / Letter<input data-note-symbol type="text" maxlength="8"></label></div>'+
- '<label class="field">Note Text<textarea data-note-text rows="3"></textarea></label>'+
+ '<label class="field">Note Text<textarea data-note-text rows="3"></textarea></label>'+ 
+ '<div class="numbered-note-row"><label class="field">Symbol Fill<select data-note-fill-mode><option value="transparent">Transparent</option><option value="custom">Custom</option></select></label><label class="field">Fill Color<input type="color" data-note-fill-color value="#ffffff" style="height:42px;width:100%;padding:4px"></label></div>'+
  '<div class="numbered-note-row"><label class="field">Text Font Family<select data-note-font-family>'+equipmentFontFamilies.map(font=>'<option value="'+esc(font)+'">'+esc(font)+'</option>').join('')+'</select></label><label class="field">Symbol Font Family<select data-note-symbol-font-family>'+equipmentFontFamilies.map(font=>'<option value="'+esc(font)+'">'+esc(font)+'</option>').join('')+'</select></label></div>'+ 
  '<div class="numbered-note-row"><label class="field">Text Font Style<select data-note-font-style><option value="normal">Regular</option><option value="light">Light</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label><label class="field">Symbol Font Style<select data-note-symbol-font-style><option value="normal">Regular</option><option value="light">Light</option><option value="bold">Bold</option><option value="italic">Italic</option></select></label></div>'+ 
  '<div class="numbered-note-row"><label class="field">Text Font Size<input data-note-font type="number" min="6" max="48" step="1"></label><label class="field">Symbol Font Size<input data-note-symbol-font type="number" min="6" max="48" step="1"></label></div>'+
@@ -5479,6 +5481,12 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  syncButtons();p.insertBefore(formatting,p.firstChild);
  p.querySelector('[data-note-symbol]')?.addEventListener('focus',()=>{activeTarget='symbol';syncButtons();syncColors();});
  p.querySelector('[data-note-text]')?.addEventListener('focus',()=>{activeTarget='text';syncButtons();syncColors();});
+ const fillModeInput=p.querySelector('[data-note-fill-mode]'),fillColorInput=p.querySelector('[data-note-fill-color]');
+ fillModeInput.value=item.symbolFillMode==='custom'?'custom':'transparent';
+ fillColorInput.value=/^#[0-9a-fA-F]{6}$/.test(item.symbolFillColor||'')?item.symbolFillColor:'#ffffff';
+ fillColorInput.disabled=fillModeInput.value!=='custom';
+ fillModeInput.addEventListener('change',()=>{item.symbolFillMode=fillModeInput.value;fillColorInput.disabled=fillModeInput.value!=='custom';renderCanvasOnly();});
+ fillColorInput.addEventListener('input',()=>{item.symbolFillColor=fillColorInput.value;renderCanvasOnly();});
  const bindings=[['[data-note-shape]','shape',false],['[data-note-symbol]','symbolText',false],['[data-note-text]','text',false],['[data-note-font-family]','fontFamily',false],['[data-note-symbol-font-family]','symbolFontFamily',false],['[data-note-font-style]','fontStyle',false],['[data-note-symbol-font-style]','symbolFontStyle',false],['[data-note-font]','fontSize',true],['[data-note-symbol-font]','symbolFontSize',true],['[data-note-size]','symbolSize',true],['[data-note-gap]','gap',true],['[data-note-x]','textDX',true],['[data-note-y]','textDY',true] ];
  for(const [selector,key,numeric] of bindings){
   const input=p.querySelector(selector);input.value=key==='fontFamily'||key==='symbolFontFamily'?equipmentFontFamily(item[key]):key==='fontStyle'||key==='symbolFontStyle'?equipmentTextStyle(item[key]):String(item[key]??'');
