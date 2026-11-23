@@ -2579,7 +2579,7 @@ function bindWeightEditor(p,item){const weight=p.querySelector('[data-weight-val
  weight.value=weightFor(item);
  // Keep the numeric editor mounted while the user types or holds its stepper.
  // Commit the visual refresh on change, not on every intermediate keystroke.
- weight.addEventListener('input',()=>{if(weight.value.trim()==='')return;const value=Number(weight.value);if(!Number.isFinite(value)||value<=0)return;item.lineWeight=normalizeDrawingPropertyNumber(value,1,.4,8);item.lineStyle='custom';});
+ weight.addEventListener('input',()=>{if(weight.value.trim()==='')return;const value=Number(weight.value);if(!Number.isFinite(value)||value<=0)return;item.lineWeight=normalizeDrawingPropertyNumber(value,1,.4,8);item.lineStyle='custom';renderCanvasOnly();});
  const commitWeight=()=>{const value=Number(weight.value);if(Number.isFinite(value)&&value>0){item.lineWeight=normalizeDrawingPropertyNumber(value,1,.4,8);item.lineStyle='custom';}weight.value=normalizeDrawingPropertyNumber(item.lineWeight,1,.4,8);const conductorWeight=p.querySelector('[data-group-line-width="'+item.id+'"]');if(conductorWeight)conductorWeight.value=item.lineWeight;};
  // Native number steppers emit change repeatedly while still focused. Never rebuild
  // drawing/inspector DOM until editing is finished, otherwise the stepper stalls.
