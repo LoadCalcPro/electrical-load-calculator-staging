@@ -3956,6 +3956,20 @@ function installPlanElectricalInformation(panel,item){
   const field=document.createElement('label');field.className='field';
   field.style.cssText='display:flex;flex-direction:column;gap:5px;margin:0;min-width:0;font-size:13px;font-weight:600;color:#435b78';
   field.appendChild(document.createTextNode(captions[key]));
+  if(key==='mainType'){
+   field.dataset.electricalField=key;
+   const buttons=document.createElement('div');
+   buttons.dataset.electricalInfo=key;
+   buttons.className='shared-property-targets';
+   buttons.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px';
+   const sync=()=>{for(const b of buttons.querySelectorAll('button')){const active=(item.electricalInfo?.mainType??'')===b.dataset.mainTypeButton;b.setAttribute('aria-pressed',String(active));b.classList.toggle('active',active);b.style.background=active?'#d6eef7':'';b.style.borderColor=active?'#168c9a':'';}};
+   for(const value of ['M.L.O.','M.C.B.']){
+    const button=document.createElement('button');button.type='button';button.dataset.mainTypeButton=value;button.textContent=value;
+    button.addEventListener('click',()=>{item.electricalInfo??={};item.electricalInfo.mainType=item.electricalInfo.mainType===value?'':value;sync();renderCanvasOnly();});
+    buttons.appendChild(button);
+   }
+   sync();field.appendChild(buttons);section.appendChild(field);continue;
+  }
   const isSelect=key==='voltage'||key==='mainType';
   const input=document.createElement(isSelect?'select':'input');
   if(!isSelect){input.type=['amps','fuseAmps'].includes(key)?'number':'text';if(['amps','fuseAmps'].includes(key)){input.min='0';input.step='1';input.inputMode='numeric';}}
