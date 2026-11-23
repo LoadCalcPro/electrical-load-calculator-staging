@@ -4065,6 +4065,27 @@ function drawPlanElectricalInformation(){
   }
  }
 }
+// Main designation controls can be moved outside Properties by the shared layout.
+document.addEventListener('pointerdown',e=>{
+ const button=e.target.closest?.('[data-main-type] [data-main-type-button]');
+ if(button)e.preventDefault();
+},true);
+document.addEventListener('click',e=>{
+ const button=e.target.closest?.('[data-main-type] [data-main-type-button]');
+ if(!button||selected?.kind!=='node')return;
+ const item=nodes.find(n=>n.id===selected.id);
+ if(!item||!['panel','switchboard'].includes(item.type))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ item.mainType=button.dataset.mainTypeButton;
+ item.innerText??={};item.innerText.panelMain=item.mainType;
+ const group=button.closest('[data-main-type]');
+ for(const b of group.querySelectorAll('[data-main-type-button]')){
+  const active=b.dataset.mainTypeButton===item.mainType;
+  b.setAttribute('aria-pressed',String(active));b.classList.toggle('active',active);
+  b.style.background=active?'#d6eef7':'';b.style.borderColor=active?'#168c9a':'';
+ }
+ renderCanvasOnly();
+},true);
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
  const common=p.querySelector('details.properties-common');if(!common)return;
