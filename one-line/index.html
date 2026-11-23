@@ -7452,6 +7452,13 @@ if(location.protocol==='file:'){
 #drawingMain #properties .fixture-identification .fixture-mark-button input{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;opacity:0!important;cursor:pointer!important}
 #drawingMain #properties .fixture-identification .fixture-mark-button svg{width:100%!important;max-width:42px!important;height:26px!important;fill:none;stroke:#182b45;stroke-width:1.8;pointer-events:none}
 #drawingMain #properties .fixture-identification .fixture-mark-button:focus-within{outline:2px solid #009fa5!important;outline-offset:1px!important}
+
+/* Fixture design: compact five-icon selector regardless of Properties host. */
+#properties .fixture-identification .fixture-mark-row{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;width:100%!important;margin:5px 0!important}
+#properties .fixture-identification .fixture-mark-button{display:flex!important;position:relative!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:0!important;height:38px!important;min-height:0!important;padding:3px!important;margin:0!important;border:1px solid #c9daf2!important;border-radius:7px!important;background:white!important;overflow:hidden!important;box-sizing:border-box!important;cursor:pointer!important}
+#properties .fixture-identification .fixture-mark-button.is-active{border:2px solid #009fa5!important;background:#e5f5f5!important}
+#properties .fixture-identification .fixture-mark-button input[type=checkbox]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;opacity:0!important;cursor:pointer!important}
+#properties .fixture-identification .fixture-mark-button svg{display:block!important;width:100%!important;max-width:42px!important;height:26px!important;max-height:26px!important;fill:none;stroke:#182b45;stroke-width:1.8;pointer-events:none}
 </style>
 <script>
 (function(){
