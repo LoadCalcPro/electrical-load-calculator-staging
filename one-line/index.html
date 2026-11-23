@@ -2585,6 +2585,13 @@ function bindWeightEditor(p,item){const weight=p.querySelector('[data-weight-val
  // Preserve the visual thickness of legacy presets while migrating to one editable value.
  if(item.lineStyle&&item.lineStyle!=='custom'){item.lineWeight=weightFor(item);item.lineStyle='custom';}
  weight.value=weightFor(item);
+ // Drawing Line and Polyline retain their original continuous canvas-update behavior.
+ // Equipment-only preview logic must never change the working line editor.
+ if(selected?.kind==='line'||selected?.kind==='polyroute'){
+  weight.addEventListener('input',()=>{if(weight.value.trim()==='')return;const value=Number(weight.value);if(!Number.isFinite(value)||value<=0)return;item.lineWeight=normalizeDrawingPropertyNumber(value,1,.4,8);item.lineStyle='custom';renderCanvasOnly();});
+  weight.addEventListener('change',()=>{weight.value=normalizeDrawingPropertyNumber(item.lineWeight,1,.4,8);});
+  return;
+ }
  // Keep the numeric editor mounted while the user types or holds its stepper.
  // Commit the visual refresh on change, not on every intermediate keystroke.
  weight.addEventListener('input',()=>{if(weight.value.trim()==='')return;const value=Number(weight.value);if(!Number.isFinite(value)||value<=0)return;item.lineWeight=normalizeDrawingPropertyNumber(value,1,.4,8);item.lineStyle='custom';previewEquipmentLineWeight(item);});
