@@ -6765,6 +6765,21 @@ $('svg').addEventListener('contextmenu',e=>{
  drawingMenu.style.left=Math.min(e.clientX,window.innerWidth-175)+'px';drawingMenu.style.top=Math.min(e.clientY,window.innerHeight-205)+'px';drawingMenu.style.display='block';
 });
 document.addEventListener('pointerdown',e=>{if(!drawingMenu.contains(e.target))closeDrawingMenu()},true);
+// A selected equipment label is not the equipment itself.
+window.addEventListener('keydown',e=>{
+ if(e.key!=='Backspace'&&e.key!=='Delete')return;
+ const focus=document.activeElement;
+ if(focus&&(/INPUT|TEXTAREA|SELECT/.test(focus.tagName)||focus.isContentEditable))return;
+ if(selected?.kind!=='node'||!activeInnerKey)return;
+ const item=nodes.find(n=>n.id===selected.id);
+ if(!item||!equipmentTextKeys(item).includes(activeInnerKey))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(activeInnerKey==='drawingLabel')item.drawingLabel='';
+ else{item.innerText??={};item.innerText[activeInnerKey]='';}
+ activeInnerKey=null;
+ render();
+ $('status').textContent='Selected equipment text removed; equipment preserved.';
+},true);
 window.addEventListener('keydown',e=>{
  if(e.key==='Escape')closeDrawingMenu();
  const focus=document.activeElement;
