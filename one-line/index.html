@@ -6608,26 +6608,72 @@ drawingMenu.style.cssText='position:fixed;z-index:100000;display:none;background
 document.body.appendChild(drawingMenu);
 function closeDrawingMenu(){drawingMenu.style.display='none';drawingMenu.replaceChildren();}
 function copyDrawingObject(){
- if(!selected)return false;
- const collections={node:nodes,annotation:annotations,personalImage:personalImages,wire:wires,line:drawnLines};
- const collection=collections[selected.kind];if(!collection)return false;
- const item=collection.find(v=>(selected.kind==='personalImage'?v.kind:v.id)===selected.id);
- if(!item||item.locked)return false;
- drawingObjectClipboard={kind:selected.kind,data:structuredClone(item),pastes:0};
- $('status').textContent='Object copied. Right-click the drawing to paste.';
+ const nodeIds=new Set(selectedNodeIds);
+ const lineIds=new Set(selectedLineIds);
+ if(selected?.kind==='node')nodeIds.add(selected.id);
+ if(selected?.kind==='line')lineIds.add(selected.id);
+ const objects=[];
+ for(const n of nodes)if(nodeIds.has(n.id)&&!n.locked)objects.push({kind:'node',data:structuredClone(n)});
+ for(const l of drawnLines)if(lineIds.has(l.id)&&!l.locked)objects.push({kind:'line',data:structuredClone(l)});
+ if(objects.length>1){
+  // Include only connections whose two endpoints are copied.
+  const copiedIds=new Set(objects.filter(o=>o.kind==='node').map(o=>o.data.id));
+  for(const w of wires)if(copiedIds.has(w.from)&&copiedIds.has(w.to))objects.push({kind:'wire',data:structuredClone(w)});
+ }else if(!objects.length&&selected){
+  const collections={node:nodes,annotation:annotations,personalImage:personalImages,wire:wires,line:drawnLines};
+  const collection=collections[selected.kind];
+  const item=collection?.find(v=>(selected.kind==='personalImage'?v.kind:v.id)===selected.id);
+  if(item&&!item.locked)objects.push({kind:selected.kind,data:structuredClone(item)});
+ }
+ if(!objects.length)return false;
+ drawingObjectClipboard={objects,pastes:0};
+ $('status').textContent=objects.length+' drawing item(s) copied. Use Ctrl+V or right-click Paste.';
  return true;
 }
 function pasteDrawingObject(){
- if(!drawingObjectClipboard)return;
- const {kind,data}=drawingObjectClipboard;
- const item=structuredClone(data);
- const offset=24*(drawingObjectClipboard.pastes+1);drawingObjectClipboard.pastes++;
- if(kind==='personalImage'){item.kind='clipboard-'+next++;item.locked=false;item.x+=offset;item.y+=offset;personalImages.push(item);selected={kind,id:item.kind};}
- else if(kind==='wire'){item.id=next++;item.routeOffset=(Number(item.routeOffset)||0)+offset;wires.push(item);selected={kind,id:item.id};}
- else if(kind==='line'){item.id=next++;item.x1+=offset;item.y1+=offset;item.x2+=offset;item.y2+=offset;delete item.shapeConnection;delete item.groupId;drawnLines.push(item);selected={kind,id:item.id};selectedLineIds.clear();selectedLineIds.add(item.id);}
- else {item.id=next++;item.x+=offset;item.y+=offset;if(kind==='node'){if(item.type==='planwall')delete item.wallJoints;nodes.push(item);}else annotations.push(item);selected={kind,id:item.id};}
+ if(!drawingObjectClipboard?.objects?.length)return;
+ const offset=24*(++drawingObjectClipboard.pastes),idMap=new Map(),groupMap=new Map(),newNodes=[],newLines=[];
+ const objects=drawingObjectClipboard.objects;
+ // Allocate equipment IDs before copying connections.
+ for(const o of objects)if(o.kind==='node')idMap.set(o.data.id,next++);
+ for(const o of objects){
+  const {kind}=o,item=structuredClone(o.data);
+  if(kind==='personalImage'){
+   item.kind='clipboard-'+next++;item.locked=false;item.x=(Number(item.x)||0)+offset;item.y=(Number(item.y)||0)+offset;
+   personalImages.push(item);selected={kind,id:item.kind};
+  }else if(kind==='wire'){
+   if(idMap.has(item.from)&&idMap.has(item.to)){
+    item.id=next++;item.from=idMap.get(item.from);item.to=idMap.get(item.to);
+    if(Number.isFinite(Number(item.routeOffset)))item.routeOffset=Number(item.routeOffset)+offset;
+    wires.push(item);
+   }else if(objects.length===1){
+    // An isolated connection has no independent endpoints; do not reconnect it to the original equipment.
+    continue;
+   }
+  }else if(kind==='line'){
+   item.id=next++;
+   for(const key of ['x1','y1','x2','y2'])item[key]=(Number(item[key])||0)+offset;
+   delete item.shapeConnection;
+   if(item.groupId!=null){
+    if(!groupMap.has(item.groupId))groupMap.set(item.groupId,next++);
+    item.groupId=groupMap.get(item.groupId);
+   }
+   drawnLines.push(item);newLines.push(item.id);selected={kind,id:item.id};
+  }else{
+   item.id=kind==='node'?idMap.get(item.id):next++;
+   item.x=(Number(item.x)||0)+offset;item.y=(Number(item.y)||0)+offset;
+   if(kind==='node'){
+    if(item.type==='planwall')delete item.wallJoints;
+    nodes.push(item);newNodes.push(item.id);
+   }else annotations.push(item);
+   selected={kind,id:item.id};
+  }
+ }
+ selectedNodeIds.clear();selectedLineIds.clear();
+ if(newNodes.length>1){newNodes.forEach(id=>selectedNodeIds.add(id));selected={kind:'node',id:newNodes[0]};}
+ else if(newLines.length>1&&!newNodes.length){newLines.forEach(id=>selectedLineIds.add(id));selected={kind:'line',id:newLines[0]};}
  mode='select';render();
- $('status').textContent='Object pasted. Drag it to position.';
+ $('status').textContent='Pasted '+objects.length+' drawing item(s). Drag to position.';
 }
 async function pasteFromDrawingContextMenu(){
  if(!navigator.clipboard?.read){if(drawingObjectClipboard){pasteDrawingObject();return;}$('status').textContent='Browser clipboard access is unavailable. Use Ctrl + V to paste.';return;}
@@ -6677,9 +6723,9 @@ $('svg').addEventListener('contextmenu',e=>{
  // Right-click is always the familiar edit action, even after using Connect or Add.
  if(mode!=='select'){mode='select';start=null;connectStartSide=null;}
  const hit=e.target.closest('[data-node],[data-annotation],[data-personal-image],[data-wire],[data-drawn-line]');
- if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':hit.hasAttribute('data-wire')?'wire':hit.hasAttribute('data-drawn-line')?'line':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(kind==='line'?hit.dataset.drawnLine:hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):kind==='wire'?wires.find(v=>v.id===id):kind==='line'?drawnLines.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked){e.preventDefault();return;}selected={kind,id};selectedLineIds.clear();selectedNodeIds.clear();if(kind==='line')selectedLineIds.add(id);render(true);}else{selected=null;selectedLineIds.clear();selectedNodeIds.clear();render(true);}
+ if(hit){const kind=hit.hasAttribute('data-node')?'node':hit.hasAttribute('data-annotation')?'annotation':hit.hasAttribute('data-wire')?'wire':hit.hasAttribute('data-drawn-line')?'line':'personalImage';const id=kind==='personalImage'?hit.dataset.personalImage:Number(kind==='line'?hit.dataset.drawnLine:hit.dataset[kind]);const item=kind==='node'?nodes.find(v=>v.id===id):kind==='annotation'?annotations.find(v=>v.id===id):kind==='wire'?wires.find(v=>v.id===id):kind==='line'?drawnLines.find(v=>v.id===id):personalImages.find(v=>v.kind===id);if(item?.locked){e.preventDefault();return;}if(!(kind==='node'&&selectedNodeIds.has(id)&&selectedNodeIds.size>1)&&!(kind==='line'&&selectedLineIds.has(id)&&selectedLineIds.size>1)){selected={kind,id};selectedLineIds.clear();selectedNodeIds.clear();if(kind==='line')selectedLineIds.add(id);}render(true);}else{selected=null;selectedLineIds.clear();selectedNodeIds.clear();render(true);}
  e.preventDefault();closeDrawingMenu();
- const entries=[['Cut',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>pasteFromDrawingContextMenu(),false],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
+ const entries=[['Cut',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy',()=>copyDrawingObject(),!selected],['Paste',()=>drawingObjectClipboard?pasteDrawingObject():pasteFromDrawingContextMenu(),false],['Duplicate',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Delete',()=>deleteDrawingObject(),!selected]];
  for(const [label,action,disabled] of entries){const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=disabled;button.style.cssText='display:block;width:100%;text-align:left;padding:7px;border:0;background:transparent;color:inherit;cursor:pointer';button.onclick=()=>{closeDrawingMenu();action()};drawingMenu.appendChild(button);}
  drawingMenu.style.left=Math.min(e.clientX,window.innerWidth-175)+'px';drawingMenu.style.top=Math.min(e.clientY,window.innerHeight-205)+'px';drawingMenu.style.display='block';
 });
