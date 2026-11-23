@@ -2579,7 +2579,7 @@ function previewEquipmentLineWeight(item){
  const group=Array.from($('nodes')?.querySelectorAll('g.node[data-node]')||[]).find(el=>el.getAttribute('data-node')===String(item.id));
  const artwork=group?.querySelector(':scope > g.equipment-symbol');if(!artwork)return;
  const markup=equipmentAppearanceMarkup(preserveEquipmentCircles(applyEquipmentFill(symbol(item),item),item),item);
- artwork.innerHTML=item.installationStatus==='remove'?markup.replace(/<(path|rect|circle|line|polyline)\\b/g,'<$1 stroke-dasharray="5 3"'):markup;
+ artwork.innerHTML=item.installationStatus==='remove'?markup.replace(/<(path|rect|circle|line|polyline)\b/g,'<$1 stroke-dasharray="5 3"'):markup;
 }
 function bindWeightEditor(p,item){const weight=p.querySelector('[data-weight-value]');if(!weight)return;
  // Preserve the visual thickness of legacy presets while migrating to one editable value.
