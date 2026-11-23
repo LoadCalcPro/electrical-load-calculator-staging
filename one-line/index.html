@@ -2578,9 +2578,9 @@ function symbolLineWeightMarkup(markup,item){
  // Preserve fill-only geometry and text, and do not affect measured equipment.
  if(item.type!=='plansymbol')return markup;
  const thickness=weightFor(item);
- return markup.replace(/<(path|rect|circle|ellipse|line|polyline|polygon)\\b[^>]*>/g,tag=>{
-  if(!/\\bstroke=/.test(tag)||/\\bstroke="none"/.test(tag))return tag;
-  return /\\bstroke-width="[^"]*"/.test(tag)?tag.replace(/\\bstroke-width="[^"]*"/,'stroke-width="'+thickness+'"'):tag.replace(/\\s*\\/?>$/,end=>' stroke-width="'+thickness+'"'+end);
+ return markup.replace(/<(path|rect|circle|ellipse|line|polyline|polygon)\b[^>]*>/g,tag=>{
+  if(!/\bstroke=/.test(tag)||/\bstroke="none"/.test(tag))return tag;
+  return /\bstroke-width="[^"]*"/.test(tag)?tag.replace(/\bstroke-width="[^"]*"/,'stroke-width="'+thickness+'"'):tag.replace(/\s*\/?>$/,end=>' stroke-width="'+thickness+'"'+end);
  });
 }
 function previewEquipmentLineWeight(item){
