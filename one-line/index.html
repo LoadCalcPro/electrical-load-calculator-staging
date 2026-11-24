@@ -2616,8 +2616,8 @@ function bindWeightEditor(p,item){const weight=p.querySelector('[data-weight-val
  // Drawing Line and Polyline retain their original continuous canvas-update behavior.
  // Equipment-only preview logic must never change the working line editor.
  if(selected?.kind==='line'||selected?.kind==='polyroute'){
-  weight.addEventListener('input',()=>{if(weight.value.trim()==='')return;const value=Number(weight.value);if(!Number.isFinite(value)||value<=0)return;item.lineWeight=normalizeDrawingPropertyNumber(value,1,.4,8);item.lineStyle='custom';renderCanvasOnly();});
-  weight.addEventListener('change',()=>{weight.value=normalizeDrawingPropertyNumber(item.lineWeight,1,.4,8);});
+  weight.addEventListener('input',()=>{if(weight.value.trim()==='')return;const value=Number(weight.value);if(!Number.isFinite(value)||value<=0)return;const next=normalizeDrawingPropertyNumber(value,1,.4,8);if(selected?.kind==='line'&&$('textInspector').applySelectedLineWeight?.(next))return;item.lineWeight=next;item.lineStyle='custom';renderCanvasOnly();});
+  weight.addEventListener('change',()=>{const v=selected?.kind==='line'?$('textInspector').selectedLineWeight?.():undefined;weight.value=v===undefined?normalizeDrawingPropertyNumber(item.lineWeight,1,.4,8):v;});
   return;
  }
  // Keep the numeric editor mounted while the user types or holds its stepper.
@@ -5369,9 +5369,11 @@ function addDrawingLinePalette(item,kind){
    if(rotationField&&document.activeElement!==rotationField)rotationField.value=target==='label'?String(Number(item.labelAngle)||0):(Math.atan2(item.y2-item.y1,item.x2-item.x1)*180/Math.PI).toFixed(1);
    for(const el of fields.querySelectorAll('[data-line-format]')){const key=el.dataset.lineFormat;el.disabled=target==='line';if(target==='label')el.value=item[key]??(key==='labelFontSize'?12:key==='labelStyle'?'normal':0);}
   }
-  if(kind==='line'){const select=$('properties').querySelector('[data-line-prop="arrow"]');if(select){const members=activeLineId===-1?group():group().filter(z=>z.id===activeLineId);const values=new Set(members.map(z=>z.arrow||'none'));select.value=values.size===1?[...values][0]:'';select.refreshEndpointButtons?.();}}
+  if(kind==='line'){const weight=$('properties').querySelector('[data-weight-value]');if(weight&&document.activeElement!==weight){const v=inspector.selectedLineWeight?.();if(v!==undefined){weight.value=v;weight.placeholder=v===''?'Mixed':'';}}const select=$('properties').querySelector('[data-line-prop="arrow"]');if(select){const members=activeLineId===-1?group():group().filter(z=>z.id===activeLineId);const values=new Set(members.map(z=>z.arrow||'none'));select.value=values.size===1?[...values][0]:'';select.refreshEndpointButtons?.();}}
   if(typeof palette==='function')palette();
  }
+ inspector.selectedLineWeight=()=>{if(kind!=='line')return undefined;const members=group().filter(z=>activeLineId===-1||z.id===activeLineId);const values=new Set(members.map(z=>weightFor(z)));return values.size===1?[...values][0]:'';};
+ inspector.applySelectedLineWeight=v=>{if(kind!=='line')return false;for(const member of group())if(activeLineId===-1||member.id===activeLineId){member.lineWeight=v;member.lineStyle='custom';}renderCanvasOnly();return true;};
  inspector.applySelectedLineArrow=v=>{if(kind!=='line')return false;for(const member of group())if(activeLineId===-1||member.id===activeLineId)member.arrow=v;renderCanvasOnly();return true;};
  inspector.activateLineLabelTarget=()=>{if(kind!=='line')return;target='label';sync();};
  inspector.syncLineColor=sync;
