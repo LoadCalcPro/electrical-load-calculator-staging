@@ -3246,12 +3246,6 @@ function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight,option
 // labels use the same coordinate conversion and remain independent of the box.
 // One resizing path for equipment. Preserve existing independent X/Y sizing
 // for rectangular enclosures; other symbols retain proportional resizing.
-function isWallLightSizePilot(n){return n?.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Wall-Mounted Light Fixture';}
-function setWallLightSize(n,percent){
- const size=Math.max(15,Math.min(400,Math.round(percent)));
- n.scaleX=n.scaleY=size/100;
- return size;
-}
 function resizeEquipmentTarget(n,dragState,point){
  if(!n||!dragState?.resize)return false;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light'){
@@ -3379,7 +3373,7 @@ function resizeEquipmentTarget(n,dragState,point){
   n.scaleY=limit(dy/Math.max(1,b.b));
  }else{
   const factor=limit(Math.max(dx/Math.max(1,b.r),dy/Math.max(1,b.b)));
-  if(isWallLightSizePilot(n))setWallLightSize(n,factor*100);else{n.scaleX=factor;n.scaleY=factor;}
+  n.scaleX=factor;n.scaleY=factor;
  }
  const shiftX=fixedLeft+b.l*n.scaleX,shiftY=fixedTop+b.t*n.scaleY;
  n.x+=shiftX*cos-shiftY*sin;
@@ -4102,9 +4096,6 @@ document.addEventListener('input',e=>{
  const value=Number(input.value);
  if(!n||!Number.isFinite(value)||value<15||value>400)return;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
- if(isWallLightSizePilot(n)){
-  setWallLightSize(n,value);clampEquipmentToSheet(n);renderCanvasOnly();return;
- }
  n.scaleX=value/100;n.scaleY=value/100;
  clampEquipmentToSheet(n);
  const group=$('svg')?.querySelector('[data-node="'+n.id+'"]');
@@ -6109,12 +6100,6 @@ document.addEventListener('change',e=>{if(e.target?.matches?.('[data-wall-feet],
 // The selected node is the single source of truth for both mouse and Properties edits.
 function syncMeasuredFields(node){
  if(!node)return;
- if(isWallLightSizePilot(node)){
-  const value=String(Math.round(((Number(node.scaleX)||1)+(Number(node.scaleY)||1))*50));
-  for(const field of document.querySelectorAll('#properties [data-equipment-size],#textInspector [data-equipment-size]')){
-   if((document.activeElement!==field||drag?.resize)&&field.value!==value)field.value=value;
-  }
- }
  const isPlanFootprint=['planpanel','plantransformer','plangenerator','planclearance'].includes(node.type);
  const keys=isPlanFootprint?['planWidthIn','planDepthIn','planOffsetXIn','planOffsetYIn']:node.type==='planroom'?['roomLengthIn','roomWidthIn']:node.type==='plansymbol'&&(node.equipmentSubtype||node.name)==='Linear Light'?['linearLengthIn','linearWidthIn']:[];
  const attribute=isPlanFootprint?'data-plan-measure':node.type==='planroom'?'data-room-dim':'data-linear-dim';
@@ -6135,7 +6120,7 @@ function renderCanvasOnly(){render(true);
    angleField.value=(Math.atan2(line.y2-line.y1,line.x2-line.x1)*180/Math.PI).toFixed(1);
   }
  }
- if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&!isWallLightSizePilot(n)&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}
+ if(selected?.kind==='node'){const n=nodes.find(v=>v.id===selected.id),field=$('properties')?.querySelector('[data-equipment-size]');if(n&&field&&document.activeElement!==field){field.value=String(Math.round(((Number(n.scaleX)||1)+(Number(n.scaleY)||1))*50));}
  syncMeasuredFields(n);
  if(n?.type==='planwall'){
   const props=$('properties'),length=Math.max(1,Number(n.wallLengthIn??120));
