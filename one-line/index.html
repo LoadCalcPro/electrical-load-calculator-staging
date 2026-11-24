@@ -3462,7 +3462,7 @@ function selectEquipmentTarget(id,key=null){
 }
 // Keep formatting selection stable while clicking controls, but never let
 // a stale text key carry over to a different equipment item.
-function equipmentTextKeys(item){return item?[...(item.type==='ges'?['gesRod1Label','gesRod2Label','gesWaterLabel','gesUferLabel']:[]),...(item._labelDefs||[]).map(d=>d[0]),...(item.type==='planroom'?['roomLabel']:[]),...(item.type==='planwall'?['wallLabel']:[]),...(item.type==='planclearance'?['clearanceTitle','clearanceWidth','clearanceDepth']:[]),...(['planpanel','plantransformer','plangenerator'].includes(item.type)?['planInsideLabel']:[]),...(['planpanel','plantransformer','plangenerator'].includes(item.type)?SHARED_ELECTRICAL_FIELDS.map(([key])=>'electrical:'+key):[]),'drawingLabel']:[];}
+function equipmentTextKeys(item){return item?[...(item.type==='ges'?['gesRod1Label','gesRod2Label','gesWaterLabel','gesUferLabel']:[]),...(item._labelDefs||[]).map(d=>d[0]),...(item.type==='plansymbol'&&item.equipmentSubtype==='Enclosed Circuit Breaker'?['ecbDesignation','ecbCircuit']:[]),...(item.type==='planroom'?['roomLabel']:[]),...(item.type==='planwall'?['wallLabel']:[]),...(item.type==='planclearance'?['clearanceTitle','clearanceWidth','clearanceDepth']:[]),...(['planpanel','plantransformer','plangenerator'].includes(item.type)?['planInsideLabel']:[]),...(['planpanel','plantransformer','plangenerator'].includes(item.type)?SHARED_ELECTRICAL_FIELDS.map(([key])=>'electrical:'+key):[]),'drawingLabel']:[];}
 function activateEquipmentText(item,key){
  if(!item||!equipmentTextKeys(item).includes(key))return false;
  selectEquipmentTarget(item.id,key);
@@ -6032,6 +6032,7 @@ document.addEventListener('change',e=>{
  if(e.target?.matches?.('[data-room-dim],[data-room-label-visible]'))updateSelectedRoomProperty(e.target);
  if(e.target?.matches?.('[data-linear-dim]'))updateSelectedLinearLightProperty(e.target);
 },true);
+for(const eventName of ['focusin','pointerdown'])document.addEventListener(eventName,e=>{if(!e.target?.matches?.('[data-prop="name"],[data-prop="panelCircuit"]'))return;const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;if(node?.type==='plansymbol'&&node.equipmentSubtype==='Enclosed Circuit Breaker')activateEquipmentText(node,e.target.matches('[data-prop="panelCircuit"]')?'ecbCircuit':'ecbDesignation');},true);
 document.addEventListener('input',e=>{if(!e.target?.matches?.('[data-prop="panelCircuit"]'))return;const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;if(!node||node.type!=='plansymbol'||!['Ceiling Light','Recessed Light','Square Recessed Light','Exit Light','Exit / Emergency Light','Emergency Light','Ceiling Fan','Bathroom Exhaust Fan','Wall-Mounted Light Fixture','Smoke Detector','Duct Smoke Detector','Dual-Action Manual Pull Station','Ceiling-Mounted Strobe','Wall-Mounted Strobe','Horn/Strobe'].includes(node.equipmentSubtype||node.name))return;node.panelCircuit=e.target.value;renderCanvasOnly();},true);
 for(const eventName of ['focusin','pointerdown'])document.addEventListener(eventName,e=>{if(!e.target?.matches?.('[data-prop="panelCircuit"]'))return;const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;if(node?.type==='plansymbol'&&['Ceiling Light','Recessed Light','Square Recessed Light','Exit Light','Exit / Emergency Light','Emergency Light','Ceiling Fan','Bathroom Exhaust Fan','Wall-Mounted Light Fixture','Smoke Detector','Duct Smoke Detector','Dual-Action Manual Pull Station','Ceiling-Mounted Strobe','Wall-Mounted Strobe','Horn/Strobe'].includes(node.equipmentSubtype||node.name))activateEquipmentText(node,'lightCircuit');},true);
 // The three recessed/ceiling symbols use the shared movable drawing label,
@@ -6848,7 +6849,8 @@ window.addEventListener('keydown',e=>{
  const item=nodes.find(n=>n.id===selected.id);
  if(!item||!equipmentTextKeys(item).includes(activeInnerKey))return;
  e.preventDefault();e.stopImmediatePropagation();
- if(activeInnerKey==='drawingLabel')item.drawingLabel='';
+ if(item.type==='plansymbol'&&item.equipmentSubtype==='Enclosed Circuit Breaker'&&['ecbDesignation','ecbCircuit'].includes(activeInnerKey)){item[activeInnerKey==='ecbDesignation'?'name':'panelCircuit']='';item.innerText??={};item.innerText[activeInnerKey]='';}
+ else if(activeInnerKey==='drawingLabel')item.drawingLabel='';
  else{item.innerText??={};item.innerText[activeInnerKey]='';}
  activeInnerKey=null;
  render();
