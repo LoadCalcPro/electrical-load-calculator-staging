@@ -4076,6 +4076,18 @@ document.addEventListener('click',e=>{
  item.innerText??={};item.innerText.panelMain=item.mainType;
  render();
 },true);
+// One size input path, independent of inspector relocation or rebuilding.
+document.addEventListener('input',e=>{
+ const input=e.target;
+ if(!input?.matches?.('[data-equipment-size]')||selected?.kind!=='node'||input.value==='')return;
+ const n=nodes.find(v=>String(v.id)===String(selected.id));
+ const value=Number(input.value);
+ if(!n||!Number.isFinite(value)||value<15||value>400)return;
+ if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
+ n.scaleX=value/100;n.scaleY=value/100;
+ clampEquipmentToSheet(n);
+ renderCanvasOnly();
+},true);
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
  const common=p.querySelector('details.properties-common');if(!common)return;
@@ -4344,17 +4356,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl){
   appearance.appendChild(sizeControl);
-  const input=sizeControl.querySelector('[data-equipment-size]');
-  input?.addEventListener('input',()=>{
-   if(selected?.kind!=='node'||String(selected.id)!==String(item.id)||input.value==='')return;
-   const n=nodes.find(v=>String(v.id)===String(selected.id));
-   const value=Number(input.value);
-   if(!n||!Number.isFinite(value)||value<15||value>400)return;
-   n.scaleX=value/100;n.scaleY=value/100;
-   clampEquipmentToSheet(n);
-   renderCanvasOnly();
-  });
- }
+  }
  // Keep scaling behavior immediately below equipment size.
  const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
  if(appearanceModeControl){appearanceModeControl.firstChild?.nodeType===Node.TEXT_NODE&&(appearanceModeControl.firstChild.textContent='Scaling behavior');appearance.appendChild(appearanceModeControl);const modeSelect=appearanceModeControl.querySelector('[data-equipment-appearance]');modeSelect?.addEventListener('change',()=>{if(selected?.kind!=='node'||selected.id!==item.id)return;item.appearanceMode=modeSelect.value==='proportional'?'proportional':'consistent';renderCanvasOnly();});}
