@@ -5311,6 +5311,7 @@ function addDrawingLinePalette(item,kind){
   measurement.className='shared-text-grid';
   measurement.innerHTML='<label class="field">Line length — Feet<input type="number" min="0" step="1" data-line-feet></label><label class="field">Inches<input type="number" min="0" max="11.999" step="0.125" data-line-inches></label>';
   fields.after(measurement);
+  const conductorRow=root.querySelector('[data-conductor-target]')?.parentElement;if(conductorRow)measurement.after(conductorRow);
   const feet=measurement.querySelector('[data-line-feet]'),inches=measurement.querySelector('[data-line-inches]');
   const refresh=()=>{const length=Math.hypot(item.x2-item.x1,item.y2-item.y1)/planUnitsPerInch();feet.value=Math.floor(length/12);inches.value=+(length%12).toFixed(3);};
   refresh();
