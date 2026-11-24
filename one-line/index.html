@@ -4472,12 +4472,11 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  // Linear Light uses the same equipment-information placement as every other
  // item: this section is anchored after Rotation. Keep its two live inputs at
  // the beginning of that section, before dimensions and appearance controls.
- if(itemForInfo?.type==='plansymbol'&&['Ceiling Light','Recessed Light','Square Recessed Light','Exit Light','Exit / Emergency Light','Emergency Light','Ceiling Fan','Bathroom Exhaust Fan','Wall-Mounted Light Fixture','Smoke Detector','Duct Smoke Detector','Dual-Action Manual Pull Station','Ceiling-Mounted Strobe','Wall-Mounted Strobe','Horn/Strobe'].includes(itemForInfo.equipmentSubtype||itemForInfo.name)){const nameField=info.querySelector('[data-prop="name"]')?.closest('label');const circuitField=info.querySelector('[data-prop="panelCircuit"]')?.closest('label');if(circuitField)info.prepend(circuitField);if(nameField)info.prepend(nameField);}
- if(itemForInfo?.type==='plansymbol'&&(itemForInfo.equipmentSubtype||itemForInfo.name)==='Linear Light'){
-  const lightDesignation=info.querySelector('[data-linear-designation]')?.closest('label');
-  const lightCircuit=info.querySelector('[data-prop="panelCircuit"]')?.closest('label');
-  if(lightCircuit)info.prepend(lightCircuit);
-  if(lightDesignation)info.prepend(lightDesignation);
+ if(itemForInfo?.type==='plansymbol'){
+  const labelField=p.querySelector('[data-linear-designation]')?.closest('label')||p.querySelector('[data-prop="name"]')?.closest('label');
+  const circuitField=p.querySelector('[data-prop="panelCircuit"]')?.closest('label');
+  if(circuitField)info.prepend(circuitField);
+  if(labelField)info.prepend(labelField);
  }
  // Keep the designation first, then descriptions, immediately after Rotation.
  // Move existing elements rather than recreating fields or their event handlers.
