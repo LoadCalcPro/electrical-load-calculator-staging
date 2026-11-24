@@ -4102,7 +4102,9 @@ document.addEventListener('input',e=>{
  const value=Number(input.value);
  if(!n||!Number.isFinite(value)||value<15||value>400)return;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
- if(isWallLightSizePilot(n))return;
+ if(isWallLightSizePilot(n)){
+  setWallLightSize(n,value);clampEquipmentToSheet(n);renderCanvasOnly();return;
+ }
  n.scaleX=value/100;n.scaleY=value/100;
  clampEquipmentToSheet(n);
  const group=$('svg')?.querySelector('[data-node="'+n.id+'"]');
@@ -4384,10 +4386,6 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl){
   appearance.appendChild(sizeControl);
-  if(isWallLightSizePilot(item)){
-   const field=sizeControl.querySelector('[data-equipment-size]');
-   if(field){field.step='1';field.setAttribute('data-wall-light-size','');}
-  }
   }
  // Keep scaling behavior immediately below equipment size.
  const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
@@ -5969,19 +5967,6 @@ function updateSelectedRoomProperty(target){
 // Linear Light uses the same single-change, model-first path as Room.
 // Read both feet/inches from the current Properties panel and update the selected
 // fixture dimensions; the renderer and mouse resize use these same node fields.
-document.addEventListener('input',e=>{
- const target=e.target;
- if(!target?.matches?.('[data-wall-light-size]'))return;
- const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
- if(!isWallLightSizePilot(node)||target.value==='')return;
- const value=Number(target.value);
- if(!Number.isFinite(value)||value<15||value>400)return;
- if(Math.abs((Number(node.scaleX)||1)*100-value)<.0001)return;
- setWallLightSize(node,value);
- clampEquipmentToSheet(node);
- renderCanvasOnly();
- $('status').textContent='Wall-Mounted Light Fixture size updated.';
-},true);
 function updateSelectedLinearLightProperty(target){
  if(!target?.matches?.('[data-linear-dim]'))return;
  const node=selected?.kind==='node'?nodes.find(n=>n.id===selected.id):null;
