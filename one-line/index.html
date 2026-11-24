@@ -4335,7 +4335,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
     if(selection)selection.setAttribute('transform',transform);
    }else renderCanvasOnly();
   });
-  rotationInput.addEventListener('blur',()=>{if(selected?.kind==='node'&&selected.id===item.id)renderCanvasOnly();});
+  // Rotation is committed on input; avoid a redraw while moving to another control.
   }
   offsetGrid.after(rotation);
  }
@@ -7576,7 +7576,7 @@ if(location.protocol==='file:'){
       // A synthetic change event here can rebuild Properties mid-click,
       // unlike the native degree spinner, and break subsequent 90° steps.
       input.dispatchEvent(new Event('input',{bubbles:true}));
-      if(!input.matches('[data-common-rotation]'))
+      if(hatch||!input.matches('[data-common-rotation], [data-drawing-rotation], [data-rotation]'))
        input.dispatchEvent(new Event('change',{bubbles:true}));
      });
      buttons.appendChild(button);
