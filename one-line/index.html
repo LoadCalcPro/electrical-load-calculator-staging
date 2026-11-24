@@ -3246,6 +3246,12 @@ function makeColorRows(parent,getColor,setColor,getHighlight,setHighlight,option
 // labels use the same coordinate conversion and remain independent of the box.
 // One resizing path for equipment. Preserve existing independent X/Y sizing
 // for rectangular enclosures; other symbols retain proportional resizing.
+function isWallLightSizePilot(n){return n?.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Wall-Mounted Light Fixture';}
+function setWallLightSize(n,percent){
+ const size=Math.max(15,Math.min(400,Math.round(percent)));
+ n.scaleX=n.scaleY=size/100;
+ return size;
+}
 function resizeEquipmentTarget(n,dragState,point){
  if(!n||!dragState?.resize)return false;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light'){
@@ -3373,7 +3379,7 @@ function resizeEquipmentTarget(n,dragState,point){
   n.scaleY=limit(dy/Math.max(1,b.b));
  }else{
   const factor=limit(Math.max(dx/Math.max(1,b.r),dy/Math.max(1,b.b)));
-  n.scaleX=factor;n.scaleY=factor;
+  if(isWallLightSizePilot(n))setWallLightSize(n,factor*100);else{n.scaleX=factor;n.scaleY=factor;}
  }
  const shiftX=fixedLeft+b.l*n.scaleX,shiftY=fixedTop+b.t*n.scaleY;
  n.x+=shiftX*cos-shiftY*sin;
@@ -4096,6 +4102,10 @@ document.addEventListener('input',e=>{
  const value=Number(input.value);
  if(!n||!Number.isFinite(value)||value<15||value>400)return;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
+ if(isWallLightSizePilot(n)){
+  e.stopImmediatePropagation();
+  setWallLightSize(n,value);clampEquipmentToSheet(n);renderCanvasOnly();return;
+ }
  n.scaleX=value/100;n.scaleY=value/100;
  clampEquipmentToSheet(n);
  const group=$('svg')?.querySelector('[data-node="'+n.id+'"]');
