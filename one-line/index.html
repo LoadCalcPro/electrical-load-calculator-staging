@@ -2567,6 +2567,12 @@ function applyEquipmentFill(markup,n){
   const px=planUnitsPerInch(),radius=7.5*px/Math.max(.01,Number(n.scaleX)||1);
   return defs+'<circle r="'+radius+'" fill="'+fill+'" stroke="none" pointer-events="none"/>'+markup;
  }
+ if(n.type==='plansymbol'&&['Ceiling Fan','Bathroom Exhaust Fan'].includes(subtype)){
+  // Fill the outer fan footprint behind the original line artwork.
+  const boundary=subtype==='Ceiling Fan'?'<circle r="14"':'<rect x="-12" y="-12" width="24" height="24"';
+  const background=boundary+' fill="'+fill+'" stroke="none" pointer-events="none"/>';
+  return defs+markup.replace(/^(<g\b[^>]*>)/,(_,group)=>group+background);
+ }
  let changed=false;
  const result=markup.replace(/<(rect|circle|ellipse|polygon)\b[^>]*\bfill="none"[^>]*>/,tag=>{changed=true;return tag.replace('fill="none"','fill="'+fill+'"')});
  return changed?defs+result:markup;
