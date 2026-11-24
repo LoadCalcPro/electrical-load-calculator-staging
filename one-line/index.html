@@ -5068,7 +5068,7 @@ function mountUniversalTextAlignment(){
  const values=['start','middle','end'],names=['Left','Center','Right'];
  const sync=()=>{const setting=item.textAlignment?.[universalTextAlignmentKey()]||{};const h=(legacy?(legacy.matches('[data-note-justify]')?({left:'start',center:'middle',right:'end'}[legacy.value]):legacy.value):(setting.h||'middle'));for(const [i,b] of Array.from(bar.children).entries()){const on=i<3?h===values[i]:(setting.v||'middle')===values[i];b.setAttribute('aria-pressed',String(on));b.style.background=on?'#c9def6':'white';}};
  for(let i=0;i<3;i++){const b=document.createElement('button');b.type='button';b.title=names[i];b.setAttribute('aria-label',names[i]);b.style.cssText='flex:1;min-width:0;height:28px;padding:2px;border:1px solid #a7bdd6;border-radius:4px;color:#244d78;'+(i===3?'margin-left:4px':'');b.innerHTML='<svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="'+icons[i]+'"/></svg>';b.addEventListener('click',()=>{const key=universalTextAlignmentKey();item.textAlignment??={};const setting=item.textAlignment[key]??={};setting[i<3?'h':'v']=values[i];if(legacy&&i<3){legacy.value=legacy.matches('[data-note-justify]')?['left','center','right'][i]:values[i];if(legacy.matches('[data-prop="align"]'))item.align=values[i];else legacy.dispatchEvent(new Event('change',{bubbles:true}));}renderCanvasOnly();sync();});bar.appendChild(b);}
- if(legacy){anchor.style.setProperty('display','none','important');anchor.after(row);}else anchor.after(row);if(selected?.kind==='annotation'){const editor=p.querySelector('.shared-text-editor');const family=p.querySelector('[data-prop="fontFamily"]')?.closest('label');const size=p.querySelector('[data-prop="fontSize"]')?.closest('label');if(editor&&family&&size){const pair=document.createElement('div');pair.className='font-family-size-row';pair.append(family,size);editor.append(pair,row);}}sync();
+ if(legacy){anchor.style.setProperty('display','none','important');anchor.after(row);}else anchor.after(row);if(selected?.kind==='annotation'){const editor=p.querySelector('.shared-text-editor');const family=p.querySelector('[data-prop="fontFamily"]')?.closest('label');const size=p.querySelector('[data-prop="fontSize"]')?.closest('label');if(editor&&item.kind==='numbered-note'){const pair=editor.querySelector('.font-family-size-row');if(pair)pair.after(row);}if(editor&&family&&size){const pair=document.createElement('div');pair.className='font-family-size-row';pair.append(family,size);editor.append(pair,row);}}sync();
 }
 var independentDrawingToolSettings;
 var independentDrawingToolActive;
@@ -5562,11 +5562,11 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
   #properties.numbered-note-properties{display:block}
   #properties.numbered-note-properties .numbered-note-formatting{background:#e8f1ff;border:1px solid #bfd6f4;border-radius:13px;margin:0 0 10px;padding:0;overflow:hidden}
   #properties.numbered-note-properties .numbered-note-formatting>summary{background:#f0f5fd;padding:10px 14px;font-weight:700;color:#183654}
-  #properties.numbered-note-properties .numbered-note-formatting .shared-text-editor{padding:10px 12px}
+  #properties.numbered-note-properties .numbered-note-formatting .shared-text-editor{padding:4px 8px}
   #properties.numbered-note-properties .numbered-note-formatting .shared-selected-label{font-size:12px;font-weight:700;color:#0b6072}
 
   #properties.numbered-note-properties .numbered-note-heading{font-size:12px;font-weight:700;color:#0b6072;padding:6px 4px 10px}
-  #properties.numbered-note-properties .numbered-note-panel{background:#e8f1ff;border:1px solid #bfd6f4;border-radius:13px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+  #properties.numbered-note-properties .numbered-note-panel{background:#e8f1ff;border:1px solid #bfd6f4;border-radius:13px;padding:6px 8px;display:flex;flex-direction:column;gap:4px}
   #properties.numbered-note-properties .numbered-note-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:end}
   #properties.numbered-note-properties label.field{display:flex;flex-direction:column;gap:4px;min-width:0;margin:0;color:#4c6685;font-size:12px;font-weight:600}
   #properties.numbered-note-properties label.field input:not([type=color]),#properties.numbered-note-properties label.field select,#properties.numbered-note-properties label.field textarea{box-sizing:border-box;width:100%;min-width:0;border:1px solid #bfd3ec;border-radius:9px;background:#fff;color:#183654;font-size:14px;padding:7px 9px;min-height:34px}
@@ -5579,7 +5579,7 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  p.innerHTML='<div class="numbered-note-heading">Selected: Numbered Note</div>'+
  '<div class="numbered-note-panel">'+
  '<div class="numbered-note-row"><label class="field">Symbol Shape<select data-note-shape><option value="circle">Circle</option><option value="hexagon">Hexagon</option><option value="none">None</option></select></label><label class="field">Number / Letter<input data-note-symbol type="text" maxlength="8"></label></div>'+
- '<label class="field">Note Text<textarea data-note-text rows="4" style="resize:vertical;min-height:88px" aria-label="Multiline note text; press Enter for a new line"></textarea></label>'+ 
+ '<label class="field">Note Text<textarea data-note-text rows="3" style="resize:vertical;min-height:60px" aria-label="Multiline note text; press Enter for a new line"></textarea></label>'+ 
  '<label class="field">Text justification<select data-note-justify><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>'+ 
  '<label class="field">Equipment fill<select data-note-fill-mode><option value="transparent">Transparent</option><option value="custom">Custom</option><option value="hatched">Hatched</option></select></label><div class="shared-property-fill-settings" data-note-fill-settings><div data-note-fill-colors></div><div data-note-hatch-numbers><label class="field">Hatch Angle (degrees)<input type="number" data-note-hatch-angle min="-360" max="360" step="1"></label><label class="field">Hatch Spacing<input type="number" data-note-hatch-spacing min="1" max="60" step="1"></label><label class="field">Hatch Line Thickness<input type="number" data-note-hatch-thickness min="0.5" max="8" step="0.5"></label></div></div>'+
  '<div class="numbered-note-row"><label class="field">Text Font Family<select data-note-font-family>'+equipmentFontFamilies.map(font=>'<option value="'+esc(font)+'">'+esc(font)+'</option>').join('')+'</select></label><label class="field">Symbol Font Family<select data-note-symbol-font-family>'+equipmentFontFamilies.map(font=>'<option value="'+esc(font)+'">'+esc(font)+'</option>').join('')+'</select></label></div>'+ 
@@ -5594,11 +5594,11 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  formatting.innerHTML='<summary>Formatting</summary><div class="shared-text-editor"><div class="shared-selected-label">Selected: Numbered Note</div></div>';
  const editor=formatting.querySelector('.shared-text-editor');
  const buttons=document.createElement('div');buttons.className='equipment-format-targets shared-property-targets';
- let activeTarget='symbol';
+ let activeTarget='text';
  for(const [value,label] of [['symbol','Note symbol'],['text','Note text']]){
   const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.noteFormatTarget=value;
   button.classList.add('shared-property-target-button');
-  button.addEventListener('click',()=>{activeTarget=value;syncButtons();syncColors();});buttons.appendChild(button);
+  button.addEventListener('click',()=>{activeTarget=value;syncButtons();syncColors();syncNoteFonts();});buttons.appendChild(button);
  }
  editor.appendChild(buttons);
  const syncColors=makeColorRows(editor,()=>item.color||'#111111',v=>{
@@ -5607,6 +5607,7 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
   if(selected?.kind!=='annotation'||selected.id!==item.id||!editor.isConnected||activeTarget!=='text')return;
   item.highlight=v;renderCanvasOnly();
  },{colorLabel:'Color'});
+ const syncNoteFonts=()=>{for(const [target,fields] of [['text',['font-family','font','font-style']],['symbol',['symbol-font-family','symbol-font','symbol-font-style']]])for(const field of fields){const label=p.querySelector('[data-note-'+field+']')?.closest('label');if(label)label.style.display=activeTarget===target?'':'none';}};
  const syncButtons=()=>{for(const button of buttons.querySelectorAll('button')){
   const active=button.dataset.noteFormatTarget===activeTarget;button.setAttribute('aria-pressed',String(active));
   button.style.background=active?'#d9edf5':'#fff';button.style.color=active?'#164a5a':'#526b89';
@@ -5627,8 +5628,14 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  const bindings=[['[data-note-justify]','textJustify',false],['[data-note-shape]','shape',false],['[data-note-symbol]','symbolText',false],['[data-note-text]','text',false],['[data-note-font-family]','fontFamily',false],['[data-note-symbol-font-family]','symbolFontFamily',false],['[data-note-font-style]','fontStyle',false],['[data-note-symbol-font-style]','symbolFontStyle',false],['[data-note-font]','fontSize',true],['[data-note-symbol-font]','symbolFontSize',true],['[data-note-size]','symbolSize',true],['[data-note-gap]','gap',true],['[data-note-x]','textDX',true],['[data-note-y]','textDY',true] ];
  for(const [selector,key,numeric] of bindings){
   const input=p.querySelector(selector);input.value=key==='fontFamily'||key==='symbolFontFamily'?equipmentFontFamily(item[key]):key==='fontStyle'||key==='symbolFontStyle'?equipmentTextStyle(item[key]):String(item[key]??'');
-  input.addEventListener('input',()=>{if(numeric&&input.value==='')return;item[key]=numeric?Number(input.value):input.value;renderCanvasOnly();});
+  const apply=()=>{if(numeric&&input.value==='')return;item[key]=numeric?Number(input.value):input.value;renderCanvasOnly();};input.addEventListener('input',apply);input.addEventListener('change',apply);
  }
+ const fontPair=document.createElement('div');fontPair.className='font-family-size-row';for(const key of ['font-family','symbol-font-family','font','symbol-font'])fontPair.append(p.querySelector('[data-note-'+key+']').closest('label'));editor.append(fontPair);
+ const styleRow=document.createElement('div');styleRow.className='numbered-note-row';for(const key of ['font-style','symbol-font-style'])styleRow.append(p.querySelector('[data-note-'+key+']').closest('label'));editor.append(styleRow);syncNoteFonts();
+ const shape=p.querySelector('[data-note-shape]'),shapeLabel=shape.closest('label'),shapeBar=document.createElement('div');shapeBar.style.cssText='display:flex;gap:5px;padding:5px;background:#e7f0fc;border-radius:7px';shape.style.display='none';shapeLabel.append(shapeBar);
+ for(const [value,path] of [['circle','M12 4 A8 8 0 1 0 12 20 A8 8 0 1 0 12 4'],['hexagon','M8 4 H16 L21 12 L16 20 H8 L3 12 Z'],['none','']]){const b=document.createElement('button');b.type='button';b.title=value;b.setAttribute('aria-label',value);b.style.cssText='flex:1;height:35px;padding:3px;border:1px solid #c4d3e5;border-radius:5px;background:white';b.innerHTML='<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="'+path+'"/><text x="12" y="15" text-anchor="middle" font-size="9" fill="currentColor" stroke="none">1</text></svg>';b.dataset.noteShapeChoice=value;b.onclick=()=>{shape.value=value;shape.dispatchEvent(new Event('input',{bubbles:true}));syncShapes();};shapeBar.append(b);}
+ const syncShapes=()=>{for(const b of shapeBar.children){const on=b.dataset.noteShapeChoice===shape.value;b.setAttribute('aria-pressed',String(on));b.style.background=on?'#d3e7ff':'white';}};syncShapes();
+ const panel=p.querySelector('.numbered-note-panel');panel.prepend(p.querySelector('[data-note-text]').closest('label'));p.querySelector('.numbered-note-heading')?.remove();for(const row of panel.querySelectorAll('.numbered-note-row'))if(!row.children.length)row.remove();
  p.querySelector('[data-note-duplicate]').onclick=()=>{
   const copy={...item,id:next++,x:item.x+25,y:item.y+25};
   if(/^\\d+$/.test(String(copy.symbolText||'')))copy.symbolText=String(Number(copy.symbolText)+1);
