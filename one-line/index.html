@@ -4076,7 +4076,7 @@ document.addEventListener('click',e=>{
  item.innerText??={};item.innerText.panelMain=item.mainType;
  render();
 },true);
-// One size input path, independent of inspector relocation or rebuilding.
+// Keep the native spinner and SVG alive during repeated size changes.
 document.addEventListener('input',e=>{
  const input=e.target;
  if(!input?.matches?.('[data-equipment-size]')||selected?.kind!=='node'||input.value==='')return;
@@ -4086,7 +4086,17 @@ document.addEventListener('input',e=>{
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
  n.scaleX=value/100;n.scaleY=value/100;
  clampEquipmentToSheet(n);
- renderCanvasOnly();
+ const group=$('svg')?.querySelector('[data-node="'+n.id+'"]');
+ const artwork=group?.querySelector('.equipment-symbol');
+ if(!artwork){renderCanvasOnly();return;}
+ const transform='rotate('+(Number(n.drawingRotation)||0)+') scale('+n.scaleX+' '+n.scaleY+')';
+ group.setAttribute('transform','translate('+n.x+' '+n.y+')');
+ artwork.setAttribute('transform',transform);
+ if(group.firstElementChild!==artwork)group.firstElementChild?.setAttribute('transform',transform);
+ group.querySelector('[data-equipment-selection-rotation]')?.setAttribute('transform',transform);
+},true);
+document.addEventListener('blur',e=>{
+ if(e.target?.matches?.('[data-equipment-size]'))renderCanvasOnly();
 },true);
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
