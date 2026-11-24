@@ -7660,4 +7660,27 @@ if(location.protocol==='file:'){
  enhance();
 })();
 </script>
-</body></html>
+<style id="sharedFontPairLayout">
+#properties .font-family-size-row,#textInspector .font-family-size-row{display:grid!important;grid-template-columns:minmax(0,2fr) minmax(0,1fr)!important;gap:8px;align-items:end;grid-column:1/-1;width:100%;box-sizing:border-box}
+.font-family-size-row>label{min-width:0!important;width:100%!important;margin:0!important;box-sizing:border-box}
+.font-family-size-row>label>:is(select,input){width:100%!important;min-width:0!important;box-sizing:border-box}
+</style><script>
+(function(){
+ function pairFonts(){
+ for(const root of [document.getElementById('properties'),document.getElementById('textInspector')]){
+ if(!root)continue;
+ for(const [familySelector,sizeSelector] of [['[data-prop="fontFamily"]','[data-prop="fontSize"]'],['[data-shared-font-family]','[data-shared-size]'],['[data-pt-font-family]','[data-pt-size]']]){
+ for(const family of root.querySelectorAll(familySelector)){
+ const a=family.closest('label');if(!a||a.closest('.font-family-size-row'))continue;
+ const b=a.parentElement.querySelector(sizeSelector)?.closest('label');
+ if(!b||b.parentElement!==a.parentElement||b.closest('.font-family-size-row'))continue;
+ const row=document.createElement('div');row.className='font-family-size-row';a.before(row);row.append(a,b);
+ }
+ }
+ }
+ }
+ let queued=false;const observer=new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;pairFonts();});});
+ for(const id of ['properties','textInspector']){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true});}
+ pairFonts();
+})();
+</script></body></html>
