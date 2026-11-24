@@ -4102,10 +4102,8 @@ document.addEventListener('input',e=>{
  const value=Number(input.value);
  if(!n||!Number.isFinite(value)||value<15||value>400)return;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
- if(isWallLightSizePilot(n)){
-  setWallLightSize(n,value);clampEquipmentToSheet(n);renderCanvasOnly();return;
- }
- n.scaleX=value/100;n.scaleY=value/100;
+ if(isWallLightSizePilot(n))setWallLightSize(n,value);
+ else{n.scaleX=value/100;n.scaleY=value/100;}
  clampEquipmentToSheet(n);
  const group=$('svg')?.querySelector('[data-node="'+n.id+'"]');
  const artwork=group?.querySelector('.equipment-symbol');
@@ -4386,6 +4384,10 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const sizeControl=size||common.querySelector('[data-equipment-size]')?.closest('label');
  if(sizeControl){
   appearance.appendChild(sizeControl);
+  if(isWallLightSizePilot(item)){
+   const field=sizeControl.querySelector('[data-equipment-size]');
+   if(field){field.step='1';field.classList.add('persistent-native-rotation-spinner');field.style.setProperty('appearance','auto','important');field.style.setProperty('-webkit-appearance','auto','important');}
+  }
   }
  // Keep scaling behavior immediately below equipment size.
  const appearanceModeControl=common.querySelector('[data-equipment-appearance]')?.closest('label');
