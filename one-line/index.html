@@ -4102,8 +4102,8 @@ document.addEventListener('input',e=>{
  const value=Number(input.value);
  if(!n||!Number.isFinite(value)||value<15||value>400)return;
  if(n.type==='plansymbol'&&(n.equipmentSubtype||n.name)==='Linear Light')return;
- if(isWallLightSizePilot(n))setWallLightSize(n,value);
- else{n.scaleX=value/100;n.scaleY=value/100;}
+ if(isWallLightSizePilot(n))return; // Pilot uses its own directly bound input and explicit step buttons.
+ n.scaleX=value/100;n.scaleY=value/100;
  clampEquipmentToSheet(n);
  const group=$('svg')?.querySelector('[data-node="'+n.id+'"]');
  const artwork=group?.querySelector('.equipment-symbol');
@@ -4386,7 +4386,36 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   appearance.appendChild(sizeControl);
   if(isWallLightSizePilot(item)){
    const field=sizeControl.querySelector('[data-equipment-size]');
-   if(field){field.step='1';field.classList.add('persistent-native-rotation-spinner');field.style.setProperty('appearance','auto','important');field.style.setProperty('-webkit-appearance','auto','important');}
+   if(field){
+    field.step='1';
+    field.style.setProperty('appearance','textfield','important');
+    field.style.setProperty('-webkit-appearance','none','important');
+    field.style.minWidth='0';
+    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:4px;width:100%';
+    field.before(row);row.appendChild(field);
+    const arrows=document.createElement('div');arrows.style.cssText='display:grid;grid-template-rows:1fr 1fr;gap:2px;flex:0 0 24px';
+    row.appendChild(arrows);
+    const commit=(value)=>{
+     const node=selected?.kind==='node'?nodes.find(v=>String(v.id)===String(selected.id)):null;
+     if(!isWallLightSizePilot(node)||!Number.isFinite(value)||value<15||value>400)return;
+     setWallLightSize(node,value);clampEquipmentToSheet(node);
+     renderCanvasOnly();
+    };
+    field.addEventListener('input',()=>{if(field.value!=='')commit(Number(field.value));});
+    for(const [direction,symbol] of [[1,'▴'],[-1,'▾']]){
+     const button=document.createElement('button');button.type='button';button.textContent=symbol;
+     button.setAttribute('aria-label',direction===1?'Increase object size':'Decrease object size');
+     button.style.cssText='padding:0;min-height:17px;line-height:17px;border:1px solid #c9daf2;border-radius:4px;background:white;color:#182b45;cursor:pointer';
+     button.addEventListener('pointerdown',event=>event.preventDefault());
+     button.addEventListener('click',()=>{
+      const node=selected?.kind==='node'?nodes.find(v=>String(v.id)===String(selected.id)):null;
+      if(!isWallLightSizePilot(node))return;
+      const value=Math.max(15,Math.min(400,Math.round((Number(node.scaleX)||1)*100)+direction));
+      field.value=String(value);commit(value);
+     });
+     arrows.appendChild(button);
+    }
+   }
   }
   }
  // Keep scaling behavior immediately below equipment size.
