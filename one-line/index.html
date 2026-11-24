@@ -5560,6 +5560,15 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
   const style=document.createElement('style');style.id='numberedNotePropertiesStyle';
   style.textContent=`
   #properties.numbered-note-properties{display:block}
+  #properties.numbered-note-properties .numbered-note-formatting .shared-text-editor{padding:4px 6px!important;gap:4px!important}
+  #properties.numbered-note-properties .shared-property-target-button{min-height:28px!important;height:28px!important;padding:3px 6px!important;font-size:12px!important}
+  #properties.numbered-note-properties .shared-property-targets{margin:4px 0!important;gap:5px!important}
+  #properties.numbered-note-properties .font-family-size-row{display:grid!important;grid-template-columns:minmax(0,2fr) minmax(0,1fr)!important;gap:5px!important}
+  #properties.numbered-note-properties .numbered-note-formatting .numbered-note-row{grid-template-columns:1fr}
+  #properties.numbered-note-properties .numbered-note-panel{padding:4px 6px!important;gap:4px!important}
+  #properties.numbered-note-properties .numbered-note-formatting>summary{padding:5px 8px!important}
+  #properties.numbered-note-properties label.field input:not([type=color]),#properties.numbered-note-properties label.field select{min-height:28px!important;padding:3px 6px!important}
+
   #properties.numbered-note-properties .numbered-note-formatting{background:#e8f1ff;border:1px solid #bfd6f4;border-radius:13px;margin:0 0 10px;padding:0;overflow:hidden}
   #properties.numbered-note-properties .numbered-note-formatting>summary{background:#f0f5fd;padding:10px 14px;font-weight:700;color:#183654}
   #properties.numbered-note-properties .numbered-note-formatting .shared-text-editor{padding:4px 8px}
@@ -5607,7 +5616,7 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
   if(selected?.kind!=='annotation'||selected.id!==item.id||!editor.isConnected||activeTarget!=='text')return;
   item.highlight=v;renderCanvasOnly();
  },{colorLabel:'Color'});
- const syncNoteFonts=()=>{for(const [target,fields] of [['text',['font-family','font','font-style']],['symbol',['symbol-font-family','symbol-font','symbol-font-style']]])for(const field of fields){const label=p.querySelector('[data-note-'+field+']')?.closest('label');if(label)label.style.display=activeTarget===target?'':'none';}};
+ const syncNoteFonts=()=>{for(const [target,fields] of [['text',['font-family','font','font-style']],['symbol',['symbol-font-family','symbol-font','symbol-font-style']]])for(const field of fields){const label=p.querySelector('[data-note-'+field+']')?.closest('label');if(label){if(activeTarget===target)label.style.removeProperty('display');else label.style.setProperty('display','none','important');}}};
  const syncButtons=()=>{for(const button of buttons.querySelectorAll('button')){
   const active=button.dataset.noteFormatTarget===activeTarget;button.setAttribute('aria-pressed',String(active));
   button.style.background=active?'#d9edf5':'#fff';button.style.color=active?'#164a5a':'#526b89';
@@ -5635,7 +5644,7 @@ return;} if(selected.kind==='line'){addDrawingLinePalette(item,'line');p.innerHT
  const shape=p.querySelector('[data-note-shape]'),shapeLabel=shape.closest('label'),shapeBar=document.createElement('div');shapeBar.style.cssText='display:flex;gap:5px;padding:5px;background:#e7f0fc;border-radius:7px';shape.style.display='none';shapeLabel.append(shapeBar);
  for(const [value,path] of [['circle','M12 4 A8 8 0 1 0 12 20 A8 8 0 1 0 12 4'],['hexagon','M8 4 H16 L21 12 L16 20 H8 L3 12 Z'],['none','']]){const b=document.createElement('button');b.type='button';b.title=value;b.setAttribute('aria-label',value);b.style.cssText='flex:1;height:35px;padding:3px;border:1px solid #c4d3e5;border-radius:5px;background:white';b.innerHTML='<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="'+path+'"/><text x="12" y="15" text-anchor="middle" font-size="9" fill="currentColor" stroke="none">1</text></svg>';b.dataset.noteShapeChoice=value;b.onclick=()=>{shape.value=value;shape.dispatchEvent(new Event('input',{bubbles:true}));syncShapes();};shapeBar.append(b);}
  const syncShapes=()=>{for(const b of shapeBar.children){const on=b.dataset.noteShapeChoice===shape.value;b.setAttribute('aria-pressed',String(on));b.style.background=on?'#d3e7ff':'white';}};syncShapes();
- const panel=p.querySelector('.numbered-note-panel');panel.prepend(p.querySelector('[data-note-text]').closest('label'));p.querySelector('.numbered-note-heading')?.remove();for(const row of panel.querySelectorAll('.numbered-note-row'))if(!row.children.length)row.remove();
+ const panel=p.querySelector('.numbered-note-panel');const shapeRow=shapeLabel.parentElement;shapeRow.before(shapeLabel);shapeRow.style.gridTemplateColumns='1fr';panel.prepend(p.querySelector('[data-note-text]').closest('label'));p.querySelector('.numbered-note-heading')?.remove();for(const row of panel.querySelectorAll('.numbered-note-row'))if(!row.children.length)row.remove();
  p.querySelector('[data-note-duplicate]').onclick=()=>{
   const copy={...item,id:next++,x:item.x+25,y:item.y+25};
   if(/^\\d+$/.test(String(copy.symbolText||'')))copy.symbolText=String(Number(copy.symbolText)+1);
