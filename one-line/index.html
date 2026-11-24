@@ -4095,9 +4095,8 @@ document.addEventListener('input',e=>{
  if(group.firstElementChild!==artwork)group.firstElementChild?.setAttribute('transform',transform);
  group.querySelector('[data-equipment-selection-rotation]')?.setAttribute('transform',transform);
 },true);
-document.addEventListener('blur',e=>{
- if(e.target?.matches?.('[data-equipment-size]'))renderCanvasOnly();
-},true);
+// Do not redraw on size blur: focus may be moving to the rotation spinner.
+// The model and live SVG already contain the committed size.
 function organizeEquipmentProperties(){
  const p=$('properties');if(selected?.kind!=='node'||!p)return;
  const common=p.querySelector('details.properties-common');if(!common)return;
