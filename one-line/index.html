@@ -1839,8 +1839,9 @@ function visibleDrawingBounds(){
  return {left:Math.max(18,Math.min(a.x,b.x)),right:Math.min(982,Math.max(a.x,b.x)),
   top:Math.max(16,Math.min(a.y,b.y)),bottom:Math.min(sheetDrawingBottom(),Math.max(a.y,b.y))};
 }
-function placeNewEquipmentWithoutOverlap(n){
- const gap=12,b=bounds(n),section=guideSectionBounds(),visible=visibleDrawingBounds();
+function notePlacementBounds(a){const size=Number(a.fontSize)||12,lines=String(a.text||'').split('\n'),w=Math.max(40,...lines.map(t=>t.length*size*.65)),h=lines.length*size*1.4;const numbered=a.kind==='numbered-note',radius=numbered?(Number(a.symbolSize)||30)/2:8;return {l:Math.max(radius+8,a.leader?a.x-Number(a.endX??a.x):0),r:Math.max(w+(numbered?radius+(Number(a.gap)||12):8),a.leader?Number(a.endX??a.x)-a.x:0)+8,t:Math.max(radius,h,a.leader?a.y-Number(a.endY??a.y):0)+8,b:Math.max(radius,h,a.leader?Number(a.endY??a.y)-a.y:0)+8};}
+function placeNewEquipmentWithoutOverlap(n,isNote=false){
+ const gap=12,b=isNote?notePlacementBounds(n):bounds(n),section=guideSectionBounds(),visible=visibleDrawingBounds();
  const full={left:18,right:982,top:16,bottom:sheetDrawingBottom()};
  const target=section||full;
  const area=visible?{left:Math.max(target.left,visible.left),right:Math.min(target.right,visible.right),
@@ -1851,6 +1852,7 @@ function placeNewEquipmentWithoutOverlap(n){
  const occupied=nodes.filter(other=>other.type!=='planroom'&&!other.layerHidden).map(other=>{
   const q=bounds(other);return {left:other.x-q.l-gap,right:other.x+q.r+gap,top:other.y-q.t-gap,bottom:other.y+q.b+gap};
  });
+ occupied.push(...annotations.filter(a=>!a.layerHidden).map(a=>{const q=notePlacementBounds(a);return {left:a.x-q.l-gap,right:a.x+q.r+gap,top:a.y-q.t-gap,bottom:a.y+q.b+gap};}));
  const clear=(x,y)=>occupied.every(q=>x+b.r<=q.left||x-b.l>=q.right||y+b.b<=q.top||y-b.t>=q.bottom);
  const originX=Math.max(minX,Math.min(maxX,n.x)),originY=Math.max(minY,Math.min(maxY,n.y));
  if(clear(originX,originY)){n.x=originX;n.y=originY;return;}
@@ -5245,14 +5247,15 @@ for(const [i,l] of (a.leader?noteLeaders(a):[]).entries()){
 }
 const hit=g.querySelector('rect[fill="transparent"]');if(hit){hit.setAttribute('x',x);hit.setAttribute('y',y);hit.setAttribute('width',w);hit.setAttribute('height',h);}}catch(e){}}}
 function addGroupOutline(){const group=[...selectedNodeIds].map(id=>nodes.find(n=>n.id===id)).filter(Boolean);if(group.length<2){$('status').textContent='Shift-click at least two equipment items first.';return;}const margin=18,left=Math.min(...group.map(n=>n.x-bounds(n).l))-margin,right=Math.max(...group.map(n=>n.x+bounds(n).r))+margin,top=Math.min(...group.map(n=>n.y-bounds(n).t))-margin,bottom=Math.max(...group.map(n=>n.y+bounds(n).b))+margin;const a={id:next++,kind:'group-outline',x:left,y:top,w:right-left,h:bottom-top,dashed:false,lineWidth:1.5,text:''};annotations.push(a);selectedNodeIds.clear();selected={kind:'annotation',id:a.id};mode='select';render();$('status').textContent='Group outline added. Select the outline to change its dimensions, label, or dashed line.';}
+function placeNewNote(a){const oldX=a.x,oldY=a.y,center=visibleEquipmentPlacement('note',0);if(center){a.x=center.x;a.y=center.y;}if(a.endX!=null)a.endX+=a.x-oldX;if(a.endY!=null)a.endY+=a.y-oldY;const x=a.x,y=a.y;placeNewEquipmentWithoutOverlap(a,true);if(a.endX!=null)a.endX+=a.x-x;if(a.endY!=null)a.endY+=a.y-y;}
 function addNumberedNote(){
  const used=annotations.filter(a=>a.kind==='numbered-note'&&/^\\d+$/.test(String(a.symbolText||''))).map(a=>Number(a.symbolText));
  let number=1;while(used.includes(number))number++;
  const a={id:next++,kind:'numbered-note',x:390,y:240,shape:'circle',symbolText:String(number),text:'Enter note text',fontSize:12,symbolSize:30,symbolFontSize:12,gap:12,color:'#111111',symbolFillMode:'transparent',symbolFillColor:'#ffffff',hatchAngle:45,hatchSpacing:12,hatchThickness:1.5,textDX:0,textDY:0};
- annotations.push(a);selected={kind:'annotation',id:a.id};mode='select';render();
+ placeNewNote(a);annotations.push(a);selected={kind:'annotation',id:a.id};mode='select';render();
  $('status').textContent='Numbered note added. Edit the symbol and description in Properties; drag to position.';
 }
-function addAnnotation(){const a={id:next++,text:'NEW NOTE',x:390,y:240,fontSize:12,align:'start',leader:true,arrow:'arrow',lineWidth:1,endX:515,endY:295,targetId:null,offsetX:0,offsetY:0};annotations.push(a);selected={kind:'annotation',id:a.id};mode='select';render();$('status').textContent='Drag the note or its teal leader endpoint to create any angle.'}
+function addAnnotation(){const a={id:next++,text:'NEW NOTE',x:390,y:240,fontSize:12,align:'start',leader:true,arrow:'arrow',lineWidth:1,endX:515,endY:295,targetId:null,offsetX:0,offsetY:0};placeNewNote(a);annotations.push(a);selected={kind:'annotation',id:a.id};mode='select';render();$('status').textContent='Drag the note or its teal leader endpoint to create any angle.'}
 function syncDrawingConductorColorSelect(selector,color){const select=document.querySelector(selector);if(!select)return;const value=String(color);const option=[...select.options].find(o=>o.value.toLowerCase()===value.toLowerCase());if(option){select.value=option.value;return;}let custom=[...select.options].find(o=>o.dataset.customColor==='true');if(!custom){custom=document.createElement('option');custom.dataset.customColor='true';select.appendChild(custom);}custom.value=value;custom.textContent='Custom ('+value.toUpperCase()+')';select.value=value;}
 let requestedLineLabelTargetId=null;
 let requestedPolylineLabelTargetId=null;
