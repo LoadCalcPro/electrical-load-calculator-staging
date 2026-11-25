@@ -5117,6 +5117,23 @@ function enterIndependentDrawingTool(tool){
  const v=independentDrawingToolSettings?.[next]||{count:'1',spacing:'8',colors:Array(5).fill('#111111'),color:'#111111',weight:1,pattern:'solid',arrow:'none'};
  $('conductorCount').value=v.count;$('conductorSpacing').value=v.spacing;conductorChoices=v.colors.slice();newDrawingLineColor=v.color;newDrawingLineWeight=v.weight;newDrawingLinePattern=v.pattern;newDrawingLineArrow=v.arrow;newLineConductorArrows=v.arrows?.slice()||Array(5).fill(v.arrow||'none');renderConductorChoices();
 }
+function normalizeDrawingSelectionHandles(){
+ const svg=$('svg');if(!svg)return;
+ const selector='[data-resize],[data-combo-resize],[data-branch-resize],[data-cloud-point],[data-shape-resize],[data-circuit-curve],[data-conduit-segment],[data-poly-vertex],[data-conduit-end],[data-port-handle],[data-wire-side-handle],[data-route-handle],[data-home-run-curve],[data-line-end],[data-leader-bend],[data-leader-handle],[data-leader-start],[data-leader-endpoint],[data-poly-point],[data-wall-group-resize],[data-line-handle],[data-image-resize],[data-project-handle],[data-shape-connect-side]';
+ for(const hit of svg.querySelectorAll(selector)){
+  if(hit.dataset.uniformHandle||!['rect','circle'].includes(hit.localName))continue;
+  const transparent=hit.getAttribute('fill')==='transparent'&&(!hit.getAttribute('stroke')||hit.getAttribute('stroke')==='none');
+  const visual=transparent&&hit.nextElementSibling?.localName===hit.localName&&hit.nextElementSibling.getAttribute('pointer-events')==='none'?hit.nextElementSibling:hit;
+  if(transparent&&visual===hit)continue;
+  if(visual.dataset.uniformHandle)continue;
+  const matrix=visual.getScreenCTM();if(!matrix)continue;
+  const sx=Math.hypot(matrix.a,matrix.b)||1,sy=Math.hypot(matrix.c,matrix.d)||1;
+  const b=visual.getBBox(),cx=b.x+b.width/2,cy=b.y+b.height/2;
+  if(!transparent){const target=hit.cloneNode(false);target.removeAttribute('id');target.setAttribute('fill','transparent');target.setAttribute('stroke','none');target.setAttribute('pointer-events','all');target.dataset.uniformHandle='hit';if(target.localName==='rect'){target.setAttribute('x',cx-7/sx);target.setAttribute('y',cy-7/sy);target.setAttribute('width',14/sx);target.setAttribute('height',14/sy);}else target.setAttribute('r',7/Math.min(sx,sy));hit.before(target);visual.setAttribute('pointer-events','none');}
+  if(visual.localName==='rect'){visual.setAttribute('x',cx-2.5/sx);visual.setAttribute('y',cy-2.5/sy);visual.setAttribute('width',5/sx);visual.setAttribute('height',5/sy);}else visual.setAttribute('r',2.5/Math.max(sx,sy));
+  visual.setAttribute('stroke','#168c9a');visual.setAttribute('stroke-width','1');visual.setAttribute('vector-effect','non-scaling-stroke');visual.dataset.uniformHandle='visible';
+ }
+}
 function render(skipProperties=false){if(independentDrawingToolActive&&mode!==independentDrawingToolActive){enterIndependentDrawingTool(null);}for(const n of nodes){if(n.type==='plansymbol'&&Number(n.symbolAngle)){const k=n.equipmentSubtype||n.name;if(['Single-Pole Switch','Three-Way Switch','Four-Way Switch','Duplex Receptacle','GFCI Receptacle','Weatherproof Receptacle'].includes(k))n.drawingRotation=((Number(n.drawingRotation)||0)+Number(n.symbolAngle))%360;n.symbolAngle=0;}}syncPlanConduits();const scaleSelect=$('planScaleSelect');if(scaleSelect){scaleSelect.disabled=drawingView!=='plan';for(const option of scaleSelect.options)option.hidden=drawingView!=='plan'&&option.value!=='nts';if($('drawingScale'))$('drawingScale').value=scaleSelect.selectedOptions[0].textContent;}removeInvalidPlanWallJoints();syncAssociativePlanDimensions();sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planwall','plansymbol','plandoor','planwindow','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g='';// Zoom the complete SVG sheet uniformly through its layout dimensions, including grid and title block.
 $('sheetLayer').removeAttribute('transform');$('titleblock').removeAttribute('transform');$('personalImages').setAttribute('transform',g);$('personalImages').innerHTML=personalImages.map(im=>`<g data-personal-image="${im.kind}" transform="rotate(${Number(im.rotation)||0} ${im.x+im.w/2} ${im.y+im.h/2})" opacity="${Math.max(.15,Math.min(1,Number(im.opacity??1)))}" style="pointer-events:${im.locked?'none':'auto'}"><image href="${im.src}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="xMidYMid meet" style="pointer-events:${im.locked?'none':'all'}"/><rect x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" fill="transparent" stroke="${selected?.kind==='personalImage'&&selected.id===im.kind?'#168c9a':'none'}" stroke-width="${2.5/zoom}" stroke-dasharray="${5/zoom} ${3/zoom}" style="cursor:${im.locked?'default':'move'};pointer-events:${im.locked?'none':'all'}"/>${!im.locked&&selected?.kind==='personalImage'&&selected.id===im.kind?`<rect data-image-resize="corner" x="${im.x+im.w-4/zoom}" y="${im.y+im.h-4/zoom}" width="${8/zoom}" height="${8/zoom}" fill="white" stroke="#168c9a" stroke-width="${2/zoom}" style="cursor:nwse-resize;pointer-events:all"/>`:``}</g>`).join('');$('wires').setAttribute('transform',g);$('drawnLines').setAttribute('transform',g);$('nodes').setAttribute('transform',g);$('wires').innerHTML=wires.map(w=>{const a=nodes.find(n=>n.id===w.from),b=nodes.find(n=>n.id===w.to);if(!a||!b)return '';const route=feederPath(a,b,w);
 const segments=[...route.d.matchAll(/([MLHV])\s*(-?[\d.]+)(?:[ ,]+(-?[\d.]+))?/g)];
@@ -5179,6 +5196,7 @@ return `<g data-wire="${w.id}" style="cursor:pointer">${Array.from({length:Math.
   node.parentNode.insertBefore(rect,node);
  }
 renderPositionSpacing();
+ normalizeDrawingSelectionHandles();
 if(skipProperties){
  const inspector=$('textInspector');
  const existing=inspector?.querySelector('[data-spacing-side]');
