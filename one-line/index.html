@@ -3100,16 +3100,16 @@ function offsetConnectRoute(d,offset){
 function roundedConnectPath(d){
  const points=[];let x=0,y=0;
  for(const m of d.matchAll(/([MLHV])\s*(-?[\d.]+)(?:[ ,]+(-?[\d.]+))?/g)){const c=m[1];if(c==='M'||c==='L'){x=Number(m[2]);y=Number(m[3]);}else if(c==='H')x=Number(m[2]);else y=Number(m[2]);if(!points.length||Math.hypot(x-points[points.length-1].x,y-points[points.length-1].y)>.01)points.push({x,y});}
- return conduitElbowPath(points,12);
+ return conduitElbowPath(points,12,0.000001);
 }
-function conduitElbowPath(points,radius=12){
+function conduitElbowPath(points,radius=12,minSegment=4){
  if(!points?.length)return '';
  // Normalize redundant click points before calculating elbow tangents.
  // Tiny segments otherwise shrink the bend radius to almost zero, making
  // some 90-degree corners appear square while others are rounded.
  const pts=[];
  for(const point of points){
-  if(!pts.length||Math.hypot(point.x-pts[pts.length-1].x,point.y-pts[pts.length-1].y)>4)pts.push(point);
+  if(!pts.length||Math.hypot(point.x-pts[pts.length-1].x,point.y-pts[pts.length-1].y)>minSegment)pts.push(point);
  }
  if(pts.length===1)return 'M'+pts[0].x+' '+pts[0].y;
  const clean=[pts[0]];
