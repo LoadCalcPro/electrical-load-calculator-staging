@@ -4948,7 +4948,7 @@ function renderAboveConduitProperties(){
  const run=aboveConduitLength(route.points)/units;
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');section.className='field conduit-measured-properties';
- section.innerHTML='<div class="conduit-measure-heading"><b>Above-Ground Conduit </b></div><label class="conduit-length-toggle"><span>Show Conduit Length</span><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"></label>'+
+ section.innerHTML='<div class="conduit-measure-heading"><b>Above-Ground Conduit </b></div><label class="field poly-rounded-option"><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></label>'+
  '<label class="field">Conduit ID<input data-above-conduit="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-above-conduit="diameter"')+'</label>'+
  '<label class="field">Conduit material / type<select data-above-conduit="material"><option value="EMT">EMT</option><option value="IMC">IMC</option><option value="RMC">RMC</option><option value="PVC">PVC</option><option value="FMC">FMC</option><option value="LFMC">LFMC</option><option value="LFNC">LFNC</option><option value="ENT">ENT</option><option value="RTRC">RTRC</option><option value="custom">Custom / Other</option></select><input data-above-conduit-custom placeholder="Enter conduit type" style="display:none;margin-top:5px"></label>'+
@@ -4980,7 +4980,7 @@ function renderPlanConduitProperties(){
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');
  section.className='field conduit-measured-properties';
- section.innerHTML='<div class="conduit-measure-heading"><b>Underground Conduit </b></div><label class="conduit-length-toggle"><span>Show Conduit Length</span><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"></label>'+
+ section.innerHTML='<div class="conduit-measure-heading"><b>Underground Conduit </b></div><label class="field poly-rounded-option"><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></label>'+
  '<label class="field">Conduit ID<input data-conduit-field="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-conduit-field="diameter"')+'</label>'+
  '<label class="field">Conduit material / type<input data-conduit-field="material" placeholder="PVC, EMT, RMC, etc."></label>'+
