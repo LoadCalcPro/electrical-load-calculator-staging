@@ -2220,7 +2220,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
   heading.style.cssText='font-weight:600;margin:4px 0';
   output.appendChild(heading);
   const textBox=document.createElement('textarea');
-  textBox.value=recognized;textBox.readOnly=true;textBox.rows=6;
+  textBox.value=recognized;textBox.rows=6;textBox.setAttribute('aria-label','Recognized text — edit or select text to place on drawing');
   textBox.style.cssText='box-sizing:border-box;width:100%;font:12px/1.4 monospace;resize:vertical';
   output.appendChild(textBox);
   const actions=document.createElement('div');
@@ -2231,13 +2231,13 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
    catch(error){textBox.focus();textBox.select();$('status').textContent='Select and copy the recognized text using Ctrl+C.';}
   });
   actions.appendChild(copy);
-  const place=document.createElement('button');place.type='button';place.textContent='Place text on drawing';
+  const place=document.createElement('button');place.type='button';place.textContent='Place selected / all text on drawing';
   place.addEventListener('click',()=>{
-   const value=textBox.value.trim();if(!value)return;
+   const value=(textBox.selectionEnd>textBox.selectionStart?textBox.value.slice(textBox.selectionStart,textBox.selectionEnd):textBox.value).trim();if(!value)return;
    const placement=clipboardPlacement(250,70);
    const note={id:next++,text:value.slice(0,12000),x:placement.x,y:placement.y,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:515,endY:295,targetId:null,offsetX:0,offsetY:0};
    annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
-   $('status').textContent='Recognized text added as an editable drawing note. Review OCR accuracy.';
+   $('status').textContent='Recognized text added as an editable drawing note. Use Properties to format its text color, highlight, font and rotation. Review OCR accuracy.';
   });
   actions.appendChild(place);output.appendChild(actions);
   const tokens=recognized.match(/\\b\\d{1,3}\\s*['’′]\\s*(?:[- ]\\s*\\d{1,2}(?:\\.\\d+)?)?\\s*(?:["”″])?/g)||[];
