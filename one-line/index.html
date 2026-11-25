@@ -2574,6 +2574,10 @@ function applyEquipmentFill(markup,n){
  const spacing=Math.max(1,Math.min(60,Number(n.hatchSpacing)||12)),thickness=Math.max(.5,Math.min(8,Number(n.hatchThickness)||1.5)),angle=Number.isFinite(Number(n.hatchAngle))?Number(n.hatchAngle):45;
  const defs=mode==='hatched'?'<defs><pattern id="'+id+'" width="'+spacing+'" height="'+spacing+'" patternUnits="userSpaceOnUse" patternTransform="rotate('+angle+')"><path d="M0 0 V'+spacing+'" stroke="'+color+'" stroke-width="'+thickness+'" fill="none"/></pattern></defs>':'';
  const subtype=n.equipmentSubtype||n.name||'';
+ if(n.type==='plansymbol'&&subtype.startsWith('Basic ')){
+  if(!['Rectangle','Square','Circle','Oval','Triangle','Diamond','Hexagon','Semicircle','Pentagon'].includes(subtype.slice(6)))return markup;
+  return defs+markup.replace(/^(<g\b[^>]*\bfill=")none(")/,(_,before,after)=>before+fill+after);
+ }
  if(n.type==='plansymbol'&&['Single-Pole Switch','Three-Way Switch','Four-Way Switch'].includes(subtype)){
   const px=planUnitsPerInch(),radius=7.5*px/Math.max(.01,Number(n.scaleX)||1);
   return defs+'<circle r="'+radius+'" fill="'+fill+'" stroke="none" pointer-events="none"/>'+markup;
