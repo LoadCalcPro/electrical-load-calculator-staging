@@ -2917,7 +2917,7 @@ function feederPath(a,b,w={}){
    if(verticalStart&&!verticalEnd)middle=`V${T.y}H${T.x}`;
    else if(!verticalStart&&verticalEnd)middle=`H${T.x}V${T.y}`;
    else if(verticalStart)middle=`V${(S.y+T.y)/2}H${T.x}V${T.y}`;
-   else {const level=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2;return {d:`M${P.x} ${P.y}H${level}V${Q.y}H${Q.x}`,lx:level+8,ly:(P.y+Q.y)/2-8,handle:{x:level,y:(P.y+Q.y)/2,axis:'x'}};}
+   else {const requested=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2;const facing=(P.x<=Q.x&&w.fromSide==='right'&&w.toSide==='left')||(P.x>=Q.x&&w.fromSide==='left'&&w.toSide==='right');const level=facing?Math.max(Math.min(P.x,Q.x),Math.min(Math.max(P.x,Q.x),requested)):requested;return {d:`M${P.x} ${P.y}H${level}V${Q.y}H${Q.x}`,lx:level+8,ly:(P.y+Q.y)/2-8,handle:{x:level,y:(P.y+Q.y)/2,axis:'x'}};}
    return {d:`M${P.x} ${P.y}L${S.x} ${S.y}${middle}L${Q.x} ${Q.y}`,lx:(S.x+T.x)/2+8,ly:(S.y+T.y)/2-8,handle:null};
  }
  // Above/below routes take precedence over generic attachment-side routing.
@@ -2947,7 +2947,7 @@ function feederPath(a,b,w={}){
    const endVertical=w.toSide==='top'||w.toSide==='bottom';
    let middle;
    if(startVertical&&endVertical)middle=`V${(S.y+T.y)/2}H${T.x}V${T.y}`;
-   else if(!startVertical&&!endVertical){const level=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2;return {d:`M${P.x} ${P.y}H${level}V${Q.y}H${Q.x}`,lx:level+8,ly:(P.y+Q.y)/2-8,handle:{x:level,y:(P.y+Q.y)/2,axis:'x'}};}
+   else if(!startVertical&&!endVertical){const requested=w.routeOffset!=null&&w.routeOffset!==''?Number(w.routeOffset):(S.x+T.x)/2;const facing=(P.x<=Q.x&&w.fromSide==='right'&&w.toSide==='left')||(P.x>=Q.x&&w.fromSide==='left'&&w.toSide==='right');const level=facing?Math.max(Math.min(P.x,Q.x),Math.min(Math.max(P.x,Q.x),requested)):requested;return {d:`M${P.x} ${P.y}H${level}V${Q.y}H${Q.x}`,lx:level+8,ly:(P.y+Q.y)/2-8,handle:{x:level,y:(P.y+Q.y)/2,axis:'x'}};}
    else if(startVertical)middle=`V${T.y}H${T.x}`;
    else middle=`H${T.x}V${T.y}`;
    const d=`M${P.x} ${P.y}L${S.x} ${S.y}${middle}L${Q.x} ${Q.y}`;
