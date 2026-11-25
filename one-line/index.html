@@ -6853,6 +6853,7 @@ function copyDrawingObject(){
  for(const n of nodes)if(nodeIds.has(n.id)&&!n.locked)objects.push({kind:'node',data:structuredClone(n)});
  for(const l of drawnLines)if(lineIds.has(l.id)&&!l.locked)objects.push({kind:'line',data:structuredClone(l)});
  if(copyAll){
+  for(const route of polyRoutes)if(!route.locked)objects.push({kind:'polyroute',data:structuredClone(route)});
   for(const a of annotations)if(!a.locked)objects.push({kind:'annotation',data:structuredClone(a)});
   for(const im of personalImages)if(!im.locked)objects.push({kind:'personalImage',data:structuredClone(im)});
  }
@@ -6861,10 +6862,10 @@ function copyDrawingObject(){
   const copiedIds=new Set(objects.filter(o=>o.kind==='node').map(o=>o.data.id));
   for(const w of wires)if(copiedIds.has(w.from)&&copiedIds.has(w.to))objects.push({kind:'wire',data:structuredClone(w)});
  }else if(!objects.length&&selected){
-  const collections={node:nodes,annotation:annotations,personalImage:personalImages,wire:wires,line:drawnLines};
+  const collections={node:nodes,annotation:annotations,personalImage:personalImages,wire:wires,line:drawnLines,polyroute:polyRoutes,'measured-area':polyRoutes};
   const collection=collections[selected.kind];
   const item=collection?.find(v=>(selected.kind==='personalImage'?v.kind:v.id)===selected.id);
-  if(item&&!item.locked)objects.push({kind:selected.kind,data:structuredClone(item)});
+  if(item&&!item.locked)objects.push({kind:selected.kind==='measured-area'?'polyroute':selected.kind,data:structuredClone(item)});
  }
  if(!objects.length)return false;
  drawingObjectClipboard={objects,pastes:0};
@@ -6876,7 +6877,7 @@ function pasteDrawingObject(){
  const offset=24*(++drawingObjectClipboard.pastes),idMap=new Map(),groupMap=new Map(),newNodes=[],newLines=[];
  const objects=drawingObjectClipboard.objects;
  // Allocate equipment IDs before copying connections.
- for(const o of objects)if(o.kind==='node')idMap.set(o.data.id,next++);
+ for(const o of objects)if(o.kind==='node'||o.kind==='polyroute')idMap.set(o.data.id,next++);
  for(const o of objects){
   const {kind}=o,item=structuredClone(o.data);
   if(kind==='personalImage'){
@@ -6894,19 +6895,21 @@ function pasteDrawingObject(){
   }else if(kind==='line'){
    item.id=next++;
    for(const key of ['x1','y1','x2','y2'])item[key]=(Number(item[key])||0)+offset;
-   delete item.shapeConnection;
+   if(item.shapeConnection){const c=item.shapeConnection;if(idMap.has(c.from)&&idMap.has(c.to)){c.from=idMap.get(c.from);c.to=idMap.get(c.to);if(Number.isFinite(c.middle))c.middle+=offset;}else delete item.shapeConnection;}if(Number.isFinite(item.curveX))item.curveX+=offset;if(Number.isFinite(item.curveY))item.curveY+=offset;
    if(item.groupId!=null){
     if(!groupMap.has(item.groupId))groupMap.set(item.groupId,next++);
     item.groupId=groupMap.get(item.groupId);
    }
    drawnLines.push(item);newLines.push(item.id);selected={kind,id:item.id};
+  }else if(kind==='polyroute'){
+   item.id=idMap.get(item.id);item.points=(item.points||[]).map(p=>({...p,x:p.x+offset,y:p.y+offset}));for(const key of ['x','y','x1','y1','x2','y2','labelX','labelY'])if(Number.isFinite(item[key]))item[key]+=offset;if(item.fixtureIds){if(item.fixtureIds.every(id=>idMap.has(id)))item.fixtureIds=item.fixtureIds.map(id=>idMap.get(id));else delete item.fixtureIds;}polyRoutes.push(item);selected={kind:item.kind==='measured-area'?'measured-area':'polyroute',id:item.id};
   }else{
    item.id=kind==='node'?idMap.get(item.id):next++;
    item.x=(Number(item.x)||0)+offset;item.y=(Number(item.y)||0)+offset;
    if(kind==='node'){
     if(item.type==='planwall')delete item.wallJoints;
     nodes.push(item);newNodes.push(item.id);
-   }else annotations.push(item);
+   }else {for(const key of ['endX','endY'])if(Number.isFinite(item[key]))item[key]+=offset;for(const leader of item.leaders||[]){for(const key of ['startX','startY','endX','endY','bendX','bendY'])if(Number.isFinite(leader[key]))leader[key]+=offset;if(leader.targetId!=null)leader.targetId=idMap.get(leader.targetId)??null;}if(item.targetId!=null)item.targetId=idMap.get(item.targetId)??null;annotations.push(item);}
    selected={kind,id:item.id};
   }
  }
