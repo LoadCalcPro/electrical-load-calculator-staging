@@ -2223,7 +2223,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
   output.appendChild(heading);
   const textBox=document.createElement('textarea');
   textBox.value=recognized;textBox.rows=6;textBox.setAttribute('aria-label','Recognized text — edit or select text to place on drawing');
-  textBox.style.cssText='box-sizing:border-box;width:100%;font:12px/1.4 monospace;resize:vertical';
+  textBox.style.cssText='box-sizing:border-box;width:100%;font:12pt/1.4 Arial,sans-serif;resize:vertical';
   output.appendChild(textBox);const fitOCR=()=>{textBox.style.height='auto';textBox.style.height=Math.min(textBox.scrollHeight+4,Math.max(140,window.innerHeight*.65))+'px';};textBox.addEventListener('input',fitOCR);fitOCR();
   const actions=document.createElement('div');
   actions.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin:6px 0';
@@ -2236,7 +2236,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
   const place=document.createElement('button');place.type='button';place.textContent='Place selected / all text on drawing';
   place.addEventListener('click',()=>{
    const value=(textBox.selectionEnd>textBox.selectionStart?textBox.value.slice(textBox.selectionStart,textBox.selectionEnd):textBox.value).trim();if(!value)return;
-   const note={id:next++,text:value.slice(0,12000),x:390,y:240,fontSize:10,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:null,endY:null,targetId:null,offsetX:0,offsetY:0};
+   const note={id:next++,text:value.slice(0,12000),x:390,y:240,fontSize:12,fontFamily:'Arial',align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:null,endY:null,targetId:null,offsetX:0,offsetY:0};
    placeNewNote(note);
    annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
    $('status').textContent='Recognized text added to the drawing. Drag it to reposition, or double-click to edit.';
@@ -6539,7 +6539,7 @@ function openAnnotationInlineEditor(e){
  Object.assign(editor.style,{position:'fixed',left:Math.max(0,bounds.left-5)+'px',top:Math.max(0,bounds.top-5)+'px',width:Math.max(180,bounds.width+40)+'px',height:Math.max(48,bounds.height+22,lines.length*22+18)+'px',zIndex:'10000',background:'#fff',color:'#111',border:'2px solid #0d9488',borderRadius:'4px',padding:'5px 7px',fontSize:Math.max(12,Number(note.fontSize)||12)+'px',fontFamily:'Arial,sans-serif',lineHeight:'1.25',boxSizing:'border-box',resize:'both',whiteSpace:'pre-wrap'});
  const computed=getComputedStyle(textNode);
  const fontFamily=computed.fontFamily||'Arial, sans-serif';
- // Preserve the existing note's stored size during editing; new OCR notes start at 10.
+ // Preserve the existing note's stored size during editing; new OCR notes start at 12.
  const svgSize=Math.max(1,Number(note.fontSize)||10);
  const svgBox=textNode.getBBox();
  // Keep editor in SVG drawing coordinates. The SVG matrix applies exactly the
