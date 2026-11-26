@@ -5114,7 +5114,7 @@ function mountUniversalTextAlignment(){
  const font=inspector.querySelector('[data-revision-size],[data-line-format="labelFontSize"],[data-shared-style],[data-shared-size]')||p.querySelector('[data-shared-style],[data-note-font],[data-prop="fontSize"],[data-label-font-size],input[data-line-prop="labelFontSize"],input[data-poly-prop="labelFontSize"]');
  const anchor=legacy?.closest('label')||font?.closest('label');
  if(!anchor)return;
- const row=document.createElement('div');row.className='field';row.dataset.universalTextAlignment='';row.innerHTML='<span>Text Formatting</span><div style="display:flex;gap:4px;align-items:center"></div>';
+ const row=document.createElement('div');row.className='field';row.dataset.universalTextAlignment='';row.style.cssText='grid-column:1/-1;width:100%;min-width:0;box-sizing:border-box';row.innerHTML='<span>Text Formatting</span><div style="display:flex;gap:8px;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box"></div>';
  const bar=row.lastElementChild;
  const icons=['M3 5H19 M3 10H13 M3 15H19','M3 5H19 M6 10H16 M3 15H19','M3 5H19 M9 10H19 M3 15H19','M3 3H19 M7 6V15 M15 6V15','M3 11H19 M7 4V18 M15 4V18','M3 19H19 M7 7V16 M15 7V16'];
  const values=['start','middle','end','bold','italic','underline'],names=['Left','Center','Right','Bold','Italic','Underline'];
