@@ -7706,7 +7706,7 @@ if(location.protocol==='file:'){
 <style>
 .rotation-stepper-row{display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important}
 .rotation-stepper-buttons{display:flex;flex:1 1 50%;min-width:0;gap:6px}
-.rotation-stepper-buttons button{flex:1;min-width:0;min-height:34px;border:1px solid #b8c9dc;border-radius:7px;background:#fff;color:#243e5c;font-size:22px;line-height:1;cursor:pointer}
+.rotation-stepper-buttons button{flex:1;min-width:0;height:34px!important;min-height:34px!important;max-height:34px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;border:1px solid #b8c9dc;border-radius:7px;background:#fff;color:#243e5c;font-size:20px!important;line-height:1!important;cursor:pointer}.rotation-stepper-buttons button svg{display:block;width:19px;height:19px;flex:none}
 .rotation-stepper-buttons button:hover{background:#e8f2fb}
 .rotation-stepper-row>input{flex:1 1 50%!important;width:50%!important;min-width:0!important;max-width:none!important;margin:0!important}
 
@@ -7743,7 +7743,7 @@ if(location.protocol==='file:'){
     const row=document.createElement('div');row.className='rotation-stepper-row';
     const buttons=document.createElement('div');buttons.className='rotation-stepper-buttons';
     for(const [symbol,direction,title] of [['↶',-1,'Rotate counterclockwise'],['↷',1,'Rotate clockwise']]){
-     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=title+' '+(hatch?45:90)+'°';
+     const button=document.createElement('button');button.type='button';button.innerHTML=direction<0?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2.6 6.4"/><path d="M3 4v6h6"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10a9 9 0 1 0-2.6 6.4"/><path d="M21 4v6h-6"/></svg>';button.title=title+' '+(hatch?45:90)+'°';
      button.setAttribute('aria-label',button.title);
      // Prevent the degree field's blur redraw from detaching this button
      // before the 90-degree click can update the selected equipment.
