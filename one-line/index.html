@@ -2341,15 +2341,20 @@ window.addEventListener('keydown',e=>{
  e.preventDefault();e.stopImmediatePropagation();applyDrawingHistory(redo);
 },true);
 $('editOriginalOCR').addEventListener('click',async()=>{
- const output=$('recognizedDimensions'),button=$('editOriginalOCR'),im=calibrationTarget();
+ const output=$('recognizedDimensions'),button=$('editOriginalOCR'),im=calibrationTarget()||personalImages.filter(v=>v.src&&v.kind!=='logo'&&v.kind!=='sign'&&!v.layerHidden).at(-1);
  if(drawingView!=='plan'||!im?.src){output.textContent='Select an imported drawing in Plan View first.';return;}
  if(Number(im.rotation)){output.textContent='Edit Original currently requires an unrotated drawing.';return;}
  originalOCRSession=null;button.disabled=true;output.textContent='Recognizing original text locations…';
  try{
   if(!window.Tesseract)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});
   const image=new Image();image.src=im.src;await image.decode();
-  const result=await window.Tesseract.recognize(im.src,'eng');
-  const words=(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox);
+  const readWords=result=>(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox);
+  const words=readWords(await window.Tesseract.recognize(im.src,'eng'));
+  // Separate red annotations from noisy monochrome architectural scans.
+  const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);let redCount=0;
+  for(let i=0;i<pixels.data.length;i+=4){const d=pixels.data,r=d[i],g=d[i+1],b=d[i+2],red=r>85&&r-g>28&&r-b>28; if(red)redCount++;d[i]=d[i+1]=d[i+2]=red?0:255;d[i+3]=255;}
+  if(redCount>30){ctx.putImageData(pixels,0,0);try{const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'11'});const extra=readWords(await worker.recognize(canvas));for(const w of extra){const overlap=v=>Math.max(0,Math.min(v.bbox.x1,w.bbox.x1)-Math.max(v.bbox.x0,w.bbox.x0))*Math.max(0,Math.min(v.bbox.y1,w.bbox.y1)-Math.max(v.bbox.y0,w.bbox.y0));const area=(w.bbox.x1-w.bbox.x0)*(w.bbox.y1-w.bbox.y0);for(let j=words.length-1;j>=0;j--)if(overlap(words[j])>area*.5)words.splice(j,1);words.push(w);}}finally{await worker.terminate();}}catch(err){console.warn('Colored annotation OCR pass failed',err);}}
+
   if(!words.length)throw Error('No text locations recognized.');
   originalOCRSession={kind:im.kind,src:im.src,width:image.naturalWidth,height:image.naturalHeight,words,sheet:currentSheetId};
   mode='select';output.textContent='Recognized '+words.length+' words. Double-click an original word to edit it. Press Escape to exit Edit Original.';
