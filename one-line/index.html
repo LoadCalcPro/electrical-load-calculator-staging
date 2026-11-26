@@ -2589,9 +2589,9 @@ function applyEquipmentFill(markup,n){
   return defs+'<circle r="'+radius+'" fill="'+fill+'" stroke="none" pointer-events="none"/>'+markup;
  }
  if(n.type==='plansymbol'&&subtype==='Security Camera'){
-  // The camera is path-only artwork: fill its closed body and lens shapes
-  // without coloring the surrounding area or altering the outline.
-  return defs+markup.replace(/<path\\b[^>]*\\bd="([^"]+)"[^>]*\\/>/,tag=>tag.replace(/\\s*\\/>$/,' fill="'+fill+'" fill-opacity="1"/>'));
+  // Apply fill to the camera body and lens while retaining their outlines.
+  const opening='<path d="M-12 -8 H5 V3 H-12 Z M5 -5 L13 -10 V5 L5 0 Z"/>';
+  return defs+markup.replace(opening,'<path d="M-12 -8 H5 V3 H-12 Z M5 -5 L13 -10 V5 L5 0 Z" fill="'+fill+'"/>');
  }
  if(n.type==='plansymbol'&&['Ceiling Fan','Bathroom Exhaust Fan'].includes(subtype)){
   // Fill the outer fan footprint behind the original line artwork.
