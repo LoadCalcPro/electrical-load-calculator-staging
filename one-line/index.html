@@ -2588,6 +2588,11 @@ function applyEquipmentFill(markup,n){
   const px=planUnitsPerInch(),radius=7.5*px/Math.max(.01,Number(n.scaleX)||1);
   return defs+'<circle r="'+radius+'" fill="'+fill+'" stroke="none" pointer-events="none"/>'+markup;
  }
+ if(n.type==='plansymbol'&&subtype==='Security Camera'){
+  // The camera is path-only artwork: fill its closed body and lens shapes
+  // without coloring the surrounding area or altering the outline.
+  return defs+markup.replace(/<path\\b[^>]*\\bd="([^"]+)"[^>]*\\/>/,tag=>tag.replace(/\\s*\\/>$/,' fill="'+fill+'" fill-opacity="1"/>'));
+ }
  if(n.type==='plansymbol'&&['Ceiling Fan','Bathroom Exhaust Fan'].includes(subtype)){
   // Fill the outer fan footprint behind the original line artwork.
   const boundary=subtype==='Ceiling Fan'?'<circle r="14"':'<rect x="-12" y="-12" width="24" height="24"';
