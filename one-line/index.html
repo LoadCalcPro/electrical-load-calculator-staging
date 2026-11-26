@@ -5426,6 +5426,11 @@ function addDrawingLinePalette(item,kind){
   conductorButtons.forEach(button=>{const active=Number(button.dataset.conductorTarget)===(kind==='line'?activeLineId:activeConductor);button.setAttribute('aria-pressed',String(active));button.style.background=active?'#d9edf5':'#fff';const sw=button.querySelector('[data-line-color-swatch]');if(sw)sw.style.background=kind==='line'?(group().find(z=>z.id===Number(button.dataset.conductorTarget))?.color||'#111111'):(item.colors?.[Number(button.dataset.conductorTarget)]||'#111111');});
   root.querySelector('.shared-selected-label').textContent='Selected: '+(kind==='line'?'Line':'Polyline')+(ids.length>1?' L'+(ids.indexOf(kind==='line'?activeLineId:activeConductor)+1):'');
   if(kind==='line'){
+   // Switching All / L1-L5 must show the selected conductor's actual length,
+   // rather than retaining the previous conductor's Feet/Inches values.
+   const lengthLine=group().find(line=>line.id===activeLineId)||item;
+   const feetInput=root.querySelector('[data-line-feet]'),inchesInput=root.querySelector('[data-line-inches]');
+   if(feetInput&&inchesInput&&document.activeElement!==feetInput&&document.activeElement!==inchesInput){const inches=Math.hypot(lengthLine.x2-lengthLine.x1,lengthLine.y2-lengthLine.y1)/planUnitsPerInch();feetInput.value=Math.floor(inches/12);inchesInput.value=+(inches%12).toFixed(3);}
    const rotationField=fields.querySelector('#lineExactAngle');
    if(rotationField&&document.activeElement!==rotationField)rotationField.value=target==='label'?String(Number(item.labelAngle)||0):(Math.atan2(item.y2-item.y1,item.x2-item.x1)*180/Math.PI).toFixed(1);
    for(const el of fields.querySelectorAll('[data-line-format]')){const key=el.dataset.lineFormat;el.disabled=target==='line';if(target==='label')el.value=item[key]??(key==='labelFontSize'?12:key==='labelStyle'?'normal':0);}
