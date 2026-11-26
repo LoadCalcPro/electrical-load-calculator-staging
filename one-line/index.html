@@ -2236,10 +2236,22 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
   const place=document.createElement('button');place.type='button';place.textContent='Place selected / all text on drawing';
   place.addEventListener('click',()=>{
    const value=(textBox.selectionEnd>textBox.selectionStart?textBox.value.slice(textBox.selectionStart,textBox.selectionEnd):textBox.value).trim();if(!value)return;
-   const note={id:next++,text:value.slice(0,12000),x:390,y:240,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:null,endY:null,targetId:null,offsetX:0,offsetY:0};
-   placeNewNote(note);
-   annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
-   $('status').textContent='Recognized text added as an editable drawing note. Use Properties to format its text color, highlight, font and rotation. Review OCR accuracy.';
+   // OCR cannot detect blank space on an imported image reliably. Let the
+   // user choose the exact insertion point instead of guessing.
+   mode='ocr-place';selected=null;render();
+   $('status').textContent='Click an empty spot on the drawing to place the recognized text. Press Escape to cancel.';
+   const svg=$('svg');
+   const cleanup=()=>{svg.removeEventListener('pointerdown',placeAt,true);window.removeEventListener('keydown',cancel,true);};
+   const cancel=event=>{if(event.key!=='Escape')return;event.preventDefault();event.stopImmediatePropagation();cleanup();mode='select';render();$('status').textContent='OCR text placement cancelled.';};
+   const placeAt=event=>{
+    if(event.button!==0)return;
+    event.preventDefault();event.stopImmediatePropagation();cleanup();
+    const point=xy(event);
+    const note={id:next++,text:value.slice(0,12000),x:point.x,y:point.y,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:null,endY:null,targetId:null,offsetX:0,offsetY:0};
+    annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
+    $('status').textContent='OCR text placed at the selected location. Drag to reposition or double-click to edit.';
+   };
+   svg.addEventListener('pointerdown',placeAt,true);window.addEventListener('keydown',cancel,true);
   });
   actions.appendChild(place);output.appendChild(actions);
   const tokens=recognized.match(/\\b\\d{1,3}\\s*['’′]\\s*(?:[- ]\\s*\\d{1,2}(?:\\.\\d+)?)?\\s*(?:["”″])?/g)||[];
