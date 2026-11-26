@@ -6540,11 +6540,10 @@ function openAnnotationInlineEditor(e){
  const computed=getComputedStyle(textNode);
  const fontFamily=computed.fontFamily||'Arial, sans-serif';
  const svgSize=parseFloat(computed.fontSize)||Number(note.fontSize)||12;
- const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
- ctx.font=[computed.fontStyle,computed.fontWeight,svgSize+'px',fontFamily].join(' ');
- const measured=Math.max(1,...lines.map(line=>ctx.measureText(line||' ').width));
- // Match the actual rendered width rather than estimating size from the SVG bounding-box height.
- const displayFontSize=svgSize*(bounds.width/measured);
+ // The SVG's own geometry is the source of truth; do not use canvas font estimates.
+ const svgBox=textNode.getBBox();
+ const displayedScale=svgBox.width>0?bounds.width/svgBox.width:1;
+ const displayFontSize=svgSize*displayedScale;
  const top=Math.max(0,bounds.top);
  Object.assign(editor.style,{left:Math.max(0,bounds.left)+'px',top:top+'px',width:Math.max(1,bounds.width+2)+'px',minWidth:'0',maxHeight:Math.max(60,window.innerHeight-top-8)+'px',height:'auto',minHeight:'0',fontSize:displayFontSize+'px',fontFamily,fontWeight:computed.fontWeight,fontStyle:computed.fontStyle,lineHeight:'1.25',background:'transparent',border:'none',borderRadius:'0',padding:'0',boxShadow:'none',outline:'none',resize:'none',whiteSpace:'pre',overflowWrap:'normal',wordBreak:'normal',overflowX:'visible'});
  document.body.appendChild(editor);const hideOriginal=()=>{const g=$('svg').querySelector('[data-annotation="'+note.id+'"]');if(g)g.style.visibility='hidden';};hideOriginal();const observer=new MutationObserver(hideOriginal);observer.observe($('svg'),{childList:true,subtree:true});
