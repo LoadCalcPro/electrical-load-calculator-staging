@@ -5381,7 +5381,7 @@ function addDrawingLinePalette(item,kind){
   const feet=measurement.querySelector('[data-line-feet]'),inches=measurement.querySelector('[data-line-inches]');
   const refresh=()=>{const length=Math.hypot(item.x2-item.x1,item.y2-item.y1)/planUnitsPerInch();feet.value=Math.floor(length/12);inches.value=+(length%12).toFixed(3);};
   refresh();
-  const setLength=()=>{const length=Math.max(1,(Number(feet.value)||0)*12+(Number(inches.value)||0))*planUnitsPerInch();const angle=Math.atan2(item.y2-item.y1,item.x2-item.x1);item.x2=item.x1+length*Math.cos(angle);item.y2=item.y1+length*Math.sin(angle);renderCanvasOnly();};
+  const setLength=()=>{const length=Math.max(1,(Number(feet.value)||0)*12+(Number(inches.value)||0))*planUnitsPerInch();const members=group().filter(line=>activeLineId===-1||line.id===activeLineId);for(const line of members){const angle=Math.atan2(line.y2-line.y1,line.x2-line.x1);line.x2=line.x1+length*Math.cos(angle);line.y2=line.y1+length*Math.sin(angle);}renderCanvasOnly();};
   feet.addEventListener('change',setLength);inches.addEventListener('change',setLength);
  }
  if(kind==='line'){
