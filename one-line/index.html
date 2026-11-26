@@ -2200,6 +2200,14 @@ function parseDrawingDimension(value){
 }
 function selectedOCRTarget(){return selected?.kind==='personalImage'?personalImages.find(v=>v.kind===selected.id&&v.src&&v.kind!=='logo'&&v.kind!=='sign'&&!v.layerHidden):null;}
 function syncOCRButtons(){for(const id of ['scanDrawingDimensions','editOriginalOCR']){const b=$(id);if(b)b.disabled=b.dataset.ocrBusy==='true'||drawingView!=='plan'||!selectedOCRTarget();}}
+function normalizeOCRList(value){
+ const lines=String(value||'').replace(/\r\n/g,'\n').split('\n');
+ const marker=/^(\s*)([•●▪◦○¢®e])\s+(?=\S)/;
+ const candidates=lines.filter(l=>marker.test(l));
+ const evidence=candidates.filter(l=>/^\s*[•●▪◦○¢®]\s+/.test(l)).length;
+ if(evidence<2)return lines.join('\n');
+ return lines.map(l=>l.replace(marker,(all,indent,mark)=>indent+(/[e¢®]/.test(mark)?'•':mark)+' ')).join('\n');
+}
 let drawingOCRCache=null;
 async function recognizeDrawingOCR(src){if(drawingOCRCache?.src===src)return drawingOCRCache.result;const result=await window.Tesseract.recognize(src,'eng');drawingOCRCache={src,result};return result;}
 $('scanDrawingDimensions').addEventListener('click',async()=>{
@@ -2218,7 +2226,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
    });
   }
   const result=await recognizeDrawingOCR(im.src);
-  const recognized=String(result?.data?.text||'').trim();
+  const recognized=normalizeOCRList(result?.data?.text).trim();
   output.replaceChildren();
   if(!recognized){output.textContent='No text was recognized. Try a clearer or higher-resolution drawing.';return;}
   const heading=document.createElement('div');
@@ -6627,6 +6635,10 @@ let noteInlineSession=null;
 function refreshInlineNoteFormatting(item){const session=noteInlineSession;if(session?.id!==item.id)return;const editor=session.editor,value=String(item.text||'');const fragment=document.createDocumentFragment();for(let i=0;i<value.length;i++){const span=document.createElement('span');span.textContent=value[i];span.style.color=item.color||'#111';span.style.backgroundColor=item.highlight||'transparent';for(const r of item.highlightRanges||[])if(i>=r.start&&i<r.end)span.style.backgroundColor=r.color;for(const r of item.richRanges||[])if(i>=r.start&&i<r.end){if(r.key==='fill')span.style.color=r.value;else if(r.key==='bold')span.style.fontWeight=r.value?'700':'400';else if(r.key==='italic')span.style.fontStyle=r.value?'italic':'normal';else if(r.key==='underline')span.style.textDecoration=r.value?'underline':'none';}fragment.append(span);}editor.replaceChildren(fragment);const [start,end]=session.range||[0,0];if(end>start&&editor.children[start]?.firstChild&&editor.children[end-1]?.firstChild){const range=document.createRange();range.setStart(editor.children[start].firstChild,0);range.setEnd(editor.children[end-1].firstChild,1);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}}
 function noteRange(item){const session=noteInlineSession;if(session?.id===item.id){const f=document.querySelector('#properties [data-prop="text"]');if(document.activeElement===f)return [f.selectionStart||0,f.selectionEnd||0];return session.range||[0,0];}const f=document.querySelector('#properties [data-prop="text"]');return [f?.selectionStart||0,f?.selectionEnd||0];}
 function setNoteRangeFormat(item,key,value){const [start,end]=noteRange(item);if(end<=start)return false;item.richRanges??=[];item.richRanges.push({start,end,key,value});refreshInlineNoteFormatting(item);return true;}
+function readInlineNoteText(editor){
+ const walk=node=>{if(node.nodeType===3)return node.nodeValue||'';if(node.nodeName==='BR')return '\n';let out='';for(const child of node.childNodes){const block=child.nodeType===1&&/^(DIV|P)$/.test(child.nodeName);if(block&&out&&!out.endsWith('\n'))out+='\n';let value=walk(child);if(block&&value==='\n')value='';out+=value;if(block&&child.nextSibling&&!out.endsWith('\n'))out+='\n';}return out;};
+ return walk(editor);
+}
 function openAnnotationInlineEditor(e){
  if(mode!=='select'||noteInlineSession)return;
  const group=e.target.closest('[data-annotation]');
@@ -6661,11 +6673,11 @@ function openAnnotationInlineEditor(e){
  editor.style.left='0px';editor.style.top='0px';editor.style.transform='matrix('+[matrix.a,matrix.b,matrix.c,matrix.d,matrix.e+matrix.a*svgBox.x+matrix.c*top,matrix.f+matrix.b*svgBox.x+matrix.d*top].join(',')+')';
  if(note.originalOCR){const o=note.originalOCR;const m=$('annotations').getScreenCTM();const h=Math.max(.25,o.h);const fs=h*1.05;Object.assign(editor.style,{transform:'matrix('+[m.a,m.b,m.c,m.d,m.e+m.a*o.x+m.c*o.y,m.f+m.b*o.x+m.d*o.y].join(',')+')',fontSize:fs+'px',lineHeight:'1',width:Math.max(o.w,fs)+'px',height:h+'px',background:'transparent',border:'none',padding:'0',outline:'none',boxShadow:'none'});}
  editor.style.color=computed.fill||note.color||'#111111';editor.style.letterSpacing=computed.letterSpacing;
- editor.style.textTransform='none';
+ editor.style.textTransform='none';editor.style.textAlign=note.align==='middle'?'center':note.align==='end'?'right':'left';
  document.body.appendChild(editor);const hideOriginal=()=>{const g=$('svg').querySelector('[data-annotation="'+note.id+'"]');if(g){const t=g.querySelector('text');if(t)t.style.visibility='hidden';}};hideOriginal();const observer=new MutationObserver(hideOriginal);observer.observe($('svg'),{childList:true,subtree:true});
- const fit=()=>{editor.style.height='auto';editor.style.height=editor.scrollHeight+'px';};fit();let finished=false;
+ const fit=()=>{editor.style.height='auto';editor.style.height=editor.scrollHeight+'px';const outline=$('svg').querySelector('[data-annotation="'+note.id+'"] .annotation-select');if(outline&&!note.originalOCR){outline.setAttribute('height',Math.max(svgBox.height,editor.scrollHeight)+8);outline.setAttribute('width',Math.max(svgBox.width,editor.scrollWidth)+8);}};fit();let finished=false;
  const finish=save=>{if(finished)return;finished=true;noteInlineSession=null;observer.disconnect();document.removeEventListener('pointerdown',outside,true);const g=$('svg').querySelector('[data-annotation="'+note.id+'"]');if(g){const t=g.querySelector('text');if(t)t.style.visibility='';}editor.remove();if(note.originalOCR){const pending=note.ocrPending;delete note.ocrPending;if(!save||(pending&&note.text===original)){if(pending){annotations=annotations.filter(a=>a.id!==note.id);selected=null;}else if(ocrBefore)Object.assign(note,ocrBefore);}else if(pending||JSON.stringify(ocrBefore)!==JSON.stringify(note)){recordOCRCorrection(ocrBefore,structuredClone(note));}render();}else if(save){if(normalNoteBefore&&['plan','one','ladder'].includes(drawingView)){rectangleTransaction={sheet:currentSheetId,view:drawingView,before:normalNoteBefore};endRectangleHistory();}render();}};
- editor.addEventListener('input',fit);editor.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();finish(false);}else if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();finish(true);}});noteInlineSession={id:note.id,editor,range:[0,0]};const capture=()=>{const sel=window.getSelection();if(!sel?.rangeCount||!editor.contains(sel.anchorNode)||!editor.contains(sel.focusNode))return;const range=sel.getRangeAt(0),prefix=range.cloneRange();prefix.selectNodeContents(editor);prefix.setEnd(range.startContainer,range.startOffset);const start=prefix.toString().length;noteInlineSession.range=[start,start+range.toString().length];};editor.addEventListener('mouseup',capture);editor.addEventListener('keyup',capture);editor.addEventListener('input',()=>{note.text=editor.innerText;note.richRanges=[];note.highlightRanges=[];capture();const field=document.querySelector('#properties [data-prop="text"]');if(field)field.value=note.text;});const outside=e=>{if(editor.contains(e.target)||e.target.closest('#properties,#textInspector'))return;finish(true);};document.addEventListener('pointerdown',outside,true);editor.style.overflow='visible';editor.focus();if(!note.originalOCR)document.querySelector('#properties [data-note-format-target="text"]')?.click();if((note.richRanges?.length||0)||(note.highlightRanges?.length||0)||note.highlight)refreshInlineNoteFormatting(note);
+ editor.addEventListener('input',fit);editor.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();finish(false);}else if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();finish(true);}});noteInlineSession={id:note.id,editor,range:[0,0]};const capture=()=>{const sel=window.getSelection();if(!sel?.rangeCount||!editor.contains(sel.anchorNode)||!editor.contains(sel.focusNode))return;const range=sel.getRangeAt(0),prefix=range.cloneRange();prefix.selectNodeContents(editor);prefix.setEnd(range.startContainer,range.startOffset);const start=prefix.toString().length;noteInlineSession.range=[start,start+range.toString().length];};editor.addEventListener('mouseup',capture);editor.addEventListener('keyup',capture);editor.addEventListener('input',()=>{note.text=readInlineNoteText(editor);note.richRanges=[];note.highlightRanges=[];capture();const field=document.querySelector('#properties [data-prop="text"]');if(field)field.value=note.text;});const outside=e=>{if(editor.contains(e.target)||e.target.closest('#properties,#textInspector'))return;finish(true);};document.addEventListener('pointerdown',outside,true);editor.style.overflow='visible';editor.focus();if(!note.originalOCR)document.querySelector('#properties [data-note-format-target="text"]')?.click();if((note.richRanges?.length||0)||(note.highlightRanges?.length||0)||note.highlight)refreshInlineNoteFormatting(note);
 }
 let lastAnnotationClick=null;
 $('svg').addEventListener('pointerdown',e=>{
