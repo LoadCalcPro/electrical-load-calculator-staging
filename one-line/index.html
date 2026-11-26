@@ -2300,12 +2300,23 @@ function applyDrawingHistory(redo){const {a,b}=latestHistory(redo);if(!a||(b&&(r
  const source=redo?rectangleRedo:rectangleUndo,dest=redo?rectangleUndo:rectangleRedo;source.splice(source.indexOf(a),1);const state=redo?a.after:a.before;
  const restore=(current,key)=>{const before=a.before[key],after=a.after[key],target=state[key];const bm=new Map(before.map(v=>[v.id,JSON.stringify(v)])),am=new Map(after.map(v=>[v.id,JSON.stringify(v)]));const ids=new Set([...bm.keys(),...am.keys()].filter(id=>bm.get(id)!==am.get(id)));const values=new Map(target.filter(v=>ids.has(v.id)).map(v=>[v.id,v]));const result=current.flatMap(v=>{if(!ids.has(v.id))return [v];if(!values.has(v.id))return [];const replacement=structuredClone(values.get(v.id));values.delete(v.id);return [replacement];});return result.concat(structuredClone([...values.values()]));};
  nodes=restore(nodes,'nodes');polyRoutes=restore(polyRoutes,'routes');wires=restore(wires,'wires');drawnLines=restore(drawnLines,'lines');annotations=restore(annotations,'notes');
- if(!redo)a.undoSeq=++historySequence;dest.push(a);selected=null;selectedNodeIds.clear();selectedLineIds.clear();render();$('status').textContent=redo?'Drawing change redone.':'Drawing change undone.';
+ if(!redo)a.undoSeq=++historySequence;dest.push(a);const collection=selected&&({node:nodes,polyroute:polyRoutes,wire:wires,line:drawnLines,annotation:annotations})[selected.kind];if(!collection?.some(v=>v.id===selected.id))selected=null;selectedNodeIds.clear();selectedLineIds.clear();render();$('status').textContent=redo?'Drawing change redone.':'Drawing change undone.';
 }
-window.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('#drawingEditMenuButton,#drawingObjectMenu')){endRectangleHistory();beginRectangleHistory();}},true);
-window.addEventListener('pointerup',()=>setTimeout(endRectangleHistory,0),true);
-window.addEventListener('pointercancel',()=>setTimeout(endRectangleHistory,0),true);
-window.addEventListener('click',()=>setTimeout(endRectangleHistory,0),true);
+const propertyHistorySelector='#properties,#textInspector';
+let propertyHistoryControl=null,propertyHistoryTimer=null,propertyPointerActive=false;
+function finishPropertyHistory(){clearTimeout(propertyHistoryTimer);propertyHistoryTimer=null;propertyHistoryControl=null;propertyPointerActive=false;endRectangleHistory();}
+function propertyHistoryTarget(e){return e.target instanceof Element?e.target.closest(propertyHistorySelector):null;}
+function schedulePropertyHistory(){clearTimeout(propertyHistoryTimer);propertyHistoryTimer=setTimeout(finishPropertyHistory,450);}
+window.addEventListener('pointerdown',e=>{if(e.button!==0)return;if(propertyHistoryTarget(e)){finishPropertyHistory();beginRectangleHistory();propertyHistoryControl=e.target;propertyPointerActive=true;return;}if(!e.target.closest('#drawingEditMenuButton,#drawingObjectMenu')){finishPropertyHistory();beginRectangleHistory();}},true);
+window.addEventListener('focusin',e=>{if(!propertyHistoryTarget(e)||propertyHistoryControl)return;beginRectangleHistory();propertyHistoryControl=e.target;},true);
+for(const eventName of ['beforeinput','input','change'])window.addEventListener(eventName,e=>{if(!propertyHistoryTarget(e))return;if(!propertyHistoryControl){beginRectangleHistory();propertyHistoryControl=e.target;}if(!propertyPointerActive)schedulePropertyHistory();},true);
+window.addEventListener('focusout',e=>{if(propertyHistoryTarget(e)&&!propertyPointerActive)setTimeout(finishPropertyHistory,0);},true);
+window.addEventListener('keydown',e=>{if(!propertyHistoryTarget(e)||e.ctrlKey||e.metaKey||e.altKey||e.key==='Tab')return;if(!propertyHistoryControl){beginRectangleHistory();propertyHistoryControl=e.target;}schedulePropertyHistory();},true);
+function finishDrawingPointerHistory(){if(propertyHistoryControl){propertyPointerActive=false;schedulePropertyHistory();}else setTimeout(endRectangleHistory,0);}
+
+window.addEventListener('pointerup',finishDrawingPointerHistory,true);
+window.addEventListener('pointercancel',finishDrawingPointerHistory,true);
+window.addEventListener('click',finishDrawingPointerHistory,true);
 window.addEventListener('keydown',e=>{if(['Delete','Backspace'].includes(e.key)&&!document.activeElement?.isContentEditable&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){beginRectangleHistory();queueMicrotask(endRectangleHistory);}},true);
 
 function ocrHistoryMatches(entry){return entry.sheet===currentSheetId&&entry.view===drawingView;}
@@ -2323,7 +2334,7 @@ window.addEventListener('keydown',e=>{
  if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
  const key=e.key.toLowerCase(),redo=key==='y'||(key==='z'&&e.shiftKey);
  if(key!=='z'&&key!=='y')return;
- if(!hasDrawingHistory(redo))return;
+ finishPropertyHistory();if(!hasDrawingHistory(redo))return;
  e.preventDefault();e.stopImmediatePropagation();applyDrawingHistory(redo);
 },true);
 $('editOriginalOCR').addEventListener('click',async()=>{
@@ -7143,7 +7154,7 @@ $('svg').addEventListener('contextmenu',e=>{
 function openDrawingEditMenu(x,y){
  closeDrawingMenu();
  const entries=[['Undo','Ctrl+Z',()=>applyDrawingHistory(false),!hasDrawingHistory(false)],['Redo','Ctrl+Shift+Z',()=>applyDrawingHistory(true),!hasDrawingHistory(true)],['Cut','Ctrl+X',()=>{if(copyDrawingObject())deleteDrawingObject()},!selected],['Copy','Ctrl+C',()=>copyDrawingObject(),!selected&&!drawingSelectAllPending],['Paste','Ctrl+V',()=>drawingObjectClipboard?pasteDrawingObject():pasteFromDrawingContextMenu(),false],['Duplicate','Ctrl+D',()=>{if(copyDrawingObject())pasteDrawingObject()},!selected],['Group','',()=>{const members=nodes.filter(n=>selectedNodeIds.has(n.id)&&!n.locked);if(members.length<2)return;const groups=new Set(members.map(n=>n.objectGroup).filter(Boolean));const g='group-'+next++;for(const n of nodes)if(!n.locked&&(selectedNodeIds.has(n.id)||groups.has(n.objectGroup))){n.objectGroup=g;selectedNodeIds.add(n.id);}render();},selectedNodeIds.size<2],['Ungroup','',()=>{const groups=new Set(nodes.filter(n=>selectedNodeIds.has(n.id)||(selected?.kind==='node'&&selected.id===n.id)).map(n=>n.objectGroup).filter(Boolean));for(const n of nodes)if(groups.has(n.objectGroup))delete n.objectGroup;render();},!nodes.some(n=>n.objectGroup&&(selectedNodeIds.has(n.id)||(selected?.kind==='node'&&selected.id===n.id)))],['Save as Custom Symbol','',()=>{},true],['Delete','Delete',()=>deleteDrawingObject(),!selected]];
- for(const [label,shortcut,action,disabled] of entries){const button=document.createElement('button');button.type='button';button.disabled=disabled;button.style.cssText='display:flex;justify-content:space-between;gap:18px;width:100%;text-align:left;padding:6px 8px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer';const name=document.createElement('span'),key=document.createElement('span');name.textContent=label;key.textContent=shortcut;key.style.opacity='.65';button.append(name,key);button.onclick=()=>{closeDrawingMenu();if(label==='Undo'||label==='Redo'){rectangleTransaction=null;action();return;}beginRectangleHistory();try{action();}finally{setTimeout(endRectangleHistory,0);}};drawingMenu.appendChild(button);}
+ for(const [label,shortcut,action,disabled] of entries){const button=document.createElement('button');button.type='button';button.disabled=disabled;button.style.cssText='display:flex;justify-content:space-between;gap:18px;width:100%;text-align:left;padding:6px 8px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer';const name=document.createElement('span'),key=document.createElement('span');name.textContent=label;key.textContent=shortcut;key.style.opacity='.65';button.append(name,key);button.onclick=()=>{closeDrawingMenu();if(label==='Undo'||label==='Redo'){finishPropertyHistory();action();return;}beginRectangleHistory();try{action();}finally{setTimeout(endRectangleHistory,0);}};drawingMenu.appendChild(button);}
  drawingMenu.style.display='block';drawingMenu.style.left=Math.max(0,Math.min(x,window.innerWidth-drawingMenu.offsetWidth-5))+'px';drawingMenu.style.top=Math.max(0,Math.min(y,window.innerHeight-drawingMenu.offsetHeight-5))+'px';$('drawingEditMenuButton').setAttribute('aria-expanded','true');
 }
 $('drawingEditMenuButton').onclick=()=>{if(drawingMenu.style.display==='block'){closeDrawingMenu();return;}const r=$('drawingEditMenuButton').getBoundingClientRect();openDrawingEditMenu(r.left,r.bottom+3);};
