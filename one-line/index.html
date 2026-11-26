@@ -2198,6 +2198,8 @@ function parseDrawingDimension(value){
  const feet=Number(match[1]),inches=Number(match[2]||0);
  return inches<12&&feet*12+inches>0?{feet,inches}:null;
 }
+let drawingOCRCache=null;
+async function recognizeDrawingOCR(src){if(drawingOCRCache?.src===src)return drawingOCRCache.result;const result=await window.Tesseract.recognize(src,'eng');drawingOCRCache={src,result};return result;}
 $('scanDrawingDimensions').addEventListener('click',async()=>{
  const output=$('recognizedDimensions'),button=$('scanDrawingDimensions');
  if(drawingView!=='plan'){output.textContent='Switch to Plan View before scanning.';return;}
@@ -2213,7 +2215,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
     document.head.appendChild(script);
    });
   }
-  const result=await window.Tesseract.recognize(im.src,'eng');
+  const result=await recognizeDrawingOCR(im.src);
   const recognized=String(result?.data?.text||'').trim();
   output.replaceChildren();
   if(!recognized){output.textContent='No text was recognized. Try a clearer or higher-resolution drawing.';return;}
@@ -2349,7 +2351,7 @@ $('editOriginalOCR').addEventListener('click',async()=>{
   if(!window.Tesseract)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});
   const image=new Image();image.src=im.src;await image.decode();
   const readWords=result=>(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox);
-  const words=readWords(await window.Tesseract.recognize(im.src,'eng'));
+  const words=readWords(await recognizeDrawingOCR(im.src));
   const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const original=ctx.getImageData(0,0,canvas.width,canvas.height);
   const merge=(extra,colored=false)=>{for(const w of extra){const area=Math.max(1,(w.bbox.x1-w.bbox.x0)*(w.bbox.y1-w.bbox.y0));const matches=words.filter(v=>{const overlap=Math.max(0,Math.min(v.bbox.x1,w.bbox.x1)-Math.max(v.bbox.x0,w.bbox.x0))*Math.max(0,Math.min(v.bbox.y1,w.bbox.y1)-Math.max(v.bbox.y0,w.bbox.y0));return overlap>area*.55&&overlap>Math.max(1,(v.bbox.x1-v.bbox.x0)*(v.bbox.y1-v.bbox.y0))*.45;});if(matches.some(v=>(v.confidence||0)>=(w.confidence||0)&&!colored))continue;if(colored&&Number(w.confidence)<45)continue;for(const v of matches)words.splice(words.indexOf(v),1);words.push(w);}};
   try{const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'11'});const pixels=ctx.createImageData(canvas.width,canvas.height);let count=0;
@@ -2375,7 +2377,7 @@ $('svg').addEventListener('dblclick',async e=>{
  const px=(pt.x-ox)/scale,py=(pt.y-oy)/scale;
  const tolerance=3/Math.max(scale,.001);let word=session.words.find(w=>px>=w.bbox.x0&&px<=w.bbox.x1&&py>=w.bbox.y0&&py<=w.bbox.y1)||session.words.find(w=>px>=w.bbox.x0-tolerance&&px<=w.bbox.x1+tolerance&&py>=w.bbox.y0-tolerance&&py<=w.bbox.y1+tolerance);if(px<0||py<0||px>session.width||py>session.height||session.localBusy)return;
  e.preventDefault();e.stopImmediatePropagation();session.localBusy=true;const output=$('recognizedDimensions');output.textContent='Recognizing selected text area…';
- try{const img=new Image();img.src=session.src;await img.decode();const seed=word?.bbox||{x0:px-25,y0:py-8,x1:px+25,y1:py+8};const height=Math.max(5,seed.y1-seed.y0),left=Math.max(0,Math.floor(seed.x0-height*1.5)),top=Math.max(0,Math.floor(seed.y0-height*.5)),right=Math.min(session.width,Math.ceil(seed.x1+height*1.5)),bottom=Math.min(session.height,Math.ceil(seed.y1+height*.5));const factor=Math.max(2,Math.min(6,45/height)),crop=document.createElement('canvas');crop.width=Math.ceil((right-left)*factor);crop.height=Math.ceil((bottom-top)*factor);const ctx=crop.getContext('2d');ctx.drawImage(img,left,top,right-left,bottom-top,0,0,crop.width,crop.height);const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'7'});const result=await worker.recognize(crop);const candidates=(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox).map(w=>({...w,bbox:{x0:left+w.bbox.x0/factor,y0:top+w.bbox.y0/factor,x1:left+w.bbox.x1/factor,y1:top+w.bbox.y1/factor}}));const hit=candidates.find(w=>px>=w.bbox.x0&&px<=w.bbox.x1&&py>=w.bbox.y0&&py<=w.bbox.y1);if(hit&&(!word||Number(hit.confidence)>=Math.max(35,Number(word.confidence||0)-10)))word={...hit,inkColor:word?.inkColor};}finally{await worker.terminate();}}catch(err){console.warn('Local OCR failed',err);}finally{session.localBusy=false;}
+ try{if(!word){const img=new Image();img.src=session.src;await img.decode();const seed=word?.bbox||{x0:px-80,y0:py-16,x1:px+80,y1:py+16};const height=Math.max(5,seed.y1-seed.y0),left=Math.max(0,Math.floor(seed.x0-height*1.5)),top=Math.max(0,Math.floor(seed.y0-height*.5)),right=Math.min(session.width,Math.ceil(seed.x1+height*1.5)),bottom=Math.min(session.height,Math.ceil(seed.y1+height*.5));const factor=Math.max(2,Math.min(6,45/height)),crop=document.createElement('canvas');crop.width=Math.ceil((right-left)*factor);crop.height=Math.ceil((bottom-top)*factor);const ctx=crop.getContext('2d');ctx.drawImage(img,left,top,right-left,bottom-top,0,0,crop.width,crop.height);const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'7'});const result=await worker.recognize(crop);const candidates=(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox).map(w=>({...w,bbox:{x0:left+w.bbox.x0/factor,y0:top+w.bbox.y0/factor,x1:left+w.bbox.x1/factor,y1:top+w.bbox.y1/factor}}));const hit=candidates.find(w=>px>=w.bbox.x0&&px<=w.bbox.x1&&py>=w.bbox.y0&&py<=w.bbox.y1);if(hit&&(!word||Number(hit.confidence)>=Math.max(35,Number(word.confidence||0)-10)))word={...hit,inkColor:word?.inkColor};}finally{await worker.terminate();}}}catch(err){console.warn('Local OCR failed',err);}finally{session.localBusy=false;}
  if(originalOCRSession!==session||session.sheet!==currentSheetId||drawingView!=='plan')return;
  if(!word){output.textContent='No word recognized here. Double-click a nearby recognized word to correct it.';return;}
  output.textContent='Edit the selected word. Press Escape to cancel or Ctrl+Enter to save.';
