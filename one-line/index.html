@@ -10526,33 +10526,11 @@ window.addEventListener('resize',()=>{sizeDrawingSheetForScroll();});
 (function(){
  const main=$('drawingMain'),library=$('reopenLibrary'),inspector=$('reopenInspector');
  if(!main||!library||!inspector)return;
- function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));if(button){button.textContent=collapsed?(isLibrary?'›':'‹'):(isLibrary?'‹':'›');button.title=(collapsed?'Expand ':'Collapse ')+(isLibrary?'Equipment Library':'Properties');button.setAttribute('aria-label',button.title);
-     // Prevent the degree field's blur redraw from detaching this button
-     // before the 90-degree click can update the selected equipment.
-     button.addEventListener('pointerdown',event=>event.preventDefault());
-     button.addEventListener('click',()=>{
-      if(input.disabled||input.readOnly)return;
-      const current=Number(input.value)||0;
-      const next=((current+direction*(hatch?45:90))%360+360)%360;
-      input.value=String(next);
-      // Equipment rotation uses the same live input handler as Linear Light.
-      // A synthetic change event here can rebuild Properties mid-click,
-      // unlike the native degree spinner, and break subsequent 90° steps.
-      input.dispatchEvent(new Event('input',{bubbles:true}));
-      if(hatch||!input.matches('[data-common-rotation], [data-drawing-rotation], [data-rotation]'))
-       input.dispatchEvent(new Event('change',{bubbles:true}));
-     });
-     buttons.appendChild(button);
-    }
-    input.parentNode.insertBefore(row,input);row.append(buttons,input);
-   }
-  }
- }
- let queued=false;
- const schedule=()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;enhance();});};
- const observer=new MutationObserver(schedule);
- for(const id of ['properties','textInspector']){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true});}
- enhance();
+ function toggle(side){const isLibrary=side==='library';const cls=isLibrary?'library-collapsed':'inspector-collapsed';main.classList.toggle(cls);const collapsed=main.classList.contains(cls);const reopen=isLibrary?library:inspector;reopen.hidden=!collapsed;const button=$(isLibrary?'toggleLibrary':'toggleInspector');button?.setAttribute('aria-expanded',String(!collapsed));if(button){button.textContent=collapsed?(isLibrary?'›':'‹'):(isLibrary?'‹':'›');button.title=(collapsed?'Expand ':'Collapse ')+(isLibrary?'Equipment Library':'Properties');button.setAttribute('aria-label',button.title);}requestAnimationFrame(()=>{const v=$('viewport');const x=v.scrollWidth>v.clientWidth?v.scrollLeft/(v.scrollWidth-v.clientWidth):0;const y=v.scrollHeight>v.clientHeight?v.scrollTop/(v.scrollHeight-v.clientHeight):0;sizeDrawingSheetForScroll();v.scrollLeft=x*Math.max(0,v.scrollWidth-v.clientWidth);v.scrollTop=y*Math.max(0,v.scrollHeight-v.clientHeight);});}
+ $('toggleLibrary')?.addEventListener('click',()=>toggle('library'));
+ $('toggleInspector')?.addEventListener('click',()=>toggle('inspector'));
+ library.addEventListener('click',()=>toggle('library'));
+ inspector.addEventListener('click',()=>toggle('inspector'));
 })();
 </script>
 <style id="sharedFontPairLayout">
