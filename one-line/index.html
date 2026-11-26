@@ -2180,7 +2180,9 @@ calibrationNotice.style.cssText='position:fixed;top:88px;left:50%;transform:tran
 document.body.appendChild(calibrationNotice);
 function showCalibrationNotice(message,keep=true){
  calibrationNotice.textContent=message;
- calibrationNotice.style.display='block';
+ calibrationNotice.style.display='none';
+ const inlineGuidance=$('calibrationResult');
+ if(inlineGuidance)inlineGuidance.textContent=message;
  if(!keep)calibrationNotice.dataset.dismiss='yes';else delete calibrationNotice.dataset.dismiss;
 }
 $('calibrateBackground').addEventListener('click',()=>showCalibrationNotice('Enter the known wall length in feet and inches, then click Start Calibration.'));
