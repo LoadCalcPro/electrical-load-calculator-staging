@@ -2236,8 +2236,8 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
   const place=document.createElement('button');place.type='button';place.textContent='Place selected / all text on drawing';
   place.addEventListener('click',()=>{
    const value=(textBox.selectionEnd>textBox.selectionStart?textBox.value.slice(textBox.selectionStart,textBox.selectionEnd):textBox.value).trim();if(!value)return;
-   const placement=clipboardPlacement(250,70);
-   const note={id:next++,text:value.slice(0,12000),x:placement.x,y:placement.y,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:515,endY:295,targetId:null,offsetX:0,offsetY:0};
+   const note={id:next++,text:value.slice(0,12000),x:390,y:240,fontSize:12,align:'start',leader:false,arrow:'arrow',lineWidth:1,endX:null,endY:null,targetId:null,offsetX:0,offsetY:0};
+   placeNewNote(note);
    annotations.push(note);selected={kind:'annotation',id:note.id};mode='select';render();
    $('status').textContent='Recognized text added as an editable drawing note. Use Properties to format its text color, highlight, font and rotation. Review OCR accuracy.';
   });
