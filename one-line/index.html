@@ -2351,7 +2351,7 @@ $('editOriginalOCR').addEventListener('click',async()=>{
   const readWords=result=>(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox);
   const words=readWords(await window.Tesseract.recognize(im.src,'eng'));
   const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const original=ctx.getImageData(0,0,canvas.width,canvas.height);
-  const merge=(extra,colored=false)=>{for(const w of extra){const area=Math.max(1,(w.bbox.x1-w.bbox.x0)*(w.bbox.y1-w.bbox.y0));const matches=words.filter(v=>{const overlap=Math.max(0,Math.min(v.bbox.x1,w.bbox.x1)-Math.max(v.bbox.x0,w.bbox.x0))*Math.max(0,Math.min(v.bbox.y1,w.bbox.y1)-Math.max(v.bbox.y0,w.bbox.y0));return overlap>area*.55&&overlap>Math.max(1,(v.bbox.x1-v.bbox.x0)*(v.bbox.y1-v.bbox.y0))*.45;});if(matches.some(v=>(v.confidence||0)>=(w.confidence||0)&&!colored))continue;for(const v of matches)words.splice(words.indexOf(v),1);words.push(w);}};
+  const merge=(extra,colored=false)=>{for(const w of extra){const area=Math.max(1,(w.bbox.x1-w.bbox.x0)*(w.bbox.y1-w.bbox.y0));const matches=words.filter(v=>{const overlap=Math.max(0,Math.min(v.bbox.x1,w.bbox.x1)-Math.max(v.bbox.x0,w.bbox.x0))*Math.max(0,Math.min(v.bbox.y1,w.bbox.y1)-Math.max(v.bbox.y0,w.bbox.y0));return overlap>area*.55&&overlap>Math.max(1,(v.bbox.x1-v.bbox.x0)*(v.bbox.y1-v.bbox.y0))*.45;});if(matches.some(v=>(v.confidence||0)>=(w.confidence||0)&&!colored))continue;if(colored&&Number(w.confidence)<45)continue;for(const v of matches)words.splice(words.indexOf(v),1);words.push(w);}};
   try{const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'11'});const pixels=ctx.createImageData(canvas.width,canvas.height);let count=0;
   for(let i=0;i<original.data.length;i+=4){const d=original.data,r=d[i],g=d[i+1],b=d[i+2],gray=.299*r+.587*g+.114*b;const v=Math.max(0,Math.min(255,(gray-105)*2.2));pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=v;pixels.data[i+3]=255;}
   ctx.putImageData(pixels,0,0);merge(readWords(await worker.recognize(canvas)));
@@ -2377,7 +2377,7 @@ $('svg').addEventListener('dblclick',e=>{
  const b=word.bbox,x=ox+b.x0*scale,y=oy+b.y1*scale,w=(b.x1-b.x0)*scale,h=(b.y1-b.y0)*scale;
  if(annotations.some(a=>a.originalOCR?.kind===im.kind&&a.originalOCR.key===b.x0+','+b.y0))return;
  e.preventDefault();e.stopImmediatePropagation();
- const note={id:next++,text:word.text,x,y,color:word.inkColor||'#111111',fontSize:Math.max(6,Math.min(40,h*1.25)),fontFamily:'Arial',align:'start',leader:false,originalOCR:{kind:im.kind,key:b.x0+','+b.y0,x:x-1,y:y-h-1,w:w+2,h:h+2}};
+ const note={id:next++,text:word.text,x,y,color:word.inkColor||'#111111',fontSize:Math.max(.25,h*1.05),fontFamily:'Arial',align:'start',leader:false,originalOCR:{kind:im.kind,key:b.x0+','+b.y0,x:x-scale*.3,y:y-h-scale*.3,w:w+scale*.6,h:h+scale*.6}};
  note.ocrPending=true;annotations.push(note);selected={kind:'annotation',id:note.id};render();
  const target=$('annotations').querySelector('[data-annotation="'+note.id+'"] text');if(target)openAnnotationInlineEditor({target,preventDefault(){},stopImmediatePropagation(){}});
 },true);
@@ -6640,7 +6640,7 @@ function openAnnotationInlineEditor(e){
  const computed=getComputedStyle(textNode);
  const fontFamily=computed.fontFamily||'Arial, sans-serif';
  // Preserve the existing note's stored size during editing; new OCR notes start at 12.
- const svgSize=Math.max(1,Number(note.fontSize)||10);
+ const svgSize=Math.max(note.originalOCR?.25:1,Number(note.fontSize)||10);
  const svgBox=textNode.getBBox();
  // Keep editor in SVG drawing coordinates. The SVG matrix applies exactly the
  // same zoom, pan and page scaling as the original text, with no size estimation.
@@ -6650,7 +6650,7 @@ function openAnnotationInlineEditor(e){
  const transform='matrix('+[matrix.a,matrix.b,matrix.c,matrix.d,matrix.e,matrix.f].join(',')+')';
  Object.assign(editor.style,{left:'0px',top:'0px',transformOrigin:'0 0',transform:transform,position:'fixed',width:Math.max(1,svgBox.width+2)+'px',minWidth:'0',maxWidth:'none',height:'auto',minHeight:'0',maxHeight:'none',fontSize:svgSize+'px',fontFamily,fontWeight:computed.fontWeight,fontStyle:computed.fontStyle,lineHeight:'1.25',background:'transparent',border:'none',borderRadius:'0',padding:'0',boxShadow:'none',outline:'none',resize:'none',whiteSpace:'pre',overflowWrap:'normal',wordBreak:'normal',overflow:'visible'});
  editor.style.left='0px';editor.style.top='0px';editor.style.transform='matrix('+[matrix.a,matrix.b,matrix.c,matrix.d,matrix.e+matrix.a*svgBox.x+matrix.c*top,matrix.f+matrix.b*svgBox.x+matrix.d*top].join(',')+')';
- editor.style.letterSpacing=computed.letterSpacing;
+ editor.style.color=computed.fill||note.color||'#111111';editor.style.letterSpacing=computed.letterSpacing;
  editor.style.textTransform='none';
  document.body.appendChild(editor);const hideOriginal=()=>{const g=$('svg').querySelector('[data-annotation="'+note.id+'"]');if(g){const t=g.querySelector('text');if(t)t.style.visibility='hidden';}};hideOriginal();const observer=new MutationObserver(hideOriginal);observer.observe($('svg'),{childList:true,subtree:true});
  const fit=()=>{editor.style.height='auto';editor.style.height=editor.scrollHeight+'px';};fit();let finished=false;
