@@ -4316,9 +4316,10 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   if(activeInnerKey!==null&&activeInnerKey!=='drawingLabel'&&!defs.some(d=>d[0]===activeInnerKey))activeInnerKey=null;
   const editor=document.createElement('div');editor.className='shared-text-editor equipment-text-editor';
   editor.innerHTML=sharedEquipmentTextEditorMarkup();
-  // Basic Shapes already expose font formatting through their standard controls.
-  // Hide the redundant legacy Style selector without removing the shared binding.
-  if(item.type==='plansymbol'&&String(item.equipmentSubtype||item.name||'').startsWith('Basic ')){const legacyStyle=editor.querySelector('[data-shared-style]')?.closest('label');if(legacyStyle){legacyStyle.hidden=true;legacyStyle.style.setProperty('display','none','important');}}
+  // Text Formatting buttons supersede the duplicate Style dropdown for all equipment and symbols.
+  // Retain the input for existing property bindings, but never display the redundant control.
+  const legacyStyle=editor.querySelector('[data-shared-style]')?.closest('label');
+  if(legacyStyle){legacyStyle.hidden=true;legacyStyle.style.setProperty('display','none','important');}
   // Every equipment text part is selectable from one list, regardless of
   // whether its visible glyph is small or difficult to click on the sheet.
   // Shared layout lives in CSS so all equipment editors use one consistent grid.
