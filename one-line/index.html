@@ -7718,7 +7718,10 @@ if(location.protocol==='file:'){
 <style>
 .rotation-stepper-row{display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important}
 .rotation-stepper-buttons{display:flex;flex:1 1 50%;min-width:0;gap:6px}
-.rotation-stepper-buttons button{flex:1;min-width:0;min-height:34px;border:1px solid #b8c9dc;border-radius:7px;background:#fff;color:#243e5c;font-size:22px;line-height:1;cursor:pointer}
+.rotation-stepper-buttons button{flex:1;min-width:0;min-height:0!important;height:100%!important;max-height:100%!important;box-sizing:border-box!important;padding:0!important;margin:0!important;border:1px solid #b8c9dc;border-radius:7px;background:#fff;color:#243e5c;font-size:22px;line-height:1;cursor:pointer}
+.rotation-stepper-row{align-items:stretch!important}
+.rotation-stepper-buttons{align-self:stretch!important;align-items:stretch!important}
+.rotation-stepper-buttons button svg{display:block;width:24px;height:24px;max-width:65%;max-height:65%;margin:auto}
 .rotation-stepper-buttons button:hover{background:#e8f2fb}
 .rotation-stepper-row>input{flex:1 1 50%!important;width:50%!important;min-width:0!important;max-width:none!important;margin:0!important}
 
