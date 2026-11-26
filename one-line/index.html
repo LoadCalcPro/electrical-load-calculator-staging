@@ -2198,14 +2198,16 @@ function parseDrawingDimension(value){
  const feet=Number(match[1]),inches=Number(match[2]||0);
  return inches<12&&feet*12+inches>0?{feet,inches}:null;
 }
+function selectedOCRTarget(){return selected?.kind==='personalImage'?personalImages.find(v=>v.kind===selected.id&&v.src&&v.kind!=='logo'&&v.kind!=='sign'&&!v.layerHidden):null;}
+function syncOCRButtons(){for(const id of ['scanDrawingDimensions','editOriginalOCR']){const b=$(id);if(b)b.disabled=b.dataset.ocrBusy==='true'||drawingView!=='plan'||!selectedOCRTarget();}}
 let drawingOCRCache=null;
 async function recognizeDrawingOCR(src){if(drawingOCRCache?.src===src)return drawingOCRCache.result;const result=await window.Tesseract.recognize(src,'eng');drawingOCRCache={src,result};return result;}
 $('scanDrawingDimensions').addEventListener('click',async()=>{
  const output=$('recognizedDimensions'),button=$('scanDrawingDimensions');
  if(drawingView!=='plan'){output.textContent='Switch to Plan View before scanning.';return;}
- const im=calibrationTarget();
- if(!im?.src){output.textContent='Select an imported PDF/image, or import one first.';return;}
- button.disabled=true;output.textContent='Reading text from selected drawing…';
+ const im=selectedOCRTarget();
+ if(!im?.src){output.textContent='Select an imported PDF or image to scan.';return;}
+ button.dataset.ocrBusy='true';syncOCRButtons();output.textContent='Reading text from selected drawing…';
  try{
   if(!window.Tesseract){
    await new Promise((resolve,reject)=>{
@@ -2263,7 +2265,7 @@ $('scanDrawingDimensions').addEventListener('click',async()=>{
    }
   }
  }catch(error){output.textContent='Could not scan drawing: '+error.message+'. Manual calibration remains available.';}
- finally{button.disabled=false;}
+ finally{delete button.dataset.ocrBusy;syncOCRButtons();}
 });
 
 $('verifyBackgroundCalibration').addEventListener('click',()=>{
@@ -2343,10 +2345,10 @@ window.addEventListener('keydown',e=>{
  e.preventDefault();e.stopImmediatePropagation();applyDrawingHistory(redo);
 },true);
 $('editOriginalOCR').addEventListener('click',async()=>{
- const output=$('recognizedDimensions'),button=$('editOriginalOCR'),im=calibrationTarget()||personalImages.filter(v=>v.src&&v.kind!=='logo'&&v.kind!=='sign'&&!v.layerHidden).at(-1);
+ const output=$('recognizedDimensions'),button=$('editOriginalOCR'),im=selectedOCRTarget();
  if(drawingView!=='plan'||!im?.src){output.textContent='Select an imported drawing in Plan View first.';return;}
  if(Number(im.rotation)){output.textContent='Edit Original currently requires an unrotated drawing.';return;}
- originalOCRSession=null;button.disabled=true;output.textContent='Recognizing original text locations…';
+ originalOCRSession=null;button.dataset.ocrBusy='true';syncOCRButtons();output.textContent='Recognizing original text locations…';
  try{
   if(!window.Tesseract)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});
   const image=new Image();image.src=im.src;await image.decode();
@@ -2364,7 +2366,7 @@ $('editOriginalOCR').addEventListener('click',async()=>{
   if(!words.length)throw Error('No text locations recognized.');
   originalOCRSession={kind:im.kind,src:im.src,width:image.naturalWidth,height:image.naturalHeight,words,sheet:currentSheetId};
   mode='select';output.textContent='Recognized '+words.length+' words. Double-click an original word to edit it. Press Escape to exit Edit Original.';
- }catch(error){output.textContent='Edit Original: '+(error.message||'Unable to recognize text.');}finally{button.disabled=false;}
+ }catch(error){output.textContent='Edit Original: '+(error.message||'Unable to recognize text.');}finally{delete button.dataset.ocrBusy;syncOCRButtons();}
 });
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&originalOCRSession&&!noteInlineSession){originalOCRSession=null;$('recognizedDimensions').textContent='Edit Original closed.';}},true);
 $('svg').addEventListener('dblclick',async e=>{
@@ -5297,7 +5299,7 @@ function normalizeDrawingSelectionHandles(){
   visual.setAttribute('stroke','#168c9a');visual.setAttribute('stroke-width','1');visual.setAttribute('vector-effect','non-scaling-stroke');visual.dataset.uniformHandle='visible';
  }
 }
-function render(skipProperties=false){queueMicrotask(refreshPlanSymbolSelectionBounds);if(independentDrawingToolActive&&mode!==independentDrawingToolActive){enterIndependentDrawingTool(null);}for(const n of nodes){if(n.type==='plansymbol'&&Number(n.symbolAngle)){const k=n.equipmentSubtype||n.name;if(['Single-Pole Switch','Three-Way Switch','Four-Way Switch','Duplex Receptacle','GFCI Receptacle','Weatherproof Receptacle'].includes(k))n.drawingRotation=((Number(n.drawingRotation)||0)+Number(n.symbolAngle))%360;n.symbolAngle=0;}}syncPlanConduits();const scaleSelect=$('planScaleSelect');if(scaleSelect){scaleSelect.disabled=drawingView!=='plan';for(const option of scaleSelect.options)option.hidden=drawingView!=='plan'&&option.value!=='nts';if($('drawingScale'))$('drawingScale').value=scaleSelect.selectedOptions[0].textContent;}removeInvalidPlanWallJoints();syncAssociativePlanDimensions();sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planwall','plansymbol','plandoor','planwindow','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g='';// Zoom the complete SVG sheet uniformly through its layout dimensions, including grid and title block.
+function render(skipProperties=false){syncOCRButtons();queueMicrotask(refreshPlanSymbolSelectionBounds);if(independentDrawingToolActive&&mode!==independentDrawingToolActive){enterIndependentDrawingTool(null);}for(const n of nodes){if(n.type==='plansymbol'&&Number(n.symbolAngle)){const k=n.equipmentSubtype||n.name;if(['Single-Pole Switch','Three-Way Switch','Four-Way Switch','Duplex Receptacle','GFCI Receptacle','Weatherproof Receptacle'].includes(k))n.drawingRotation=((Number(n.drawingRotation)||0)+Number(n.symbolAngle))%360;n.symbolAngle=0;}}syncPlanConduits();const scaleSelect=$('planScaleSelect');if(scaleSelect){scaleSelect.disabled=drawingView!=='plan';for(const option of scaleSelect.options)option.hidden=drawingView!=='plan'&&option.value!=='nts';if($('drawingScale'))$('drawingScale').value=scaleSelect.selectedOptions[0].textContent;}removeInvalidPlanWallJoints();syncAssociativePlanDimensions();sizeDrawingSheetForScroll();syncShapeConnections();renderDrawingGuides();syncDrawingScrollbars();$('zoomPercent').textContent=Math.round(zoom*100)+'%';syncLadderLines();nodes.forEach(n=>{const sx=Number(n.scaleX)||1,sy=Number(n.scaleY)||1;if(!['gutter','planroom','planwall','plansymbol','plandoor','planwindow','planpanel','plantransformer','plangenerator','planclearance','disconnect','panel','switchboard','meter','metercombo','ats'].includes(n.type)&&Math.abs(sx-sy)>.0001){const uniform=Math.sqrt(sx*sy);n.scaleX=uniform;n.scaleY=uniform;}});const g='';// Zoom the complete SVG sheet uniformly through its layout dimensions, including grid and title block.
 $('sheetLayer').removeAttribute('transform');$('titleblock').removeAttribute('transform');$('personalImages').setAttribute('transform',g);$('personalImages').innerHTML=personalImages.map(im=>`<g data-personal-image="${im.kind}" transform="rotate(${Number(im.rotation)||0} ${im.x+im.w/2} ${im.y+im.h/2})" opacity="${Math.max(.15,Math.min(1,Number(im.opacity??1)))}" style="pointer-events:auto"><image href="${im.src}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="xMidYMid meet" style="pointer-events:all"/><rect x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" fill="transparent" stroke="${selected?.kind==='personalImage'&&selected.id===im.kind?'#168c9a':'none'}" stroke-width="${2.5/zoom}" stroke-dasharray="${5/zoom} ${3/zoom}" style="cursor:${im.locked?'pointer':'move'};pointer-events:all"/>${!im.locked&&selected?.kind==='personalImage'&&selected.id===im.kind?`<rect data-image-resize="corner" x="${im.x+im.w-4/zoom}" y="${im.y+im.h-4/zoom}" width="${8/zoom}" height="${8/zoom}" fill="white" stroke="#168c9a" stroke-width="${2/zoom}" style="cursor:nwse-resize;pointer-events:all"/>`:``}</g>`).join('');$('wires').setAttribute('transform',g);$('drawnLines').setAttribute('transform',g);$('nodes').setAttribute('transform',g);$('wires').innerHTML=wires.map(w=>{const a=nodes.find(n=>n.id===w.from),b=nodes.find(n=>n.id===w.to);if(!a||!b)return '';const route=feederPath(a,b,w);
 const segments=[...route.d.matchAll(/([MLHV])\s*(-?[\d.]+)(?:[ ,]+(-?[\d.]+))?/g)];
 let px=0,py=0,anchor={x:route.lx,y:route.ly,length:0,vertical:false};
