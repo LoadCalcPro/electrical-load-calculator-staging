@@ -2302,10 +2302,10 @@ function applyDrawingHistory(redo){const {a,b}=latestHistory(redo);if(!a||(b&&(r
  nodes=nodes.filter(n=>!ids.has(n.id)).concat(structuredClone(state.nodes));polyRoutes=polyRoutes.filter(n=>!routeIds.has(n.id)).concat(structuredClone(state.routes));
  if(!redo)a.undoSeq=++historySequence;dest.push(a);selected=null;selectedNodeIds.clear();selectedLineIds.clear();render();$('status').textContent=redo?'Rectangle change redone.':'Rectangle change undone.';
 }
-window.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('#drawingEditMenuButton'))beginRectangleHistory();},true);
-window.addEventListener('pointerup',()=>queueMicrotask(endRectangleHistory),true);
-window.addEventListener('pointercancel',()=>queueMicrotask(endRectangleHistory),true);
-window.addEventListener('click',()=>queueMicrotask(endRectangleHistory),true);
+window.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('#drawingEditMenuButton')){endRectangleHistory();beginRectangleHistory();}},true);
+window.addEventListener('pointerup',()=>setTimeout(endRectangleHistory,0),true);
+window.addEventListener('pointercancel',()=>setTimeout(endRectangleHistory,0),true);
+window.addEventListener('click',()=>setTimeout(endRectangleHistory,0),true);
 window.addEventListener('keydown',e=>{if(['Delete','Backspace'].includes(e.key)&&!document.activeElement?.isContentEditable&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){beginRectangleHistory();queueMicrotask(endRectangleHistory);}},true);
 
 function ocrHistoryMatches(entry){return entry.sheet===currentSheetId&&entry.view===drawingView;}
