@@ -2350,11 +2350,15 @@ $('editOriginalOCR').addEventListener('click',async()=>{
   const image=new Image();image.src=im.src;await image.decode();
   const readWords=result=>(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox);
   const words=readWords(await window.Tesseract.recognize(im.src,'eng'));
-  // Separate red annotations from noisy monochrome architectural scans.
-  const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);let redCount=0;
-  for(let i=0;i<pixels.data.length;i+=4){const d=pixels.data,r=d[i],g=d[i+1],b=d[i+2],red=r>85&&r-g>28&&r-b>28; if(red)redCount++;d[i]=d[i+1]=d[i+2]=red?0:255;d[i+3]=255;}
-  if(redCount>30){ctx.putImageData(pixels,0,0);try{const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'11'});const extra=readWords(await worker.recognize(canvas));for(const w of extra){const overlap=v=>Math.max(0,Math.min(v.bbox.x1,w.bbox.x1)-Math.max(v.bbox.x0,w.bbox.x0))*Math.max(0,Math.min(v.bbox.y1,w.bbox.y1)-Math.max(v.bbox.y0,w.bbox.y0));const area=(w.bbox.x1-w.bbox.x0)*(w.bbox.y1-w.bbox.y0);for(let j=words.length-1;j>=0;j--)if(overlap(words[j])>area*.5)words.splice(j,1);words.push(w);}}finally{await worker.terminate();}}catch(err){console.warn('Colored annotation OCR pass failed',err);}}
-
+  const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const original=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const merge=(extra,colored=false)=>{for(const w of extra){const area=Math.max(1,(w.bbox.x1-w.bbox.x0)*(w.bbox.y1-w.bbox.y0));const matches=words.filter(v=>{const overlap=Math.max(0,Math.min(v.bbox.x1,w.bbox.x1)-Math.max(v.bbox.x0,w.bbox.x0))*Math.max(0,Math.min(v.bbox.y1,w.bbox.y1)-Math.max(v.bbox.y0,w.bbox.y0));return overlap>area*.55&&overlap>Math.max(1,(v.bbox.x1-v.bbox.x0)*(v.bbox.y1-v.bbox.y0))*.45;});if(matches.some(v=>(v.confidence||0)>=(w.confidence||0)&&!colored))continue;for(const v of matches)words.splice(words.indexOf(v),1);words.push(w);}};
+  try{const worker=await window.Tesseract.createWorker('eng');try{await worker.setParameters({tessedit_pageseg_mode:'11'});const pixels=ctx.createImageData(canvas.width,canvas.height);let count=0;
+  for(let i=0;i<original.data.length;i+=4){const d=original.data,r=d[i],g=d[i+1],b=d[i+2],gray=.299*r+.587*g+.114*b;const v=Math.max(0,Math.min(255,(gray-105)*2.2));pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=v;pixels.data[i+3]=255;}
+  ctx.putImageData(pixels,0,0);merge(readWords(await worker.recognize(canvas)));
+  for(let i=0;i<original.data.length;i+=4){const d=original.data,r=d[i],g=d[i+1],b=d[i+2],chroma=Math.max(r,g,b)-Math.min(r,g,b),colored=chroma>24&&Math.min(r,g,b)<225;if(colored)count++;pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=colored?0:255;pixels.data[i+3]=255;}
+  if(count>30){ctx.putImageData(pixels,0,0);merge(readWords(await worker.recognize(canvas)),true);}
+  }finally{await worker.terminate();}}catch(err){console.warn('Enhanced OCR pass failed',err);}
+  for(const w of words){const b=w.bbox;let r=0,g=0,blue=0,n=0;for(let y=Math.max(0,Math.floor(b.y0));y<Math.min(canvas.height,Math.ceil(b.y1));y++)for(let x=Math.max(0,Math.floor(b.x0));x<Math.min(canvas.width,Math.ceil(b.x1));x++){const i=(y*canvas.width+x)*4,d=original.data;if(Math.max(d[i],d[i+1],d[i+2])-Math.min(d[i],d[i+1],d[i+2])>35){r+=d[i];g+=d[i+1];blue+=d[i+2];n++;}}if(n>3)w.inkColor='#'+[r,g,blue].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('');}
   if(!words.length)throw Error('No text locations recognized.');
   originalOCRSession={kind:im.kind,src:im.src,width:image.naturalWidth,height:image.naturalHeight,words,sheet:currentSheetId};
   mode='select';output.textContent='Recognized '+words.length+' words. Double-click an original word to edit it. Press Escape to exit Edit Original.';
@@ -2373,7 +2377,7 @@ $('svg').addEventListener('dblclick',e=>{
  const b=word.bbox,x=ox+b.x0*scale,y=oy+b.y1*scale,w=(b.x1-b.x0)*scale,h=(b.y1-b.y0)*scale;
  if(annotations.some(a=>a.originalOCR?.kind===im.kind&&a.originalOCR.key===b.x0+','+b.y0))return;
  e.preventDefault();e.stopImmediatePropagation();
- const note={id:next++,text:word.text,x,y,fontSize:Math.max(6,Math.min(40,h*1.25)),fontFamily:'Arial',align:'start',leader:false,originalOCR:{kind:im.kind,key:b.x0+','+b.y0,x:x-1,y:y-h-1,w:w+2,h:h+2}};
+ const note={id:next++,text:word.text,x,y,color:word.inkColor||'#111111',fontSize:Math.max(6,Math.min(40,h*1.25)),fontFamily:'Arial',align:'start',leader:false,originalOCR:{kind:im.kind,key:b.x0+','+b.y0,x:x-1,y:y-h-1,w:w+2,h:h+2}};
  note.ocrPending=true;annotations.push(note);selected={kind:'annotation',id:note.id};render();
  const target=$('annotations').querySelector('[data-annotation="'+note.id+'"] text');if(target)openAnnotationInlineEditor({target,preventDefault(){},stopImmediatePropagation(){}});
 },true);
