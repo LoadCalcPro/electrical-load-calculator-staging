@@ -2289,16 +2289,16 @@ let originalOCRSession=null;
 $('editOriginalOCR').addEventListener('click',async()=>{
  const output=$('recognizedDimensions'),button=$('editOriginalOCR'),im=calibrationTarget();
  if(drawingView!=='plan'||!im?.src){output.textContent='Select an imported drawing in Plan View first.';return;}
- if(Number(im.rotation)||Number(im.opacity??1)!==1){output.textContent='Edit Original currently requires an unrotated, fully opaque drawing.';return;}
+ if(Number(im.rotation)){output.textContent='Edit Original currently requires an unrotated drawing.';return;}
  originalOCRSession=null;button.disabled=true;output.textContent='Recognizing original text locations…';
  try{
   if(!window.Tesseract)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});
   const image=new Image();image.src=im.src;await image.decode();
   const result=await window.Tesseract.recognize(im.src,'eng');
-  const words=(result.data.words||[]).filter(w=>w.text?.trim()&&w.bbox);
+  const words=(result.data.words||result.data.blocks?.flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])))||[]).filter(w=>w.text?.trim()&&w.bbox);
   if(!words.length)throw Error('No text locations recognized.');
   originalOCRSession={kind:im.kind,src:im.src,width:image.naturalWidth,height:image.naturalHeight,words,sheet:currentSheetId};
-  mode='select';output.textContent='Double-click an original word to edit it. Press Escape to exit Edit Original.';
+  mode='select';output.textContent='Recognized '+words.length+' words. Double-click an original word to edit it. Press Escape to exit Edit Original.';
  }catch(error){output.textContent='Edit Original: '+(error.message||'Unable to recognize text.');}finally{button.disabled=false;}
 });
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&originalOCRSession&&!noteInlineSession){originalOCRSession=null;$('recognizedDimensions').textContent='Edit Original closed.';}},true);
@@ -2310,7 +2310,7 @@ $('svg').addEventListener('dblclick',e=>{
  const p=$('svg').createSVGPoint();p.x=e.clientX;p.y=e.clientY;const pt=p.matrixTransform(matrix.inverse());
  const scale=Math.min(im.w/session.width,im.h/session.height),ox=im.x+(im.w-session.width*scale)/2,oy=im.y+(im.h-session.height*scale)/2;
  const px=(pt.x-ox)/scale,py=(pt.y-oy)/scale;
- const word=session.words.find(w=>px>=w.bbox.x0&&px<=w.bbox.x1&&py>=w.bbox.y0&&py<=w.bbox.y1);if(!word)return;
+ const tolerance=3/Math.max(scale,.001);const word=session.words.find(w=>px>=w.bbox.x0&&px<=w.bbox.x1&&py>=w.bbox.y0&&py<=w.bbox.y1)||session.words.find(w=>px>=w.bbox.x0-tolerance&&px<=w.bbox.x1+tolerance&&py>=w.bbox.y0-tolerance&&py<=w.bbox.y1+tolerance);if(!word){$('recognizedDimensions').textContent='No recognized word at that location. Double-click another word.';return;}
  const b=word.bbox,x=ox+b.x0*scale,y=oy+b.y1*scale,w=(b.x1-b.x0)*scale,h=(b.y1-b.y0)*scale;
  if(annotations.some(a=>a.originalOCR?.kind===im.kind&&a.originalOCR.key===b.x0+','+b.y0))return;
  e.preventDefault();e.stopImmediatePropagation();
