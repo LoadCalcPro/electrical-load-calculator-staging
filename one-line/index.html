@@ -3530,8 +3530,10 @@ function sharedEquipmentTextEditorMarkup(){
   return '<label class="field">'+control.label+input+'</label>';
  });
  const offsetGroup='<div class="field" data-position-offset-group style="grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">'+fields.slice(3).join('')+'</div>';
- const groupedFields=fields.slice(0,3).join('')+offsetGroup;
- return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><div class="shared-text-grid">'+groupedFields+'</div>';
+ // Keep the legacy style value available to existing bindings, but do not render its visible label.
+ const hiddenStyle='<div style="display:none!important" aria-hidden="true"><select data-shared-style tabindex="-1"><option value="normal">Regular</option><option value="light">Light</option><option value="bold">Bold</option><option value="italic">Italic</option></select></div>';
+ const groupedFields=fields.slice(0,2).join('')+offsetGroup;
+ return '<div data-shared-selected class="shared-selected-label" aria-live="polite"></div><div class="shared-text-grid">'+groupedFields+'</div>'+hiddenStyle;
 }
 function equipmentTextKeyForControl(el,defs){
  const raw=el.dataset.innerText||el.dataset.innerSize||el.dataset.innerX||el.dataset.innerY;
