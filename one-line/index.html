@@ -2099,15 +2099,18 @@ function finishAreaMeasurement(){
 }
 areaMeasureButton.addEventListener('click',()=>{
  if(drawingView!=='plan'){$('status').textContent='Switch to Plan View to measure area.';return;}
- areaMeasurePoints=[];clearAreaMeasureOverlay();mode='precision-area';svgPrecision.classList.add('precision-pick');
+ lastAreaPointer=null;areaMeasurePoints=[];clearAreaMeasureOverlay();mode='precision-area';svgPrecision.classList.add('precision-pick');
  lens.style.display='none';hint.style.display='none';
  $('status').textContent='Area: click each corner; double-click the final corner to finish. Escape cancels.';
 });
-svgPrecision.addEventListener('click',e=>{
- if(mode!=='precision-area')return;
+let lastAreaPointer=null;
+svgPrecision.addEventListener('pointerdown',e=>{
+ if(mode!=='precision-area'||e.button!==0)return;
  e.preventDefault();e.stopImmediatePropagation();
- if(e.detail>=2){finishAreaMeasurement();return;}
- areaMeasurePoints.push(xy(e));
+ const p=xy(e),now=performance.now(),previous=lastAreaPointer;
+ lastAreaPointer={time:now,x:e.clientX,y:e.clientY};
+ if(areaMeasurePoints.length&&previous&&now-previous.time<500&&Math.hypot(e.clientX-previous.x,e.clientY-previous.y)<6){lastAreaPointer=null;finishAreaMeasurement();return;}
+ areaMeasurePoints.push(p);
  drawAreaMeasurePreview();
  $('status').textContent='Area: '+areaMeasurePoints.length+' corner(s). Double-click to finish.';
 },true);
