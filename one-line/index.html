@@ -8113,23 +8113,7 @@ select.shared-pattern-original{display:none!important}
 </script><style>
 #drawingMain .universal-offset-pair{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;min-width:0}
 #drawingMain .universal-offset-pair>label{min-width:0!important;margin:0!important;width:100%!important;max-width:none!important;display:flex!important;flex-direction:column!important} #drawingMain .universal-offset-pair{grid-column:1/-1!important;flex:0 0 100%!important;max-width:none!important;box-sizing:border-box!important} #drawingMain .universal-offset-pair input{width:100%!important;max-width:none!important;box-sizing:border-box!important}
-</style><script>
-(function(){
- const caption=el=>Array.from(el.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim().replace(/\s+/g,' ');
- function arrange(root){
- if(!root)return;
- const fields=Array.from(root.querySelectorAll('label')).filter(el=>!el.closest('[hidden],.universal-offset-pair')&&el.style.display!=='none');
- const status=fields.filter(el=>el.querySelector('[data-installation-status]'));
- for(const field of status){const parent=field.parentElement;const later=Array.from(parent.children).slice(Array.from(parent.children).indexOf(field)+1);if(later.some(el=>!el.matches('.universal-offset-pair')&&!status.includes(el)))parent.insertBefore(field,Array.from(parent.children).find(el=>el.matches('.universal-offset-pair'))||null);}
- const horizontal=fields.filter(el=>/^(?:(?:label|text|object|outline|drawing)\s+)?(?:horizontal\s+offset|[xX]\s+offset)(?:\s*\([^)]*\))?$/i.test(caption(el)));
- const vertical=fields.filter(el=>/^(?:(?:label|text|object|outline|drawing)\s+)?(?:vertical\s+offset|[yY]\s+offset)(?:\s*\([^)]*\))?$/i.test(caption(el)));
- for(const h of horizontal){const v=vertical.find(el=>el.parentElement===h.parentElement&&!el.closest('.universal-offset-pair'));if(!v)continue;const row=document.createElement('div');row.className='universal-offset-pair';const destination=h.parentElement;destination.appendChild(row);row.append(h,v);}
- for(const row of root.querySelectorAll('.universal-offset-pair')){const parent=row.parentElement;const later=Array.from(parent.children).slice(Array.from(parent.children).indexOf(row)+1);if(later.some(el=>!el.matches('.universal-offset-pair')))parent.appendChild(row);}
- }
- let queued=false;const roots=['properties','textInspector'].map(id=>document.getElementById(id)).filter(Boolean);function run(){queued=false;observer.disconnect();try{for(const root of roots)arrange(root);}finally{for(const root of roots)observer.observe(root,{childList:true,subtree:true});}}
- const observer=new MutationObserver(()=>{if(!queued){queued=true;requestAnimationFrame(run);}});run();
-})();
-</script><style>
+</style><style>
 /* Compact, consistent separation between property groups; retain existing control dimensions. */
 #drawingMain #properties .shared-endpoint-buttons{gap:6px!important;margin-block:8px!important}
 #drawingMain #properties .shared-endpoint-buttons+label.field,
