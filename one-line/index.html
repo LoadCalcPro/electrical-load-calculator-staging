@@ -5628,7 +5628,7 @@ function mountLineEndpointButtons(select){
  const choices=[['arrow','Arrow','<path d="M3 12 H21 M14 5 L21 12 L14 19"/>'],['circle','Open circle','<circle cx="12" cy="12" r="8"/>'],['semicircle','Semicircle','<path d="M8 4 V20 A8 8 0 0 0 8 4 Z"/>'],['dot','Solid dot','<circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none"/>'],['none','None','<path d="M3 12 H21"/>']];
  for(const [a] of choices)for(const [b] of choices){const v=a+':'+b;if(!Array.from(select.options).some(o=>o.value===v))select.add(new Option(v,v));}
  const container=document.createElement('div');container.className='field shared-endpoint-buttons';container.style.background='var(--drawing-properties-surface,#F2F5FA)';
- const heading=document.createElement('span');heading.textContent='Line endpoints';heading.className='shared-property-caption';container.appendChild(heading);
+ container.setAttribute('aria-label','Line endpoints');
  let activeSide=0;let sizing=null;const shapeFor=side=>side===2?(owner()?.intermediateEndpoint||'none'):endpointPair(select.value)[side];
  function refresh(){container.querySelectorAll('button[data-endpoint-value]').forEach(btn=>btn.setAttribute('aria-pressed',String(shapeFor(Number(btn.dataset.side))===btn.dataset.endpointValue)));if(sizing){sizing.hidden=shapeFor(activeSide)==='none';sizing.style.display=sizing.hidden?'none':'';sizing.querySelector('select').value=String(activeSide);const d=owner()?.endpointDimensions?.[activeSide]||{},shape=shapeFor(activeSide);for(const input of sizing.querySelectorAll('input')){const k=input.dataset.endpointDimension;input.value=d[k]??(k==='rotation'?0:k==='width'?({arrow:8,circle:10,semicircle:5,dot:6}[shape]||10):shape==='dot'?6:10);}}}
  for(const side of (circuit?[0,2,1]:[0,1])){
