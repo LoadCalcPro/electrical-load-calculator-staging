@@ -5660,13 +5660,10 @@ function organizeLineAdvancedControls(){
  }
  for(const field of coordinateFields)advanced.appendChild(field);
  const host=document.getElementById('developerSettingsHost');
- if(host&&location.hostname.includes('staging')){
-  host.appendChild(advanced);
- }else{
-  // Non-developer environments keep the precision controls available internally, not visible.
-  advanced.hidden=true;
-  panel.appendChild(advanced);
- }
+ // Keep precise coordinate inputs wired internally, but never display them in Properties.
+ advanced.hidden=true;
+ advanced.style.setProperty('display','none','important');
+ panel.appendChild(advanced);
 }
 const newLineEndpointSettings={endpointDimensions:{}},newPolylineEndpointSettings={endpointDimensions:{}};
 const newCircuitEndpointSettings={arrow:'none',intermediateEndpoint:'none',endpointDimensions:{}};
