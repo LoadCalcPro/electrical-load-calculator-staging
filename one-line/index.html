@@ -8043,4 +8043,7 @@ if(location.protocol==='file:'){
  for(const id of roots){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true});}
  enhance();
 })();
-</script></body></html>
+</script><style id="universalPropertiesPaddingColor">
+#drawingMain :is(#properties,#textInspector) :is(.property-section,.properties-common,.property-priority,.properties-advanced,.equipment-appearance-section,.shared-text-editor,.numbered-note-panel,.numbered-note-formatting,.conduit-measured-properties,.plan-wall-properties,[data-plan-footprint-section],[data-plan-electrical-info]){background-color:var(--drawing-properties-surface)!important}
+#drawingMain :is(#properties.new-above-conduit-properties,#properties.line-details-blue,#properties.new-line-joined + .connection-settings:not([hidden])){background-color:var(--drawing-properties-surface)!important}
+</style></body></html>
