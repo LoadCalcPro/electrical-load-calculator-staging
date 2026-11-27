@@ -569,7 +569,7 @@ body:has(.suite-header) main#drawingMain.library-collapsed.inspector-collapsed{g
 #textInspector .selected-equipment-designation>span{display:block;font-weight:700;margin-bottom:4px}
 #textInspector .selected-equipment-designation input{width:100%;min-width:0}
 /* Shared Disconnect-reference Properties appearance for all drawing tabs. */
-:root{--drawing-properties-surface:#f7faff;--drawing-properties-border:#cbdcf0;--drawing-properties-input:#fff;--drawing-properties-radius:12px}
+:root{--drawing-properties-surface:#e2ebf5;--drawing-properties-border:#a8bdd3;--drawing-properties-input:#fff;--drawing-properties-radius:12px}
 #properties .property-priority,#properties .property-section,#properties .properties-common,#properties .plan-wall-properties{background:var(--drawing-properties-surface);border-color:var(--drawing-properties-border);box-sizing:border-box;min-width:0}
 #properties .property-priority{border-radius:var(--drawing-properties-radius);padding:14px;margin:8px 0}
 #properties .property-priority label.field,#properties .property-section label.field,#properties .plan-wall-properties label.field{min-width:0;max-width:100%;box-sizing:border-box}
@@ -8046,4 +8046,7 @@ if(location.protocol==='file:'){
 </script><style id="universalPropertiesPaddingColor">
 #drawingMain :is(#properties,#textInspector) :is(.property-section,.properties-common,.property-priority,.properties-advanced,.equipment-appearance-section,.shared-text-editor,.numbered-note-panel,.numbered-note-formatting,.conduit-measured-properties,.plan-wall-properties,[data-plan-footprint-section],[data-plan-electrical-info]){background-color:var(--drawing-properties-surface)!important}
 #drawingMain :is(#properties.new-above-conduit-properties,#properties.line-details-blue,#properties.new-line-joined + .connection-settings:not([hidden])){background-color:var(--drawing-properties-surface)!important}
+</style><style id="drawingUnifiedColorPalette">
+#drawingMain :is(#equipmentLibrary,#drawingInspector,#drawingStickyToolbar),#drawingMain #equipmentLibrary .equipment-category{background-color:var(--drawing-properties-surface)!important;border-color:var(--drawing-properties-border)!important}
+#drawingMain :is(#equipmentLibrary,#drawingInspector,#drawingStickyToolbar) :is(button,input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea):not(.active):not(.is-active):not(.selected):not([aria-pressed="true"]):not([aria-selected="true"]):not([aria-expanded="true"]):not(:disabled):not(:hover):not(:focus):not([style*="background"]):not([class*="swatch"]):not([class*="color"]):not([id*="Color"]):not([id*="color"]):not([id="toggleLibrary"]):not([id="toggleInspector"]){background-color:var(--drawing-properties-input);border-color:var(--drawing-properties-border)}
 </style></body></html>
