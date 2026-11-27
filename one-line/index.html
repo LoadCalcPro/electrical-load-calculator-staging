@@ -7990,9 +7990,9 @@ if(location.protocol==='file:'){
  pairFonts();
 })();
 </script><style id="sharedFillModeButtons">
-#drawingMain .shared-fill-mode-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:100%;margin-top:4px}
-#drawingMain .shared-fill-mode-button{min-width:0;min-height:39px;padding:5px 2px;border:1px solid #b8c9dc;border-radius:6px;background:#fff;color:#243e5c;font:600 11px system-ui,sans-serif;cursor:pointer}
-#drawingMain .shared-fill-mode-button[aria-pressed="true"]{background:#d9edf5;border:2px solid #168c9a}
+#drawingMain .shared-fill-mode-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:100%;margin:0}
+#drawingMain .shared-fill-mode-button{min-width:0;min-height:26px;height:26px;padding:2px 1px;border:1px solid #b8c9dc;border-radius:6px;background:#fff;color:#243e5c;font:600 11px system-ui,sans-serif;cursor:pointer}
+#drawingMain .shared-fill-mode-button[aria-pressed="true"]{background:#dbeafe;border:1px solid #6095cf;color:#174579}
 #drawingMain select.shared-fill-original{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
 </style>
 <script>
@@ -8005,7 +8005,7 @@ if(location.protocol==='file:'){
     if(select.dataset.fillButtonsMounted)continue;
     const options=Array.from(select.options);
     const values=options.map(o=>o.value.toLowerCase());
-    if(options.length!==3||!values.includes('transparent')||!values.includes('custom')||!(values.includes('hatch')||values.includes('hatched')))continue;
+    if(options.length!==3||!values.includes('transparent')||!(values.includes('custom')||values.includes('highlight'))||!(values.includes('hatch')||values.includes('hatched')))continue;
     const field=select.closest('label');
     if(!field||!/fill/i.test(field.textContent||''))continue;
     select.dataset.fillButtonsMounted='1';
@@ -8014,13 +8014,13 @@ if(location.protocol==='file:'){
     const buttons=[];
     for(const option of options){
      const button=document.createElement('button');button.type='button';button.className='shared-fill-mode-button';
-     button.textContent=option.value.toLowerCase()==='transparent'?'Transparent':option.value.toLowerCase()==='custom'?'Custom':'Hatch';
+     button.textContent=option.value.toLowerCase()==='transparent'?'Transparent':['custom','highlight'].includes(option.value.toLowerCase())?'Custom':'Hatch';
      button.addEventListener('click',()=>{select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();});
      row.append(button);buttons.push([button,option.value]);
     }
     const sync=()=>{for(const [button,value] of buttons)button.setAttribute('aria-pressed',String(select.value===value));};
     select.addEventListener('change',sync);
-    field.append(row);sync();
+    select.tabIndex=-1;select.setAttribute('aria-hidden','true');field.append(row);sync();
    }
   }
  }
