@@ -8090,4 +8090,37 @@ if(location.protocol==='file:'){
 </style><style id="drawingUnifiedColorPalette">
 #drawingMain :is(#equipmentLibrary,#drawingInspector,#drawingStickyToolbar),#drawingMain #equipmentLibrary .equipment-category{background-color:var(--drawing-properties-surface)!important;border-color:var(--drawing-properties-border)!important}
 #drawingMain :is(#equipmentLibrary,#drawingInspector,#drawingStickyToolbar) :is(button,input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea):not(.active):not(.is-active):not(.selected):not([aria-pressed="true"]):not([aria-selected="true"]):not([aria-expanded="true"]):not(:disabled):not(:hover):not(:focus):not([style*="background"]):not([class*="swatch"]):not([class*="color"]):not([id*="Color"]):not([id*="color"]):not([id="toggleLibrary"]):not([id="toggleInspector"]){background-color:var(--drawing-properties-input);border-color:var(--drawing-properties-border)}
-</style></body></html>
+</style><style id="sharedLinePatternButtons">
+select.shared-pattern-original{display:none!important}
+.shared-pattern-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%;min-width:0}
+#drawingMain .shared-pattern-buttons button{min-width:0;width:100%;height:32px;padding:4px!important;display:flex;align-items:center;justify-content:center;border-radius:4px}
+#drawingMain .shared-pattern-buttons button[aria-pressed="true"]{background:#dbeafe!important;border-color:#2563eb!important;color:#172554!important}
+.shared-pattern-buttons svg{width:100%;height:16px;pointer-events:none}
+</style><script id="sharedLinePatternButtonMount">
+(function(){
+ const selector='select[data-equipment-pattern],select[data-connect-pattern],select#newConduitPattern,select#newLinePattern,select#polyPattern,select#linePattern';
+ const patterns={solid:'',dashed:'9 5',dotted:'1 5',dashdot:'9 4 1 4'};
+ const mounted=new WeakMap();
+ function enhance(){
+  for(const select of document.querySelectorAll(selector)){
+   if(mounted.has(select)){mounted.get(select)();continue;}
+   const options=Array.from(select.options);
+   if(options.length!==4||!options.every(o=>Object.prototype.hasOwnProperty.call(patterns,o.value)))continue;
+   const row=document.createElement('div');row.className='shared-pattern-buttons';row.setAttribute('role','group');row.setAttribute('aria-label','Line pattern');
+   const buttons=[];
+   const sync=()=>{for(const [button,value] of buttons){button.setAttribute('aria-pressed',String(select.value===value));button.disabled=select.disabled;}};
+   for(const option of options){
+    const button=document.createElement('button');button.type='button';button.title=option.textContent;button.setAttribute('aria-label',option.textContent);
+    button.innerHTML='<svg viewBox="0 0 48 16" aria-hidden="true"><line x1="3" y1="8" x2="45" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="'+patterns[option.value]+'"/></svg>';
+    button.addEventListener('click',()=>{if(select.disabled)return;select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();});
+    row.append(button);buttons.push([button,option.value]);
+   }
+   select.classList.add('shared-pattern-original');select.tabIndex=-1;select.setAttribute('aria-hidden','true');select.after(row);select.addEventListener('change',sync);mounted.set(select,sync);sync();
+  }
+ }
+ let queued=false;
+ const observer=new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;enhance();});});
+ const root=document.getElementById('drawingMain');if(root)observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','selected']});
+ enhance();
+})();
+</script></body></html>
