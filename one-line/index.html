@@ -4499,8 +4499,9 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
   ]){const control=get(sel);
    // Formatting controls must not replace the selected equipment text target.
    control.addEventListener('pointerdown',e=>e.stopPropagation());
-   control.addEventListener('input',e=>{
+   control.addEventListener(item.type==='planroom'&&(sel==='[data-shared-x]'||sel==='[data-shared-y]')?'change':'input',e=>{
     if(selected?.kind!=='node'||selected.id!==item.id||!editor.isConnected)return;
+    if(item.type==='planroom'&&(sel==='[data-shared-x]'||sel==='[data-shared-y]')&&(e.target.value.trim()===''||!Number.isFinite(Number(e.target.value))))return;
     if(item.type==='planroom'&&(activeInnerKey==='roomDimensionLength'||activeInnerKey==='roomDimensionWidth')){if(sel!=='[data-shared-x]'&&sel!=='[data-shared-y]')return;const v=Number(e.target.value);if(!Number.isFinite(v))return;if(activeInnerKey==='roomDimensionLength'){if(sel==='[data-shared-x]')item.roomLengthLabelX=v;else item.roomLengthLabelOffset=v;}else{if(sel==='[data-shared-x]')item.roomWidthLabelOffset=v;else item.roomWidthLabelY=v;}renderCanvasOnly();return;}if(activeInnerKey===null){if(sel==='[data-shared-x]'||sel==='[data-shared-y]'){const position=finiteEquipmentOffset(e.target.value);if(sel==='[data-shared-x]')item.x=position;else item.y=position;clampEquipmentToSheet(item);renderCanvasOnly();toolbar.syncSelectedText?.();}return;}if(activeInnerKey!=='drawingLabel'&&!defs.some(d=>d[0]===activeInnerKey))return;
     handler(e.target.value);
     renderCanvasOnly();toolbar.syncSelectedText?.();
