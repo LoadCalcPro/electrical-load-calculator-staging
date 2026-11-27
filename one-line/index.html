@@ -5623,7 +5623,7 @@ function endpointGraphic(value,x,y,angle,size,color,dimensions){
 function mountLineEndpointButtons(select){
  if(!select||select.dataset.endpointMounted)return;
  const row=select.closest('label.field');if(!row)return;
- const circuit=select.id==='newCircuitArrow'||(selected?.kind==='polyroute'&&polyRoutes.find(v=>v.id===selected.id)?.kind==='switch-control');const owner=()=>select.id==='newCircuitArrow'?(activePoly||newCircuitEndpointSettings):select.id==='newPolyArrow'?(activePoly||newPolylineEndpointSettings):select.id==='newLineArrow'?newLineEndpointSettings:selected?.kind==='polyroute'?polyRoutes.find(v=>v.id===selected.id):selected?.kind==='line'?lines.find(v=>v.id===selected.id):null;
+ const circuit=select.id==='newCircuitArrow'||(selected?.kind==='polyroute'&&polyRoutes.find(v=>v.id===selected.id)?.kind==='switch-control');const owner=()=>select.id==='newCircuitArrow'?(activePoly||newCircuitEndpointSettings):select.id==='newPolyArrow'?(activePoly||newPolylineEndpointSettings):select.id==='newLineArrow'?newLineEndpointSettings:selected?.kind==='polyroute'?polyRoutes.find(v=>v.id===selected.id):selected?.kind==='line'?drawnLines.find(v=>v.id===selected.id):null;
  select.dataset.endpointMounted='1';row.style.display='none';
  const choices=[['arrow','Arrow','<path d="M3 12 H21 M14 5 L21 12 L14 19"/>'],['circle','Open circle','<circle cx="12" cy="12" r="8"/>'],['semicircle','Semicircle','<path d="M8 4 V20 A8 8 0 0 0 8 4 Z"/>'],['dot','Solid dot','<circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none"/>'],['none','None','<path d="M3 12 H21"/>']];
  for(const [a] of choices)for(const [b] of choices){const v=a+':'+b;if(!Array.from(select.options).some(o=>o.value===v))select.add(new Option(v,v));}
