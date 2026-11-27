@@ -8132,4 +8132,17 @@ select.shared-pattern-original{display:none!important}
  const observer=new MutationObserver(()=>{if(!queued){queued=true;queueMicrotask(run);}});
  for(const id of ['properties','textInspector']){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true});}run();
 })();
-</script></body></html>
+</script><style>
+/* Compact, consistent separation between property groups; retain existing control dimensions. */
+#drawingMain #properties .shared-endpoint-buttons{gap:6px!important;margin-block:8px!important}
+#drawingMain #properties .shared-endpoint-buttons+label.field,
+#drawingMain #properties .shared-endpoint-buttons+div.field{margin-top:8px!important}
+#drawingMain #properties label.field:has(>[data-installation-status]){margin-top:8px!important;margin-bottom:8px!important}
+#drawingMain #properties .universal-offset-pair{margin-top:8px!important;margin-bottom:8px!important;gap:8px!important}
+#drawingMain #properties .shared-pattern-buttons{margin-bottom:8px!important}
+#drawingMain #properties .shared-text-grid{row-gap:8px!important}
+#drawingMain #properties .shared-text-editor label.field,
+#drawingMain #textInspector .shared-text-editor label.field{margin-bottom:4px!important}
+#drawingMain #properties label.field:has(>textarea){margin-top:6px!important}
+#drawingMain #properties label.field:has(>input[type="number"]){row-gap:4px!important}
+</style></body></html>
