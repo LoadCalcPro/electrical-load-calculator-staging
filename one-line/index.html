@@ -7999,6 +7999,8 @@ if(location.protocol==='file:'){
 (function(){
  const roots=['properties','textInspector'];
  function enhance(){
+  for(const id of roots){const root=document.getElementById(id);if(!root)continue;for(const select of root.querySelectorAll('select[data-shared-style],select[data-pt-style],select[data-revision-style]')){const field=select.closest('label');if(!field)continue;const scope=field.closest('.shared-text-editor,.project-text-controls')||root;const toolbar=scope.querySelector('[data-universal-text-alignment]')||document.querySelector('#properties [data-universal-text-alignment],#textInspector [data-universal-text-alignment]');if(toolbar){field.hidden=true;field.style.setProperty('display','none','important');}}}
+
   for(const id of roots){
    const root=document.getElementById(id);if(!root)continue;
    for(const select of root.querySelectorAll('select')){
