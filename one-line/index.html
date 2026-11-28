@@ -2759,9 +2759,18 @@ function applyEquipmentFill(markup,n){
  return changed?defs+result:markup;
 }
 function equipmentPatternEditor(item){return '<label class="field">Equipment outline pattern<select data-equipment-pattern><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="dashdot">Dash-dot</option></select></label>'}
-function bindEquipmentPatternEditor(p,item){const control=p.querySelector('[data-equipment-pattern]');if(!control)return;control.value=item.strokePattern||(item.dashed?'dashed':'solid');control.addEventListener('change',()=>{item.strokePattern=control.value;item.dashed=control.value==='dashed';renderCanvasOnly();});}
+function bindEquipmentPatternEditor(p,item){const control=p.querySelector('[data-equipment-pattern]');if(!control)return;control.value=item.strokePattern||(item.dashed?'dashed':'solid');control.addEventListener('change',()=>{item.strokePattern=control.value;item.dashed=control.value==='dashed';previewEquipmentLineWeight(item);});}
 function weightEditor(item){return `<div class="section"><label class="field">Line Weight<input data-weight-value type="number" min="0.4" max="8" step="0.2" value="${weightFor(item)}"></label></div>`}
 function symbolLineWeightMarkup(markup,item){
+ // Apply explicit outline patterns to equipment artwork, including hard-coded Plan View strokes.
+ // Keep hatch definitions and fill-only artwork intact.
+ if(item.strokePattern||item.dashed){
+  const pattern=drawingDashPattern(item)||'none';
+  markup=markup.replace(/<defs\b[^>]*>[\s\S]*?<\/defs>|<(?:path|rect|circle|ellipse|line|polyline|polygon)\b[^>]*>/g,tag=>{
+   if(tag.startsWith('<defs')||!/\bstroke="[^"]+"/.test(tag)||/\bstroke="none"/.test(tag))return tag;
+   return tag.replace(/\s+stroke-dasharray="[^"]*"/g,'').replace(/\s*\/?>$/,end=>' stroke-dasharray="'+pattern+'"'+end);
+  });
+ }
  // Normalize hard-coded SVG strokes for dimensionless Plan View symbols.
  // Preserve fill-only geometry and text, and do not affect measured equipment.
  if(item.type!=='plansymbol')return markup;
