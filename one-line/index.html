@@ -5278,6 +5278,26 @@ function renderUniversalTextAlignment(){
  for(const item of polyRoutes)if(item.kind==='revision-shape'&&item.textAlignment?.label)applyUniversalTextAlignment(svg.querySelector('[data-polyroute="'+item.id+'"] text[data-revision-label-drag]'),item.textAlignment.label);
  for(const [items,selector] of [[drawnLines,'data-line-text'],[polyRoutes,'data-poly-label'],[polyRoutes,'data-area-label'],[wires,'data-feeder-text']])for(const item of items)if(item.textAlignment?.label)applyUniversalTextAlignment(svg.querySelector('text['+selector+'="'+item.id+'"]'),item.textAlignment.label);
 }
+function installSelectedItemHeading(){
+ const inspector=$('drawingInspector');if(!inspector||!selected)return;
+ const kind=selected.kind;
+ const collection=kind==='node'?nodes:kind==='line'?drawnLines:kind==='polyroute'||kind==='measured-area'?polyRoutes:kind==='annotation'?annotations:kind==='wire'?wires:[];
+ const item=collection.find(v=>v.id===selected.id);
+ const names={planwall:'Wall',planroom:'Room',planwindow:'Window',plandoor:'Door',planpanel:'Panel',plandimension:'Dimension',plantransformer:'Transformer',plangenerator:'Generator',planclearance:'Clearance',line:'Line',polyroute:'Polyline',wire:'Connection',annotation:'Text / Leader','measured-area':'Area Measurement'};
+ const humanize=v=>String(v||'').replace(/^plan(?=[A-Z]|[a-z])/,'').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+ let name=item?.planConduit?(item.planConduit.location==='Above Ground'?'Above-Ground Conduit':'Underground Conduit'):item?.type==='planwindow'?(item.windowStyle||'Window'):item?.type==='plandoor'?(item.doorStyle==='double'?'Double Hinged Door':item.doorStyle==='sliding'?(item.slideConfig==='double'?'Double Sliding Door':item.slideConfig==='bypass'?'Bypass Sliding Door':'Single Sliding Door'):'Single Hinged Door'):item?.equipmentSubtype||names[item?.type]||names[item?.kind]||names[kind]||humanize(item?.type||kind);
+ if(item?.shape)name=humanize(item.shape);
+ const roots=Array.from(inspector.querySelectorAll('#properties,#textInspector'));
+ let placed=false;
+ for(const root of roots){
+  for(const el of root.querySelectorAll('div,label')){
+   const first=el.firstChild;if(first?.nodeType!==3||first.textContent.trim().toLowerCase()!=='format selected part')continue;
+   first.textContent=name;el.classList.add('selected-item-heading');placed=true;
+  }
+ }
+ if(!placed){const target=roots.map(root=>root.querySelector('.shared-selected-label,.numbered-note-heading')).find(Boolean);if(target){target.textContent=name;target.classList.add('selected-item-heading');placed=true;}}
+ if(placed&&item?.planConduit)for(const heading of inspector.querySelectorAll('.conduit-measure-heading'))heading.style.display='none';
+}
 function compactLineTemplate(){const p=$('properties'),inspector=$('textInspector');if(!selected&&['line','polyline','connect'].includes(mode)&&!window.creatingAboveConduit){p.classList.add('line-details-blue');p.style.setProperty('padding','8px 10px');p.classList.add('new-line-joined');}else{p.style.removeProperty('padding');p.classList.remove('new-line-joined');}if(!['line','polyroute','wire'].includes(selected?.kind))return;const root=inspector.querySelector('.shared-text-editor');if(!root)return;const label=p.querySelector('[data-line-prop="label"]')?.closest('label');const align=root.querySelector('[data-universal-text-alignment]');if(label&&align){label.firstChild.textContent='Drawing Label';align.after(label);}const pair=(a,b)=>{if(!a||!b||a===b)return;const row=document.createElement('div');row.className='shared-text-grid';a.before(row);row.append(a,b);};if(selected.kind==='line'){const count=p.querySelector('#drawingLineCount')?.closest('label'),spacing=p.querySelector('#lineGroupSpacing')?.closest('label'),conductorRow=root.querySelector('[data-conductor-target]')?.parentElement;if(count){const row=document.createElement('div');row.className='shared-text-grid';if(spacing){spacing.firstChild.textContent='Spacing';row.append(count,spacing);}else{row.append(count);count.style.gridColumn='1/-1';}if(conductorRow)conductorRow.before(row);else root.append(row);}}if(selected.kind==='polyroute'){
  const revision=root.querySelector('[data-revision-label]');if(revision){const row=root.querySelector('[data-universal-text-alignment]');if(row)row.after(revision.closest('label'));return;}
  const item=polyRoutes.find(v=>v.id===selected.id);if(item?.kind!=='polyline'||item.planConduit)return;
@@ -5444,6 +5464,7 @@ if(selected?.kind==='node'){
  });
 }
 placeUniversalOffsetsLast();
+installSelectedItemHeading();
 }} else if(selected?.kind==='node'&&selectedNodeIds.size<=1&&!roomPropertiesUpdateInProgress&&!['plandimension','plandoor','planwindow','planpanel','plantransformer','plangenerator','planclearance'].includes(nodes.find(n=>n.id===selected.id)?.type)&&!(nodes.find(n=>n.id===selected.id)?.type==='plansymbol'&&(nodes.find(n=>n.id===selected.id)?.equipmentSubtype||nodes.find(n=>n.id===selected.id)?.name)==='Linear Light')){$('textInspector').syncSelectedText?.();}$('selectMode').classList.toggle('active',mode==='select');$('connectMode').classList.toggle('active',mode==='connect');$('lineMode').classList.toggle('active',mode==='line');$('fieldMeasureMode').classList.toggle('active',mode==='field-measure');$('polyMode').classList.toggle('active',mode==='polyline'&&!window.creatingAboveConduit);const aboveButton=$('planAboveConduitTool');if(aboveButton)aboveButton.classList.toggle('active',drawingView==='plan'&&mode==='polyline'&&!!window.creatingAboveConduit);$('shapeMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='rectangle');$('cloudMode').classList.toggle('active',mode==='revision-shape'&&revisionShapeChoice==='cloud');$('switchLegMode').classList.toggle('active',mode==='switch-control');$('homeRunMode').classList.toggle('active',mode==='home-run');const conduitOverlay=$('conduitEndpointOverlay');if(conduitOverlay)conduitOverlay.innerHTML=polyRoutes.filter(route=>route.planConduit?.location==='Above Ground'&&route.points?.length>1).map(route=>[route.points[0],route.points[route.points.length-1]].map(p=>conduitEndpointCircle(route.planConduit,p.x,p.y,installationStroke(route,route.colors?.[0]||'#087f99'))).join('')).join('');$('modeLabel').textContent='Mode: '+(mode==='connect'?'Connect (select two symbols)':mode==='plan-conduit'?'Underground Conduit (select two points)':'Select / Move')}
 function noteLeaders(a){if(!Array.isArray(a.leaders)){a.leaders=[{id:0,endX:a.endX??a.x+95,endY:a.endY??a.y+30,targetId:a.targetId??null,offsetX:a.offsetX||0,offsetY:a.offsetY||0}]}return a.leaders;}
 function leaderStartPoint(l,left,top,width,height,autoX,autoY){
@@ -8169,4 +8190,5 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #drawingInspector #properties .conduit-measured-properties>label.poly-rounded-option{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;min-height:0!important}
 #drawingMain #drawingInspector #properties .conduit-measured-properties>label.poly-rounded-option>input[type=checkbox]{width:16px!important;height:16px!important;min-width:16px!important;flex:0 0 16px!important;margin:0!important}
 #drawingMain #drawingInspector #properties .conduit-measured-properties>div.field:not(.conduit-measure-heading){background:transparent!important;padding:0!important;margin:0 0 var(--property-row-gap)!important;border:0!important;font-size:var(--drawing-property-label-size,13px)!important}
+#drawingMain #drawingInspector .selected-item-heading{display:block!important;box-sizing:border-box!important;width:100%!important;background:#B9CFEA!important;color:#111!important;-webkit-text-fill-color:#111!important;border:0!important;border-radius:var(--property-choice-radius,6px)!important;padding:4px 8px!important;margin:0 0 var(--property-row-gap,8px)!important;font-size:var(--drawing-property-label-size,13px)!important;font-weight:600!important;line-height:1.3!important}
 </style></body></html>
