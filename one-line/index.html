@@ -5118,7 +5118,8 @@ function showPlanConduitSchedule(){
 }
 function conduitEndpointCircle(c,x,y,color,attrs=''){
  const radius=3.5*normalizeDrawingPropertyNumber(c?.endpointSize,100,10,600)/100;
- return '<circle cx="'+x+'" cy="'+y+'" r="'+radius+'" fill="white" stroke="'+esc(color)+'" stroke-width="1.4" '+attrs+'/>';
+ const endpointStyle='style="r:'+radius+'px" data-conduit-circle="true"';
+ return '<circle cx="'+x+'" cy="'+y+'" r="'+radius+'" fill="white" stroke="'+esc(color)+'" stroke-width="1.4" '+endpointStyle+' '+attrs+'/>';
 }
 function conduitSizeSelectMarkup(attr){
  const sizes=['½','¾','1','1¼','1½','2','2½','3','3½','4','5','6'];
@@ -5159,7 +5160,7 @@ function renderAboveConduitProperties(){
   '';
  p.prepend(section);
  const showLength=section.querySelector('[data-conduit-length-visible]');showLength.checked=c.showLengthOnDrawing===true;showLength.onchange=()=>{c.showLengthOnDrawing=showLength.checked;renderCanvasOnly();};
- const endpointSize=section.querySelector('[data-conduit-endpoint-size]');endpointSize.value=normalizeDrawingPropertyNumber(c.endpointSize,100,10,600);const updateEndpointSize=()=>{if(endpointSize.value==='')return;const current=selected?.kind==='polyroute'?polyRoutes.find(v=>v.id===selected.id):selected?.kind==='line'?drawnLines.find(v=>v.id===selected.id):null;if(!current?.planConduit)return;current.planConduit.endpointSize=normalizeDrawingPropertyNumber(endpointSize.value,100,10,600);render(true);};endpointSize.addEventListener('input',updateEndpointSize);endpointSize.addEventListener('change',updateEndpointSize);
+ const endpointSize=section.querySelector('[data-conduit-endpoint-size]');endpointSize.value=normalizeDrawingPropertyNumber(c.endpointSize,100,10,600);const updateEndpointSize=()=>{if(endpointSize.value==='')return;const current=selected?.kind==='polyroute'?polyRoutes.find(v=>v.id===selected.id):selected?.kind==='line'?drawnLines.find(v=>v.id===selected.id):null;if(!current?.planConduit)return;current.planConduit.endpointSize=normalizeDrawingPropertyNumber(endpointSize.value,100,10,600);render(true);};endpointSize.addEventListener('input',updateEndpointSize);endpointSize.addEventListener('change',updateEndpointSize);endpointSize.addEventListener('keyup',updateEndpointSize);
  for(const field of section.querySelectorAll('[data-above-conduit]')){
   const key=field.dataset.aboveConduit;
   field.value=key==='diameter'?(c.diameter?conduitTradeSize(c.diameter).replace(/″$/,''):''):key==='designation'?(c.designation||route.label||''):c[key]??'';
@@ -5198,7 +5199,7 @@ function renderPlanConduitProperties(){
  if(duplicateLabel)duplicateLabel.remove();
  p.prepend(section);
  const showLength=section.querySelector('[data-conduit-length-visible]');showLength.checked=c.showLengthOnDrawing===true;showLength.onchange=()=>{c.showLengthOnDrawing=showLength.checked;renderCanvasOnly();};
- const endpointSize=section.querySelector('[data-conduit-endpoint-size]');endpointSize.value=normalizeDrawingPropertyNumber(c.endpointSize,100,10,600);const updateEndpointSize=()=>{if(endpointSize.value==='')return;const current=selected?.kind==='polyroute'?polyRoutes.find(v=>v.id===selected.id):selected?.kind==='line'?drawnLines.find(v=>v.id===selected.id):null;if(!current?.planConduit)return;current.planConduit.endpointSize=normalizeDrawingPropertyNumber(endpointSize.value,100,10,600);render(true);};endpointSize.addEventListener('input',updateEndpointSize);endpointSize.addEventListener('change',updateEndpointSize);
+ const endpointSize=section.querySelector('[data-conduit-endpoint-size]');endpointSize.value=normalizeDrawingPropertyNumber(c.endpointSize,100,10,600);const updateEndpointSize=()=>{if(endpointSize.value==='')return;const current=selected?.kind==='polyroute'?polyRoutes.find(v=>v.id===selected.id):selected?.kind==='line'?drawnLines.find(v=>v.id===selected.id):null;if(!current?.planConduit)return;current.planConduit.endpointSize=normalizeDrawingPropertyNumber(endpointSize.value,100,10,600);render(true);};endpointSize.addEventListener('input',updateEndpointSize);endpointSize.addEventListener('change',updateEndpointSize);endpointSize.addEventListener('keyup',updateEndpointSize);
  for(const field of section.querySelectorAll('[data-conduit-field]')){
  const key=field.dataset.conduitField;field.value=key==='diameter'?(c.diameter?conduitTradeSize(c.diameter).replace(/″$/,''):''):key==='material'?(c.material??'PVC'):key==='designation'?(c.designation||l.label||''):c[key]??'';
  if(key==='diameter'){bindConduitSizeSelect(field,c.diameter,v=>{c.diameter=v;c.size=((v?conduitTradeSize(v):'Unspecified size')+' '+(c.material||'')).trim();render();});continue;}
