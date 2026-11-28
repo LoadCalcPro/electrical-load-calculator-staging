@@ -5147,7 +5147,7 @@ function renderAboveConduitProperties(){
  const run=aboveConduitLength(route.points)/units;
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');section.className='field conduit-measured-properties';
- section.innerHTML='<div class="conduit-measure-heading"><b>Above-Ground Conduit </b></div><label class="field poly-rounded-option"><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></label>'+
+ section.innerHTML='<label class="field poly-rounded-option"><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></label>'+
  '<label class="field">Endpoint size (%)<input type="number" min="10" max="600" step="5" data-conduit-endpoint-size></label>'+
  '<label class="field">Conduit ID<input data-above-conduit="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-above-conduit="diameter"')+'</label>'+
@@ -5181,7 +5181,7 @@ function renderPlanConduitProperties(){
  const extra=(Number(c.riseA)||0)+(Number(c.riseB)||0)+(Number(c.allowance)||0);
  const section=document.createElement('section');
  section.className='field conduit-measured-properties';
- section.innerHTML='<div class="conduit-measure-heading"><b>Underground Conduit </b></div><label class="field poly-rounded-option"><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></label>'+
+ section.innerHTML='<label class="field poly-rounded-option"><input type="checkbox" data-conduit-length-visible aria-label="Show conduit length on drawing" title="Show conduit length on drawing"><span>Show Conduit Length</span></label>'+
  '<label class="field">Endpoint size (%)<input type="number" min="10" max="600" step="5" data-conduit-endpoint-size></label>'+
  '<label class="field">Conduit ID<input data-conduit-field="designation"></label>'+
  '<label class="field">Conduit trade size'+conduitSizeSelectMarkup('data-conduit-field="diameter"')+'</label>'+
@@ -5296,7 +5296,6 @@ function installSelectedItemHeading(){
   }
  }
  if(!placed){const target=roots.map(root=>root.querySelector('.shared-selected-label,.numbered-note-heading')).find(Boolean);if(target){target.textContent=name;target.classList.add('selected-item-heading');placed=true;}}
- if(placed&&item?.planConduit)for(const heading of inspector.querySelectorAll('.conduit-measure-heading'))heading.style.display='none';
 }
 function compactLineTemplate(){const p=$('properties'),inspector=$('textInspector');if(!selected&&['line','polyline','connect'].includes(mode)&&!window.creatingAboveConduit){p.classList.add('line-details-blue');p.style.setProperty('padding','8px 10px');p.classList.add('new-line-joined');}else{p.style.removeProperty('padding');p.classList.remove('new-line-joined');}if(!['line','polyroute','wire'].includes(selected?.kind))return;const root=inspector.querySelector('.shared-text-editor');if(!root)return;const label=p.querySelector('[data-line-prop="label"]')?.closest('label');const align=root.querySelector('[data-universal-text-alignment]');if(label&&align){label.firstChild.textContent='Drawing Label';align.after(label);}const pair=(a,b)=>{if(!a||!b||a===b)return;const row=document.createElement('div');row.className='shared-text-grid';a.before(row);row.append(a,b);};if(selected.kind==='line'){const count=p.querySelector('#drawingLineCount')?.closest('label'),spacing=p.querySelector('#lineGroupSpacing')?.closest('label'),conductorRow=root.querySelector('[data-conductor-target]')?.parentElement;if(count){const row=document.createElement('div');row.className='shared-text-grid';if(spacing){spacing.firstChild.textContent='Spacing';row.append(count,spacing);}else{row.append(count);count.style.gridColumn='1/-1';}if(conductorRow)conductorRow.before(row);else root.append(row);}}if(selected.kind==='polyroute'){
  const revision=root.querySelector('[data-revision-label]');if(revision){const row=root.querySelector('[data-universal-text-alignment]');if(row)row.after(revision.closest('label'));return;}
