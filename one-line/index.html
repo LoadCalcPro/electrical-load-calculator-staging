@@ -4947,7 +4947,7 @@ function renderPositionSpacingPropertiesRefresh(){
 }
 function renderPositionSpacingProperties(){
  const inspector=$('textInspector'),c=planPositionContext();if(!inspector||!c)return;
- const section=document.createElement('section');section.style.cssText='border:1px solid #cbd5e1;border-radius:6px;padding:9px;margin-top:10px;font:13px Arial,sans-serif';
+ const section=document.createElement('section');section.className='shared-property-group';
  const heading=document.createElement('div');heading.textContent='Position & Spacing — inside wall faces';heading.className='shared-property-heading';heading.style.cssText='font-weight:600;margin-bottom:8px';section.append(heading);
  const display=document.createElement('select');for(const [value,label] of [['nearest','Nearest walls'],['all','All four walls'],['off','Hide measurements']]){const option=new Option(label,value);display.add(option);}display.value=positionSpacingMode;display.style.cssText='width:100%;margin-bottom:8px';display.addEventListener('change',()=>{positionSpacingMode=display.value;renderPositionSpacing();});section.append(display);
  if(c.n.type==='planwall'||positionSpacingIsLinearLight(c.n)){
@@ -8106,7 +8106,7 @@ select.shared-pattern-original{display:none!important}
 
 #drawingMain #drawingInspector{--property-row-gap:8px;--property-label-gap:4px;--property-inset:10px}
 #drawingMain #drawingInspector :is(#properties,#textInspector){padding:0 var(--property-inset)!important;margin:0!important;box-sizing:border-box!important;border:0!important;box-shadow:none!important}
-#drawingMain #drawingInspector :is(#properties,#textInspector) :is(.properties-common,.property-priority,.properties-advanced,.equipment-appearance-section,.shared-text-editor,.plan-wall-properties,.numbered-note-panel,.numbered-note-formatting){padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;box-sizing:border-box!important}
+#drawingMain #drawingInspector :is(#properties,#textInspector) :is(.properties-common,.property-priority,.properties-advanced,.equipment-appearance-section,.shared-text-editor,.plan-wall-properties,.numbered-note-panel,.numbered-note-formatting,.shared-property-group){padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;box-sizing:border-box!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) label.field{margin:0 0 var(--property-row-gap)!important;padding:0!important;row-gap:var(--property-label-gap)!important;box-sizing:border-box!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) label.field> :is(input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea){margin:var(--property-label-gap) 0 0!important;box-sizing:border-box!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) :is(.shared-text-grid,.font-family-size-row,.numbered-note-row,.universal-offset-pair){gap:var(--property-row-gap)!important;margin:0 0 var(--property-row-gap)!important;padding:0!important;box-sizing:border-box!important}
