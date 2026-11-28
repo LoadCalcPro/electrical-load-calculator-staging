@@ -8168,4 +8168,9 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) :is(.equipment-outline-palette,.equipment-color-card,.equipment-format-targets,[data-universal-text-alignment],.shared-fill-mode-buttons,.shared-pattern-buttons,.shared-endpoint-buttons){margin:0 0 var(--property-row-gap)!important;row-gap:var(--property-row-gap)!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) :is(h4,summary){margin:0 0 var(--property-row-gap)!important}
 #drawingMain #drawingInspector #properties>.universal-offset-pair{margin:0 0 var(--property-row-gap)!important;border:0!important;padding:0!important}
-</style><style>#drawingMain .room-dimension-units{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500}#drawingMain label.field>span:has(>.room-dimension-units){position:relative;min-width:0}@media(max-width:600px){#drawingMain .room-dimension-units{position:static;transform:none}}</style></body></html>
+</style><style>#drawingMain .room-dimension-units{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500}#drawingMain label.field>span:has(>.room-dimension-units){position:relative;min-width:0}@media(max-width:600px){#drawingMain .room-dimension-units{position:static;transform:none}}</style><style id="universalOffsetSpacing">
+#drawingMain #drawingInspector #properties:has(>.universal-offset-pair:not([hidden])){row-gap:0!important;align-content:start!important;justify-content:start!important}
+#drawingMain #drawingInspector #properties>.universal-offset-pair:not([hidden]){flex:0 0 auto!important;margin:0 0 var(--property-row-gap)!important;padding:0!important;border:0!important;min-height:0!important}
+#drawingMain #drawingInspector #properties>:has(+.universal-offset-pair:not([hidden])):not(label.field){margin-bottom:0!important;padding-bottom:0!important;border-bottom:0!important}
+#drawingMain #drawingInspector #properties>.universal-offset-pair>label.field{margin:0!important;padding:0!important;row-gap:0!important}
+</style></body></html>
