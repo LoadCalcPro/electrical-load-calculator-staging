@@ -5563,7 +5563,7 @@ function addDrawingLinePalette(item,kind){
  const ids=kind==='line'?group().map(z=>z.id):Array.from({length:Math.max(1,item.colors?.length||1)},(_,i)=>i);
  const targetRow=document.createElement('div');targetRow.className='equipment-format-targets shared-property-targets';
  const buttons={};
- for(const [value,title] of [['line',kind==='line'?'Line outline':'Polyline outline'],['label','Line label']]){
+ for(const [value,title] of [['line',(kind==='line'||item.planConduit)?'Line outline':'Polyline outline'],['label','Line label']]){
   const button=document.createElement('button');button.type='button';button.textContent=title;button.dataset.formatTarget=value;
   button.classList.add('shared-property-target-button');
   button.onclick=()=>{if(button.disabled)return;target=value;if(kind==='polyroute')activePolylineFormattingTarget=value;sync();};
