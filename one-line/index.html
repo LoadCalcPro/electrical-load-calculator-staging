@@ -8067,7 +8067,7 @@ if(location.protocol==='file:'){
   }
  }
  let queued=false;
- const observer=new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;enhance();});});
+ const observer=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhance();});});
  for(const id of roots){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true});}
  enhance();
 })();
@@ -8095,7 +8095,7 @@ select.shared-pattern-original{display:none!important}
    if(options.length!==4||!options.every(o=>Object.prototype.hasOwnProperty.call(patterns,o.value)))continue;
    const row=document.createElement('div');row.className='shared-pattern-buttons';row.setAttribute('role','group');row.setAttribute('aria-label','Line pattern');
    const buttons=[];
-   const sync=()=>{for(const [button,value] of buttons){button.setAttribute('aria-pressed',String(select.value===value));button.disabled=select.disabled;}};
+   const sync=()=>{for(const [button,value] of buttons){button.setAttribute('aria-pressed',String(select.value===value));if(button.disabled!==select.disabled)button.disabled=select.disabled;}};
    for(const option of options){
     const button=document.createElement('button');button.type='button';button.title=option.textContent;button.setAttribute('aria-label',option.textContent);
     button.innerHTML='<svg viewBox="0 0 48 16" aria-hidden="true"><line x1="3" y1="8" x2="45" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="'+patterns[option.value]+'"/></svg>';
@@ -8132,4 +8132,7 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #textInspector .equipment-outline-palette>div{margin-block:0!important;padding-block:0!important}
 #drawingMain #textInspector .equipment-outline-palette .equipment-format-targets{margin:6px 0 0!important;gap:8px!important}
 #drawingMain #textInspector .equipment-text-editor{margin-top:8px!important;padding-top:0!important}
+</style><style>
+#drawingMain .shared-text-grid:has([data-shared-x]):has([data-shared-y]){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#drawingMain .shared-text-grid>label:has([data-shared-x]),#drawingMain .shared-text-grid>label:has([data-shared-y]){grid-column:auto!important;min-width:0!important;width:100%!important}
 </style></body></html>
