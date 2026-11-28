@@ -4399,7 +4399,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
  const outlineTarget=document.createElement('div');outlineTarget.className='field';
  const targetCaption=document.createElement('div');targetCaption.textContent='Format selected part';outlineTarget.appendChild(targetCaption);
  const outlineSelect=document.createElement('div');outlineSelect.className='equipment-format-targets';outlineSelect.setAttribute('role','group');outlineSelect.setAttribute('aria-label','Choose part to format');
- const outlineButtons={};for(const [value,label] of [['outline','Equipment outline'],['label','Selected equipment label']]){const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.formatTarget=value;button.style.cssText='flex:1;min-width:0;padding:9px 7px;border:1px solid #b8cbe3;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer;';outlineSelect.appendChild(button);outlineButtons[value]=button;}
+ const outlineButtons={};for(const [value,label] of [['outline','Equipment outline'],['label','Equipment label']]){const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.formatTarget=value;button.style.cssText='flex:1;min-width:0;padding:9px 7px;border:1px solid #b8cbe3;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer;';outlineSelect.appendChild(button);outlineButtons[value]=button;}
  outlineSelect.style.cssText='display:flex;gap:8px;margin-top:8px;';let outlineTargetValue=activeInnerKey?'label':'outline';Object.defineProperty(outlineSelect,'value',{get:()=>outlineTargetValue,set:v=>{outlineTargetValue=v;}});outlineTarget.appendChild(outlineSelect);outline.appendChild(outlineTarget);
  // Put the actual equipment designation immediately below the color palette.
  // Move the original input rather than duplicating its value or event handlers.
@@ -7257,7 +7257,7 @@ function openDrawingEditMenu(x,y){
 }
 $('drawingEditMenuButton').onclick=()=>{if(drawingMenu.style.display==='block'){closeDrawingMenu();return;}const r=$('drawingEditMenuButton').getBoundingClientRect();openDrawingEditMenu(r.left,r.bottom+3);};
 document.addEventListener('pointerdown',e=>{if(!drawingMenu.contains(e.target)&&!e.target.closest('#drawingEditMenuButton'))closeDrawingMenu()},true);
-// A selected equipment label is not the equipment itself.
+// A Equipment label is not the equipment itself.
 window.addEventListener('keydown',e=>{
  if(e.key!=='Backspace'&&e.key!=='Delete')return;
  const focus=document.activeElement;
