@@ -8088,14 +8088,14 @@ select.shared-pattern-original{display:none!important}
    for(const option of options){
     const button=document.createElement('button');button.type='button';button.title=option.textContent;button.setAttribute('aria-label',option.textContent);
     button.innerHTML='<svg viewBox="0 0 48 16" aria-hidden="true"><line x1="3" y1="8" x2="45" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="'+patterns[option.value]+'"/></svg>';
-    button.addEventListener('click',()=>{if(select.disabled)return;select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();});
+    button.addEventListener('click',()=>{if(select.disabled||select.value===option.value)return;select.value=option.value;select.dispatchEvent(new Event('change'));sync();});
     row.append(button);buttons.push([button,option.value]);
    }
    select.classList.add('shared-pattern-original');select.tabIndex=-1;select.setAttribute('aria-hidden','true');select.after(row);select.addEventListener('change',sync);mounted.set(select,sync);sync();
   }
  }
  let queued=false;
- const observer=new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;enhance();});});
+ const observer=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhance();});});
  for(const id of ['properties','textInspector','equipmentLibrary','drawingStickyToolbar']){const root=document.getElementById(id);if(root)observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','selected']});}
  enhance();
 })();
