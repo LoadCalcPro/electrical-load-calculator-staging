@@ -8142,4 +8142,12 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) label.field:has(.shared-fill-mode-buttons){margin-bottom:var(--property-row-gap)!important;padding-bottom:0!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) label.field .shared-fill-mode-buttons{margin:var(--property-label-gap) 0 0!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) .shared-property-color-bar :is(.shared-property-picker,.shared-property-hex){height:var(--shared-property-control-height,34px)!important;min-height:var(--shared-property-control-height,34px)!important;max-height:var(--shared-property-control-height,34px)!important;box-sizing:border-box!important;align-self:center}
+
+/* Equipment Library hierarchy: preserve native disclosure and item geometry. */
+#drawingMain #equipmentLibrary .equipment-category>summary{background:#B9CFEA!important;color:#18365C!important;font-weight:700!important;cursor:pointer}
+#drawingMain #equipmentLibrary :is(.plan-door-subcategory,.plan-symbol-subcategory)>summary{background:#E8F1FF!important;color:#18365C!important;font-weight:700!important;cursor:pointer}
+#drawingMain #equipmentLibrary .equipment-category>summary::marker{font-size:1.2em;color:#18365C}
+#drawingMain #equipmentLibrary :is(.plan-door-subcategory,.plan-symbol-subcategory)>summary::marker{font-size:1.1em;color:#18365C}
+#drawingMain #equipmentLibrary .equipment-category>summary:hover{background:#B9CFEA!important}
+#drawingMain #equipmentLibrary :is(.plan-door-subcategory,.plan-symbol-subcategory)>summary:hover{background:#E8F1FF!important}
 </style></body></html>
