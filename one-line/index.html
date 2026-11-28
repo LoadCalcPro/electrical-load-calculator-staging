@@ -4663,8 +4663,7 @@ const electricalKeys=['voltage','phase','mainType','amps','rating','fuseAmps','f
    wallSection.remove();
    // The wall controls are now children of info, not wallSection.
    // Match the actual inset of the upper Rotation field in the live DOM.
-   info.style.setProperty('padding-left','16px','important');
-   info.style.setProperty('padding-right','16px','important');
+   
    info.style.setProperty('box-sizing','border-box','important');
 
   }
@@ -7800,63 +7799,6 @@ if(location.protocol==='file:'){
 }
 /* Plan Wall controls are MOVED from .plan-wall-properties into
    .property-priority by JS; style their actual rendered parent. */
-#drawingMain #properties.plan-wall-standardized > .property-priority{
- padding-left:30px!important;
- padding-right:30px!important;
- box-sizing:border-box!important;
-}
-#drawingMain #properties.plan-wall-standardized > .property-priority > :is(label.field,.field,button,.wall-dimension-toggle){
- max-width:100%!important;
- box-sizing:border-box!important;
-}
-/* Match the Disconnect field inset in the ACTUAL lower Properties container.
-   The wall controls are moved to .property-priority; do not rely on their
-   original .plan-wall-properties wrapper or a padding override. */
-#drawingMain #properties.plan-wall-standardized > .property-priority > :is(label.field,div.field,button[data-wall-disconnect],.wall-dimension-toggle){
- width:calc(100% - 32px)!important;
- max-width:calc(100% - 32px)!important;
- margin-left:16px!important;
- margin-right:16px!important;
- box-sizing:border-box!important;
-}
-#drawingMain #properties.plan-wall-standardized > .property-priority > :is(label.field,div.field) > :is(input:not([type=checkbox]):not([type=color]),select,textarea){
- width:100%!important;
- max-width:100%!important;
- box-sizing:border-box!important;
-}
-/* Visible inset at the FIELD level: earlier width:100%!important rules made
-   the wall's lower controls appear edge-to-edge despite parent padding. */
-#drawingMain #properties .plan-wall-properties > :is(label.field,.field,button[data-wall-disconnect],.wall-dimension-toggle),
-#drawingMain #properties .plan-wall-properties > .equipment-appearance-section,
-#drawingMain #properties .plan-wall-properties > .equipment-appearance-compact{
- width:calc(100% - 28px)!important;
- max-width:calc(100% - 28px)!important;
- margin-left:auto!important;
- margin-right:auto!important;
- box-sizing:border-box!important;
-}
-/* Wall joint action uses the same dimensions and typography as adjacent wall inputs. */
-#drawingMain #properties.plan-wall-standardized > .property-priority > button[data-wall-disconnect],
-#drawingMain #properties .plan-wall-properties > button[data-wall-disconnect]{
- display:block!important;
- align-self:stretch!important;
- width:calc(100% - 32px)!important;
- max-width:calc(100% - 32px)!important;
- min-width:0!important;
- height:42px!important;
- min-height:42px!important;
- padding:7px 11px!important;
- font-size:14px!important;
- font-weight:400!important;
- line-height:1.35!important;
- text-align:left!important;
- border-radius:10px!important;
- box-sizing:border-box!important;
-}
-#drawingMain #properties.plan-wall-standardized > .property-priority > button[data-wall-disconnect]{
- margin-left:16px!important;
- margin-right:16px!important;
-}
 /* Shared inset for nested equipment field groups, independent of equipment type. */
 #drawingMain #properties :is(.plan-wall-properties,.equipment-appearance-section,.equipment-appearance-compact,.property-priority,.property-section){
  box-sizing:border-box;
@@ -8158,6 +8100,10 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #textInspector [data-position-offset-group]:not([hidden]),#drawingMain #properties [data-position-offset-group]:not([hidden]){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-column:1/-1!important;gap:8px!important;width:100%!important;box-sizing:border-box!important}
 #drawingMain #textInspector [data-position-offset-group]>label.field,#drawingMain #properties [data-position-offset-group]>label.field{grid-column:auto!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
 </style><style>#drawingMain #properties>.universal-offset-pair:not([hidden]){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;grid-column:1/-1!important;width:100%!important;box-sizing:border-box!important;order:999!important}#drawingMain #properties>.universal-offset-pair[hidden]{display:none!important}#drawingMain #properties>.universal-offset-pair>label[hidden]{display:none!important}</style><style id="universalInspectorSpacing">
+#drawingMain #drawingInspector :is(#properties,#textInspector) :is(.property-priority,.plan-wall-properties){width:100%;max-width:100%;min-width:0}
+#drawingMain #drawingInspector :is(#properties,#textInspector) :is(.property-priority,.plan-wall-properties)>:is(label.field,div.field,.equipment-appearance-section,.equipment-appearance-compact,button[data-wall-disconnect],.wall-dimension-toggle){width:100%!important;max-width:100%!important;margin-inline:0!important;box-sizing:border-box!important}
+#drawingMain #drawingInspector :is(#properties,#textInspector) button[data-wall-disconnect]{display:block;align-self:stretch;min-width:0;height:42px;min-height:42px;padding:7px 11px;font-size:14px;font-weight:400;line-height:1.35;text-align:left;border-radius:10px}
+
 #drawingMain #drawingInspector{--property-row-gap:8px;--property-label-gap:4px;--property-inset:10px}
 #drawingMain #drawingInspector :is(#properties,#textInspector){padding:0 var(--property-inset)!important;margin:0!important;box-sizing:border-box!important;border:0!important;box-shadow:none!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) :is(.properties-common,.property-priority,.properties-advanced,.equipment-appearance-section,.shared-text-editor,.plan-wall-properties,.numbered-note-panel,.numbered-note-formatting){padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;box-sizing:border-box!important}
@@ -8193,9 +8139,4 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) label.field:has(.shared-fill-mode-buttons){margin-bottom:var(--property-row-gap)!important;padding-bottom:0!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) label.field .shared-fill-mode-buttons{margin:var(--property-label-gap) 0 0!important}
 #drawingMain #drawingInspector :is(#properties,#textInspector) .shared-property-color-bar :is(.shared-property-picker,.shared-property-hex){height:var(--shared-property-control-height,34px)!important;min-height:var(--shared-property-control-height,34px)!important;max-height:var(--shared-property-control-height,34px)!important;box-sizing:border-box!important;align-self:center}
-</style><style id="wallInspectorSharedWidth">
-#drawingMain #drawingInspector #properties.plan-wall-standardized > .property-priority,
-#drawingMain #drawingInspector #properties .plan-wall-properties{padding-inline:0!important;margin-inline:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
-#drawingMain #drawingInspector #properties.plan-wall-standardized > .property-priority > :is(label.field,div.field,button[data-wall-disconnect],.wall-dimension-toggle,.equipment-appearance-section,.equipment-appearance-compact),
-#drawingMain #drawingInspector #properties .plan-wall-properties > :is(label.field,.field,button[data-wall-disconnect],.wall-dimension-toggle,.equipment-appearance-section,.equipment-appearance-compact){width:100%!important;max-width:100%!important;margin-inline:0!important;box-sizing:border-box!important}
 </style></body></html>
