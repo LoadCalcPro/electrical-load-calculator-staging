@@ -8173,4 +8173,20 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #drawingInspector #properties:has(.conduit-measured-properties) label.poly-rounded-option input[type=checkbox]{flex:0 0 16px!important;width:16px!important;height:16px!important;min-width:16px!important;margin:0!important}
 #drawingMain #drawingInspector #properties:has(.conduit-measured-properties) :is(input:not([type=checkbox]):not([type=color]):not([type=radio]),select,textarea){background:#fff!important;color:#111!important}
 #drawingMain #drawingInspector #properties:has(.conduit-measured-properties)>hr{display:none!important}
+
+/* Conduit inspector: include the text inspector and legacy line controls. */
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) :is(label.field:has([data-weight-value]),.section:has(>[data-weight-value]),.universal-offset-pair,button#polyStraighten,button#lineStraighten){
+ box-sizing:border-box!important;width:100%!important;max-width:100%!important;margin:0 0 var(--property-row-gap,8px)!important;
+}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) :is(label.field:has([data-weight-value]),.universal-offset-pair,.section:has(>[data-weight-value])){
+ background:#E8F1FF!important;padding:6px 8px!important;border:0!important;border-radius:var(--drawing-properties-radius)!important;
+}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) :is(input:not([type=checkbox]):not([type=color]):not([type=radio]):not([type=range]),select){
+ height:34px!important;min-height:34px!important;max-height:34px!important;font-size:14px!important;line-height:22px!important;border-radius:8px!important;box-sizing:border-box!important;
+}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) :is(button#polyStraighten,button#lineStraighten){min-height:34px!important;font-size:14px!important;background:white!important;color:#111!important}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) .equipment-color-card{row-gap:var(--property-label-gap,4px)!important;margin-bottom:var(--property-row-gap,8px)!important}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) .equipment-outline-palette{row-gap:var(--property-row-gap,8px)!important;margin-bottom:var(--property-row-gap,8px)!important}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) .shared-property-color-bar{gap:var(--property-choice-gap,6px)!important}
+#drawingMain #drawingInspector:has(#properties .conduit-measured-properties) :is(#properties,#textInspector) .section:has([data-weight-value]){border-top:0!important}
 </style></body></html>
