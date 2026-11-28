@@ -3023,20 +3023,23 @@ const measuredPlanSymbolBounds=new Map();
 function refreshPlanSymbolSelectionBounds(){
  const root=document.getElementById('nodes');if(!root)return;
  for(const node of nodes){
-  if(node.type!=='plansymbol'||node.layerHidden)continue;
+  if(!['plansymbol','plandoor'].includes(node.type)||node.layerHidden)continue;
   const group=Array.from(root.querySelectorAll('g.node[data-node]')).find(el=>el.getAttribute('data-node')===String(node.id));
   const art=group?.querySelector(':scope > g.equipment-symbol');
   if(!art)continue;
-  let b;try{b=art.getBBox()}catch{continue}
+  const door=node.type==='plandoor'?art.querySelector('[data-plan-door-symbol]'):null;let b;try{b=(door||art).getBBox()}catch{continue}
   if(!b||!Number.isFinite(b.width)||!Number.isFinite(b.height)||b.width<=0||b.height<=0)continue;
   const old=measuredPlanSymbolBounds.get(node.id);
   const measured={l:Math.max(.1,-b.x),r:Math.max(.1,b.x+b.width),t:Math.max(.1,-b.y),b:Math.max(.1,b.y+b.height)};
-  measuredPlanSymbolBounds.set(node.id,measured);
+  if(!door)measuredPlanSymbolBounds.set(node.id,measured);
+  if(door){const hit=group.firstElementChild;const hitRect=hit?.querySelector('rect');if(hitRect){hit.setAttribute('transform',art.getAttribute('transform')+' rotate('+(Number(node.doorAngle)||0)+')');for(const [k,v] of Object.entries({x:b.x-.5,y:b.y-.5,width:b.width+1,height:b.height+1}))hitRect.setAttribute(k,v);}}
   const selection=group.querySelector('[data-equipment-selection-rotation]');
   if(!selection)continue;
   const rect=selection.querySelector('rect[stroke="#168c9a"]');
   if(!rect)continue;
   const pad=.3;
+  if(door)selection.setAttribute('transform',art.getAttribute('transform')+' rotate('+(Number(node.doorAngle)||0)+')');
+  if(door){measured.l=-b.x;measured.r=b.x+b.width;measured.t=-b.y;measured.b=b.y+b.height;}
   rect.setAttribute('x',-measured.l-pad);rect.setAttribute('y',-measured.t-pad);
   rect.setAttribute('width',measured.l+measured.r+2*pad);rect.setAttribute('height',measured.t+measured.b+2*pad);
   const corner=selection.querySelector('[data-resize-side="corner"]');
