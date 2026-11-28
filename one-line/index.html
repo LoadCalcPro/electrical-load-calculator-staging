@@ -8158,4 +8158,18 @@ select.shared-pattern-original{display:none!important}
 #drawingMain #equipmentLibrary :is(.plan-door-subcategory,.plan-symbol-subcategory)>summary::marker{font-size:1.1em;color:#18365C}
 #drawingMain #equipmentLibrary .equipment-category>summary:hover{background:#B9CFEA!important}
 #drawingMain #equipmentLibrary :is(.plan-door-subcategory,.plan-symbol-subcategory)>summary:hover{background:#E8F1FF!important}
+
+/* Selected conduit panels use the same compact inspector tokens as equipment. */
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties){row-gap:0!important;align-content:start!important}
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties)>:is(label.field,div.field,details):not(.conduit-measured-properties),
+#drawingMain #drawingInspector #properties .conduit-measured-properties>:is(label.field,div.field):not(.conduit-measure-heading){
+ background:#E8F1FF!important;border:0!important;border-radius:var(--drawing-properties-radius)!important;padding:6px 8px!important;margin:0 0 var(--property-row-gap,8px)!important;box-sizing:border-box!important;color:#111!important;font-size:var(--drawing-property-label-size,12px)!important;
+}
+#drawingMain #drawingInspector #properties .conduit-measured-properties{padding:0!important;margin:0 0 var(--property-row-gap,8px)!important;border:0!important;box-shadow:none!important;gap:0!important}
+#drawingMain #drawingInspector #properties .conduit-measured-properties .conduit-measure-heading,
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties)>details>summary{background:#B9CFEA!important;color:#18365C!important;border-radius:var(--drawing-properties-radius)!important;padding:6px 8px!important;margin:0 0 var(--property-row-gap,8px)!important;font-weight:700!important}
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties) label.poly-rounded-option{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;min-height:0!important}
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties) label.poly-rounded-option input[type=checkbox]{flex:0 0 16px!important;width:16px!important;height:16px!important;min-width:16px!important;margin:0!important}
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties) :is(input:not([type=checkbox]):not([type=color]):not([type=radio]),select,textarea){background:#fff!important;color:#111!important}
+#drawingMain #drawingInspector #properties:has(.conduit-measured-properties)>hr{display:none!important}
 </style></body></html>
